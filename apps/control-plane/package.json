@@ -1,0 +1,11 @@
+{
+  "name": "@egap/control-plane",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server": { "types": "./dist/server.d.ts", "import": "./dist/server.js" },
+    "./config": { "types": "./dist/config.d.ts", "import": "./dist/config.js" }
+  },
+  "dependencies": { "@egap/contracts": "workspace:*", "fastify": "5.12.7" }
+}

@@ -1,0 +1,72 @@
+{
+  "session_id": "20261103T100614Z-04ab",
+  "scope": "04A/B local-dev control-plane skeleton only",
+  "status": "PASS",
+  "checked_at": "2026-11-03T10:16:41.419236+00:00",
+  "toolchain": {
+    "node": "v25.4.0",
+    "pnpm": "11.7.0",
+    "typescript": "7.0.2",
+    "fastify": "5.12.7",
+    "ajv": "8.20.0",
+    "ajv_formats": "3.0.1",
+    "node_types": "25.9.9",
+    "host": "macOS arm64"
+  },
+  "workspace_projects": 5,
+  "implementation_files": 33,
+  "unit_tests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "lifecycle_tests": {
+    "passed": 3,
+    "failed": 0,
+    "loopback_port": 63162,
+    "http_live": 200,
+    "http_ready": 200,
+    "http_post_runs": 404,
+    "sigterm_exit_code": 0,
+    "sigint_exit_code": 0,
+    "port_released_twice": true
+  },
+  "protected_documents_unchanged": 32,
+  "reference_source_files_unchanged": 190,
+  "command_records": 14,
+  "retained_failed_attempts": [
+    {
+      "id": "registry-read",
+      "exit_code": 1,
+      "output_ref": "registry-read.output.txt"
+    },
+    {
+      "id": "install-initial",
+      "exit_code": 1,
+      "output_ref": "install-initial.output.txt"
+    },
+    {
+      "id": "typecheck-initial",
+      "exit_code": 1,
+      "output_ref": "typecheck-initial.output.txt"
+    },
+    {
+      "id": "integration-initial",
+      "exit_code": 1,
+      "output_ref": "integration-initial.output.txt"
+    }
+  ],
+  "git": {
+    "branch": "main",
+    "commit": null,
+    "remote": null,
+    "status_ref": "git-status.txt"
+  },
+  "limitations": [
+    "仅local-dev回环健康接口，无生产身份或业务命令",
+    "内存ArtifactStore不提供持久性或权限隔离",
+    "没有Eventuate/DB/Redis/模型/PR发布能力",
+    "03的Docker及Gradle基线资格问题未在本轮解决",
+    "仅本机Node25.4.0/pnpm11.7.0组合通过，不能泛化到其它版本/架构"
+  ],
+  "issues": []
+}

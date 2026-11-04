@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "business_id": "async-ml-inference",
+  "qualification": "SOURCE_ONLY_NOT_RUNTIME_VALIDATED",
+  "upstream_repository": "https://github.com/kevin-sparkflow/ml-inference-service",
+  "upstream_commit": "c200bcb4721c4428a9bfe808ca8a61648a2b16f6",
+  "upstream_tree": "8c5d7895328087acfa988769db80db7d45aa2cdb",
+  "build_revision": "ml-upstream-unbuilt-v1",
+  "business_revision": "unchanged-upstream",
+  "baseline_path": "sut/ml-inference/workspaces/baseline",
+  "source_export_method": "verified-git-blob-by-blob",
+  "file_count": 27,
+  "source_files": [
+    {
+      "path": ".dockerignore",
+      "git_blob": "b35a9138506d6e21bc8c2d57b1d0dc11099ac65a",
+      "mode": 420,
+      "size": 84,
+      "sha256": "fbbc31ef0a84ffdab8a715e72cd01972b4bfc744c28704c336453855d75b5715"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "git_blob": "9f87755bfae2e129d82566094069d75f98409814",
+      "mode": 420,
+      "size": 472,
+      "sha256": "3d2d0ab98a175e3c79476e1cb850c86cf2f7a645b846852c9a527d84c96e7810"
+    },
+    {
+      "path": ".gitignore",
+      "git_blob": "11fdf8f14dbe9da00893ab75c17d28389f5857c8",
+      "mode": 420,
+      "size": 68,
+      "sha256": "b650ade8635b385292891b43cbd5b8e3bf28e6fce7d371bd337ac83523acd554"
+    },
+    {
+      "path": "Dockerfile.gateway",
+      "git_blob": "00d4bf72f6012f5d3447b78cd34a5fb8f1ef98f1",
+      "mode": 420,
+      "size": 548,
+      "sha256": "b73d84bac38996f5a0e341af47941b83543a26c022fc721d3d5721971b175ca0"
+    },
+    {
+      "path": "Dockerfile.worker",
+      "git_blob": "2d58ac5c185974f4e7dcea9cbe20e47f10d1bd2d",
+      "mode": 420,
+      "size": 702,
+      "sha256": "bed815598f16c372ac86505118872ec59ce54376168cf22a0d836ed6edd95bd0"
+    },
+    {
+      "path": "LICENSE",
+      "git_blob": "3cb5ac18da3b3f4c6254b875b3100ba5df8d95f3",
+      "mode": 420,
+      "size": 1068,
+      "sha256": "ddd4d20ab2405a3f10367c1c54949da2e03fcf7c96340ccfce270a54db96dab7"
+    },
+    {
+      "path": "README.md",
+      "git_blob": "1048e5ce09dc2735d3d12dd9c12e1b847ce3db6e",
+      "mode": 420,
+      "size": 8192,
+      "sha256": "5f1620c7b4c8614de10a280c4c484f68f7db9e5eec608d816bdc465f7f0ba7ff"
+    },
+    {
+      "path": "benchmarks/2026-09-10.txt",
+      "git_blob": "0990230a7d61e7b0d514e9d5385aaa0f72ce9f4b",
+      "mode": 420,
+      "size": 2416,
+      "sha256": "46b6c9968e91b9005b6cab5c7672e08d0c04fe48875c14f9afb0dd30cd8f9d75"
+    },
+    {
+      "path": "docker-compose.yml",
+      "git_blob": "878db97d8c946a559310e045ab748b7c987820d2",
+      "mode": 420,
+      "size": 944,
+      "sha256": "47d309010d2d1a50da6f88e59fa0b14c35d3c42592ce487c4c8b73654b2c72c2"
+    },
+    {
+      "path": "loadtest/locustfile.py",
+      "git_blob": "59901a4cdc5bbddd4ad88213866688c00c184088",
+      "mode": 420,
+      "size": 2038,
+      "sha256": "2326f06b5e0f52b09a237a0d2dea73acefe2ea9a89fbea82beab92e8196847ea"
+    },
+    {
+      "path": "pyproject.toml",
+      "git_blob": "b9d1c6880b5b8a6f3f464f6b245bab4440db40e1",
+      "mode": 420,
+      "size": 815,
+      "sha256": "5698410b8dffac5577c4692bf9dbb3ac1a1b36a664615cc6283ea9e8d0fd929e"
+    },
+    {
+      "path": "scripts/download_model.py",
+      "git_blob": "b387b63da50f47f16c260ee4407b12c1e77670ad",
+      "mode": 420,
+      "size": 2398,
+      "sha256": "bb45a7e1fd83618e1cec4915d1886b4ce7dcb9e25d1d90ffa83e5ac90c9ad0ed"
+    },
+    {
+      "path": "src/inference_service/__init__.py",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": 420,
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/inference_service/contracts.py",
+      "git_blob": "b7f6a3cfceb3e0a1d8e410726dac868733e6aa3e",
+      "mode": 420,
+      "size": 887,
+      "sha256": "9f0f7c7b0dc93890729cb5909a8c4498d42319f9521e40498fb20d51d6a8d7c4"
+    },
+    {
+      "path": "src/inference_service/gateway/__init__.py",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": 420,
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/inference_service/gateway/app.py",
+      "git_blob": "8cb85d6ef2caa0aa39994323a6f9318ba8c3c13e",
+      "mode": 420,
+      "size": 4660,
+      "sha256": "90d45356f18d48dc651f4b08fa8e236f308146f1906fa0b6efab59e2503134ef"
+    },
+    {
+      "path": "src/inference_service/settings.py",
+      "git_blob": "061130eee6607babd31e7f47d1b20ccd0535de34",
+      "mode": 420,
+      "size": 446,
+      "sha256": "770343a39da5dd9ff0a0e7f2dfc6c13fc827b3d398865333a59fe1556b67df17"
+    },
+    {
+      "path": "src/inference_service/worker/__init__.py",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": 420,
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/inference_service/worker/imagenet_labels.txt",
+      "git_blob": "888d6f51dd77bbf10b76dba58b5d2f1afa8ad5bd",
+      "mode": 420,
+      "size": 10472,
+      "sha256": "1f386e0d1cb6e28b9c2dac651c3dea6801e98ad1b41a14ce6bb1a093d72069f5"
+    },
+    {
+      "path": "src/inference_service/worker/main.py",
+      "git_blob": "cb8ba6af4d8adb80806e7cac33f7f9b9e0b99695",
+      "mode": 420,
+      "size": 2798,
+      "sha256": "f66b3da1a92e37ec70bf8c36f374f7af4687f23de24b1d7497e84258e83feec3"
+    },
+    {
+      "path": "src/inference_service/worker/model.py",
+      "git_blob": "636640881e1082fb63774d09b9b9ef67f4d1303d",
+      "mode": 420,
+      "size": 3034,
+      "sha256": "a388053d73257fafe176f02a3eb1555b3ffa5f717aac5d56c84547ea3541608b"
+    },
+    {
+      "path": "src/inference_service/worker/queue.py",
+      "git_blob": "e35aa1a3bf9e69c61472e6540a32297752313004",
+      "mode": 420,
+      "size": 2408,
+      "sha256": "621f50ef96c7291bab368401bc0a7a49d52c4b50d805d97097e93184ec0837b7"
+    },
+    {
+      "path": "tests/test_gateway.py",
+      "git_blob": "79330e0209d275029bc3d73f79127ed40b8f4790",
+      "mode": 420,
+      "size": 3546,
+      "sha256": "a774e00c58414a86bd03b0c092d0d00ec1352456771e76ce87f0f3b2f9de22b8"
+    },
+    {
+      "path": "tests/test_gateway_concurrency.py",
+      "git_blob": "b2946ece4abb59dcadf4670990fa8b606ef6e183",
+      "mode": 420,
+      "size": 2546,
+      "sha256": "718a943f3682de58e318029b5ac35e29e174aa0c1a392bb27c7ecedcb9f7a9fb"
+    },
+    {
+      "path": "tests/test_worker.py",
+      "git_blob": "54337110b99ea973026f26ab97f5dc094645616c",
+      "mode": 420,
+      "size": 3789,
+      "sha256": "9c90e0b347a03d0686910cbb11d1345a6b11214d3ac1020d8c85c37fa1b844ef"
+    },
+    {
+      "path": "tests/test_worker_recovery.py",
+      "git_blob": "37d457c6c01ca21c107a3db5936fd33965b4ab5a",
+      "mode": 420,
+      "size": 3564,
+      "sha256": "30a970c7586f05344efaa1ce8eec842c37771076099880ad2c35091848127be5"
+    },
+    {
+      "path": "uv.lock",
+      "git_blob": "b530063ddc7297739330e141cf2ed6c15176d6d9",
+      "mode": 420,
+      "size": 399462,
+      "sha256": "df9b5b693b697074b2a6c32c1e307f44361278443c3bf4d5bdbd35e8fb4592a2"
+    }
+  ],
+  "dependency_status": "LOCK_PRESENT_RESOLUTION_NOT_RUN",
+  "model_artifact_status": "NOT_DOWNLOADED",
+  "runtime_qualification": "NOT_RUN",
+  "business_verification": "NOT_RUN"
+}

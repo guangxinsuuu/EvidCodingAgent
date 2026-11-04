@@ -1,0 +1,17 @@
+{
+  "status": "ARCHIVED_NOT_ACTIVE",
+  "reason": "User-authorized switch to Async ML Inference Release Verification",
+  "build_default": false,
+  "test_default": false,
+  "locations": {
+    "adapter": "legacy/eventuate/packages/eventuate-adapter",
+    "source_export_and_runtime_plan": "legacy/eventuate/environment-host",
+    "fixed_source": "sut/workspaces/baseline",
+    "source_lock": "sut/upstream.lock.json",
+    "ledger": "artifacts/lab/local",
+    "runtime_plan_config": "config/lab-eventuate-postgres.json",
+    "toolchain_evidence": "config/toolchain-lock.json"
+  },
+  "qualification_transfer": "FORBIDDEN",
+  "restore_note": "Historical source retained for review; imports/build paths require a separately reviewed reactivation. No legacy runtime launched."
+}

@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "inspection_id": "20261104T020503Z-build-preflight",
+  "source_commit": "894f2dbbe9aba2be6129748b6bbf5f30356deb07",
+  "build_revision": "preflight-v2-local-repositories-and-verified-distribution",
+  "record_kind": "PREFLIGHT_REPOSITORY_INVENTORY",
+  "description": "固定来源构建预检的仓库与引导来源清单；声明、官方说明与本轮实际观察分别登记。",
+  "runtime_execution_authority": "NONE",
+  "grants_runtime_egress_permission": false,
+  "source_manifest_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/source-export.json",
+  "build_patch_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/build.redacted.patch",
+  "network_enforcement": {
+    "phase": "ONLINE_DEPENDENCY_BOOTSTRAP",
+    "container_network_mode": "bridge",
+    "repository_domain_allowlist_status": "NOT_ENFORCED",
+    "meaning": "这些仓库是声明或观察记录；bridge 网络未实施按域名强制限制，本清单不能用作运行时外联授权。",
+    "evidence_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/container-stage.py",
+    "unverified": [
+      "未完整记录构建期间的全部网络请求、DNS 与重定向链。",
+      "外部插件可添加仓库或在配置阶段执行其他网络逻辑；静态声明清单不等于完整出网审计。",
+      "第15章候选执行域的对抗性网络隔离与生产资格尚未验证。"
+    ]
+  },
+  "observation_levels": {
+    "DECLARED": "由固定源码或本轮构建补丁确认；不单独证明已访问或可用。",
+    "DOCUMENTED_REDIRECT": "由官方文档确认的可能重定向目标；不声称本轮已实际访问。",
+    "OBSERVED_VERIFIED": "本轮有下载、摘要核验或镜像检查证据。",
+    "UNVERIFIED": "最终值或执行行为仍未确认。",
+    "REMOVED_BY_BUILD_PATCH": "原声明已在独立预检副本中被明确替换，原参考源码保留。"
+  },
+  "external_repositories": [
+    {
+      "id": "maven-central",
+      "kind": "MAVEN",
+      "url": "https://repo.maven.apache.org/maven2/",
+      "host": "repo.maven.apache.org",
+      "purpose": "解析 buildscript 插件依赖及子项目 JVM 依赖。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "build.gradle", "line": 3 },
+        { "scope": "UPSTREAM", "path": "build.gradle", "line": 37 }
+      ],
+      "observation_level": "DECLARED",
+      "access_status": "NOT_INDIVIDUALLY_ATTESTED",
+      "official_reference": "https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.dsl.RepositoryHandler.html",
+      "unverified": ["mavenCentral() 对应此官方端点；本条不证明每个制品实际从此仓库取得。"]
+    },
+    {
+      "id": "gradle-plugin-portal",
+      "kind": "MAVEN",
+      "url": "https://plugins.gradle.org/m2/",
+      "host": "plugins.gradle.org",
+      "purpose": "根 buildscript 的插件与插件依赖解析。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "build.gradle", "line": 5 }
+      ],
+      "observation_level": "DECLARED",
+      "access_status": "NOT_INDIVIDUALLY_ATTESTED",
+      "documented_redirect_hosts": ["plugins-artifacts.gradle.org"],
+      "unverified": ["不把配置中存在该 URL 当作本轮已访问的证明。"]
+    },
+    {
+      "id": "gradle-plugin-artifact-redirect",
+      "kind": "ARTIFACT_REDIRECT",
+      "url": "https://plugins-artifacts.gradle.org/",
+      "host": "plugins-artifacts.gradle.org",
+      "purpose": "Gradle Plugin Portal 官方说明中的 303 制品下载目标；不是额外的源码仓库声明。",
+      "source_locations": [],
+      "observation_level": "DOCUMENTED_REDIRECT",
+      "access_status": "NOT_INDIVIDUALLY_ATTESTED",
+      "official_reference": "https://plugins.gradle.org/docs/mirroring",
+      "unverified": ["本轮没有独立证明访问过这个重定向域名。"]
+    },
+    {
+      "id": "eventuate-repository",
+      "kind": "MAVEN",
+      "url": "https://snapshots.repositories.eventuate.io/repository",
+      "host": "snapshots.repositories.eventuate.io",
+      "purpose": "根 buildscript 的固定 Eventuate 插件仓库，以及 eventuateMavenRepoUrl 指定的子项目依赖仓库。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "build.gradle", "line": 8 },
+        { "scope": "UPSTREAM", "path": "build.gradle", "line": 38 },
+        { "scope": "PREFLIGHT_PATCHED_SOURCE", "path": "gradle.properties", "line": 3 }
+      ],
+      "observation_level": "DECLARED",
+      "access_status": "NOT_INDIVIDUALLY_ATTESTED",
+      "override_boundary": "eventuateMavenRepoUrl 只控制 build.gradle 第38行的子项目仓库，不覆盖第8行写死的 buildscript 仓库。",
+      "unverified": [
+        "仓库名称包含 snapshots，不证明本轮实际解析到 SNAPSHOT 依赖。",
+        "每个已解析坐标、来源与字节摘要须与本轮实际解析证据关联。"
+      ]
+    }
+  ],
+  "local_repositories": [
+    {
+      "id": "preflight-deploy-target",
+      "kind": "LOCAL_PUBLICATION_TARGET",
+      "url": "file:///workspace/contract-repo",
+      "purpose": "替换原个人路径的 deployUrl；仅指向本次容器卷内目录。",
+      "source_locations": [
+        { "scope": "PREFLIGHT_PATCHED_SOURCE", "path": "gradle.properties", "line": 1 }
+      ],
+      "observation_level": "DECLARED",
+      "publication_authorized_by_this_record": false,
+      "unverified": ["属性已设置；外部插件实际消费方式及发布任务是否使用该目录不能由设置值推断。"]
+    },
+    {
+      "id": "saga-build-repo",
+      "kind": "LOCAL_MAVEN",
+      "path_expression": "${rootDir}/build/repo",
+      "purpose": "Order Saga 子项目额外声明的本地 Maven 解析仓库。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "order-service/order-service-sagas/build.gradle", "line": 4 }
+      ],
+      "observation_level": "DECLARED",
+      "unverified": ["不得自动将 build/repo、build/repos 与 /workspace/contract-repo 视为同一位置。"]
+    },
+    {
+      "id": "maven-local-contract-publication",
+      "kind": "LOCAL_PUBLICATION_TARGET",
+      "effective_path": null,
+      "purpose": "contractTest 依赖 publishStubsPublicationToMavenLocal；本轮限定 main 编译不以此任务为目标。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "customer-service/customer-service-credit-reservation-api/build.gradle", "line": 49 }
+      ],
+      "observation_level": "DECLARED",
+      "publication_authorized_by_this_record": false,
+      "unverified": ["最终 Maven Local 路径及任务是否执行须由实际任务图与执行账本确认；本条不读取宿主 Maven 配置。"]
+    }
+  ],
+  "unresolved_repository_properties": [
+    {
+      "id": "dynamic-contract-repository",
+      "property": "contractRepoUrl",
+      "effective_url": null,
+      "provider": "io.eventuate.tram.spring.testing.cloudcontract.plugins.gradle.ConfigureContractRepoDirPlugin",
+      "purpose": "合同 stub 的读取与测试参数传递。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "build.gradle", "line": 20 },
+        { "scope": "UPSTREAM", "path": "order-service/order-service-proxies-customer-service/build.gradle", "line": 13 },
+        { "scope": "UPSTREAM", "path": "order-service/order-service-proxies-customer-service/build.gradle", "line": 39 },
+        { "scope": "UPSTREAM", "path": "api-gateway-service/api-gateway-service-main/build.gradle", "line": 41 }
+      ],
+      "observation_level": "UNVERIFIED",
+      "unverified": ["由外部插件提供，静态审查未确认最终路径或协议；不擅自归类为公网或本地仓库。"]
+    }
+  ],
+  "removed_sources": [
+    {
+      "id": "upstream-personal-maven-path",
+      "redacted_url": "file://<DEVELOPER_HOME>/.m2/testdeploy",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "gradle.properties", "line": 1 },
+        { "scope": "UPSTREAM", "path": "gradle.properties", "line": 3 }
+      ],
+      "observation_level": "REMOVED_BY_BUILD_PATCH",
+      "purpose": "保留原始配置追溯；不复制宿主 Maven 仓库，不将该个人路径列为当前依赖来源。"
+    }
+  ],
+  "distribution_bootstrap": {
+    "purpose": "宿主核验官方摘要与分发 ZIP 后，将已核验字节复制到构建容器；不属于 Maven 仓库。",
+    "integrity_evidence_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/gradle-integrity.json",
+    "wrapper": {
+      "sha256": "14dfa961b6704bb3decdea06502781edaa796a82e6da41cd2e1962b14fbe21a3",
+      "official_checksum_url": "https://services.gradle.org/distributions/gradle-7.6.2-wrapper.jar.sha256",
+      "official_jar_release_family": "7.6.2-7.6.6",
+      "observation_level": "OBSERVED_VERIFIED",
+      "meaning": "本地 Wrapper JAR 匹配官方发布摘要；它与目标 Gradle 分发版本分别记录。"
+    },
+    "distribution": {
+      "version": "8.14.5",
+      "source_url": "https://downloads.gradle.org/distributions/gradle-8.14.5-bin.zip",
+      "official_checksum_url": "https://downloads.gradle.org/distributions/gradle-8.14.5-bin.zip.sha256",
+      "observed_final_host": "release-assets.githubusercontent.com",
+      "observed_final_url_without_query": "https://release-assets.githubusercontent.com/github-production-release-asset/696192900/2d5b2574-364c-44ec-89d9-5f6c462fa74e",
+      "intermediate_redirect_chain": null,
+      "actual_sha256": "6f74b601422d6d6fc4e1f9a1ab6522f642c2fdcbc15ae33ebd30ba3d7198e854",
+      "bytes": 138068841,
+      "observation_level": "OBSERVED_VERIFIED",
+      "container_url": "file:/workspace/imports/gradle-8.14.5-bin.zip",
+      "source_locations": [
+        { "scope": "PREFLIGHT_PATCHED_SOURCE", "path": "gradle/wrapper/gradle-wrapper.properties", "line": 6 }
+      ],
+      "unverified": ["仅记录此次取得的最终下载目标；中间重定向链未完整取证，不推断所有访问域名。"]
+    }
+  },
+  "image_sources": [
+    {
+      "id": "preflight-builder",
+      "logical_registry": "docker.io",
+      "logical_repository": "library/eclipse-temurin",
+      "requested_reference": "eclipse-temurin@sha256:057a0daec60e87c96571bf5c9c7792065bcb19e804d584cd37d4144038a35717",
+      "observed_image_id": "sha256:057a0daec60e87c96571bf5c9c7792065bcb19e804d584cd37d4144038a35717",
+      "observed_platform": { "os": "linux", "architecture": "arm64" },
+      "purpose": "本轮隔离 JVM 构建进程使用的固定镜像。",
+      "observation_level": "OBSERVED_VERIFIED",
+      "evidence_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/builder-image-inspect.output.txt",
+      "unverified": ["逻辑 registry 不等于完整网络目标；认证服务和 CDN 的实际域名未逐请求取证。"]
+    },
+    {
+      "id": "sut-service-base-image",
+      "logical_registry": "docker.io",
+      "logical_repository": "eventuateio/eventuate-examples-docker-images-spring-example-base-image",
+      "tag_expression": "${baseImageVersion}",
+      "resolved_reference": null,
+      "purpose": "未来 Customer、Order、API Gateway 服务镜像的基础镜像；本轮未启动这些服务。",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "customer-service/customer-service-main/Dockerfile", "line": 2 },
+        { "scope": "UPSTREAM", "path": "order-service/order-service-main/Dockerfile", "line": 2 },
+        { "scope": "UPSTREAM", "path": "api-gateway-service/api-gateway-service-main/Dockerfile", "line": 2 }
+      ],
+      "observation_level": "DECLARED",
+      "unverified": ["实际 tag、digest、拉取资格和 ARM 支持尚未验证。"]
+    }
+  ],
+  "remaining_startup_dependencies": [
+    {
+      "scope": "EVENTUATE_SUT_RUNTIME",
+      "status": "NOT_RUN",
+      "source_locations": [
+        { "scope": "UPSTREAM", "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTestUsingTestContainers.java", "line": 21 },
+        { "scope": "UPSTREAM", "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTestUsingTestContainers.java", "line": 71 }
+      ],
+      "unverified": [
+        "Kafka、数据库、CDC 及辅助容器最终镜像与依赖版本由运行时库决定，本清单未完整枚举。",
+        "数据库创建、Flyway 迁移、服务网络、等待条件、端口发现及清理尚未由整套 SUT 启动验证。",
+        "编译或 bootJar 成功不证明订单、信用预留、Saga 时序、Oracle、Native Pilot 或企业生产资格。"
+      ]
+    }
+  ],
+  "dependency_evidence_semantics": {
+    "generated_verification_metadata": "BOOTSTRAP_INVENTORY_REQUIRES_REVIEW",
+    "meaning": "首次生成的依赖摘要记录当次下载字节，不代表每个依赖已通过独立官方真实性验证。",
+    "bootstrap_resolution_scope": "--write-verification-metadata 会尝试解析所有可解析配置，可能包含测试依赖；不应把所有下载都归为 main 编译必需品。",
+    "official_reference": "https://docs.gradle.org/current/userguide/dependency_verification.html",
+    "offline_recompile_claim_limit": "新源码副本复用同次下载缓存的离线编译，只证明该缓存足以支持声明范围；不等于全新环境可复现或运行时依赖全部合格。"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "egap-implementation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": { "node": "25.4.0", "pnpm": "11.7.0" },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
+    "build": "tsc -b",
+    "test": "pnpm build && node --test packages/*/dist/*.test.js apps/control-plane/dist/config.test.js apps/control-plane/dist/server.test.js tools/environment-host/dist/*.test.js",
+    "test:unit": "pnpm build && node --test packages/*/dist/*.test.js apps/control-plane/dist/config.test.js apps/control-plane/dist/server.test.js",
+    "test:integration": "pnpm build && node --test apps/control-plane/dist/lifecycle.test.js",
+    "test:lab": "pnpm build && node --test tools/environment-host/dist/*.test.js",
+    "egap:lab": "pnpm build && node tools/environment-host/dist/cli.js",
+    "dev:control-plane": "pnpm build && node --env-file-if-exists=.env apps/control-plane/dist/main.js",
+    "start:control-plane": "node --env-file-if-exists=.env apps/control-plane/dist/main.js"
+  },
+  "devDependencies": { "@types/node": "25.9.9", "typescript": "7.0.2" }
+}

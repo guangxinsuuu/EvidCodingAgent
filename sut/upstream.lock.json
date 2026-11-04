@@ -1,0 +1,1376 @@
+{
+  "schema_version": 1,
+  "qualification": "SOURCE_PREPARED_NOT_BUSINESS_VALIDATED",
+  "upstream_repository": "https://github.com/eventuate-tram/eventuate-tram-sagas-examples-customers-and-orders",
+  "upstream_commit": "894f2dbbe9aba2be6129748b6bbf5f30356deb07",
+  "build_revision": "preflight-v2-local-repositories-and-verified-distribution",
+  "business_revision": "unchanged-upstream",
+  "source_export_method": "git archive --format=tar",
+  "archive_sha256": "ab4487d5c6fa9bd88ec253713f463950bd5a1e66ab60fc81b624488863867bb7",
+  "preflight_inspection_id": "20261104T020503Z-build-preflight",
+  "preflight_evidence_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight",
+  "preflight_source_manifest_sha256": "6c5740a432b31e78363147321ec56a5281a98a5f3fc8b6c336402e3817ab5d4a",
+  "preflight_input_hashes": {
+    "report.json": "2a0011905c3aa1cf2e79f2284b769e2a7ece0f1bdb79ddc8b77ff943e3dc485c",
+    "source-export.json": "6c5740a432b31e78363147321ec56a5281a98a5f3fc8b6c336402e3817ab5d4a",
+    "gradle-integrity.json": "59af6dacfd671a2e1b0c91348fc4ec276550997961e462550a42566491534f8a",
+    "toolchain-lock.json": "5f6d1243d1ff1aed6a9e630b33d1f66b9d91b49b680b8a84f69c2f925f85c6ad",
+    "verification-metadata.xml": "b3b8bf4809005be4169dd085fafa0b6f5e5d2bd99b59207b54d57d0265e7e88f",
+    "resolved-dependencies.json": "538bf868dcfe722dda517ae033973c7cf36f74452a896f1cbd0321d153fa72b5",
+    "build.redacted.patch": "317cb1486c402fa6f7d0f3460aef53d7360ffce30cb53f36674fa7a6f92944ed"
+  },
+  "baseline_path": "sut/workspaces/baseline",
+  "license_path": "LICENSE.md",
+  "file_count": 190,
+  "source_files": [
+    {
+      "path": ".circleci/build-and-test-arm.sh",
+      "sha256": "346d732ba3ac35a3b35c57a91e7f96e8ead066c1df662d2aba830844e4c538a3",
+      "size": 177,
+      "mode": 493,
+      "effective_sha256": "346d732ba3ac35a3b35c57a91e7f96e8ead066c1df662d2aba830844e4c538a3"
+    },
+    {
+      "path": ".circleci/build-and-test-intel.sh",
+      "sha256": "910430c31fcb6eabaf1572a4335a647bc5361058dc78b9c26818efe90519ab5b",
+      "size": 40,
+      "mode": 493,
+      "effective_sha256": "910430c31fcb6eabaf1572a4335a647bc5361058dc78b9c26818efe90519ab5b"
+    },
+    {
+      "path": ".circleci/config.yml",
+      "sha256": "c1f47574830293a2607c66ce9fb91bca945fd49c65e4ad3d5429ada49c333852",
+      "size": 748,
+      "mode": 420,
+      "effective_sha256": "c1f47574830293a2607c66ce9fb91bca945fd49c65e4ad3d5429ada49c333852"
+    },
+    {
+      "path": ".circleci/print-container-ips.sh",
+      "sha256": "c081f5e7aebcb5ce344fefd929897a4e96b5e4d9f286b74a6557f3777a19156f",
+      "size": 161,
+      "mode": 493,
+      "effective_sha256": "c081f5e7aebcb5ce344fefd929897a4e96b5e4d9f286b74a6557f3777a19156f"
+    },
+    {
+      "path": ".circleci/print-container-logs.sh",
+      "sha256": "64974a323b5984259cbe7332a2b232b130b5bd32a09cdf17dfa7fb38930761a6",
+      "size": 519,
+      "mode": 493,
+      "effective_sha256": "64974a323b5984259cbe7332a2b232b130b5bd32a09cdf17dfa7fb38930761a6"
+    },
+    {
+      "path": ".circleci/setenv-circle-ci.sh",
+      "sha256": "90134cd5e290ca01bc114ca8a428c53dfde2d089dc933f42d263cd19189756c3",
+      "size": 76,
+      "mode": 420,
+      "effective_sha256": "90134cd5e290ca01bc114ca8a428c53dfde2d089dc933f42d263cd19189756c3"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "7ad87287b8589680c610c0904ef4733f10e450993a395868e39c442a046a4a2d",
+      "size": 85,
+      "mode": 420,
+      "effective_sha256": "7ad87287b8589680c610c0904ef4733f10e450993a395868e39c442a046a4a2d"
+    },
+    {
+      "path": ".tours/saga-walkthrough.tour",
+      "sha256": "0caa2b5f383ab46a327e5043e19f32e8d171a5d6801312f53d390dcc598ca4df",
+      "size": 3830,
+      "mode": 420,
+      "effective_sha256": "0caa2b5f383ab46a327e5043e19f32e8d171a5d6801312f53d390dcc598ca4df"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/build.gradle",
+      "sha256": "493427850720ea4e20e4fc70cab5d39c376958b2551fc2ceebc4464a81721ada",
+      "size": 1717,
+      "mode": 493,
+      "effective_sha256": "493427850720ea4e20e4fc70cab5d39c376958b2551fc2ceebc4464a81721ada"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/Dockerfile",
+      "sha256": "f62e6eac093ae8c862c5c3c7ea3909bd8778068830266bf70408ea703ef0f92b",
+      "size": 217,
+      "mode": 420,
+      "effective_sha256": "f62e6eac093ae8c862c5c3c7ea3909bd8778068830266bf70408ea703ef0f92b"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/ApiGatewayComponentTest.java",
+      "sha256": "0c7dcc0ae8355b98d3c9aec19782b108a16306f8906714ffa1ff5a5f88714c10",
+      "size": 4678,
+      "mode": 420,
+      "effective_sha256": "0c7dcc0ae8355b98d3c9aec19782b108a16306f8906714ffa1ff5a5f88714c10"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/CustomerServiceProxyTest.java",
+      "sha256": "3dd90ee2817e05b8a1344115cb6b713b61cecd6ac097419d729d5f65b9e63355",
+      "size": 4197,
+      "mode": 420,
+      "effective_sha256": "3dd90ee2817e05b8a1344115cb6b713b61cecd6ac097419d729d5f65b9e63355"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/SwaggerUiTest.java",
+      "sha256": "916ebcb4ef285e36462e754fd4a852aee3a6d5121cca317d81f3a90b2f0a29ca",
+      "size": 1561,
+      "mode": 420,
+      "effective_sha256": "916ebcb4ef285e36462e754fd4a852aee3a6d5121cca317d81f3a90b2f0a29ca"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/WireMockUtil.java",
+      "sha256": "f4dcb824d93229ddc610ef65f920aed86e39e3e71e2cbeec146f4ab9a48f7462",
+      "size": 539,
+      "mode": 420,
+      "effective_sha256": "f4dcb824d93229ddc610ef65f920aed86e39e3e71e2cbeec146f4ab9a48f7462"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/integrationTest/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/CustomerServiceProxyTest.java",
+      "sha256": "8dc4ccb631a15a8ade305bd1aa58e8ea723104e7731175499e0ffd894d8210b8",
+      "size": 2228,
+      "mode": 420,
+      "effective_sha256": "8dc4ccb631a15a8ade305bd1aa58e8ea723104e7731175499e0ffd894d8210b8"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/ApiGatewayMain.java",
+      "sha256": "d579810af33204cdb3897a758672611fe14390f65d5ab06b8141761703cdea0b",
+      "size": 430,
+      "mode": 420,
+      "effective_sha256": "d579810af33204cdb3897a758672611fe14390f65d5ab06b8141761703cdea0b"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/common/CommonConfiguration.java",
+      "sha256": "09b77a5e8380fa03ea17b2d23a2fe6e714c6b0452bbe95870fd2fbbb3cb5d380",
+      "size": 1018,
+      "mode": 420,
+      "effective_sha256": "09b77a5e8380fa03ea17b2d23a2fe6e714c6b0452bbe95870fd2fbbb3cb5d380"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/customers/CustomerConfiguration.java",
+      "sha256": "af966ef2c410d1d147ac4729d4b3b067bfcdc1d1ee04e53a9388f2f240761290",
+      "size": 1805,
+      "mode": 420,
+      "effective_sha256": "af966ef2c410d1d147ac4729d4b3b067bfcdc1d1ee04e53a9388f2f240761290"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/customers/CustomerDestinations.java",
+      "sha256": "3870d2ef333e79d777e230d991d7d19849d1aa1976dba908f85d1b0f3b3f76b2",
+      "size": 552,
+      "mode": 420,
+      "effective_sha256": "3870d2ef333e79d777e230d991d7d19849d1aa1976dba908f85d1b0f3b3f76b2"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/customers/GetCustomerHistoryResponse.java",
+      "sha256": "240b976fdeef6d082e9ff41c7e8683f3a9ebe71c0f96a3bb4bb40cbef4b42eee",
+      "size": 641,
+      "mode": 420,
+      "effective_sha256": "240b976fdeef6d082e9ff41c7e8683f3a9ebe71c0f96a3bb4bb40cbef4b42eee"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/customers/OrderHistoryHandlers.java",
+      "sha256": "2551b9e260be09b848941540c6d8a71b79f71acd53b68da11af98bbab797ca50",
+      "size": 2271,
+      "mode": 420,
+      "effective_sha256": "2551b9e260be09b848941540c6d8a71b79f71acd53b68da11af98bbab797ca50"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/orders/OrderConfiguration.java",
+      "sha256": "13e9871df7264fbbd9d4c27397d2bda3091b7c0d5c123841e4ac7aba7cccdb67",
+      "size": 809,
+      "mode": 420,
+      "effective_sha256": "13e9871df7264fbbd9d4c27397d2bda3091b7c0d5c123841e4ac7aba7cccdb67"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/orders/OrderDestinations.java",
+      "sha256": "d62d07d99d5f19be054bebf3433e64f9df0341fdf54514223fbd627f5a967b65",
+      "size": 522,
+      "mode": 420,
+      "effective_sha256": "d62d07d99d5f19be054bebf3433e64f9df0341fdf54514223fbd627f5a967b65"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/common/UnknownProxyException.java",
+      "sha256": "2b4334a1ebaf8b640441687c4d56411c4a5c8cdb9c605f179471041e5084cb0c",
+      "size": 462,
+      "mode": 420,
+      "effective_sha256": "2b4334a1ebaf8b640441687c4d56411c4a5c8cdb9c605f179471041e5084cb0c"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/customerservice/CustomerNotFoundException.java",
+      "sha256": "006610b060d1d91bd20d6e68348a8fb33ff417797c84fb004b6e697d01c0dca0",
+      "size": 208,
+      "mode": 420,
+      "effective_sha256": "006610b060d1d91bd20d6e68348a8fb33ff417797c84fb004b6e697d01c0dca0"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/customerservice/CustomerServiceProxy.java",
+      "sha256": "81c73a7946f231ef08512cc622c075bb6c4a1c13c635b2cd56ae3f015a86a281",
+      "size": 2299,
+      "mode": 420,
+      "effective_sha256": "81c73a7946f231ef08512cc622c075bb6c4a1c13c635b2cd56ae3f015a86a281"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/customerservice/GetCustomerResponse.java",
+      "sha256": "17950f169d74511d5950286224b3682197c8e1a9251b18410419d07c57a0d0d5",
+      "size": 236,
+      "mode": 420,
+      "effective_sha256": "17950f169d74511d5950286224b3682197c8e1a9251b18410419d07c57a0d0d5"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/orderservice/GetOrderResponse.java",
+      "sha256": "2d9fd168109d2e6dc6819626b12fa01e5e5d011f635f2c1ef3cc075637934706",
+      "size": 200,
+      "mode": 420,
+      "effective_sha256": "2d9fd168109d2e6dc6819626b12fa01e5e5d011f635f2c1ef3cc075637934706"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/orderservice/OrderNotFoundException.java",
+      "sha256": "38dee93b9230f4672f208fd4075164fc1f5ac85b30ff9c524b1d9efb65576b73",
+      "size": 199,
+      "mode": 420,
+      "effective_sha256": "38dee93b9230f4672f208fd4075164fc1f5ac85b30ff9c524b1d9efb65576b73"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/orderservice/OrderServiceProxy.java",
+      "sha256": "372b6e914b9ed4dcb4735f7d4f6dfc782a8cc404e481025e27fd447545731425",
+      "size": 2183,
+      "mode": 420,
+      "effective_sha256": "372b6e914b9ed4dcb4735f7d4f6dfc782a8cc404e481025e27fd447545731425"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/orderservice/OrderState.java",
+      "sha256": "8ee0063f29f9c29238362bfeb3b8a861b3a52aac2c93da90fd9adaea244f9875",
+      "size": 149,
+      "mode": 420,
+      "effective_sha256": "8ee0063f29f9c29238362bfeb3b8a861b3a52aac2c93da90fd9adaea244f9875"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/orderservice/RejectionReason.java",
+      "sha256": "cd89f739ba9a0a5ba5f82efc49f32dd4843c7250fd563877fa33c8f0a0d8ae4c",
+      "size": 163,
+      "mode": 420,
+      "effective_sha256": "cd89f739ba9a0a5ba5f82efc49f32dd4843c7250fd563877fa33c8f0a0d8ae4c"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/apigateway/proxies/ProxyConfiguration.java",
+      "sha256": "84d8fbd5648a79f61368386619aabd65bb3ae5fbf299baf83bd28cffa82b8fa5",
+      "size": 3323,
+      "mode": 420,
+      "effective_sha256": "84d8fbd5648a79f61368386619aabd65bb3ae5fbf299baf83bd28cffa82b8fa5"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/resources/application.yml",
+      "sha256": "d158a3626710c096ce5e5727bc0d510d596039abff6e38a175fe78cf24c31a40",
+      "size": 2146,
+      "mode": 420,
+      "effective_sha256": "d158a3626710c096ce5e5727bc0d510d596039abff6e38a175fe78cf24c31a40"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/resources/logback.xml",
+      "sha256": "1e97c60641e018fb424c7fa8a62de3df60ace60b9d2bacc778f88e9240cacbc0",
+      "size": 488,
+      "mode": 420,
+      "effective_sha256": "1e97c60641e018fb424c7fa8a62de3df60ace60b9d2bacc778f88e9240cacbc0"
+    },
+    {
+      "path": "api-gateway-service/api-gateway-service-main/src/main/resources/static/swagger/swagger.yml",
+      "sha256": "2f485c957b1f22ad4dbe1d314d504e1ce96d081e17ba9f29005a60f1978a516b",
+      "size": 4130,
+      "mode": 420,
+      "effective_sha256": "2f485c957b1f22ad4dbe1d314d504e1ce96d081e17ba9f29005a60f1978a516b"
+    },
+    {
+      "path": "build-and-test-all-mysql-sharded-outbox.sh",
+      "sha256": "ec030235e595857727d1ec4f1512374fb838275a0a29365ee0e3bd78bf0900d8",
+      "size": 65,
+      "mode": 493,
+      "effective_sha256": "ec030235e595857727d1ec4f1512374fb838275a0a29365ee0e3bd78bf0900d8"
+    },
+    {
+      "path": "build-and-test-all.sh",
+      "sha256": "cb947ae081575a0dcf2561b25bcc9603a311c590c52cbfb78d7be4fccbbf22cb",
+      "size": 50,
+      "mode": 493,
+      "effective_sha256": "cb947ae081575a0dcf2561b25bcc9603a311c590c52cbfb78d7be4fccbbf22cb"
+    },
+    {
+      "path": "build.gradle",
+      "sha256": "f8e33ae478f621ada63cf5ecf0c5a4ef98e042608ef347902c0d1d2470c43416",
+      "size": 3257,
+      "mode": 420,
+      "effective_sha256": "f8e33ae478f621ada63cf5ecf0c5a4ef98e042608ef347902c0d1d2470c43416"
+    },
+    {
+      "path": "buildSrc/src/main/groovy/ComponentTestsPlugin.groovy",
+      "sha256": "64c7b90d13fdb5c1d9eafcdb330292f37279a45a4d2c7e31604af84f5e4233c7",
+      "size": 1982,
+      "mode": 420,
+      "effective_sha256": "64c7b90d13fdb5c1d9eafcdb330292f37279a45a4d2c7e31604af84f5e4233c7"
+    },
+    {
+      "path": "buildSrc/src/main/groovy/EndToEndTestsPlugin.groovy",
+      "sha256": "c724e1529c3a9937ef91e5a709a3e269eeca338fab980558201241d7914ea737",
+      "size": 1511,
+      "mode": 420,
+      "effective_sha256": "c724e1529c3a9937ef91e5a709a3e269eeca338fab980558201241d7914ea737"
+    },
+    {
+      "path": "buildSrc/src/main/groovy/IntegrationTestsPlugin.groovy",
+      "sha256": "92e30d52aae0b4f99776352436d87c9d5b30cb91bb593c60135ed37a2959d463",
+      "size": 1409,
+      "mode": 420,
+      "effective_sha256": "92e30d52aae0b4f99776352436d87c9d5b30cb91bb593c60135ed37a2959d463"
+    },
+    {
+      "path": "buildSrc/src/main/groovy/ServicePlugin.groovy",
+      "sha256": "3d507a74572de9fea20ce672c4ef90268c5b23f1df5b73f35e9876a040426904",
+      "size": 1036,
+      "mode": 420,
+      "effective_sha256": "3d507a74572de9fea20ce672c4ef90268c5b23f1df5b73f35e9876a040426904"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/build.gradle",
+      "sha256": "890cfa355d293104476b467819a597fef5014d6f0f05826e8f06bc38e7ac3d05",
+      "size": 2386,
+      "mode": 420,
+      "effective_sha256": "890cfa355d293104476b467819a597fef5014d6f0f05826e8f06bc38e7ac3d05"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/AbstractMessagingContractTest.java",
+      "sha256": "5178d281723fccaed2a45046e99378ef44db58ead9560af2de8711322a585701",
+      "size": 1393,
+      "mode": 420,
+      "effective_sha256": "5178d281723fccaed2a45046e99378ef44db58ead9560af2de8711322a585701"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/CommandHandlersTest.java",
+      "sha256": "d518f466467b4e7126037f5963bf7edfe6160e18bdccb4a9ac6405b9a4e3fed5",
+      "size": 1989,
+      "mode": 420,
+      "effective_sha256": "d518f466467b4e7126037f5963bf7edfe6160e18bdccb4a9ac6405b9a4e3fed5"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/contractTest/resources/application.properties",
+      "sha256": "9e14a7fa44e34ec2af7304f975f6f092adc3beaa2be3c6ecfc9dcc2d98d37ec9",
+      "size": 342,
+      "mode": 420,
+      "effective_sha256": "9e14a7fa44e34ec2af7304f975f6f092adc3beaa2be3c6ecfc9dcc2d98d37ec9"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/contractTest/resources/contracts/order-service/commands/reserveCreditCommand.groovy",
+      "sha256": "ca587a6bdba363cf7aed7046474d305e157be2d53af7996e6b59827482cc6158",
+      "size": 591,
+      "mode": 420,
+      "effective_sha256": "ca587a6bdba363cf7aed7046474d305e157be2d53af7996e6b59827482cc6158"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/contractTest/resources/contracts/order-service/replies/reserveCreditReply.groovy",
+      "sha256": "82323f801cbe290f1cff867a76c36a15aaceb433c917ad9e587187d61490b605",
+      "size": 488,
+      "mode": 420,
+      "effective_sha256": "82323f801cbe290f1cff867a76c36a15aaceb433c917ad9e587187d61490b605"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/integrationTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/CustomerCommandHandlerIntegrationTest.java",
+      "sha256": "3c52a1282dca8e4735839f439c77ccfcc4776859a70b5f9ef1d5ca150bebe07c",
+      "size": 3805,
+      "mode": 420,
+      "effective_sha256": "3c52a1282dca8e4735839f439c77ccfcc4776859a70b5f9ef1d5ca150bebe07c"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/integrationTest/resources/application-postgres.properties",
+      "sha256": "2545972df88cf81da375288cb1215cb505d9fbf27940e337137271e5b038e3aa",
+      "size": 242,
+      "mode": 420,
+      "effective_sha256": "2545972df88cf81da375288cb1215cb505d9fbf27940e337137271e5b038e3aa"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/integrationTest/resources/application.properties",
+      "sha256": "7415b98bc70c931a0fb2b56784adf86662f57c5a010ffdce5d902824710e4ed2",
+      "size": 896,
+      "mode": 420,
+      "effective_sha256": "7415b98bc70c931a0fb2b56784adf86662f57c5a010ffdce5d902824710e4ed2"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/commands/ReserveCreditCommand.java",
+      "sha256": "189ef471fa47f5aac390d4ae91482caddc23695653acf6339bc13560ec21fbaa",
+      "size": 310,
+      "mode": 420,
+      "effective_sha256": "189ef471fa47f5aac390d4ae91482caddc23695653acf6339bc13560ec21fbaa"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/CustomerCommandHandler.java",
+      "sha256": "1898823fe8189e43e69ca2e7a558ad3aa43ba4f5de3dcec4267b4344df2fadbc",
+      "size": 1921,
+      "mode": 420,
+      "effective_sha256": "1898823fe8189e43e69ca2e7a558ad3aa43ba4f5de3dcec4267b4344df2fadbc"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/CustomerCommandHandlerConfiguration.java",
+      "sha256": "c88c33ce7fdf57438d6330029d8a4d42321c414a89b552f7874bcc421f2640ee",
+      "size": 597,
+      "mode": 420,
+      "effective_sha256": "c88c33ce7fdf57438d6330029d8a4d42321c414a89b552f7874bcc421f2640ee"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/CustomerMessagingConfiguration.java",
+      "sha256": "f8184bdd3cba20bfb8ab0b22474f995bb46ffbfaeedda059f92a51bbd8f0a51b",
+      "size": 605,
+      "mode": 420,
+      "effective_sha256": "f8184bdd3cba20bfb8ab0b22474f995bb46ffbfaeedda059f92a51bbd8f0a51b"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/CustomerCreditLimitExceeded.java",
+      "sha256": "25ad38f7cdefba96e4585adc5424e3717a31fd3732479748961a275de61fb70b",
+      "size": 260,
+      "mode": 420,
+      "effective_sha256": "25ad38f7cdefba96e4585adc5424e3717a31fd3732479748961a275de61fb70b"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/CustomerCreditReserved.java",
+      "sha256": "94b90807aca4f510b9a01f70fd6b0a82f8c32a945c41d14d2fdb082c217969f3",
+      "size": 256,
+      "mode": 420,
+      "effective_sha256": "94b90807aca4f510b9a01f70fd6b0a82f8c32a945c41d14d2fdb082c217969f3"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/CustomerNotFound.java",
+      "sha256": "2de4c57bb8ca392adc12dfffa8e0440c042e30e36d8a661032d69feb5c6c0a42",
+      "size": 249,
+      "mode": 420,
+      "effective_sha256": "2de4c57bb8ca392adc12dfffa8e0440c042e30e36d8a661032d69feb5c6c0a42"
+    },
+    {
+      "path": "customer-service/customer-service-credit-reservation-api/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/ReserveCreditResult.java",
+      "sha256": "bbeb50b91b3f751942a3c61ccf6aff3806b7ff17fbcbafd5545361fd1cc1e461",
+      "size": 142,
+      "mode": 420,
+      "effective_sha256": "bbeb50b91b3f751942a3c61ccf6aff3806b7ff17fbcbafd5545361fd1cc1e461"
+    },
+    {
+      "path": "customer-service/customer-service-domain/build.gradle",
+      "sha256": "13bfe2ede9c498cd192569d893ee38a896075988892722dbf5a8e63aba34ed7e",
+      "size": 205,
+      "mode": 420,
+      "effective_sha256": "13bfe2ede9c498cd192569d893ee38a896075988892722dbf5a8e63aba34ed7e"
+    },
+    {
+      "path": "customer-service/customer-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/domain/Customer.java",
+      "sha256": "21d26053083059cf5d9f9da5afc6db2fe27f00e00500a378f1f1e5e41f48a256",
+      "size": 1288,
+      "mode": 420,
+      "effective_sha256": "21d26053083059cf5d9f9da5afc6db2fe27f00e00500a378f1f1e5e41f48a256"
+    },
+    {
+      "path": "customer-service/customer-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/domain/CustomerCreditLimitExceededException.java",
+      "sha256": "42a09ef713c3b32b3c25dd08d8540d8c30f7238d3ca520b02ee0f35b09fd31f7",
+      "size": 158,
+      "mode": 420,
+      "effective_sha256": "42a09ef713c3b32b3c25dd08d8540d8c30f7238d3ca520b02ee0f35b09fd31f7"
+    },
+    {
+      "path": "customer-service/customer-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/domain/CustomerDomainConfiguration.java",
+      "sha256": "0e1e8f7be0391b64f82490529f120085f610c589818737c73061abd7d4c6a141",
+      "size": 401,
+      "mode": 420,
+      "effective_sha256": "0e1e8f7be0391b64f82490529f120085f610c589818737c73061abd7d4c6a141"
+    },
+    {
+      "path": "customer-service/customer-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/domain/CustomerNotFoundException.java",
+      "sha256": "2ca78bdbc30dc46087004ea45f7bbb0320ac4b71b044d5602f8e197b89f06b74",
+      "size": 147,
+      "mode": 420,
+      "effective_sha256": "2ca78bdbc30dc46087004ea45f7bbb0320ac4b71b044d5602f8e197b89f06b74"
+    },
+    {
+      "path": "customer-service/customer-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/domain/CustomerRepository.java",
+      "sha256": "9176a91f2964dd3aac3ea5c27e0135900a6107f2325daf3739763a568a1de302",
+      "size": 218,
+      "mode": 420,
+      "effective_sha256": "9176a91f2964dd3aac3ea5c27e0135900a6107f2325daf3739763a568a1de302"
+    },
+    {
+      "path": "customer-service/customer-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/domain/CustomerService.java",
+      "sha256": "4aef92885c060754afea8b1d601fc1367ad11e8ad842869dcdf9a4a193d36ebe",
+      "size": 855,
+      "mode": 420,
+      "effective_sha256": "4aef92885c060754afea8b1d601fc1367ad11e8ad842869dcdf9a4a193d36ebe"
+    },
+    {
+      "path": "customer-service/customer-service-main/build.gradle",
+      "sha256": "f3298144b28efae36ca9922c177e64dc1aaf4d025844096d6915ace87cf0b5da",
+      "size": 1630,
+      "mode": 420,
+      "effective_sha256": "f3298144b28efae36ca9922c177e64dc1aaf4d025844096d6915ace87cf0b5da"
+    },
+    {
+      "path": "customer-service/customer-service-main/Dockerfile",
+      "sha256": "6bba31178608290a20e135bda2b9d95fa0d223eb3fb97f5fc7a42bb842804b5c",
+      "size": 214,
+      "mode": 420,
+      "effective_sha256": "6bba31178608290a20e135bda2b9d95fa0d223eb3fb97f5fc7a42bb842804b5c"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/CustomerServiceComponentTest.java",
+      "sha256": "4ebe3194d91bf9966973d2dde3114545b42286c4283fb37453156424cf2458b0",
+      "size": 2696,
+      "mode": 420,
+      "effective_sha256": "4ebe3194d91bf9966973d2dde3114545b42286c4283fb37453156424cf2458b0"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/CustomerServiceInProcessComponentTest.java",
+      "sha256": "0951f542dd0f8b32c11e0341291098c3803f073dfb1a833b204be164935880cd",
+      "size": 3129,
+      "mode": 420,
+      "effective_sha256": "0951f542dd0f8b32c11e0341291098c3803f073dfb1a833b204be164935880cd"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/CustomerServiceMain.java",
+      "sha256": "3e775c67403a53009adf3a71bbf831f450954387509e9a7ee6bde9fdfeb44185",
+      "size": 1279,
+      "mode": 420,
+      "effective_sha256": "3e775c67403a53009adf3a71bbf831f450954387509e9a7ee6bde9fdfeb44185"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/main/resources/application-postgres.properties",
+      "sha256": "4caf51cd837ccff000fd10f3c09c38cec4d9f87359f00e09d4b6410ecddf77d0",
+      "size": 406,
+      "mode": 420,
+      "effective_sha256": "4caf51cd837ccff000fd10f3c09c38cec4d9f87359f00e09d4b6410ecddf77d0"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/main/resources/application.properties",
+      "sha256": "ae265873ba6fa3c79a6fa9672a6332201b04760022eb2cda25e46f2a3b3454da",
+      "size": 1573,
+      "mode": 420,
+      "effective_sha256": "ae265873ba6fa3c79a6fa9672a6332201b04760022eb2cda25e46f2a3b3454da"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/main/resources/logback.xml",
+      "sha256": "912d69def70c44d80590a7987b2c59ba58ba09a704a69175924ba97ebefaab76",
+      "size": 321,
+      "mode": 420,
+      "effective_sha256": "912d69def70c44d80590a7987b2c59ba58ba09a704a69175924ba97ebefaab76"
+    },
+    {
+      "path": "customer-service/customer-service-main/src/main/resources/REMOVE-ME",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "mode": 420,
+      "effective_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "customer-service/customer-service-persistence/build.gradle",
+      "sha256": "ad474aca65226d6ba01f3a53c700b85e37ac84ba4e636808ba655399f44f94e0",
+      "size": 921,
+      "mode": 420,
+      "effective_sha256": "ad474aca65226d6ba01f3a53c700b85e37ac84ba4e636808ba655399f44f94e0"
+    },
+    {
+      "path": "customer-service/customer-service-persistence/src/integrationTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/persistence/CustomerServiceRepositoriesTest.java",
+      "sha256": "53c0e7e3b4daab9056a9f0136cd2d3edd2447e6d35fa23dbc5ed7049157b98cb",
+      "size": 3177,
+      "mode": 420,
+      "effective_sha256": "53c0e7e3b4daab9056a9f0136cd2d3edd2447e6d35fa23dbc5ed7049157b98cb"
+    },
+    {
+      "path": "customer-service/customer-service-persistence/src/integrationTest/resources/application-postgres.properties",
+      "sha256": "4a97da5a28d297f3f8897d99b73270b9644dc2e4c5d3d3b7f1056bad453aa634",
+      "size": 209,
+      "mode": 420,
+      "effective_sha256": "4a97da5a28d297f3f8897d99b73270b9644dc2e4c5d3d3b7f1056bad453aa634"
+    },
+    {
+      "path": "customer-service/customer-service-persistence/src/integrationTest/resources/application.properties",
+      "sha256": "7415b98bc70c931a0fb2b56784adf86662f57c5a010ffdce5d902824710e4ed2",
+      "size": 896,
+      "mode": 420,
+      "effective_sha256": "7415b98bc70c931a0fb2b56784adf86662f57c5a010ffdce5d902824710e4ed2"
+    },
+    {
+      "path": "customer-service/customer-service-persistence/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/persistence/CustomerPersistenceConfiguration.java",
+      "sha256": "17fbbe84dddda4cb5976ee38d1e88ab3b62b0389feb22ab7109fd02e0fd442c7",
+      "size": 666,
+      "mode": 420,
+      "effective_sha256": "17fbbe84dddda4cb5976ee38d1e88ab3b62b0389feb22ab7109fd02e0fd442c7"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/build.gradle",
+      "sha256": "c1d6728127fd39f98e39cce9bde5025441b3e79c6191016b7da5501b2e58ed75",
+      "size": 825,
+      "mode": 420,
+      "effective_sha256": "c1d6728127fd39f98e39cce9bde5025441b3e79c6191016b7da5501b2e58ed75"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/ApigatewayBase.java",
+      "sha256": "9783395e6ae5909a2e6b108b3141e08854c28386ff1655e17788dd9f2c60ea9d",
+      "size": 1485,
+      "mode": 420,
+      "effective_sha256": "9783395e6ae5909a2e6b108b3141e08854c28386ff1655e17788dd9f2c60ea9d"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/contractTest/resources/contracts/apigateway/createCustomer.groovy",
+      "sha256": "f6ab90dd04ada8ac7584d10eadaa6a2c2be1af92dadd56423eff88ab38901bf1",
+      "size": 501,
+      "mode": 420,
+      "effective_sha256": "f6ab90dd04ada8ac7584d10eadaa6a2c2be1af92dadd56423eff88ab38901bf1"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/contractTest/resources/contracts/apigateway/getCustomer.groovy",
+      "sha256": "d5859e2aef5c1607ad61cfd9f2ca270bab37f22043da57d9af4205cb7bcda4b3",
+      "size": 377,
+      "mode": 420,
+      "effective_sha256": "d5859e2aef5c1607ad61cfd9f2ca270bab37f22043da57d9af4205cb7bcda4b3"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/CreateCustomerRequest.java",
+      "sha256": "7d5519deca6c998efbd22013709f95361fa5f94998d95dd73427bd2428f6f7ef",
+      "size": 203,
+      "mode": 420,
+      "effective_sha256": "7d5519deca6c998efbd22013709f95361fa5f94998d95dd73427bd2428f6f7ef"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/CreateCustomerResponse.java",
+      "sha256": "8ac5b126bc10b558b0012e12099a0c976cf21022d00f7b1d80a77615827370b8",
+      "size": 139,
+      "mode": 420,
+      "effective_sha256": "8ac5b126bc10b558b0012e12099a0c976cf21022d00f7b1d80a77615827370b8"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/CustomerController.java",
+      "sha256": "cc192e4c74e83c4afee4170d24d7636cb5aa12b2bddee9817d7b4b71be5ae71a",
+      "size": 1985,
+      "mode": 420,
+      "effective_sha256": "cc192e4c74e83c4afee4170d24d7636cb5aa12b2bddee9817d7b4b71be5ae71a"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/CustomerRestApiConfiguration.java",
+      "sha256": "f1e8941d3c704b0559e47db8c405c2a1f43c8b1fbddbd272fa23fffbea91894d",
+      "size": 279,
+      "mode": 420,
+      "effective_sha256": "f1e8941d3c704b0559e47db8c405c2a1f43c8b1fbddbd272fa23fffbea91894d"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/GetCustomerResponse.java",
+      "sha256": "a7c05cc8a6e79cff038cd2e6cde4b8994d7b9263219d05032ba252d7ecb6847e",
+      "size": 219,
+      "mode": 420,
+      "effective_sha256": "a7c05cc8a6e79cff038cd2e6cde4b8994d7b9263219d05032ba252d7ecb6847e"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/GetCustomersResponse.java",
+      "sha256": "fd1a23f2d482a0156f01183e9acde588c456e73513417aa696d4d78d1462fc3f",
+      "size": 180,
+      "mode": 420,
+      "effective_sha256": "fd1a23f2d482a0156f01183e9acde588c456e73513417aa696d4d78d1462fc3f"
+    },
+    {
+      "path": "customer-service/customer-service-restapi/src/test/java/io/eventuate/examples/tram/sagas/customersandorders/customers/restapi/CustomerControllerTest.java",
+      "sha256": "8b1b88f9f95037f34903287d3969a7283e9bb7f219678c1bebdb418bc0c8ed28",
+      "size": 1412,
+      "mode": 420,
+      "effective_sha256": "8b1b88f9f95037f34903287d3969a7283e9bb7f219678c1bebdb418bc0c8ed28"
+    },
+    {
+      "path": "end-to-end-tests/build.gradle",
+      "sha256": "10cf105700f39c5acd32d703ca22f7607df1d7e85bb310490c89a4020b03a027",
+      "size": 2771,
+      "mode": 420,
+      "effective_sha256": "10cf105700f39c5acd32d703ca22f7607df1d7e85bb310490c89a4020b03a027"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/application/CustomersAndOrdersMain.java",
+      "sha256": "acea3fc0cc785ec1ab1fac692212e2399bda06d3fa73744a50b089e704f8075d",
+      "size": 2102,
+      "mode": 420,
+      "effective_sha256": "acea3fc0cc785ec1ab1fac692212e2399bda06d3fa73744a50b089e704f8075d"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTest.java",
+      "sha256": "2a19fdd4af878437f6f974663b8c4452ca3c2e779efa2c9428cf0e257187af2f",
+      "size": 1325,
+      "mode": 420,
+      "effective_sha256": "2a19fdd4af878437f6f974663b8c4452ca3c2e779efa2c9428cf0e257187af2f"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTestUsingDockerCompose.java",
+      "sha256": "a5680c163ae6798a778d5d817739fede80a8272196c22fa03427f4f83e4144cc",
+      "size": 516,
+      "mode": 420,
+      "effective_sha256": "a5680c163ae6798a778d5d817739fede80a8272196c22fa03427f4f83e4144cc"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTestUsingKind.java",
+      "sha256": "b2f477eaa551ec47443582fb4d39007bf03a755732f02d322b858b0b22b7a5fa",
+      "size": 549,
+      "mode": 420,
+      "effective_sha256": "b2f477eaa551ec47443582fb4d39007bf03a755732f02d322b858b0b22b7a5fa"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTestUsingStubbed.java",
+      "sha256": "9019d03ec67b50ed854411d6cba4c899b61b52f67e197bd39effb0a6d8dca679",
+      "size": 540,
+      "mode": 420,
+      "effective_sha256": "9019d03ec67b50ed854411d6cba4c899b61b52f67e197bd39effb0a6d8dca679"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/ApplicationUnderTestUsingTestContainers.java",
+      "sha256": "738d8e9e1f3e953cb0ce9b709227896666ea8c9b9642c6e28acc4371143f021e",
+      "size": 5106,
+      "mode": 420,
+      "effective_sha256": "738d8e9e1f3e953cb0ce9b709227896666ea8c9b9642c6e28acc4371143f021e"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/BaseUrlUtils.java",
+      "sha256": "f9fbb526d86d6c2cf2f6499984de21fcca574c2f87925dd9a096d8bcbd029c89",
+      "size": 634,
+      "mode": 420,
+      "effective_sha256": "f9fbb526d86d6c2cf2f6499984de21fcca574c2f87925dd9a096d8bcbd029c89"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/CustomersAndOrdersEndToEndTest.java",
+      "sha256": "2775df3f28ad7eca023665bfbf2277f7495b979d4589370668e7cbd4d5e614de",
+      "size": 8526,
+      "mode": 420,
+      "effective_sha256": "2775df3f28ad7eca023665bfbf2277f7495b979d4589370668e7cbd4d5e614de"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/CustomersAndOrdersEndToEndTestConfiguration.java",
+      "sha256": "7546327e8ffb9ed8097684a77f20539b2ceb723f873bda4bc18e333519519c46",
+      "size": 402,
+      "mode": 420,
+      "effective_sha256": "7546327e8ffb9ed8097684a77f20539b2ceb723f873bda4bc18e333519519c46"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/apigateway/GetCustomerHistoryResponse.java",
+      "sha256": "31fa31f89496a0616924170450f4519b44bfe2561bcfed5596c81e9c24fd11cc",
+      "size": 656,
+      "mode": 420,
+      "effective_sha256": "31fa31f89496a0616924170450f4519b44bfe2561bcfed5596c81e9c24fd11cc"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/customerservice/CreateCustomerRequest.java",
+      "sha256": "971354e53c98958cebcf6fdb4b5af12f580857780d65c1d025c80c4fb1831a31",
+      "size": 223,
+      "mode": 420,
+      "effective_sha256": "971354e53c98958cebcf6fdb4b5af12f580857780d65c1d025c80c4fb1831a31"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/customerservice/CreateCustomerResponse.java",
+      "sha256": "797d576d7fb6da046c79d859c5e82278c8b8632cd6720268b52e91aa3ecd864d",
+      "size": 159,
+      "mode": 420,
+      "effective_sha256": "797d576d7fb6da046c79d859c5e82278c8b8632cd6720268b52e91aa3ecd864d"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/customerservice/GetCustomerResponse.java",
+      "sha256": "28e94238df6e345f6eee7946d7242ec3eb7c7042c8e472144bb2df99e56be7c1",
+      "size": 239,
+      "mode": 420,
+      "effective_sha256": "28e94238df6e345f6eee7946d7242ec3eb7c7042c8e472144bb2df99e56be7c1"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/customerservice/GetCustomersResponse.java",
+      "sha256": "a381f405e43bd2282f8d3e99ce3dbdaa12884f43b2e81ec1edd32b17167b4e8e",
+      "size": 200,
+      "mode": 420,
+      "effective_sha256": "a381f405e43bd2282f8d3e99ce3dbdaa12884f43b2e81ec1edd32b17167b4e8e"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/orderservice/CreateOrderRequest.java",
+      "sha256": "d6b7f212c674b2e2ffc61d90f52d8a699a6825c540e8f0dc2eeab14ea74d3379",
+      "size": 221,
+      "mode": 420,
+      "effective_sha256": "d6b7f212c674b2e2ffc61d90f52d8a699a6825c540e8f0dc2eeab14ea74d3379"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/orderservice/CreateOrderResponse.java",
+      "sha256": "aef891a3990c3de1e2a14c70cbbcd38c4c675b5855192da361bb7882629948df",
+      "size": 207,
+      "mode": 420,
+      "effective_sha256": "aef891a3990c3de1e2a14c70cbbcd38c4c675b5855192da361bb7882629948df"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/orderservice/GetOrderResponse.java",
+      "sha256": "3ab104a836c616a10fecc263473dae71503980aef58e5d49a9a71eb675493d8c",
+      "size": 204,
+      "mode": 420,
+      "effective_sha256": "3ab104a836c616a10fecc263473dae71503980aef58e5d49a9a71eb675493d8c"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/orderservice/GetOrdersResponse.java",
+      "sha256": "2d994bcfda12ef6c0940f2c50fb9d3efeb9cb3415b3685bb8d06559ef61f6b01",
+      "size": 189,
+      "mode": 420,
+      "effective_sha256": "2d994bcfda12ef6c0940f2c50fb9d3efeb9cb3415b3685bb8d06559ef61f6b01"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/orderservice/OrderState.java",
+      "sha256": "46ae584f62f971f47571dcf31397ae97ddd60dc7f09286829e3fccd8e1850bc2",
+      "size": 152,
+      "mode": 420,
+      "effective_sha256": "46ae584f62f971f47571dcf31397ae97ddd60dc7f09286829e3fccd8e1850bc2"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/java/io/eventuate/examples/tram/sagas/customersandorders/endtoendtests/proxies/orderservice/RejectionReason.java",
+      "sha256": "ca5ebddf7fa3d9e234afae4b54d0c6778fe765db457edb7ec73f04ab2e7fd752",
+      "size": 166,
+      "mode": 420,
+      "effective_sha256": "ca5ebddf7fa3d9e234afae4b54d0c6778fe765db457edb7ec73f04ab2e7fd752"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/resources/application.properties",
+      "sha256": "78458bc30a87321670a530d4c9dfe0ba64c8590ddf293c336698735e8d6b0ae0",
+      "size": 38,
+      "mode": 420,
+      "effective_sha256": "78458bc30a87321670a530d4c9dfe0ba64c8590ddf293c336698735e8d6b0ae0"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/resources/logback.xml",
+      "sha256": "f7237e3bb1a44e772a22e80950dd3e6ed12faf6a74263813c1a05dc725e4da0d",
+      "size": 866,
+      "mode": 420,
+      "effective_sha256": "f7237e3bb1a44e772a22e80950dd3e6ed12faf6a74263813c1a05dc725e4da0d"
+    },
+    {
+      "path": "end-to-end-tests/src/endToEndTest/resources/templates/index.html",
+      "sha256": "a7df3ff857d9d715bf5dca5c9752feb350334f8ad4495e18321e44d28739511d",
+      "size": 2077,
+      "mode": 420,
+      "effective_sha256": "a7df3ff857d9d715bf5dca5c9752feb350334f8ad4495e18321e44d28739511d"
+    },
+    {
+      "path": "gradle.properties",
+      "sha256": "2b5ca38c51a96b76518615615081b9cc5f532d72c486be7dc8f487d86d3f20d4",
+      "size": 691,
+      "mode": 420,
+      "effective_sha256": "462c528463377e35595627a0dc43a4d5629a1b56bf7b5f823a8ee501f91c3504"
+    },
+    {
+      "path": "gradle/gradlew",
+      "sha256": "638c2862d623c302f3029f5bd1441276be484c5b79909b706a614ebe8e7a409b",
+      "size": 8497,
+      "mode": 493,
+      "effective_sha256": "638c2862d623c302f3029f5bd1441276be484c5b79909b706a614ebe8e7a409b"
+    },
+    {
+      "path": "gradle/gradlew.bat",
+      "sha256": "8e327fcb99d29ce0fe3ee2fec6e6a25de815a2df83a6a44a553dea89ffc92955",
+      "size": 2868,
+      "mode": 493,
+      "effective_sha256": "8e327fcb99d29ce0fe3ee2fec6e6a25de815a2df83a6a44a553dea89ffc92955"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.jar",
+      "sha256": "14dfa961b6704bb3decdea06502781edaa796a82e6da41cd2e1962b14fbe21a3",
+      "size": 61624,
+      "mode": 420,
+      "effective_sha256": "14dfa961b6704bb3decdea06502781edaa796a82e6da41cd2e1962b14fbe21a3"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.properties",
+      "sha256": "3bb0e8c436f487f2cc548d62ca1e9fa8de0312e67792e60f40972af670be6e5a",
+      "size": 321,
+      "mode": 420,
+      "effective_sha256": "1bfedd8f367ede180427469cd00acfb8f44a4cef78f221b2f88947a3a30a0b1d"
+    },
+    {
+      "path": "gradlew",
+      "sha256": "638c2862d623c302f3029f5bd1441276be484c5b79909b706a614ebe8e7a409b",
+      "size": 8497,
+      "mode": 493,
+      "effective_sha256": "638c2862d623c302f3029f5bd1441276be484c5b79909b706a614ebe8e7a409b"
+    },
+    {
+      "path": "gradlew.bat",
+      "sha256": "8e327fcb99d29ce0fe3ee2fec6e6a25de815a2df83a6a44a553dea89ffc92955",
+      "size": 2868,
+      "mode": 493,
+      "effective_sha256": "8e327fcb99d29ce0fe3ee2fec6e6a25de815a2df83a6a44a553dea89ffc92955"
+    },
+    {
+      "path": "images/Eventuate_Tram_Customer_and_Order_Orchestration_Architecture.png",
+      "sha256": "f95363da8cd47b23004b62291f21cb25ef926b7e551157e9c0e1364784ceac5a",
+      "size": 170229,
+      "mode": 420,
+      "effective_sha256": "f95363da8cd47b23004b62291f21cb25ef926b7e551157e9c0e1364784ceac5a"
+    },
+    {
+      "path": "images/Orchestration_flow.jpeg",
+      "sha256": "e98892c9880f7765b50bc7f62bb6bf8119e017a6168c5e77d7b1e7f18f5c512f",
+      "size": 1176050,
+      "mode": 420,
+      "effective_sha256": "e98892c9880f7765b50bc7f62bb6bf8119e017a6168c5e77d7b1e7f18f5c512f"
+    },
+    {
+      "path": "kafka-consumer-groups.sh",
+      "sha256": "ff6beadaecac442b19851c8391f98b6255623617540fe50df29729a34915099f",
+      "size": 160,
+      "mode": 493,
+      "effective_sha256": "ff6beadaecac442b19851c8391f98b6255623617540fe50df29729a34915099f"
+    },
+    {
+      "path": "kafka-topics.sh",
+      "sha256": "6740344c57060e7657d3311d8fdc06664f2a9661757b00ce9a9c4b93e090fb86",
+      "size": 151,
+      "mode": 493,
+      "effective_sha256": "6740344c57060e7657d3311d8fdc06664f2a9661757b00ce9a9c4b93e090fb86"
+    },
+    {
+      "path": "LICENSE.md",
+      "sha256": "55895b12219bf931c6ad032f0252d554c791679161937e352d1fdee6f0da0796",
+      "size": 577,
+      "mode": 420,
+      "effective_sha256": "55895b12219bf931c6ad032f0252d554c791679161937e352d1fdee6f0da0796"
+    },
+    {
+      "path": "migration-tests/build.gradle",
+      "sha256": "20520353e08c5a638ad1cf481772aa102f78ca5ad1c944998ae8c63045231f74",
+      "size": 575,
+      "mode": 420,
+      "effective_sha256": "20520353e08c5a638ad1cf481772aa102f78ca5ad1c944998ae8c63045231f74"
+    },
+    {
+      "path": "migration-tests/src/test/java/io/eventuate/examples/tram/sagas/ordersandcustomers/migration/DbIdMigrationVerificationTest.java",
+      "sha256": "d811e44ebbf46c84bc11a8600ed02df26945528550a26fd4aead330867e922be",
+      "size": 1536,
+      "mode": 420,
+      "effective_sha256": "d811e44ebbf46c84bc11a8600ed02df26945528550a26fd4aead330867e922be"
+    },
+    {
+      "path": "migration-tests/src/test/resources/application-mssql.properties",
+      "sha256": "30d57faf2235452a63b8742fdf5f873f6f603c34b214d57a49c489c1b4ed187c",
+      "size": 287,
+      "mode": 420,
+      "effective_sha256": "30d57faf2235452a63b8742fdf5f873f6f603c34b214d57a49c489c1b4ed187c"
+    },
+    {
+      "path": "migration-tests/src/test/resources/application-postgres.properties",
+      "sha256": "4a97da5a28d297f3f8897d99b73270b9644dc2e4c5d3d3b7f1056bad453aa634",
+      "size": 209,
+      "mode": 420,
+      "effective_sha256": "4a97da5a28d297f3f8897d99b73270b9644dc2e4c5d3d3b7f1056bad453aa634"
+    },
+    {
+      "path": "migration-tests/src/test/resources/application.properties",
+      "sha256": "0d7de91aca33fcb63cadc664dc75d52c1192d7781bf8e5b46176ca37912f0940",
+      "size": 206,
+      "mode": 420,
+      "effective_sha256": "0d7de91aca33fcb63cadc664dc75d52c1192d7781bf8e5b46176ca37912f0940"
+    },
+    {
+      "path": "mise.toml",
+      "sha256": "ce98956f06283b132562f74ba10fe88b2c9569b36439cbe7d3585c8a15a6d1fc",
+      "size": 20,
+      "mode": 420,
+      "effective_sha256": "ce98956f06283b132562f74ba10fe88b2c9569b36439cbe7d3585c8a15a6d1fc"
+    },
+    {
+      "path": "mysql-customer-service-cli.sh",
+      "sha256": "28b938a16483380ae10946b12db997864e793a3fbc99c764957c23ca2ffa872d",
+      "size": 314,
+      "mode": 493,
+      "effective_sha256": "28b938a16483380ae10946b12db997864e793a3fbc99c764957c23ca2ffa872d"
+    },
+    {
+      "path": "mysql-order-service-cli.sh",
+      "sha256": "695dc69528ffcab436980c43e53913c16fe9ff6f387896b9400cd782b81289ac",
+      "size": 311,
+      "mode": 493,
+      "effective_sha256": "695dc69528ffcab436980c43e53913c16fe9ff6f387896b9400cd782b81289ac"
+    },
+    {
+      "path": "order-service/order-service-domain/build.gradle",
+      "sha256": "a9e0b9d387c0f78a9d929f4b299279f20b27ba731c3d3fdd06c3b2acac43b8d7",
+      "size": 264,
+      "mode": 420,
+      "effective_sha256": "a9e0b9d387c0f78a9d929f4b299279f20b27ba731c3d3fdd06c3b2acac43b8d7"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/Order.java",
+      "sha256": "e1ca2f756b79cd04cc1c80c0e49060d046906bd318127bb648cecdf1dd87944d",
+      "size": 1259,
+      "mode": 420,
+      "effective_sha256": "e1ca2f756b79cd04cc1c80c0e49060d046906bd318127bb648cecdf1dd87944d"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/OrderDetails.java",
+      "sha256": "a93bd6e79121fb06709ad6c79e53ac78621c3f41922276254b557bce8982785d",
+      "size": 291,
+      "mode": 420,
+      "effective_sha256": "a93bd6e79121fb06709ad6c79e53ac78621c3f41922276254b557bce8982785d"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/OrderDomainConfiguration.java",
+      "sha256": "09651eec0d021bba7b18d0b605926d91f34257fea323d278ae879eda3ef952ed",
+      "size": 376,
+      "mode": 420,
+      "effective_sha256": "09651eec0d021bba7b18d0b605926d91f34257fea323d278ae879eda3ef952ed"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/OrderRepository.java",
+      "sha256": "f23facdebe9d7fe1194bd2725f18a4bc12992f6fa75c5dcc70aaa811721d017d",
+      "size": 297,
+      "mode": 420,
+      "effective_sha256": "f23facdebe9d7fe1194bd2725f18a4bc12992f6fa75c5dcc70aaa811721d017d"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/OrderService.java",
+      "sha256": "ca7436e48766a3250b01beb86d1346d230f0403d1778238997a8925a9759bd79",
+      "size": 748,
+      "mode": 420,
+      "effective_sha256": "ca7436e48766a3250b01beb86d1346d230f0403d1778238997a8925a9759bd79"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/OrderState.java",
+      "sha256": "45b0681f794ea525d9b87d4872b3182e63412da477ee51c966f4d76cbfa6c8ff",
+      "size": 131,
+      "mode": 420,
+      "effective_sha256": "45b0681f794ea525d9b87d4872b3182e63412da477ee51c966f4d76cbfa6c8ff"
+    },
+    {
+      "path": "order-service/order-service-domain/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/domain/RejectionReason.java",
+      "sha256": "d1b8ef71a4e478c4af4bad89f2ebf95fdbfa6af52023fa076469b69d7eecc6fd",
+      "size": 145,
+      "mode": 420,
+      "effective_sha256": "d1b8ef71a4e478c4af4bad89f2ebf95fdbfa6af52023fa076469b69d7eecc6fd"
+    },
+    {
+      "path": "order-service/order-service-main/build.gradle",
+      "sha256": "92a9eeb32bf38df5c5556d7b095706ab0a3cff1c01f84f00b49fe4c9479569c9",
+      "size": 1718,
+      "mode": 420,
+      "effective_sha256": "92a9eeb32bf38df5c5556d7b095706ab0a3cff1c01f84f00b49fe4c9479569c9"
+    },
+    {
+      "path": "order-service/order-service-main/Dockerfile",
+      "sha256": "005a0469586af9c42951bfdda427e7b4ed42ec14feb987b435116837ad01e70c",
+      "size": 211,
+      "mode": 493,
+      "effective_sha256": "005a0469586af9c42951bfdda427e7b4ed42ec14feb987b435116837ad01e70c"
+    },
+    {
+      "path": "order-service/order-service-main/src/componentTest/java/io/eventuate/examples/tram/sagas/customersandorders/orders/OrderServiceInProcessComponentTest.java",
+      "sha256": "a08c38954ce6354436fb7e2900105039633b0c470a13d088b210069483dd1eb7",
+      "size": 3539,
+      "mode": 420,
+      "effective_sha256": "a08c38954ce6354436fb7e2900105039633b0c470a13d088b210069483dd1eb7"
+    },
+    {
+      "path": "order-service/order-service-main/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/OrderServiceMain.java",
+      "sha256": "0b2e2d3d872e1e8af1ed6a5d1fd7d375a14fe72353592b859e124beb40ef6c81",
+      "size": 1272,
+      "mode": 420,
+      "effective_sha256": "0b2e2d3d872e1e8af1ed6a5d1fd7d375a14fe72353592b859e124beb40ef6c81"
+    },
+    {
+      "path": "order-service/order-service-main/src/main/resources/application-postgres.properties",
+      "sha256": "6c5f2d9533aac2eac0ace99635d2ead69409d855652f4a9a50f2912766fa02a4",
+      "size": 334,
+      "mode": 420,
+      "effective_sha256": "6c5f2d9533aac2eac0ace99635d2ead69409d855652f4a9a50f2912766fa02a4"
+    },
+    {
+      "path": "order-service/order-service-main/src/main/resources/application.properties",
+      "sha256": "a6e6b786330f75527da86ea2659b780f750387c87e08c89faefa7cfcd9a2c06a",
+      "size": 1506,
+      "mode": 420,
+      "effective_sha256": "a6e6b786330f75527da86ea2659b780f750387c87e08c89faefa7cfcd9a2c06a"
+    },
+    {
+      "path": "order-service/order-service-persistence/build.gradle",
+      "sha256": "c809180b6335bcd827862a14db3e8fd1d593f0f183d03358b93d039844de3c84",
+      "size": 777,
+      "mode": 420,
+      "effective_sha256": "c809180b6335bcd827862a14db3e8fd1d593f0f183d03358b93d039844de3c84"
+    },
+    {
+      "path": "order-service/order-service-persistence/src/integrationTest/java/io/eventuate/examples/tram/sagas/customersandorders/orders/persistence/OrderServiceRepositoriesTest.java",
+      "sha256": "7327e9b6ddfe08fc3bcfaad73523419256bc5c601129b2f7ecc2e807fb59377e",
+      "size": 3179,
+      "mode": 420,
+      "effective_sha256": "7327e9b6ddfe08fc3bcfaad73523419256bc5c601129b2f7ecc2e807fb59377e"
+    },
+    {
+      "path": "order-service/order-service-persistence/src/integrationTest/resources/application-postgres.properties",
+      "sha256": "4a97da5a28d297f3f8897d99b73270b9644dc2e4c5d3d3b7f1056bad453aa634",
+      "size": 209,
+      "mode": 420,
+      "effective_sha256": "4a97da5a28d297f3f8897d99b73270b9644dc2e4c5d3d3b7f1056bad453aa634"
+    },
+    {
+      "path": "order-service/order-service-persistence/src/integrationTest/resources/application.properties",
+      "sha256": "7415b98bc70c931a0fb2b56784adf86662f57c5a010ffdce5d902824710e4ed2",
+      "size": 896,
+      "mode": 420,
+      "effective_sha256": "7415b98bc70c931a0fb2b56784adf86662f57c5a010ffdce5d902824710e4ed2"
+    },
+    {
+      "path": "order-service/order-service-persistence/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/persistence/OrderPersistenceConfiguration.java",
+      "sha256": "b9076f25ed40fd9f0471aa982d9c6e310c10cab331ac2de57fefce00d8ee2d01",
+      "size": 639,
+      "mode": 420,
+      "effective_sha256": "b9076f25ed40fd9f0471aa982d9c6e310c10cab331ac2de57fefce00d8ee2d01"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/build.gradle",
+      "sha256": "9817e426cec20575ce168c16ab0bc856ce3a7619189714ac07f83f77fc6fa820",
+      "size": 1717,
+      "mode": 420,
+      "effective_sha256": "9817e426cec20575ce168c16ab0bc856ce3a7619189714ac07f83f77fc6fa820"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/orders/proxies/customers/BaseForCustomerServiceTest.java",
+      "sha256": "2f41c1e4c9e83bcfcf2a99d162196a37419d5d0194bd3b1be8fd277c2f10f223",
+      "size": 1676,
+      "mode": 420,
+      "effective_sha256": "2f41c1e4c9e83bcfcf2a99d162196a37419d5d0194bd3b1be8fd277c2f10f223"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/orders/proxies/customers/MoneyModule.java",
+      "sha256": "dbe021ddbd41032370b5be6c00b49f51eb19519e460f8bd0b223fd4e2ff664b1",
+      "size": 1647,
+      "mode": 420,
+      "effective_sha256": "dbe021ddbd41032370b5be6c00b49f51eb19519e460f8bd0b223fd4e2ff664b1"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/orders/proxies/customers/ReplyHandlersTest.java",
+      "sha256": "ebbfa2e1f45012dcc2f3e2ead3e441bf51ea94602e13f957f1a8d93a9c407dcf",
+      "size": 2037,
+      "mode": 420,
+      "effective_sha256": "ebbfa2e1f45012dcc2f3e2ead3e441bf51ea94602e13f957f1a8d93a9c407dcf"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/contractTest/java/io/eventuate/examples/tram/sagas/customersandorders/orders/proxies/customers/TestReplyConsumer.java",
+      "sha256": "022b36e8f5a534f8ae8f26099db554d5db0873de6c319ee9af8b3304c279bdc8",
+      "size": 1736,
+      "mode": 420,
+      "effective_sha256": "022b36e8f5a534f8ae8f26099db554d5db0873de6c319ee9af8b3304c279bdc8"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/contractTest/resources/application.properties",
+      "sha256": "9e14a7fa44e34ec2af7304f975f6f092adc3beaa2be3c6ecfc9dcc2d98d37ec9",
+      "size": 342,
+      "mode": 420,
+      "effective_sha256": "9e14a7fa44e34ec2af7304f975f6f092adc3beaa2be3c6ecfc9dcc2d98d37ec9"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/commands/ReserveCreditCommand.java",
+      "sha256": "189ef471fa47f5aac390d4ae91482caddc23695653acf6339bc13560ec21fbaa",
+      "size": 310,
+      "mode": 420,
+      "effective_sha256": "189ef471fa47f5aac390d4ae91482caddc23695653acf6339bc13560ec21fbaa"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/CustomerCreditLimitExceeded.java",
+      "sha256": "9d2d8a54b1b87cffa7da0cae304d7faee3f207f6db8026ff59f2ce852b1fe802",
+      "size": 177,
+      "mode": 420,
+      "effective_sha256": "9d2d8a54b1b87cffa7da0cae304d7faee3f207f6db8026ff59f2ce852b1fe802"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/CustomerCreditReserved.java",
+      "sha256": "aa15b80dc0d13ddd10f7849f1ec2d0003cbc9ddbdd50d25c56c8488614e4906c",
+      "size": 172,
+      "mode": 420,
+      "effective_sha256": "aa15b80dc0d13ddd10f7849f1ec2d0003cbc9ddbdd50d25c56c8488614e4906c"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/CustomerNotFound.java",
+      "sha256": "2ee593364614001117a8738a2ff1baf66256830f15f6441dbe7f186c74c59b1b",
+      "size": 166,
+      "mode": 420,
+      "effective_sha256": "2ee593364614001117a8738a2ff1baf66256830f15f6441dbe7f186c74c59b1b"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/customers/creditreservationapi/replies/ReserveCreditResult.java",
+      "sha256": "bbeb50b91b3f751942a3c61ccf6aff3806b7ff17fbcbafd5545361fd1cc1e461",
+      "size": 142,
+      "mode": 420,
+      "effective_sha256": "bbeb50b91b3f751942a3c61ccf6aff3806b7ff17fbcbafd5545361fd1cc1e461"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/proxies/customers/CustomerServiceProxy.java",
+      "sha256": "95d160918738b4b420463a8fdde968ff1ab3cfc35c691cbfad9b16da02878f11",
+      "size": 1649,
+      "mode": 420,
+      "effective_sha256": "95d160918738b4b420463a8fdde968ff1ab3cfc35c691cbfad9b16da02878f11"
+    },
+    {
+      "path": "order-service/order-service-proxies-customer-service/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/proxies/customers/CustomerServiceProxyConfiguration.java",
+      "sha256": "1836da35c0d7623f85253dba10865aa2785d2ae7b6877bbde6e5badd6af87f92",
+      "size": 375,
+      "mode": 420,
+      "effective_sha256": "1836da35c0d7623f85253dba10865aa2785d2ae7b6877bbde6e5badd6af87f92"
+    },
+    {
+      "path": "order-service/order-service-restapi/build.gradle",
+      "sha256": "da6325dedc5cc1e3aac1679bf0d1d67e4271c0723c763c9b83c5a4697ef13fb9",
+      "size": 549,
+      "mode": 420,
+      "effective_sha256": "da6325dedc5cc1e3aac1679bf0d1d67e4271c0723c763c9b83c5a4697ef13fb9"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/restapi/CreateOrderRequest.java",
+      "sha256": "be0b450ff7302d1f3dec3b9d29c83a0b1e8ed6d03179a082ea99bdd56d976f77",
+      "size": 201,
+      "mode": 420,
+      "effective_sha256": "be0b450ff7302d1f3dec3b9d29c83a0b1e8ed6d03179a082ea99bdd56d976f77"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/restapi/CreateOrderResponse.java",
+      "sha256": "b357dc790f473ddf8e7e20e0b214a7327d4897bf100e6620485e6d5e79d28f45",
+      "size": 187,
+      "mode": 420,
+      "effective_sha256": "b357dc790f473ddf8e7e20e0b214a7327d4897bf100e6620485e6d5e79d28f45"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/restapi/GetOrderResponse.java",
+      "sha256": "ad8beccc0f23c9d9d3b92a9c8b3a7789fa2beef52ec3560cd383e1b1de3d345b",
+      "size": 359,
+      "mode": 420,
+      "effective_sha256": "ad8beccc0f23c9d9d3b92a9c8b3a7789fa2beef52ec3560cd383e1b1de3d345b"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/restapi/GetOrdersResponse.java",
+      "sha256": "1aeb9ea5e6c9cab6c6ef7a55290a515208638d3cd15392ef3667dd7bc39d394a",
+      "size": 169,
+      "mode": 420,
+      "effective_sha256": "1aeb9ea5e6c9cab6c6ef7a55290a515208638d3cd15392ef3667dd7bc39d394a"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/restapi/OrderController.java",
+      "sha256": "3a527b27bb38e15e9edce994276e62f67cd5ac90ca3e68b90138dc2e703cc00c",
+      "size": 2452,
+      "mode": 420,
+      "effective_sha256": "3a527b27bb38e15e9edce994276e62f67cd5ac90ca3e68b90138dc2e703cc00c"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/restapi/OrderRestApiConfiguration.java",
+      "sha256": "227f09f09f7ae64042c988a86e0a1e19c99aa0b999ea792925e836ec3550c7d1",
+      "size": 275,
+      "mode": 420,
+      "effective_sha256": "227f09f09f7ae64042c988a86e0a1e19c99aa0b999ea792925e836ec3550c7d1"
+    },
+    {
+      "path": "order-service/order-service-restapi/src/test/java/io/eventuate/examples/tram/sagas/ordersandorders/orders/web/OrderControllerTest.java",
+      "sha256": "ee2342d390e346a999b9beec39dcefd1159f9e7dfd86b934af83bd9d17c52321",
+      "size": 1445,
+      "mode": 420,
+      "effective_sha256": "ee2342d390e346a999b9beec39dcefd1159f9e7dfd86b934af83bd9d17c52321"
+    },
+    {
+      "path": "order-service/order-service-sagas/build.gradle",
+      "sha256": "ac33f9d2d1963d4918354ca4f1d6c96bafb2d4801740f05eb0fb85b602ffcdb2",
+      "size": 1203,
+      "mode": 420,
+      "effective_sha256": "ac33f9d2d1963d4918354ca4f1d6c96bafb2d4801740f05eb0fb85b602ffcdb2"
+    },
+    {
+      "path": "order-service/order-service-sagas/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/sagas/CreateOrderSaga.java",
+      "sha256": "4f3326dae954dba7b77216d82cdfd596db395d73d61061dafa13c95c8a7d120b",
+      "size": 3073,
+      "mode": 420,
+      "effective_sha256": "4f3326dae954dba7b77216d82cdfd596db395d73d61061dafa13c95c8a7d120b"
+    },
+    {
+      "path": "order-service/order-service-sagas/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/sagas/CreateOrderSagaData.java",
+      "sha256": "c362a618652a9da78fe464892cbe9a33996e688c9f050ad921fef0ca80ea62b1",
+      "size": 934,
+      "mode": 420,
+      "effective_sha256": "c362a618652a9da78fe464892cbe9a33996e688c9f050ad921fef0ca80ea62b1"
+    },
+    {
+      "path": "order-service/order-service-sagas/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/sagas/OrderSagasConfiguration.java",
+      "sha256": "c3715c6e53d754032ece5bf81afe3480a7cbdfcce880e7ebe34c512c6f2df17f",
+      "size": 1722,
+      "mode": 420,
+      "effective_sha256": "c3715c6e53d754032ece5bf81afe3480a7cbdfcce880e7ebe34c512c6f2df17f"
+    },
+    {
+      "path": "order-service/order-service-sagas/src/main/java/io/eventuate/examples/tram/sagas/customersandorders/orders/sagas/OrderSagaService.java",
+      "sha256": "ecd2431b8d3336e5cfccc40a392cd4594f14a9aef1038e7103d2c016daebaa02",
+      "size": 1201,
+      "mode": 420,
+      "effective_sha256": "ecd2431b8d3336e5cfccc40a392cd4594f14a9aef1038e7103d2c016daebaa02"
+    },
+    {
+      "path": "order-service/order-service-sagas/src/test/java/io/eventuate/examples/tram/sagas/customersandorders/orders/service/CreateOrderSagaTest.java",
+      "sha256": "3ac44dabf93af43b066096d4b1b13cc288532934be9f3a0888353d4988195fe0",
+      "size": 3536,
+      "mode": 420,
+      "effective_sha256": "3ac44dabf93af43b066096d4b1b13cc288532934be9f3a0888353d4988195fe0"
+    },
+    {
+      "path": "postgres-customer-service-cli.sh",
+      "sha256": "2f907d98ef6bbfcba0739abc2298aec4974468b1336ad0795488503be3af1bce",
+      "size": 329,
+      "mode": 493,
+      "effective_sha256": "2f907d98ef6bbfcba0739abc2298aec4974468b1336ad0795488503be3af1bce"
+    },
+    {
+      "path": "postgres-order-service-cli.sh",
+      "sha256": "193c314001516d9bfe8d4d12e0c8566ca2157410d885674ec3ff6d772743e642",
+      "size": 328,
+      "mode": 493,
+      "effective_sha256": "193c314001516d9bfe8d4d12e0c8566ca2157410d885674ec3ff6d772743e642"
+    },
+    {
+      "path": "README.adoc",
+      "sha256": "aaff673dd1b9e7afad1f1a90acc6e5b2bb8d30b31cd59b99dcbb12437ca842b7",
+      "size": 6537,
+      "mode": 420,
+      "effective_sha256": "aaff673dd1b9e7afad1f1a90acc6e5b2bb8d30b31cd59b99dcbb12437ca842b7"
+    },
+    {
+      "path": "settings.gradle",
+      "sha256": "5c70261f0733a0222ddb9c82ac99f9c3084ee3ab39114c8722f09577b97e1616",
+      "size": 724,
+      "mode": 420,
+      "effective_sha256": "5c70261f0733a0222ddb9c82ac99f9c3084ee3ab39114c8722f09577b97e1616"
+    },
+    {
+      "path": "test-curl-commands.sh",
+      "sha256": "db693d5c596c91be148626936b4f3cd05e4db9b278c8ab57220b0659267f8e2b",
+      "size": 783,
+      "mode": 493,
+      "effective_sha256": "db693d5c596c91be148626936b4f3cd05e4db9b278c8ab57220b0659267f8e2b"
+    },
+    {
+      "path": "wait-for-mysql.sh",
+      "sha256": "9ec454b0d94c6d1e1b4bc7dad107a7708c5a2c91e67efa879e9633239075d665",
+      "size": 118,
+      "mode": 493,
+      "effective_sha256": "9ec454b0d94c6d1e1b4bc7dad107a7708c5a2c91e67efa879e9633239075d665"
+    },
+    {
+      "path": "wait-for-postgres.sh",
+      "sha256": "c661ebc5222f77f2c218f884ce8cc369dc7252de7ebe4c96520c499d0c537b36",
+      "size": 114,
+      "mode": 493,
+      "effective_sha256": "c661ebc5222f77f2c218f884ce8cc369dc7252de7ebe4c96520c499d0c537b36"
+    },
+    {
+      "path": "wait-for-services.sh",
+      "sha256": "db556af91c930046cdd05f500503880b194164da1161abe3c75dfe6bde2f8a0c",
+      "size": 443,
+      "mode": 493,
+      "effective_sha256": "db556af91c930046cdd05f500503880b194164da1161abe3c75dfe6bde2f8a0c"
+    }
+  ],
+  "build_patch": {
+    "paths": [
+      "gradle.properties",
+      "gradle/wrapper/gradle-wrapper.properties"
+    ],
+    "review_patch_path": "sut/build-inputs/build.redacted.patch",
+    "review_patch_sha256": "317cb1486c402fa6f7d0f3460aef53d7360ffce30cb53f36674fa7a6f92944ed",
+    "meaning": "仅显式采用已预检的两份properties变更；脱敏patch供审阅，不直接交给patch命令。"
+  },
+  "build_inputs": {
+    "verification_metadata_path": "sut/build-inputs/verification-metadata.xml",
+    "verification_metadata_sha256": "b3b8bf4809005be4169dd085fafa0b6f5e5d2bd99b59207b54d57d0265e7e88f",
+    "dependency_inventory_sha256": "538bf868dcfe722dda517ae033973c7cf36f74452a896f1cbd0321d153fa72b5",
+    "gradle_distribution_ref": "tmp/preflight/20261104T020503Z-build-preflight/gradle-8.14.5-bin.zip",
+    "gradle_distribution_sha256": "6f74b601422d6d6fc4e1f9a1ab6522f642c2fdcbc15ae33ebd30ba3d7198e854",
+    "wrapper_jar_sha256": "14dfa961b6704bb3decdea06502781edaa796a82e6da41cd2e1962b14fbe21a3",
+    "staging_required": "构建前将metadata放入隔离构建副本gradle目录，将ZIP复制到容器/workspace/imports；不在此源码目录直接运行Gradle。",
+    "dependency_trust": "BOOTSTRAP_INVENTORY_REQUIRES_REVIEW"
+  }
+}

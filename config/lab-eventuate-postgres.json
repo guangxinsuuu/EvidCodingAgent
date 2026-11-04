@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "runtime_revision": "lab-postgres-wal-kafka-v1",
+  "source_commit": "894f2dbbe9aba2be6129748b6bbf5f30356deb07",
+  "upstream_lock_sha256": "f302ba765c41742febf810f89b2e79f36db303b838043ca0f8d1e10c176958da",
+  "build_revision": "preflight-v2-local-repositories-and-verified-distribution",
+  "platform": "linux/arm64",
+  "images": {
+    "java": "eclipse-temurin@sha256:057a0daec60e87c96571bf5c9c7792065bcb19e804d584cd37d4144038a35717",
+    "postgres": "eventuateio/eventuate-vanilla-postgres@sha256:53cd5eead30f47f5fa9248617982d99450dc9465640a40f5f47f3c1eb3ab5312",
+    "kafka": "apache/kafka-native@sha256:8c671522f7f84d0fd20b1482a1d41fa4544eff02b4027673116d4fa74a508106",
+    "cdc": "eventuateio/eventuate-cdc-service@sha256:27ff82cc632a8683493b406c23d8205d79a65cec452e8f03ec495af6db825bd7"
+  },
+  "artifacts": {
+    "customer-service": {
+      "path": "artifacts/build/preflight/20261104T020503Z-build-preflight/customer-service-main-0.1.0-SNAPSHOT.jar",
+      "sha256": "bd35cfa8c91cdd005aff53ecde5e037996940a56460ebf67917298833940affc"
+    },
+    "order-service": {
+      "path": "artifacts/build/preflight/20261104T020503Z-build-preflight/order-service-main-0.1.0-SNAPSHOT.jar",
+      "sha256": "bfb8efa509cdd5181f11c0e27c051fa26e6e314771d7cf5c167a2cc02467243f"
+    },
+    "api-gateway-service": {
+      "path": "artifacts/build/preflight/20261104T020503Z-build-preflight/api-gateway-service-main-0.1.0-SNAPSHOT.jar",
+      "sha256": "3d14f0d55be8e331c59fab0f71c452a81bd71ad11ee225f88ad2d5bd2904a282"
+    }
+  },
+  "startup_timeout_ms": 180000,
+  "order_timeout_ms": 30000,
+  "request_timeout_ms": 5000,
+  "poll_interval_ms": 250,
+  "environment_ttl_ms": 7200000,
+  "network_internal": true,
+  "evidence_scope": "calibration-only",
+  "authority_mode": "file-lab"
+}

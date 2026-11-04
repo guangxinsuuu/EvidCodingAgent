@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "inspection_id": "20261104T020503Z-build-preflight",
+  "record_kind": "OBSERVED_PREFLIGHT_TOOLCHAIN_LOCK",
+  "scope": "fixed-source configuration, three service builds, same-cache offline recompile",
+  "source_commit": "894f2dbbe9aba2be6129748b6bbf5f30356deb07",
+  "build_revision": "preflight-v2-local-repositories-and-verified-distribution",
+  "business_revision": "unchanged-upstream",
+  "source_manifest_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/source-export.json",
+  "build_patch_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/build.redacted.patch",
+  "build_patch_sha256": "ba4e9c8e953047969c61c7f299164c9573cb3b917edda71885b6c1ea890bbfe1",
+  "redacted_build_patch_sha256": "317cb1486c402fa6f7d0f3460aef53d7360ffce30cb53f36674fa7a6f92944ed",
+  "host": {
+    "os": "Darwin",
+    "architecture": "arm64",
+    "macos_version": "15.7.9",
+    "node": "v25.4.0",
+    "pnpm": "11.7.0",
+    "git": "git version 2.54.0",
+    "host_default_java": "openjdk version \"21.0.10\" 2026-01-20\nOpenJDK Runtime Environment Homebrew (build 21.0.10)\nOpenJDK 64-Bit Server VM Homebrew (build 21.0.10, mixed mode, sharing)",
+    "scope": "host queries; actual Gradle launcher/compiler were inside the Java17 container"
+  },
+  "builder": {
+    "image": "eclipse-temurin@sha256:057a0daec60e87c96571bf5c9c7792065bcb19e804d584cd37d4144038a35717",
+    "os": "linux",
+    "architecture": "arm64",
+    "java_vendor": "Eclipse Adoptium",
+    "jdk_version": "17.0.21+9",
+    "gradle_launcher_jvm": "17.0.21",
+    "toolchain_language_version": 17,
+    "javac_version": "17.0.21",
+    "evidence_refs": [
+      "artifacts/evidence/preflight/20261104T020503Z-build-preflight/builder-boundary-probe.output.txt",
+      "artifacts/evidence/preflight/20261104T020503Z-build-preflight/gradle-version.output.txt"
+    ]
+  },
+  "gradle": {
+    "version": "8.14.5",
+    "wrapper_jar_sha256": "14dfa961b6704bb3decdea06502781edaa796a82e6da41cd2e1962b14fbe21a3",
+    "wrapper_jar_release_family": "7.6.2-7.6.6",
+    "distribution_sha256": "6f74b601422d6d6fc4e1f9a1ab6522f642c2fdcbc15ae33ebd30ba3d7198e854",
+    "integrity_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/gradle-integrity.json"
+  },
+  "docker": {
+    "engine_version": "28.4.0",
+    "desktop_version": "4.47.0",
+    "context": "desktop-linux",
+    "host_scope": "local task-authorized Docker Desktop",
+    "evidence_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/docker-server-started.output.txt"
+  },
+  "dependencies": {
+    "verification_metadata_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/verification-metadata.xml",
+    "verification_metadata_sha256": "b3b8bf4809005be4169dd085fafa0b6f5e5d2bd99b59207b54d57d0265e7e88f",
+    "metadata_components": 862,
+    "metadata_artifact_entries": 1430,
+    "resolved_inventory_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/resolved-dependencies.json",
+    "resolved_inventory_sha256": "538bf868dcfe722dda517ae033973c7cf36f74452a896f1cbd0321d153fa72b5",
+    "cached_file_count": 1698,
+    "trust_status": "BOOTSTRAP_INVENTORY_REQUIRES_REVIEW",
+    "fresh_online_reproduction": "NOT_RUN"
+  },
+  "repository_inventory_ref": "config/build-repositories.json",
+  "artifact_inventory_ref": "artifacts/evidence/preflight/20261104T020503Z-build-preflight/artifact-inspection.json",
+  "production_qualification": "NOT_RUN",
+  "sut_runtime_qualification": "NOT_RUN"
+}

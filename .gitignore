@@ -1,0 +1,21 @@
+# 本地环境与凭据；示例文件仅包含无权限的配置。
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+node_modules/
+dist/
+*.tsbuildinfo
+.pnpm-store/
+coverage/
+*.log
+.DS_Store
+
+# 必须锚定根目录，不能把 packages/artifacts 的源码一并忽略。
+/artifacts/
+/tmp/
+/sut/workspaces/
+/sut/ml-inference/workspaces/
+/sut/candidates/

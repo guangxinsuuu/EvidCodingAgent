@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/contracts"
+    },
+    {
+      "path": "./packages/domain"
+    },
+    {
+      "path": "./packages/artifacts"
+    },
+    {
+      "path": "./apps/control-plane"
+    },
+    {
+      "path": "./packages/ml-inference-adapter"
+    },
+    {
+      "path": "./tools/environment-host"
+    }
+  ]
+}

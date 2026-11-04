@@ -1,0 +1,17 @@
+packages:
+  - apps/*
+  - packages/*
+  - tools/*
+
+# 本轮实际验证的 Node/pnpm 组合；不同工具版本需要显式复核。
+engineStrict: true
+pmOnFail: error
+saveExact: true
+storeDir: .pnpm-store
+
+# pnpm 11 的配置在 workspace 中；安装不执行依赖提供的脚本。
+ignoreScripts: true
+allowBuilds:
+  '*': false
+minimumReleaseAge: 1440
+verifyDepsBeforeRun: error

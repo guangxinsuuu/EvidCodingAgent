@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "business_id": "async-ml-inference",
+  "task_mode": "RELEASE_VERIFICATION",
+  "source_policy_ref": "config/ml-source-policy.json",
+  "source_lock_ref": "sut/ml-inference/upstream.lock.json",
+  "baseline_ref": "sut/ml-inference/workspaces/baseline",
+  "lab_ledger_ref": "artifacts/lab/ml-inference",
+  "api_adapter": "@egap/ml-inference-adapter",
+  "runtime_qualification": "NOT_RUN",
+  "legacy_business": {
+    "business_id": "eventuate-orders",
+    "status": "ARCHIVED_NOT_ACTIVE",
+    "source_lock_ref": "sut/upstream.lock.json",
+    "ledger_ref": "artifacts/lab/local",
+    "evidence_transfer": "FORBIDDEN"
+  }
+}

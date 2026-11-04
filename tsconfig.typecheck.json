@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "@egap/contracts": [
+        "./packages/contracts/src/index.ts"
+      ],
+      "@egap/domain": [
+        "./packages/domain/src/index.ts"
+      ],
+      "@egap/artifacts": [
+        "./packages/artifacts/src/index.ts"
+      ],
+      "@egap/ml-inference-adapter": [
+        "./packages/ml-inference-adapter/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "apps/*/src/**/*.ts",
+    "packages/*/src/**/*.ts",
+    "tools/*/src/**/*.ts"
+  ]
+}
