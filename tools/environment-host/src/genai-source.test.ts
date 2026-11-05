@@ -78,10 +78,13 @@ test("GenAI门面拒绝ML策略，公共导出器不能跨业务选择命名空�
 test("GenAI active profile拒绝旧来源/账本、任意适配器以及虚构运行资格", t => {
   const f = fixture(t); mkdirSync(join(f.project, "config")); const path = join(f.project, "config/active-business.json");
   writeFileSync(path, JSON.stringify(profile)); assert.equal(loadActiveBusiness(f.project).businessId, "genai-support");
+  writeFileSync(path, JSON.stringify({ ...profile, sut_implementation_status: "SKELETON_ONLY" }));
+  assert.equal(loadActiveBusiness(f.project).businessId, "genai-support");
   for (const change of [
     { business_id: "async-ml-inference" }, { lab_ledger_ref: "artifacts/lab/ml-inference" },
     { lab_ledger_ref: "artifacts/lab/local" }, { source_lock_ref: "sut/ml-inference/upstream.lock.json" },
     { api_adapter: "arbitrary-plugin" }, { runtime_qualification: "PASS" }, { sut_implementation_status: "READY" },
+    { sut_implementation_status: ["SKELETON_ONLY"] },
   ]) {
     writeFileSync(path, JSON.stringify({ ...profile, ...change }));
     assert.throws(() => loadActiveBusiness(f.project), /ACTIVE_BUSINESS_INVALID/);

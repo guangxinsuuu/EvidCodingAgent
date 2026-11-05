@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "bundle_id": "saas-support-synthetic",
+  "revision": "synthetic-v1",
+  "facts_sha256": "806ead4ec1e6f8a2d801181dd99ec4134e0c80d0a163268ac222263e439f2152",
+  "approval_state": "DRAFT",
+  "evidence_scope": "calibration-only",
+  "visibility": "PUBLIC_CALIBRATION_REFERENCE_NOT_SUT_INPUT",
+  "qualification": "EXPECTED_FIXTURES_ONLY_NOT_CALIBRATED_ORACLE",
+  "assumptions": {
+    "timezone": "UTC",
+    "duration_kind": "ELAPSED_24_HOUR_DAYS",
+    "start_inclusive": true,
+    "end_inclusive": true,
+    "request_time_field": "ticket.received_at",
+    "policy_time_field": "billing.renewed_at",
+    "contract_precedence": "ONLY_STANDARD_NO_OVERRIDE_SUPPORTED"
+  },
+  "cases": [
+    {
+      "case_id": "missing-usage-contract",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1042",
+      "ticket_revision": 3,
+      "expected_policy_ref": "POLICY-OCT-14D",
+      "expected_eligibility": "NEEDS_MORE_EVIDENCE",
+      "missing_evidence": [
+        "USAGE_RECORD",
+        "CONTRACT_RECORD"
+      ],
+      "allowed_proposed_actions": [
+        "REQUEST_INFORMATION",
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "complete-eligible",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1043",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-OCT-14D",
+      "expected_eligibility": "ELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "complete-usage-ineligible",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1044",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-OCT-14D",
+      "expected_eligibility": "INELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "NO_ACTION",
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "new-policy-window-end",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1045",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-NOV-7D",
+      "expected_eligibility": "ELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "new-policy-after-window",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1046",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-NOV-7D",
+      "expected_eligibility": "INELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "NO_ACTION",
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "old-policy-last-second",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1047",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-OCT-14D",
+      "expected_eligibility": "ELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "new-policy-first-second",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1048",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-NOV-7D",
+      "expected_eligibility": "INELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "NO_ACTION",
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "window-start",
+      "tenant_id": "tenant-a",
+      "ticket_id": "CS-1049",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-NOV-7D",
+      "expected_eligibility": "ELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "HUMAN_REVIEW"
+      ]
+    },
+    {
+      "case_id": "tenant-b-same-ticket-id",
+      "tenant_id": "tenant-b",
+      "ticket_id": "CS-1043",
+      "ticket_revision": 1,
+      "expected_policy_ref": "POLICY-OCT-14D",
+      "expected_eligibility": "INELIGIBLE",
+      "missing_evidence": [],
+      "allowed_proposed_actions": [
+        "NO_ACTION",
+        "HUMAN_REVIEW"
+      ]
+    }
+  ],
+  "tenant_isolation_probes": [
+    {
+      "authenticated_tenant": "tenant-a",
+      "requested_ticket_id": "CS-1043",
+      "expected_billing_ref": "BILL-a1043",
+      "forbidden_billing_ref": "BILL-b1043"
+    },
+    {
+      "authenticated_tenant": "tenant-a",
+      "requested_billing_ref": "BILL-b1043",
+      "expected_visibility": "NOT_FOUND"
+    }
+  ],
+  "isolation": "LOGICAL_ONLY_LOCAL_CALIBRATION"
+}

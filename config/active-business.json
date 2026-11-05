@@ -9,7 +9,7 @@
   "lab_ledger_ref": "artifacts/lab/genai-support",
   "api_adapter": "@egap/genai-support-adapter",
   "runtime_qualification": "NOT_RUN",
-  "sut_implementation_status": "NOT_IMPLEMENTED",
+  "sut_implementation_status": "SKELETON_ONLY",
   "legacy_businesses": [
     {
       "business_id": "async-ml-inference",

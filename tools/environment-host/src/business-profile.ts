@@ -26,6 +26,8 @@ export function loadActiveBusiness(project: string): { businessId: "genai-suppor
       v.source_policy_ref !== "config/genai-support-source-policy.json" || v.source_lock_ref !== "sut/genai-support/upstream.lock.json" ||
       v.reference_ref !== "sut/genai-support/workspaces/reference" || v.lab_ledger_ref !== "artifacts/lab/genai-support" ||
       v.api_adapter !== "@egap/genai-support-adapter" || v.source_role !== "NON_SAAS_DEMO_REFERENCE" ||
-      v.runtime_qualification !== "NOT_RUN" || v.sut_implementation_status !== "NOT_IMPLEMENTED") throw new Error("ACTIVE_BUSINESS_INVALID");
+      // 骨架已落地仍没有真实Job/LLM资格；状态不能自称完成来提升参考源码的资格。
+      v.runtime_qualification !== "NOT_RUN" ||
+      (v.sut_implementation_status !== "NOT_IMPLEMENTED" && v.sut_implementation_status !== "SKELETON_ONLY")) throw new Error("ACTIVE_BUSINESS_INVALID");
   return { businessId: "genai-support", ledgerRef: "artifacts/lab/genai-support" };
 }

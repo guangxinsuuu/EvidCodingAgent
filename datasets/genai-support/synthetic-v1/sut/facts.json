@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "bundle_id": "saas-support-synthetic",
+  "revision": "synthetic-v1",
+  "synthetic": true,
+  "approval_state": "DRAFT",
+  "evidence_scope": "calibration-only",
+  "provenance": "由已选定的SaaS续费争议演示场景构造；不是企业真实数据或已批准退款政策。",
+  "clock": {
+    "now": "2026-11-10T12:00:00Z",
+    "timezone": "UTC"
+  },
+  "tenants": [
+    {
+      "tenant_id": "tenant-a",
+      "name": "Synthetic Alpha SaaS Customer"
+    },
+    {
+      "tenant_id": "tenant-b",
+      "name": "Synthetic Beta SaaS Customer"
+    }
+  ],
+  "subscriptions": [
+    {
+      "subscription_id": "SUB-a1042",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": null
+    },
+    {
+      "subscription_id": "SUB-a1043",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1043"
+    },
+    {
+      "subscription_id": "SUB-a1044",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1044"
+    },
+    {
+      "subscription_id": "SUB-a1045",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1045"
+    },
+    {
+      "subscription_id": "SUB-a1046",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1046"
+    },
+    {
+      "subscription_id": "SUB-a1047",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1047"
+    },
+    {
+      "subscription_id": "SUB-a1048",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1048"
+    },
+    {
+      "subscription_id": "SUB-a1049",
+      "tenant_id": "tenant-a",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-a1049"
+    },
+    {
+      "subscription_id": "SUB-b1043",
+      "tenant_id": "tenant-b",
+      "plan": "SAAS_PRO_MONTHLY",
+      "contract_ref": "CONTRACT-b1043"
+    }
+  ],
+  "tickets": [
+    {
+      "ticket_id": "CS-1042",
+      "tenant_id": "tenant-a",
+      "revision": 3,
+      "subscription_ref": "SUB-a1042",
+      "billing_record_ref": "BILL-a1042",
+      "received_at": "2026-11-02T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1043",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1043",
+      "billing_record_ref": "BILL-a1043",
+      "received_at": "2026-11-02T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1044",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1044",
+      "billing_record_ref": "BILL-a1044",
+      "received_at": "2026-11-02T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1045",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1045",
+      "billing_record_ref": "BILL-a1045",
+      "received_at": "2026-11-08T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1046",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1046",
+      "billing_record_ref": "BILL-a1046",
+      "received_at": "2026-11-08T00:00:01Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1047",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1047",
+      "billing_record_ref": "BILL-a1047",
+      "received_at": "2026-11-08T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1048",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1048",
+      "billing_record_ref": "BILL-a1048",
+      "received_at": "2026-11-09T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1049",
+      "tenant_id": "tenant-a",
+      "revision": 1,
+      "subscription_ref": "SUB-a1049",
+      "billing_record_ref": "BILL-a1049",
+      "received_at": "2026-11-01T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    },
+    {
+      "ticket_id": "CS-1043",
+      "tenant_id": "tenant-b",
+      "revision": 1,
+      "subscription_ref": "SUB-b1043",
+      "billing_record_ref": "BILL-b1043",
+      "received_at": "2026-11-02T00:00:00Z",
+      "subject": "订阅自动续费争议",
+      "body": "请检查这次自动续费是否满足退款条件，并准备一份客服回复草稿。"
+    }
+  ],
+  "billing_records": [
+    {
+      "billing_record_id": "BILL-a1042",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1042",
+      "renewed_at": "2026-10-25T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1043",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1043",
+      "renewed_at": "2026-10-25T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1044",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1044",
+      "renewed_at": "2026-10-25T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1045",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1045",
+      "renewed_at": "2026-11-01T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1046",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1046",
+      "renewed_at": "2026-11-01T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1047",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1047",
+      "renewed_at": "2026-10-31T23:59:59Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1048",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1048",
+      "renewed_at": "2026-11-01T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-a1049",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1049",
+      "renewed_at": "2026-11-01T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    },
+    {
+      "billing_record_id": "BILL-b1043",
+      "tenant_id": "tenant-b",
+      "subscription_ref": "SUB-b1043",
+      "renewed_at": "2026-10-25T00:00:00Z",
+      "amount_minor": 12000,
+      "currency": "USD",
+      "status": "PAID"
+    }
+  ],
+  "usage_records": [
+    {
+      "usage_record_id": "USAGE-a1043",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1043",
+      "units": 0,
+      "observed_through": "2026-11-02T00:00:00Z"
+    },
+    {
+      "usage_record_id": "USAGE-a1044",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1044",
+      "units": 1,
+      "observed_through": "2026-11-02T00:00:00Z"
+    },
+    {
+      "usage_record_id": "USAGE-a1045",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1045",
+      "units": 0,
+      "observed_through": "2026-11-08T00:00:00Z"
+    },
+    {
+      "usage_record_id": "USAGE-a1046",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1046",
+      "units": 0,
+      "observed_through": "2026-11-08T00:00:01Z"
+    },
+    {
+      "usage_record_id": "USAGE-a1047",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1047",
+      "units": 0,
+      "observed_through": "2026-11-08T00:00:00Z"
+    },
+    {
+      "usage_record_id": "USAGE-a1048",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1048",
+      "units": 0,
+      "observed_through": "2026-11-09T00:00:00Z"
+    },
+    {
+      "usage_record_id": "USAGE-a1049",
+      "tenant_id": "tenant-a",
+      "billing_record_ref": "BILL-a1049",
+      "units": 0,
+      "observed_through": "2026-11-01T00:00:00Z"
+    },
+    {
+      "usage_record_id": "USAGE-b1043",
+      "tenant_id": "tenant-b",
+      "billing_record_ref": "BILL-b1043",
+      "units": 5,
+      "observed_through": "2026-11-02T00:00:00Z"
+    }
+  ],
+  "contracts": [
+    {
+      "contract_id": "CONTRACT-a1043",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1043",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-a1044",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1044",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-a1045",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1045",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-a1046",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1046",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-a1047",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1047",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-a1048",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1048",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-a1049",
+      "tenant_id": "tenant-a",
+      "subscription_ref": "SUB-a1049",
+      "terms": "STANDARD_NO_OVERRIDE"
+    },
+    {
+      "contract_id": "CONTRACT-b1043",
+      "tenant_id": "tenant-b",
+      "subscription_ref": "SUB-b1043",
+      "terms": "STANDARD_NO_OVERRIDE"
+    }
+  ],
+  "policies": [
+    {
+      "policy_id": "POLICY-OCT-14D",
+      "plan": "SAAS_PRO_MONTHLY",
+      "effective_from": "2026-10-01T00:00:00Z",
+      "effective_to_exclusive": "2026-11-01T00:00:00Z",
+      "refund_window_days": 14,
+      "window_semantics": {
+        "timezone": "UTC",
+        "duration_kind": "ELAPSED_24_HOUR_DAYS",
+        "start_inclusive": true,
+        "end_inclusive": true,
+        "request_time_field": "ticket.received_at",
+        "policy_time_field": "billing.renewed_at",
+        "contract_precedence": "ONLY_STANDARD_NO_OVERRIDE_SUPPORTED"
+      },
+      "required_evidence": [
+        "PAID_BILLING",
+        "USAGE_RECORD",
+        "CONTRACT_RECORD"
+      ],
+      "eligibility_conditions": {
+        "maximum_usage_units": 0,
+        "contract_terms": "STANDARD_NO_OVERRIDE"
+      },
+      "text": "DRAFT 合成演示政策：仅适用 SAAS_PRO_MONTHLY。按续费时刻选择生效版本，生效区间左闭右开。退款申请以工单 received_at 为准，须在续费后 0 至 14 个经过的24小时内（首尾包含）；账单已支付、该续费周期截至工单收到时的用量为零且合同明确为 STANDARD_NO_OVERRIDE。缺失关键事实应补证；非标准合同转人工，不自动猜测优先级。ELIGIBLE 只允许生成人审草稿，不授权退款或发送。"
+    },
+    {
+      "policy_id": "POLICY-NOV-7D",
+      "plan": "SAAS_PRO_MONTHLY",
+      "effective_from": "2026-11-01T00:00:00Z",
+      "effective_to_exclusive": null,
+      "refund_window_days": 7,
+      "window_semantics": {
+        "timezone": "UTC",
+        "duration_kind": "ELAPSED_24_HOUR_DAYS",
+        "start_inclusive": true,
+        "end_inclusive": true,
+        "request_time_field": "ticket.received_at",
+        "policy_time_field": "billing.renewed_at",
+        "contract_precedence": "ONLY_STANDARD_NO_OVERRIDE_SUPPORTED"
+      },
+      "required_evidence": [
+        "PAID_BILLING",
+        "USAGE_RECORD",
+        "CONTRACT_RECORD"
+      ],
+      "eligibility_conditions": {
+        "maximum_usage_units": 0,
+        "contract_terms": "STANDARD_NO_OVERRIDE"
+      },
+      "text": "DRAFT 合成演示政策：仅适用 SAAS_PRO_MONTHLY。按续费时刻选择生效版本，生效区间左闭右开。退款申请以工单 received_at 为准，须在续费后 0 至 7 个经过的24小时内（首尾包含）；账单已支付、该续费周期截至工单收到时的用量为零且合同明确为 STANDARD_NO_OVERRIDE。缺失关键事实应补证；非标准合同转人工，不自动猜测优先级。ELIGIBLE 只允许生成人审草稿，不授权退款或发送。"
+    }
+  ]
+}

@@ -13,6 +13,14 @@ coverage/
 *.log
 .DS_Store
 
+# Python服务环境与测试缓存；依赖锁和合成fixture仍提交。
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
 # 必须锚定根目录，不能把 packages/artifacts 的源码一并忽略。
 /artifacts/
 /tmp/

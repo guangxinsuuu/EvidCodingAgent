@@ -14,7 +14,14 @@
     "test:lab": "pnpm build && node --test tools/environment-host/dist/*.test.js",
     "egap:lab": "pnpm build && node tools/environment-host/dist/cli.js",
     "dev:control-plane": "pnpm build && node --env-file-if-exists=.env apps/control-plane/dist/main.js",
-    "start:control-plane": "node --env-file-if-exists=.env apps/control-plane/dist/main.js"
+    "start:control-plane": "node --env-file-if-exists=.env apps/control-plane/dist/main.js",
+    "preflight:support": "python3 tools/genai-support-preflight.py",
+    "setup:support": "python3 tools/support-service.py setup",
+    "export:support-protocol": "pnpm build && node tools/export-support-schemas.mjs",
+    "check:support-protocol": "pnpm build && node tools/export-support-schemas.mjs --check",
+    "fixtures:support": "python3 tools/support-service.py fixtures",
+    "test:support": "pnpm check:support-protocol && python3 -m unittest discover -s tools -p 'test_*support*.py' -v && python3 tools/support-service.py test",
+    "dev:support": "python3 tools/support-service.py start"
   },
   "devDependencies": { "@types/node": "25.9.9", "typescript": "7.0.2" }
 }

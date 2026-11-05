@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "source_ref": "packages/contracts/src/support.ts",
+  "schemas": {
+    "request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:egap:support-request:1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ticket_id",
+        "ticket_revision"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "ticket_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "\\s"
+          }
+        },
+        "ticket_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "submission": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:egap:support-submission:1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ticket_id",
+        "ticket_revision",
+        "job_id",
+        "tenant_id",
+        "status"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "ticket_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "\\s"
+          }
+        },
+        "ticket_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "job_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "tenant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "\\s"
+          }
+        },
+        "status": {
+          "const": "QUEUED"
+        }
+      }
+    },
+    "job": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:egap:support-job:1",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "ticket_id",
+            "ticket_revision",
+            "job_id",
+            "tenant_id",
+            "status",
+            "draft",
+            "error_code"
+          ],
+          "properties": {
+            "schema_version": {
+              "type": "integer",
+              "const": 1
+            },
+            "ticket_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "not": {
+                "pattern": "\\s"
+              }
+            },
+            "ticket_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "job_id": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            },
+            "tenant_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "not": {
+                "pattern": "\\s"
+              }
+            },
+            "status": {
+              "enum": [
+                "QUEUED",
+                "PROCESSING"
+              ]
+            },
+            "draft": {
+              "type": "null"
+            },
+            "error_code": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "ticket_id",
+            "ticket_revision",
+            "job_id",
+            "tenant_id",
+            "status",
+            "draft",
+            "error_code"
+          ],
+          "properties": {
+            "schema_version": {
+              "type": "integer",
+              "const": 1
+            },
+            "ticket_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "not": {
+                "pattern": "\\s"
+              }
+            },
+            "ticket_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "job_id": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            },
+            "tenant_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "not": {
+                "pattern": "\\s"
+              }
+            },
+            "status": {
+              "const": "DONE"
+            },
+            "draft": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "resolution_type",
+                "ticket_id",
+                "ticket_revision",
+                "applicable_policy_ref",
+                "billing_record_ref",
+                "eligibility",
+                "proposed_action",
+                "evidence_refs",
+                "customer_reply_draft"
+              ],
+              "properties": {
+                "resolution_type": {
+                  "const": "REFUND_ELIGIBILITY_REVIEW"
+                },
+                "ticket_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "not": {
+                    "pattern": "\\s"
+                  }
+                },
+                "ticket_revision": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "applicable_policy_ref": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "\\s"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "billing_record_ref": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "\\s"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "eligibility": {
+                  "enum": [
+                    "ELIGIBLE",
+                    "INELIGIBLE",
+                    "NEEDS_MORE_EVIDENCE"
+                  ]
+                },
+                "proposed_action": {
+                  "enum": [
+                    "HUMAN_REVIEW",
+                    "REQUEST_INFORMATION",
+                    "NO_ACTION"
+                  ]
+                },
+                "evidence_refs": {
+                  "type": "array",
+                  "maxItems": 32,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "\\s"
+                    }
+                  }
+                },
+                "customer_reply_draft": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384
+                }
+              }
+            },
+            "error_code": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "ticket_id",
+            "ticket_revision",
+            "job_id",
+            "tenant_id",
+            "status",
+            "draft",
+            "error_code"
+          ],
+          "properties": {
+            "schema_version": {
+              "type": "integer",
+              "const": 1
+            },
+            "ticket_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "not": {
+                "pattern": "\\s"
+              }
+            },
+            "ticket_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "job_id": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            },
+            "tenant_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "not": {
+                "pattern": "\\s"
+              }
+            },
+            "status": {
+              "const": "FAILED"
+            },
+            "draft": {
+              "type": "null"
+            },
+            "error_code": {
+              "const": "PROCESSING_FAILED"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

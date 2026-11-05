@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "bundle_id": "saas-support-synthetic",
+  "revision": "synthetic-v1",
+  "facts_file": "facts.json",
+  "facts_sha256": "806ead4ec1e6f8a2d801181dd99ec4134e0c80d0a163268ac222263e439f2152",
+  "synthetic": true,
+  "approval_state": "DRAFT",
+  "evidence_scope": "calibration-only",
+  "provenance": {
+    "kind": "SYNTHETIC_SCENARIO",
+    "business_policy_approval": null,
+    "isolation": "LOGICAL_ONLY_LOCAL_CALIBRATION",
+    "expected_results_included": false
+  }
+}
