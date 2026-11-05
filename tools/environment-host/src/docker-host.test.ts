@@ -5,7 +5,7 @@ import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { DOCKER_EPOCH_LABEL, DOCKER_OWNER_LABEL, DockerHost, DockerHostError } from "./docker-host.js";
-import type { DockerAudit, DockerCommandResult, DockerTransport } from "./docker-host.js";
+import type { DockerAudit, DockerCommandResult, DockerContainerSpec, DockerTransport } from "./docker-host.js";
 
 const owner = { environmentId: "environment_11111111-1111-4111-8111-111111111111", epoch: 3 };
 const networkId = "a".repeat(64), containerId = "b".repeat(64), imageId = `sha256:${"c".repeat(64)}`;
@@ -190,4 +190,129 @@ test("exec只允许可信数据库工具，命令参数和stdout原文不进入�
   fake.override = args => args[1] === "exec" ? success("returned-secret-value") : undefined;
   const result = await host.exec(containerId, ["psql", "-c", "select 'query-secret'"]);
   assert.equal(result.stdout, "returned-secret-value"); assert.ok(!JSON.stringify(audits).includes("query-secret")); assert.ok(!JSON.stringify(audits).includes("returned-secret-value"));
+});
+
+/** 只扩展本测试的volume响应，避免通用FakeDocker假装所有volume默认存在。 */
+function volumeReceipt(name = "egap-support-postgres", overrides: Record<string, unknown> = {}): DockerCommandResult {
+  return success(JSON.stringify({ name, driver: "local", options: null, labels: ownLabels(), ...overrides }));
+}
+
+test("显式命名卷创建后读回local driver与owner，合法持久挂载只传登记名称", async t => {
+  const { host, fake } = await setup(t); const name = "egap-support-postgres"; let exists = false;
+  fake.override = args => {
+    if (args[0] !== "volume") return undefined;
+    if (args[1] === "inspect") return exists ? volumeReceipt(name) : failure(`Error response from daemon: get ${name}: no such volume`);
+    if (args[1] === "create") { exists = true; return success(name + "\n"); }
+    return undefined;
+  };
+  const volume = await host.createVolume(name);
+  assert.equal(volume.name, name); assert.deepEqual(volume.labels, ownLabels());
+  fake.container.mounts = [{ Type: "volume", Name: name, Destination: "/var/lib/postgresql/data" }];
+  await host.createContainer({ name: "test-service", image, networkId, volumes: [{ name, destination: "/var/lib/postgresql/data" }] });
+  await host.startContainer(containerId);
+  const creation = fake.commands().find(args => args[0] === "volume" && args[1] === "create")!;
+  assert.deepEqual(creation, ["volume", "create", "--driver", "local", "--label", `${DOCKER_OWNER_LABEL}=${owner.environmentId}`,
+    "--label", `${DOCKER_EPOCH_LABEL}=${owner.epoch}`, name]);
+  const container = fake.commands().find(args => args[0] === "container" && args[1] === "create")!;
+  assert.equal(container[container.indexOf("--mount") + 1], `type=volume,source=${name},target=/var/lib/postgresql/data`);
+  assert.ok(!container.includes("--volume")); assert.ok(!container.includes("--privileged"));
+  assert.ok(fake.commands().some(args => args[0] === "container" && args[1] === "start"));
+});
+
+test("跨owner或旧epoch卷不能挂载或删除，已存在卷也不会被create接管", async t => {
+  const { host, fake } = await setup(t); const name = "egap-support-postgres";
+  for (const labels of [{ ...ownLabels(), [DOCKER_OWNER_LABEL]: "environment_other" },
+    { ...ownLabels(), [DOCKER_EPOCH_LABEL]: "2" }]) {
+    fake.override = args => args[0] === "volume" && args[1] === "inspect" ? volumeReceipt(name, { labels }) : undefined;
+    await assert.rejects(host.createContainer({ name: "test-service", image, networkId,
+      volumes: [{ name, destination: "/var/lib/postgresql/data" }] }), isCode("OWNERSHIP_MISMATCH"));
+    await assert.rejects(host.removeVolume(name), isCode("OWNERSHIP_MISMATCH"));
+    await assert.rejects(host.createVolume(name), isCode("VOLUME_ALREADY_EXISTS"));
+  }
+  assert.ok(!fake.commands().some(args => ["create", "rm"].includes(args[1] ?? "")));
+});
+
+test("拒绝非local卷及local driver的bind/NFS选项，不能借named volume访问宿主", async t => {
+  const { host, fake } = await setup(t); const name = "egap-support-postgres";
+  for (const override of [{ driver: "nfs" }, { options: { type: "none", o: "bind", device: "/" } },
+    { options: { type: "nfs", device: ":/private" } }, { name: "egap-different-volume" }]) {
+    fake.override = args => args[0] === "volume" && args[1] === "inspect" ? volumeReceipt(name, override) : undefined;
+    await assert.rejects(host.inspectVolume(name), isCode("UNTRUSTED_VOLUME"));
+    await assert.rejects(host.createContainer({ name: "test-service", image, networkId,
+      volumes: [{ name, destination: "/var/lib/postgresql/data" }] }), isCode("UNTRUSTED_VOLUME"));
+  }
+  assert.ok(!fake.commands().some(args => args[1] === "create"));
+});
+
+test("挂载路径与卷名称有固定边界，重复目标不会下发容器create", async t => {
+  const { host, fake } = await setup(t); const name = "egap-support-postgres";
+  fake.override = args => args[0] === "volume" && args[1] === "inspect" ? volumeReceipt(name) : undefined;
+  for (const volumes of [
+    [{ name, destination: "/var/run/docker.sock" }], [{ name, destination: "/etc" }],
+    [{ name, destination: "/data" }, { name, destination: "/data" }],
+  ]) {
+    await assert.rejects(host.createContainer({ name: "test-service", image, networkId, volumes } as unknown as DockerContainerSpec),
+      isCode("INVALID_VOLUME_DESTINATION"));
+  }
+  for (const invalidName of ["/host/path", "anonymous", "egap-safe,volume-opt=device=/", "egap-bad\n"]) {
+    await assert.rejects(host.inspectVolume(invalidName), isCode("INVALID_VOLUME_NAME"));
+  }
+  assert.ok(!fake.commands().some(args => args[0] === "container" && args[1] === "create"));
+});
+
+test("容器读回的卷目标或归属异常时拒绝启动，不能只信创建前校验", async t => {
+  const { host, fake } = await setup(t); const name = "egap-support-postgres";
+  fake.override = args => args[0] === "volume" && args[1] === "inspect" ? volumeReceipt(name) : undefined;
+  fake.container.mounts = [{ Type: "volume", Name: name, Destination: "/etc" }];
+  await assert.rejects(host.startContainer(containerId), isCode("HOST_OR_ANONYMOUS_VOLUME_FORBIDDEN"));
+  fake.container.mounts = [{ Type: "volume", Name: name, Destination: "/data" }];
+  fake.override = args => args[0] === "volume" && args[1] === "inspect"
+    ? volumeReceipt(name, { labels: { ...ownLabels(), [DOCKER_OWNER_LABEL]: "environment_other" } }) : undefined;
+  await assert.rejects(host.startContainer(containerId), isCode("OWNERSHIP_MISMATCH"));
+  assert.ok(!fake.commands().some(args => args[1] === "start"));
+});
+
+test("卷create中断和create后inspect丢失都保持UNKNOWN，不自动重发", async t => {
+  for (const missingAfterCreate of [false, true]) {
+    const { host, fake, audits } = await setup(t); const name = "egap-support-postgres"; let created = false;
+    fake.override = args => {
+      if (args[0] !== "volume") return undefined;
+      if (args[1] === "inspect") return created ? failure("private receipt lost", true)
+        : failure(`Error response from daemon: No such volume: ${name}`);
+      if (args[1] === "create") { created = true; return missingAfterCreate ? success(name) : failure("private receipt lost", true); }
+      return undefined;
+    };
+    await assert.rejects(host.createVolume(name), isCode("COMMAND_INTERRUPTED", "UNKNOWN"));
+    assert.equal(fake.commands().filter(args => args[0] === "volume" && args[1] === "create").length, 1);
+    assert.ok(!JSON.stringify(audits).includes("private receipt lost"));
+  }
+});
+
+test("在用卷删除被daemon拒绝或删除回执丢失均UNKNOWN；不强制删除或prune", async t => {
+  const { host, fake, audits } = await setup(t); const name = "egap-support-postgres";
+  for (const interrupted of [false, true]) {
+    fake.override = args => {
+      if (args[0] === "volume" && args[1] === "inspect") return volumeReceipt(name);
+      if (args[0] === "volume" && args[1] === "rm") return failure("volume is in use by private-container", interrupted);
+      return undefined;
+    };
+    await assert.rejects(host.removeVolume(name), isCode(interrupted ? "COMMAND_INTERRUPTED" : "COMMAND_FAILED", "UNKNOWN"));
+  }
+  const removals = fake.commands().filter(args => args[0] === "volume" && args[1] === "rm");
+  assert.deepEqual(removals, [["volume", "rm", name], ["volume", "rm", name]]);
+  assert.ok(!fake.commands().flat().some(arg => ["prune", "--force", "-f"].includes(arg)));
+  assert.ok(!JSON.stringify(audits).includes("private-container"));
+});
+
+test("卷不存在只接受精确名称回执，不能把外部对象或helper失败当成已清理", async t => {
+  const { host, fake } = await setup(t); const name = "egap-support-postgres";
+  for (const message of [`Error response from daemon: get ${name}: no such volume`,
+    `Error response from daemon: No such volume: ${name}`]) {
+    fake.override = args => args[0] === "volume" ? failure(message) : undefined;
+    assert.equal(await host.inspectVolume(name), null);
+  }
+  for (const message of ["credential helper not found", "Error response from daemon: get egap-other: no such volume"]) {
+    fake.override = args => args[0] === "volume" ? failure(message) : undefined;
+    await assert.rejects(host.inspectVolume(name), isCode("COMMAND_FAILED", "NOT_DISPATCHED"));
+  }
 });

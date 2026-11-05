@@ -22,12 +22,18 @@ export function loadActiveBusiness(project: string): { businessId: "genai-suppor
   const value: unknown = JSON.parse(readFileSync(checkedSourcePath(realpathSync(project), "config/active-business.json"), "utf8"));
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("ACTIVE_BUSINESS_INVALID");
   const v = value as Record<string, unknown>;
+  // 自有SUT的本地运行与参考源码资格分别登记，不能把真实Job完成升级为业务PASS。
+  // 新运行状态必须同时指向独立运行账本；旧骨架状态也不能附带另一个任意账本。
+  const priorImplementation = v.runtime_qualification === "NOT_RUN" &&
+    (v.sut_implementation_status === "NOT_IMPLEMENTED" || v.sut_implementation_status === "SKELETON_ONLY") &&
+    v.runtime_lab_ledger_ref === undefined;
+  const localRuntime = v.runtime_qualification === "LOCAL_CALIBRATION_ONLY" &&
+    v.sut_implementation_status === "LOCAL_RUNTIME_IMPLEMENTED" &&
+    v.runtime_lab_ledger_ref === "artifacts/lab/genai-support-runtime";
   if (v.schema_version !== 1 || v.business_id !== "genai-support" || v.task_mode !== "RELEASE_VERIFICATION" ||
       v.source_policy_ref !== "config/genai-support-source-policy.json" || v.source_lock_ref !== "sut/genai-support/upstream.lock.json" ||
       v.reference_ref !== "sut/genai-support/workspaces/reference" || v.lab_ledger_ref !== "artifacts/lab/genai-support" ||
       v.api_adapter !== "@egap/genai-support-adapter" || v.source_role !== "NON_SAAS_DEMO_REFERENCE" ||
-      // 骨架已落地仍没有真实Job/LLM资格；状态不能自称完成来提升参考源码的资格。
-      v.runtime_qualification !== "NOT_RUN" ||
-      (v.sut_implementation_status !== "NOT_IMPLEMENTED" && v.sut_implementation_status !== "SKELETON_ONLY")) throw new Error("ACTIVE_BUSINESS_INVALID");
+      (!priorImplementation && !localRuntime)) throw new Error("ACTIVE_BUSINESS_INVALID");
   return { businessId: "genai-support", ledgerRef: "artifacts/lab/genai-support" };
 }

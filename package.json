@@ -21,7 +21,14 @@
     "check:support-protocol": "pnpm build && node tools/export-support-schemas.mjs --check",
     "fixtures:support": "python3 tools/support-service.py fixtures",
     "test:support": "pnpm check:support-protocol && python3 -m unittest discover -s tools -p 'test_*support*.py' -v && python3 tools/support-service.py test",
-    "dev:support": "python3 tools/support-service.py start"
+    "dev:support": "python3 tools/support-service.py start",
+    "support:up": "pnpm build && services/genai-support-sut/.venv/bin/python tools/support-lab.py up",
+    "support:status": "services/genai-support-sut/.venv/bin/python tools/support-lab.py status",
+    "support:smoke": "services/genai-support-sut/.venv/bin/python tools/support-lab.py smoke",
+    "support:stop": "services/genai-support-sut/.venv/bin/python tools/support-lab.py stop",
+    "support:start": "services/genai-support-sut/.venv/bin/python tools/support-lab.py start",
+    "support:down": "services/genai-support-sut/.venv/bin/python tools/support-lab.py down",
+    "test:support:live": "services/genai-support-sut/.venv/bin/python tools/support-lab.py test"
   },
   "devDependencies": { "@types/node": "25.9.9", "typescript": "7.0.2" }
 }

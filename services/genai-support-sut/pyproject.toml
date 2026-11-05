@@ -1,12 +1,14 @@
 [project]
 name = "egap-genai-support-sut"
 version = "0.1.0"
-description = "Synthetic SaaS support service foundation; no persistent jobs or LLM yet"
+description = "Synthetic SaaS support service with durable jobs, Redis delivery and bounded local inference"
 requires-python = "==3.14.*"
 dependencies = [
   "fastapi==0.162.0",
   "uvicorn==0.54.0",
   "jsonschema==4.26.0",
+  "psycopg[binary]==3.3.8",
+  "redis==8.1.0",
 ]
 
 [dependency-groups]

@@ -8,8 +8,9 @@
   "source_role": "NON_SAAS_DEMO_REFERENCE",
   "lab_ledger_ref": "artifacts/lab/genai-support",
   "api_adapter": "@egap/genai-support-adapter",
-  "runtime_qualification": "NOT_RUN",
-  "sut_implementation_status": "SKELETON_ONLY",
+  "runtime_qualification": "LOCAL_CALIBRATION_ONLY",
+  "sut_implementation_status": "LOCAL_RUNTIME_IMPLEMENTED",
+  "runtime_lab_ledger_ref": "artifacts/lab/genai-support-runtime",
   "legacy_businesses": [
     {
       "business_id": "async-ml-inference",

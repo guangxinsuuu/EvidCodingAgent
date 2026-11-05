@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "sut_implementation_status": "LOCAL_RUNTIME_IMPLEMENTED",
+  "runtime_qualification": "LOCAL_CALIBRATION_ONLY",
+  "environment_instance_id": "environment_38db0dd8-6c13-4515-b767-1c3f3f6d8e4f",
+  "action_id": "action_e4b2c26c-4cc0-48a5-84aa-cc72a556131d",
+  "execution_mode": "LIVE_MODEL",
+  "model": "qwen2:7b",
+  "workflow_revision": "support-policy-decision-v2",
+  "source_manifest_sha256": "d806ba157c394992d414fa996582fa1968226dfb6d6f15ba494fbe612f7c5f06",
+  "api_cases": 4,
+  "api_passed": 4,
+  "business_cases": 9,
+  "business_structural_passed": 9,
+  "semantic_quality": "KNOWN_OPEN_FINDINGS_NOT_QUALIFIED",
+  "known_reply_findings": 2,
+  "counts": {
+    "support_jobs": 10,
+    "support_dispatch_outbox": 10,
+    "support_job_attempts": 10,
+    "support_job_events": 30,
+    "calls": 10,
+    "tool_events": 70
+  },
+  "usage_observed": {
+    "prompt_tokens": 11941,
+    "completion_tokens": 775,
+    "total_tokens": 12716
+  },
+  "restart": {
+    "checks": {
+      "endpoints": true,
+      "http_jobs": true,
+      "calls": true,
+      "budgets": true,
+      "support_jobs": true,
+      "support_dispatch_outbox": true,
+      "support_job_events": true,
+      "counts": true
+    },
+    "new_model_calls": 0,
+    "verdict": "PASS"
+  },
+  "readiness": {
+    "schema_version": 1,
+    "status": "ready",
+    "scope": "support-local-calibration",
+    "checks": {
+      "database": true,
+      "redis": true,
+      "relay": true,
+      "worker": true,
+      "gateway": true,
+      "execution_mode": "LIVE_MODEL"
+    },
+    "business_verification": "not_performed"
+  },
+  "raw_evidence_ref": "artifacts/evidence/genai-live/environment_38db0dd8-6c13-4515-b767-1c3f3f6d8e4f/action_e4b2c26c-4cc0-48a5-84aa-cc72a556131d",
+  "independent_sup_oracle": "NOT_IMPLEMENTED",
+  "enterprise_rule_approval": "DRAFT",
+  "docs_modified": false
+}

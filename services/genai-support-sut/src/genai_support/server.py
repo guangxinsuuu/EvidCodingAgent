@@ -1,20 +1,22 @@
-"""HTTP骨架：main → create_app → 认证/协议校验 → 尚未接入的持久任务边界。
+"""API入口 → 认证/共享协议 → Store事务；202仅在Job+outbox提交之后返回。
 
-此阶段没有内存Job替身。缺少Job+outbox事务时合法请求返回503，不能返回202
-制造“已可靠受理”的承诺。Fixture只用于启动校验；没有向客户端暴露整包资料。
+不带Store仍可启动原骨架测试。服务不直调模型，持久通知由relay/Worker消费；
+HTTP提交不自动重试，数据库提交回执丢失时保留UNKNOWN语义。
 """
 
 import hmac
 import json
 import re
-from typing import Any
+from typing import Any, Callable, Mapping
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
 
 from .config import Settings
 from .fixtures import FixtureBundle
 from .protocol import ProtocolValidationError, parse_support_request
+from .store import Store, StoreError
 
 
 MAX_REQUEST_BYTES = 4096
@@ -38,23 +40,31 @@ def _reject_constant(_value: str) -> None:
     raise ValueError("INVALID_JSON_NUMBER")
 
 
-def _authenticated(request: Request, settings: Settings) -> bool:
+def _authenticated_tenant(request: Request, sessions: Mapping[str, str]) -> str | None:
     values = request.headers.getlist("authorization")
     if len(values) != 1:
-        return False
+        return None
     # 比较bytes以避免非ASCII头触发compare_digest异常；不记录header或token。
     actual = values[0].encode("utf-8")
-    expected = ("Bearer " + settings.api_token).encode("ascii")
-    return hmac.compare_digest(actual, expected)
+    tenant = None
+    for token, identity in sessions.items():
+        if hmac.compare_digest(actual, ("Bearer " + token).encode("ascii")):
+            tenant = identity
+    return tenant
 
 
-def create_app(settings: Settings, fixtures: FixtureBundle) -> FastAPI:
+def create_app(settings: Settings, fixtures: FixtureBundle, store: Store | None = None,
+               *, sessions: Mapping[str, str] | None = None,
+               runtime_health: Callable[[], dict[str, Any]] | None = None) -> FastAPI:
     """组装无副作用ASGI应用。由main先校验配置/冻结fixture，再交给Uvicorn。
 
-    health只代表进程；readiness始终503，直到持久性、队列和Worker真实接通。
+    health只代表进程；readiness须持久性、队列和Worker真实接通。
     FixtureBundle为可信准备输入，但本地进程内只读不等于生产隔离资格。
     """
     app = FastAPI(title="EGAP Synthetic Support Foundation", docs_url=None, redoc_url=None, openapi_url=None)
+    identities = dict(sessions or {settings.api_token: settings.tenant_id})
+    for token, tenant_id in identities.items():
+        Settings(api_token=token, tenant_id=tenant_id)  # 注册会话受同样配置约束。
 
     @app.get("/health")
     async def health() -> dict[str, Any]:
@@ -62,6 +72,16 @@ def create_app(settings: Settings, fixtures: FixtureBundle) -> FastAPI:
 
     @app.get("/health/ready")
     async def readiness() -> JSONResponse:
+        if store is not None and runtime_health is not None:
+            try:
+                checks = await run_in_threadpool(runtime_health)
+                ready = all(checks.get(key) is True for key in ("database", "redis", "relay", "worker", "gateway"))
+            except Exception:
+                checks, ready = {"dependency_check": "unavailable"}, False
+            return JSONResponse(status_code=200 if ready else 503, content={
+                "schema_version": 1, "status": "ready" if ready else "not_ready", "scope": "support-local-calibration",
+                "checks": checks, "business_verification": "not_performed",
+            })
         return JSONResponse(status_code=503, content={
             "schema_version": 1, "status": "not_ready", "scope": "support-service-skeleton",
             "checks": {"configuration": "passed", "fixtures": "validated", "http_routes": "registered"},
@@ -72,7 +92,8 @@ def create_app(settings: Settings, fixtures: FixtureBundle) -> FastAPI:
     @app.post("/support-resolution-jobs")
     async def submit(request: Request) -> JSONResponse:
         # 先认证再读body，避免未认证调用占用解析资源。tenant只来自settings。
-        if not _authenticated(request, settings):
+        tenant_id = _authenticated_tenant(request, identities)
+        if tenant_id is None:
             return _error(401, "UNAUTHORIZED")
         if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
             return _error(415, "UNSUPPORTED_MEDIA_TYPE")
@@ -89,17 +110,33 @@ def create_app(settings: Settings, fixtures: FixtureBundle) -> FastAPI:
         except (ValueError, UnicodeError, RecursionError, ProtocolValidationError):
             return _error(422, "INVALID_INPUT")
         # 同一租户内读取已冻结的fixture。不存在与跨租户引用统一404，防止枚举。
-        if fixtures.get_ticket(settings.tenant_id, command.ticket_id, command.ticket_revision) is None:
+        if fixtures.get_ticket(tenant_id, command.ticket_id, command.ticket_revision) is None:
             return _error(404, "TICKET_NOT_FOUND")
-        return _error(503, "JOB_BACKEND_NOT_IMPLEMENTED")
+        if store is None:
+            return _error(503, "JOB_BACKEND_NOT_IMPLEMENTED")
+        try:
+            result = await run_in_threadpool(store.create_job, tenant_id, command.ticket_id, command.ticket_revision)
+            return JSONResponse(status_code=202, content=result)
+        except StoreError as error:
+            if error.code == "TICKET_NOT_FOUND":
+                return _error(404, "TICKET_NOT_FOUND")
+            if error.code == "TICKET_REVISION_CONFLICT":
+                return _error(409, "TICKET_REVISION_CONFLICT")
+            return _error(503, "JOB_SUBMISSION_UNKNOWN")
 
     @app.get("/support-resolution-jobs/{job_id}")
     async def get_job(job_id: str, request: Request) -> JSONResponse:
-        if not _authenticated(request, settings):
+        tenant_id = _authenticated_tenant(request, identities)
+        if tenant_id is None:
             return _error(401, "UNAUTHORIZED")
         if re.fullmatch(r"[a-f0-9]{32}", job_id) is None:
             return _error(422, "INVALID_INPUT")
-        # 没有查询真实存储，不能把“尚未实现”伪装为404“任务确定不存在”。
-        return _error(503, "JOB_BACKEND_NOT_IMPLEMENTED")
+        if store is None:
+            return _error(503, "JOB_BACKEND_NOT_IMPLEMENTED")
+        try:
+            result = await run_in_threadpool(store.get_job, tenant_id, job_id)
+            return _error(404, "JOB_NOT_FOUND") if result is None else JSONResponse(content=result)
+        except StoreError:
+            return _error(503, "JOB_LOOKUP_UNAVAILABLE")
 
     return app

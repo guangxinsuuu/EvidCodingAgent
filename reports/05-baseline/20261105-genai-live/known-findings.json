@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "environment_instance_id": "environment_38db0dd8-6c13-4515-b767-1c3f3f6d8e4f",
+  "scope": "Observed examples, not exhaustive semantic evaluation",
+  "findings": [
+    {
+      "finding_id": "REPLY-001",
+      "case_id": "complete-usage-ineligible",
+      "job_id": "0fcdbb28e2e94f25a0296171a71c038d",
+      "kind": "MANUAL_REVIEW_OF_PUBLIC_SYNTHETIC_FIXTURE",
+      "status": "OPEN",
+      "structural_verdict": "PASS",
+      "expected_from_fixture": "申请距续费8天，处于14天窗口内；使用量1，大于政策上限0。拒绝理由应是用量超限。",
+      "observed_problem": "结构资格INELIGIBLE正确，但回复把拒绝理由写成超过退款窗口。",
+      "actual_customer_reply_draft": "尊敬的客户，根据我们的政策和您当前的情况，您的申请已超出退款窗口。我们无法提供退款服务。请确保在续费后的14天内提交退款请求以符合政策要求。感谢理解。",
+      "response_sha256": "5ff4823ae5a651a98573d2171590ff1f8aa125e99435ebed010911cbf2d86d65",
+      "raw_evidence_ref": "artifacts/evidence/genai-live/environment_38db0dd8-6c13-4515-b767-1c3f3f6d8e4f/action_e4b2c26c-4cc0-48a5-84aa-cc72a556131d/business-cases.json",
+      "independent_oracle_verdict": null
+    },
+    {
+      "finding_id": "REPLY-002",
+      "case_id": "new-policy-after-window",
+      "job_id": "30b4b5f7ff9e4f5599c2d473a1d73c03",
+      "kind": "MANUAL_REVIEW_OF_PUBLIC_SYNTHETIC_FIXTURE",
+      "status": "OPEN",
+      "structural_verdict": "PASS",
+      "expected_from_fixture": "退款窗口从续费时间2026-11-01T00:00:00Z起算；申请在7天加1秒后收到。",
+      "observed_problem": "回复将规则表述成工单收到后的7天内提出，错误改变了起算点。",
+      "actual_customer_reply_draft": "尊敬的客户，根据我们的政策，在您的续费后，退款申请应在工单收到后的7天内提出。由于您的申请超出了这个时间窗口，我们无法处理此次退款请求。请确保在未来的操作中遵守这一规定以避免此类情况发生。感谢理解与合作！",
+      "response_sha256": "f1f1be81ea46cf67dcd6af87817e009a3ef194e01c97deb155e0f9bac13e96b3",
+      "raw_evidence_ref": "artifacts/evidence/genai-live/environment_38db0dd8-6c13-4515-b767-1c3f3f6d8e4f/action_e4b2c26c-4cc0-48a5-84aa-cc72a556131d/business-cases.json",
+      "independent_oracle_verdict": null
+    }
+  ]
+}

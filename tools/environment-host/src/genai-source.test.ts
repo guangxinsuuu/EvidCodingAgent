@@ -80,13 +80,25 @@ test("GenAI active profile拒绝旧来源/账本、任意适配器以及虚构�
   writeFileSync(path, JSON.stringify(profile)); assert.equal(loadActiveBusiness(f.project).businessId, "genai-support");
   writeFileSync(path, JSON.stringify({ ...profile, sut_implementation_status: "SKELETON_ONLY" }));
   assert.equal(loadActiveBusiness(f.project).businessId, "genai-support");
+  const localRuntime = { ...profile, sut_implementation_status: "LOCAL_RUNTIME_IMPLEMENTED",
+    runtime_qualification: "LOCAL_CALIBRATION_ONLY", runtime_lab_ledger_ref: "artifacts/lab/genai-support-runtime" };
+  writeFileSync(path, JSON.stringify(localRuntime));
+  assert.deepEqual(loadActiveBusiness(f.project), { businessId: "genai-support", ledgerRef: "artifacts/lab/genai-support" });
   for (const change of [
     { business_id: "async-ml-inference" }, { lab_ledger_ref: "artifacts/lab/ml-inference" },
     { lab_ledger_ref: "artifacts/lab/local" }, { source_lock_ref: "sut/ml-inference/upstream.lock.json" },
     { api_adapter: "arbitrary-plugin" }, { runtime_qualification: "PASS" }, { sut_implementation_status: "READY" },
     { sut_implementation_status: ["SKELETON_ONLY"] },
+    { sut_implementation_status: "LOCAL_RUNTIME_IMPLEMENTED" },
+    { runtime_qualification: "LOCAL_CALIBRATION_ONLY" },
+    { runtime_lab_ledger_ref: "artifacts/lab/genai-support-runtime" },
   ]) {
     writeFileSync(path, JSON.stringify({ ...profile, ...change }));
+    assert.throws(() => loadActiveBusiness(f.project), /ACTIVE_BUSINESS_INVALID/);
+  }
+  for (const change of [{ runtime_qualification: "PASS" }, { runtime_lab_ledger_ref: "artifacts/lab/local" },
+    { runtime_lab_ledger_ref: ["artifacts/lab/genai-support-runtime"] }, { sut_implementation_status: "SKELETON_ONLY" }]) {
+    writeFileSync(path, JSON.stringify({ ...localRuntime, ...change }));
     assert.throws(() => loadActiveBusiness(f.project), /ACTIVE_BUSINESS_INVALID/);
   }
 });

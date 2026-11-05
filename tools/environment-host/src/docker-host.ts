@@ -27,11 +27,14 @@ export interface DockerNetwork {
   readonly labels: Readonly<Record<string, string>>; readonly containerIds: readonly string[];
 }
 export interface DockerImage { readonly id: string; readonly os: string; readonly architecture: string; readonly repoDigests: readonly string[] }
+export interface DockerVolume { readonly name: string; readonly labels: Readonly<Record<string, string>> }
 export interface DockerContainerSpec {
   readonly name: string; readonly image: string; readonly networkId: string; readonly networkAlias?: string;
   readonly env?: Readonly<Record<string, string>>; readonly entrypoint?: string; readonly command?: readonly string[];
   readonly ports?: readonly number[]; readonly user?: string; readonly readOnly?: boolean; readonly capDrop?: readonly string[];
   readonly tmpfs?: readonly string[]; readonly memory?: string; readonly cpus?: number; readonly pidsLimit?: number;
+  /** 只接受本environment创建的local named volume；不能传宿主路径、匿名卷或driver选项。 */
+  readonly volumes?: readonly { readonly name: string; readonly destination: "/var/lib/postgresql/data" | "/data" }[];
 }
 /** 注入点只供可信 host 编排和离线测试使用，不能由候选代码提供。 */
 export type DockerTransport = (argv: readonly string[], options: { timeoutMs: number; maxOutputBytes: number }) => Promise<DockerCommandResult>;
@@ -129,6 +132,28 @@ export class DockerHost {
     return { id, name: str(raw.name), internal: raw.internal, labels: labels(raw.labels), containerIds };
   }
 
+  /** provisioner → 创建显式命名持久卷 → 读回owner；进程/容器重启不丢数据库内容。 */
+  async createVolume(name: string): Promise<DockerVolume> {
+    assert(/^egap-[a-z0-9-]{1,100}$/.test(name), "INVALID_VOLUME_NAME");
+    assert(await this.inspectVolume(name) === null, "VOLUME_ALREADY_EXISTS");
+    await this.run(["volume", "create", "--driver", "local", ...this.labelArgs(), name], { mutation: true });
+    return confirmReceipt(async () => { const volume = await this.inspectVolume(name); assert(volume, "VOLUME_RECEIPT_UNCONFIRMED", "UNKNOWN"); this.owned(volume.labels); return volume; });
+  }
+
+  async inspectVolume(name: string): Promise<DockerVolume | null> {
+    assert(/^egap-[a-z0-9-]{1,100}$/.test(name), "INVALID_VOLUME_NAME");
+    const raw = await this.run(["volume", "inspect", "--format", '{"name":{{json .Name}},"driver":{{json .Driver}},"options":{{json .Options}},"labels":{{json .Labels}}}', name], { missingAllowed: true });
+    if (raw === null) return null;
+    const v = parse(raw); assert(v.name === name && v.driver === "local" && Object.keys(record(v.options ?? {})).length === 0, "UNTRUSTED_VOLUME");
+    return { name, labels: labels(v.labels) };
+  }
+
+  /** 默认清理保留卷；只有显式销毁环境才调用，daemon拒绝删除仍被容器引用的卷。 */
+  async removeVolume(name: string): Promise<void> {
+    const volume = await this.inspectVolume(name); assert(volume, "VOLUME_ABSENT"); this.owned(volume.labels);
+    await this.run(["volume", "rm", name], { mutation: true });
+  }
+
   /** 固定网络和 localhost 动态端口；不提供 mounts/privileged/docker.sock 等逃逸参数入口。 */
   async createContainer(spec: DockerContainerSpec): Promise<DockerContainer> {
     assert(NAME.test(spec.name) && IMAGE_REF.test(spec.image), "INVALID_CONTAINER_SPEC");
@@ -144,6 +169,13 @@ export class DockerHost {
     for (const value of spec.tmpfs ?? []) {
       // 只覆盖当前可信镜像确实需要的临时目录；不能让调用方覆盖 /proc、/sys 等路径。
       assert(/^\/(?:tmp|run|var\/lib\/postgresql|etc\/kafka\/secrets|mnt\/shared\/config)(?::[a-zA-Z0-9=,]+)?$/.test(value), "INVALID_TMPFS"); args.push("--tmpfs", value);
+    }
+    const destinations = new Set<string>();
+    for (const volume of spec.volumes ?? []) {
+      assert(["/var/lib/postgresql/data", "/data"].includes(volume.destination) && !destinations.has(volume.destination), "INVALID_VOLUME_DESTINATION");
+      destinations.add(volume.destination); const actual = await this.inspectVolume(volume.name);
+      assert(actual !== null, "VOLUME_ABSENT"); this.owned(actual.labels);
+      args.push("--mount", `type=volume,source=${volume.name},target=${volume.destination}`);
     }
     for (const port of spec.ports ?? []) { assert(Number.isInteger(port) && port >= 1 && port <= 65535, "INVALID_PORT"); args.push("--publish", `127.0.0.1::${port}/tcp`); }
     for (const [key, value] of Object.entries(spec.env ?? {})) { assert(/^[A-Z][A-Z0-9_]*$/.test(key) && !value.includes("\0"), "INVALID_ENV"); args.push("--env", `${key}=${value}`); }
@@ -236,7 +268,12 @@ export class DockerHost {
     assert(networks.length === 1, "EXCLUSIVE_NETWORK_REQUIRED");
     assert(networks[0]!.id === container.networkMode || (networks[0]!.id === "" && container.state !== "running"), "NETWORK_MODE_MISMATCH");
     const network = await this.inspectNetwork(container.networkMode); assert(network !== null, "NETWORK_ABSENT"); this.owned(network.labels);
-    assert(container.mounts.every(m => m.type === "tmpfs"), "HOST_OR_ANONYMOUS_VOLUME_FORBIDDEN");
+    for (const mount of container.mounts) {
+      if (mount.type === "tmpfs") continue;
+      assert(mount.type === "volume" && mount.name && /^egap-[a-z0-9-]{1,100}$/.test(mount.name) &&
+        ["/var/lib/postgresql/data", "/data"].includes(mount.destination), "HOST_OR_ANONYMOUS_VOLUME_FORBIDDEN");
+      const volume = await this.inspectVolume(mount.name); assert(volume, "VOLUME_ABSENT"); this.owned(volume.labels);
+    }
     for (const bindings of Object.values(container.ports)) for (const port of bindings) assert(port.hostIp === "127.0.0.1", "NON_LOOPBACK_PORT");
   }
 
@@ -275,7 +312,7 @@ async function confirmReceipt<T>(operation: () => Promise<T>): Promise<T> { try 
 function isMissingReceipt(stderr: string, requested: string): boolean {
   const message = stderr.trim().replace(/^Error(?: response from daemon)?:\s*/i, "");
   // 严格匹配精确对象；例如 credential helper not found 绝不能被误判为资源不存在。
-  return ["object", "container", "network", "image"].some(kind => message === `No such ${kind}: ${requested}`) || message === `network ${requested} not found`;
+  return ["object", "container", "network", "image", "volume"].some(kind => message === `No such ${kind}: ${requested}`) || message === `network ${requested} not found` || message === `get ${requested}: no such volume`;
 }
 function auditArgs(argv: readonly string[]): string[] {
   const copy = [...argv];
