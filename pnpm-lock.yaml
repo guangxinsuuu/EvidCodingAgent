@@ -37,6 +37,12 @@ importers:
 
   packages/domain: {}
 
+  packages/genai-support-adapter:
+    dependencies:
+      '@egap/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/ml-inference-adapter:
     dependencies:
       '@egap/contracts':

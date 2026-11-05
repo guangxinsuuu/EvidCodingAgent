@@ -4,7 +4,7 @@
 
 前一章：[13 · LangGraph Verifier](13-langgraph-verifier.md)。下一章：[15 · 安全与平台资格](15-security-and-qualification.md)。先完成第 06–08 章的批准合同、可信 Observer、Oracle，以及第 10–11 章的持久检查和预算。本章不依赖尚未创建的本 Run PR 或 CI。
 
-ML Final 绑定完整 release manifest：代码/依赖、模型文件摘要与版本、特征快照/预处理、输入输出 schema、运行配置及适用评估集/阈值版本。每条实际 Job/结果观察还要绑定实际加载的模型摘要，不能只信候选打印的版本标签。未知模型身份、缺结果持久化事实或观察不完整不能成为 PASS；ML-07 未获数据/阈值批准时不能声称模型质量通过。
+GenAI Final绑定完整release manifest：代码/依赖、provider/model配置、Prompt、corpus/index/retrieval、Tool Schema/adapter、输出schema及workflow。独立模型/工具记录核对实际请求/返回与manifest，远端model ID不等于权重冻结。批准合同、Oracle/grader、数据/重复与阈值属于独立VerificationContext。首期Gate只声明待审草稿及批准硬规则范围，语义报告不签发自动对客资格。
 
 ## 目标：任何“通过”都能追到同一份候选和真实执行
 
@@ -24,17 +24,17 @@ WorkOrder/Run 准入时冻结 task_mode、repair_policy 和独立的 `completion
 
 ## 为什么不用模型评分或一个 testsPassed 布尔值
 
-`exit_code=0` 只说明某进程正常退出；“Job failed”可能是非法图片场景按批准语义应有的结果；“执行完成”也可能得到 INCONCLUSIVE。三条轴必须保留：
+`exit_code=0` 只说明某进程正常退出；“Job FAILED”可能是批准的非法输入场景结果；“DONE + NEEDS_MORE_EVIDENCE”也可以是合法补证草稿；“执行完成”也可能得到 INCONCLUSIVE。三条轴必须保留：
 
 | 轴 | 值 | 例子 |
 |---|---|---|
 | `execution_status` | QUEUED/RUNNING/COMPLETED/ERROR/CANCELLED/UNKNOWN | runner 已完成，但观察不完整。 |
-| `assertion_status` | PASS/FAIL/INCONCLUSIVE/NOT_EVALUATED | 屏障是否生效未知，因此不能判提前批准。 |
-| `attribution` | NONE/CODE_DEFECT/ENVIRONMENT/ACCESS/CONTRACT_AMBIGUITY/UNKNOWN，未进入裁决时可 null | COMPLETED+PASS 必须 NONE；未知故障原因才用 UNKNOWN。 |
+| `assertion_status` | PASS/FAIL/INCONCLUSIVE/NOT_EVALUATED | 屏障是否生效未知，因此不能判提前DONE。 |
+| `attribution` | NONE/CANDIDATE_DEFECT/ENVIRONMENT/ACCESS/CONTRACT_AMBIGUITY/UNKNOWN，未进入裁决时可 null | COMPLETED+PASS 必须 NONE；未知故障原因才用 UNKNOWN。 |
 
-先检查 execution_status，再检查 assertion_status，最后使用 attribution 路由，合法组合以第 08 章真值表为准。执行 UNKNOWN 先对账，不接受其中声称的 PASS；断言 INCONCLUSIVE 进入证据/合同缺口处理，不自动修复代码。正常结果必须 COMPLETED+PASS+NONE，不能以 UNKNOWN 代表“无故障”；null 仅用于 NOT_EVALUATED 且尚未归因，FAIL/INCONCLUSIVE 不得为 null/NONE。PASS 的成功路径还必须绑定完整身份、适用范围和可信采集。签名只能证明某身份提交了数据，不能证明 Oracle 语义正确；Oracle 仍要在第 08 章通过 healthy/seed/不确定观察对照。
+先检查 execution_status，再检查 assertion_status，最后使用 attribution 路由，合法组合以第 08 章真值表为准。执行 UNKNOWN 先对账，不接受其中声称的 PASS；断言 INCONCLUSIVE 进入证据/合同缺口处理，不自动修复候选。正常结果必须 COMPLETED+PASS+NONE，不能以 UNKNOWN 代表“无故障”；null 仅用于 NOT_EVALUATED 且尚未归因，FAIL/INCONCLUSIVE 不得为 null/NONE。PASS 的成功路径还必须绑定完整身份、适用范围和可信采集。签名只能证明某身份提交了数据，不能证明 Oracle 语义正确；Oracle 仍要在第 08 章通过 healthy/seed/不确定观察对照。
 
-旧 AAA 的 [kafka-validation.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/kafka-validation.ts>) 将 worker-owned 验证与候选分开，可用来学习独立验证接口；但其中 fixture 消费者状态和检查数量不能当成真实 ML Job、队列、模型加载与结果持久化证据。v3 的[候选证据标准与首批检查说明](../../EGAP-Order-Approval/docs/eventuate-production-plan-v3.md)是本章设计输入，具体 DTO 和 Gate 仍需实现。
+旧 AAA 的 [kafka-validation.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/kafka-validation.ts>) 将 worker-owned 验证与候选分开，可用来学习独立验证接口；但其中 fixture 消费者状态和检查数量不能当成真实客服Job、政策/工具调用、授权效果与草稿提交证据。v3 的[候选证据标准与首批检查说明](../../EGAP-Order-Approval/docs/eventuate-production-plan-v3.md)是本章设计输入，具体 DTO 和 Gate 仍需实现。
 
 ## 拟建文件
 
@@ -65,6 +65,8 @@ WorkOrder + FrozenRunContext
           -> VerificationBundle -> GateDecision
 ```
 
+CheckResult中的`candidate_asset_kind`遵循08：CODE/PROMPT/RETRIEVAL/TOOL_SCHEMA/TOOL_ADAPTER/CONFIG/WORKFLOW；CANDIDATE_DEFECT且定位有证据时填写，其他情况null。旧CODE_DEFECT需显式版本映射，不改历史。Finding关闭以可信复验/适用性判定为准，不接受模型自称修复。
+
 每份 CheckResult 至少包含 tenant/run、candidate/tree、ContractBundle、check/template/oracle/runner 版本、参数摘要、seed、execution_set_id/phase/repetition_index、环境 Profile revision、实际 EnvironmentInstance、fixture reset、execution_attempt、lease epoch、collector 身份、原始观察引用、三轴状态、清理结果和生成时间。真正的执行身份由 runner/collector 认证上下文核验，不能只相信上传 JSON。
 
 WorkOrder/FrozenRunContext 还绑定独立的 `task_mode=RELEASE_VERIFICATION|INCIDENT_REPAIR`、`repair_policy=DISABLED|ON_VALIDATED_FINDING` 与 completion_mode。Release 保留 `stable_release_manifest_ref, submitted_candidate_ref, release_changeset_ref, requirement_delta_ref, historical_coverage_refs`；当前 Candidate 可直接来自可信外部接收，不要求存在 CodingAttempt。若曾修复，每次 Attempt 的 repair_input_candidate_ref 和新 Candidate 的 parent_candidate_id 都进入谱系，保留提交候选原本的功能变化。
@@ -77,32 +79,34 @@ WorkOrder/FrozenRunContext 还绑定独立的 `task_mode=RELEASE_VERIFICATION|IN
 
 所有模式的 change_kind 都由第 12 章可信接收/冻结器根据完整输入判定。`base_commit_sha/base_input_digest` 固定指任务比较基线：Release 为稳定版本，Incident 为原故障/输入版本；不同于每次修复的 repair_input_candidate_ref。只有 `base_input_digest=candidate_input_digest` 才能认定 UNCHANGED，且仍须当前独立 Discovery/Final 满足需求。模型 NO_CHANGE_PROPOSED、null snapshot、没有 CodingAttempt、旧 baseline PASS 都不能替代这个判断。平台未修改的外部新功能候选仍可为 CHANGED；源码相同但构建、依赖或配置改变也不能认定 UNCHANGED。
 
-输入 digest 不同而 Git tree 相同，不可自动视作可发布 CHANGED。未授权、不可复现或无法映射到批准 Git 发布包的构建输入漂移阻断接收/Final 发布资格；代码修复 scope 的 CHANGED 发布必须有真实授权 Git 变更，不能制造空 commit/PR。仅外部配置变化应另立任务和 scope，本章不把它隐含纳入 CREATE_DRAFT_PR。
+输入 digest 不同而 Git tree 相同，不可自动视作可发布 CHANGED。未授权、不可复现或无法映射到批准 Git 发布包的构建输入漂移阻断接收/Final 发布资格；代码修复 scope 的 CHANGED 发布必须有真实授权 Git 变更，不能制造空 commit/PR。Prompt、检索配置或工具Schema若在获准Git发布包中发生真实变更，可作为CHANGED候选；仅供应商侧模型漂移/远端配置变化不能制造空commit，须另立适用任务和交付scope，不隐含纳入CREATE_DRAFT_PR。
 
 ## 检查点 14.2：展开首批 mandatory，而不是凭编号猜等价
 
-ML Final 以批准后的 ML Acceptance Profile 为准。目录定义不等于已实现、已批准或已取得全部能力：
+SaaS Support Final以批准Acceptance Profile的适用闭包为准。目录不等于已实现/批准；最小scope与后续扩展分别取得资格：
 
-| 规则 | Final 必须看什么 | 准入边界 |
-|---|---|---|
-| ML-01 Job Completion | 实际结果已完整持久化后才能出现成功终态；结果写入持有窗口内无短暂假成功，释放后活性可证。 | 上游 `done` 映射逻辑成功；Redis AOF everysec/TTL 不能冒称零丢失或永久结果库，持久化失败模型与保留范围须批准。 |
-| ML-02 Version Consistency | 提交绑定、实际执行模型字节摘要与结果身份一致；排队期间 alias 变化不改变已有 Job。 | 上游没有逐 Job 模型版本字段；自有衍生实现和可信观察先校准，不把新增要求判成上游 bug。 |
-| ML-03 Feature Consistency | 同一 Job 使用批准的输入/预处理版本与 snapshot，记录输入摘要、形状、顺序及预处理摘要。 | 首期图像预处理，不假称已接 Feast；输入值可脱敏，可信原件按 scope 保存。 |
-| ML-04 Idempotency | 队列重复投递/重领不产生冲突结果或旧 attempt 覆写；旁观 Job 不被污染。 | 区分队列至少一次与 HTTP 请求幂等；上游没有 API 幂等键，后者须独立新需求。 |
-| ML-05 Recovery | Worker 在批准窗口退出后可恢复完成或给出明确失败，任务不静默丢失。 | 实测 Redis Streams pending/XAUTOCLAIM、fencing、确认和结果写入窗口；不能由 EGAP 恢复测试替代。 |
-| ML-06 Schema Compatibility | 模型 B/preprocessing v2 满足新需求，批准 v1 调用/数据组合仍有效。 | 输入、输出、队列载荷与模型形状分别列矩阵；不扩张为所有升级/降级均兼容。 |
-| ML-07 Release Quality | 批准评估集/标签/切片上满足质量、性能和统计门槛。 | 后续独立准入；没有数据和阈值时明确未评估，不能以 ML-01…06 或“预测值相同”替代。 |
+| 规则 | Final必须核对 | 范围边界 |
+| --- | --- | --- |
+| SUP-01 | 真实续费事件、规则区间/优先级、实际检索及所选政策 | 不以工单日期/latest替代；日期未批准则阻断 |
+| SUP-02 | 认证tenant及实际工具/RAG返回对象的完整授权记录 | 客户body/模型tenant字段不构成权限 |
+| SUP-03 | 建议、调用、拒绝与敏感效果分别核验 | 首期只模拟工具；发布Approval不授权退款 |
+| SUP-04 | 关键结构化claim与账单/适用政策一致 | 引用存在不证明正文语义，文本仍待人工审核 |
+| SUP-05 | 旧ticket revision不能覆写新结果 | 精确屏障/条件写/完整轨迹到位后准入 |
+| SUP-06 | draft达到批准持久性边界才DONE，释放后活性可证 | Job DONE不代表Ticket RESOLVED或退款发生 |
+| SUP-07 | 缺信息/冲突正确补证，完整正反事实不一律转人工 | 规则不明交Owner，不由模型补造 |
+| SUP-08 | Tool Schema v1/v2的事件日期、账单/币种/revision映射 | 真实参数/返回证据，不只工具名或200 |
 
-主 Release 演示为受控 Stable V3.4→Candidate V4.0。Stable 是增加冻结模型/预处理 manifest 与观察能力的自有基线；V4 加模型 B、preprocessing/schema v2、批准的 v1 兼容与 Worker 重构。late-alias-lookup 是 `SYNTHETIC_MUTATION`，由独立评估者控制；上游来源、业务扩展与缺陷版本分别登记。06/08 必须先形成需求、版本化检查、Oracle 正反校准及真实 Owner 决定，才能用于正式 Final。
+主展示为自有实验Stable V3.4→正确Candidate V4.0：新增十一月政策与Tool Schema v2，保留十月事件兼容。latest-policy-only和wrong-date分别作为SYNTHETIC_MUTATION。来源参考、业务扩展、正确候选与变异分别登记；不能把公开演示当隐藏评估。
 
+RequirementDelta区分新行为与保留不变量；回退Stable删除新政策/schema能力不能通过。Discovery可以减少无关探索，Final仍执行当前Profile全部适用强制安全、新功能、兼容和tier回归。UNKNOWN_IMPACT扩大检查/QA复核，缺能力阻断，不临时删mandatory。
 
-RequirementDelta 要区分被批准的新行为与必须保持的旧不变量。新功能的合法差异不因与 Stable 不同就算回归；回退 Stable 删除模型 B 或 schema v2 也不能凭旧模型冒烟通过完成任务。针对变更的 Discovery 可减少无必要实验，Final 仍执行当前 Profile 完整适用闭包：强制安全、批准新功能及兼容要求、以及 release tier/影响范围要求的更广回归。未知影响应扩大批准检查范围或进入 QA 复核，不能默认低风险。未批准的新检查或缺执行能力应阻断相应资格，不能临时从 mandatory 删除。
+SemanticQualityReport单列rubric/grader/校准/重复/不确定性和费用；首期是报告而非硬规则替代。若日后升为Gate，必须另行批准准入阈值及处理规则。语义好评不能覆盖确定性FAIL或证据UNKNOWN，结构化PASS也不能宣称客户回复已完整评估。
 
 实现 coverage 时从冻结 Acceptance Profile 解析规则→检查→断言映射，逐个记录适用依据、所需证据等级、所需重复策略和实际有效结果。`NOT_APPLICABLE` 应是独立的适用性裁定，附批准依据，不作为绕过 mandatory 的临时 assertion_status。SKIP、ERROR、超预算、观察缺失均不是 PASS。
 
 ## 检查点 14.3：实现可解释的 Gate 决定
 
-先区分送验条件与验收通过：`final_readiness` 只表示可启动当前候选的完整 Final，不能预填任何 mandatory PASS。它须确认候选完整冻结且可构建、合同/权限有效、环境与 Observer/Oracle 能力就绪、当前候选无未解决已知代码 Finding、没有妨碍可信执行的在途未知或完整性阻断，以及 FINAL 池的 MANDATORY 子用途和相关恢复/清理资源已预留、总截止时间允许。原候选遗留失败只有在可信复现/修复验证关闭或明确不适用于当前候选时才不阻断；不能由模型标记“已修复”关闭。
+先区分送验条件与验收通过：`final_readiness` 只表示可启动当前候选的完整 Final，不能预填任何 mandatory PASS。它须确认候选完整冻结且可构建、合同/权限有效、环境与 Observer/Oracle 能力就绪、当前候选无未解决已知候选资产Finding、没有妨碍可信执行的在途未知或完整性阻断，以及 FINAL 池的 MANDATORY 子用途和相关恢复/清理资源已预留、总截止时间允许。原候选遗留失败只有在可信复现/修复验证关闭或明确不适用于当前候选时才不阻断；不能由模型标记“已修复”关闭。
 
 预算统一采用 `budget_pool=CODING|DISCOVERY|FINAL|RECONCILIATION|CLEANUP`。FINAL reservation 必填 `final_purpose=MANDATORY|DELIVERY`，其他池不得填；MANDATORY 用于独立强制验收，DELIVERY 仅用于有变更 DRAFT_PR_CI 的已批准交付，审批等待/发布/CI 不能挤占 MANDATORY。总账、池与子用途账原子约束见第 11 章，Final 通过不自动代表 DELIVERY 资源或授权有效。
 
@@ -185,8 +189,8 @@ pnpm run verification:report -- --bundle <VerificationBundle-ID>
 |---|---|
 | 同候选所有适用 mandatory 完整通过 | 候选 ELIGIBLE，有独立证据；发布资格仍单列。 |
 | 外部 Release 候选无需修复、CODING=0 | 正常独立 Final；相对 Stable 的 CHANGED 按 completion_mode 成功/交付，不要求 CodingAttempt。 |
-| ML-06只测单个新请求，缺批准v1/v2/模型输入矩阵 | 当前Release强制覆盖不完整，不以一个API响应替代兼容验收。 |
-| 旧模型smoke通过，但模型B/预处理v2或批准v1兼容失败 | ML-02/03/06及本次RequirementDelta阻断；旧集合绿灯不能替代新功能。 |
+| 只测十一月新请求，缺十月历史兼容/工具v1-v2组合 | 当前Release覆盖不完整，一个API响应不能替代兼容验收。 |
+| 旧版smoke通过，但新政策/schema或历史兼容失败 | SUP及RequirementDelta阻断，旧集合绿灯不能替代新功能。 |
 | 合法新行为与 Stable 不同 / 候选回退 Stable 删除新功能 | 前者按批准需求判定；后者新功能检查失败，不判 NO_CHANGE。 |
 | Stable 历史全绿、当前候选缺独立结果 | INCOMPLETE；历史不变当前 PASS，也不强制无理由重跑全部 Stable。 |
 | 候选 A 通过，替换成 B | A 证据留存，B 缺对应有效结果，不能复用绿灯。 |
@@ -205,7 +209,7 @@ pnpm run verification:report -- --bundle <VerificationBundle-ID>
 | COMPLETED + PASS + UNKNOWN / execution UNKNOWN + PASS | 非法三轴组合拒绝，不能加入有效 coverage。 |
 | DISCOVERY 耗尽且 Final readiness 成立 | FINAL_DRAIN_READY 进入受限 Final，不先 STOPPED 再恢复。 |
 | DELIVERY 耗用企图占用 MANDATORY 保护额 | 预算入口拒绝，Final 验收额度不被发布/CI 挤占。 |
-| 当前候选仍有已知代码 Finding | 不满足送验条件；无修复预算时 STOPPED，不能把 Final 当掩盖缺陷的流程。 |
+| 当前候选仍有已知候选资产Finding | 不满足送验条件；无修复预算时 STOPPED，不能把 Final 当掩盖缺陷的流程。 |
 | DRAFT_PR_CI 缺封存 commit 或 Runner 使用不同树 | Final 阻断，不能在批准/发布阶段补造身份。 |
 | 更换 EnvironmentInstance 或 fixture reset 后重试 | 新 CheckRun 及 retry_of 关联；原物理尝试和失败证据保留。 |
 | FINAL_ONLY 运行中改成 DRAFT_PR_CI | 拒绝变更；另建明确授权的新任务。 |
@@ -215,8 +219,8 @@ pnpm run verification:report -- --bundle <VerificationBundle-ID>
 完成检查：
 
 - [ ] 状态三轴、适用性、GateDecision 和 Run 状态分开。
-- [ ] 适用ML规则具备完整断言、可信观察、健康/变异/坏观察器校准；缺能力不放行。
-- [ ] Release Profile覆盖模型B、预处理/schema v2及批准v1兼容；ML-07是否准入与未验证范围单列。
+- [ ] 适用SUP规则具备完整断言、可信观察、健康/变异/坏观察器校准；缺能力不放行。
+- [ ] Release Profile覆盖新政策/Tool Schema v2及历史兼容；语义质量与自动对客未验证范围单列。
 - [ ] 结果绑定当前候选，缺项/未知/篡改会阻断。
 - [ ] 判定确定性、可复算，模型无签发权。
 - [ ] Final、平台 qualification、发布后 CI 时序明确。
@@ -227,5 +231,5 @@ pnpm run verification:report -- --bundle <VerificationBundle-ID>
 
 下一会话可复制：
 
-> 请按第 14 章先实现 evidence-binding、coverage 和纯 Final Gate。核对第 08 章适用 ML 断言及模型/预处理/结果证据是否完整，未批准的规则不要激活。用固定测试 fixture 验证缺 mandatory、错误 candidate、证据替换、合同撤销和 INCONCLUSIVE 会阻断；然后接真实 CheckResult 做一个可复算报告。不要依赖尚未发生的本 Run PR/CI，不调用发布接口。保留首次失败和全部物理尝试，记录实际证据与尚缺的平台资格。
+> 请按第 14 章先实现 evidence-binding、coverage 和纯 Final Gate。核对第 08 章适用SUP断言及政策/工具/权限/草稿提交证据是否完整，未批准的规则不要激活。用固定测试 fixture 验证缺 mandatory、错误 candidate、证据替换、合同撤销和 INCONCLUSIVE 会阻断；然后接真实 CheckResult 做一个可复算报告。不要依赖尚未发生的本 Run PR/CI，不调用发布接口。保留首次失败和全部物理尝试，记录实际证据与尚缺的平台资格。
 

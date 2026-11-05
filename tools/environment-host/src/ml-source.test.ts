@@ -7,7 +7,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { prepareMlSourceWithPolicy } from "./ml-source-core.js";
 import type { MlSourcePolicy } from "./ml-source-core.js";
-import { assertActiveSourceBindings, loadActiveBusiness } from "./business-profile.js";
 
 /** 微型真实 Git fixture 验证导出边界；不执行或模拟 ML 推理。 */
 function fixture(t: test.TestContext) {
@@ -62,18 +61,4 @@ test("遗留导出锁必须显式核实，不能按时间自动接管", t => {
   const f = fixture(t); mkdirSync(join(f.project, "sut")); writeFileSync(join(f.project, "sut/.ml-source.lock"), "owned elsewhere");
   assert.throws(() => prepareMlSourceWithPolicy({ projectRoot: f.project, referenceRepository: f.repo }, f.policy), /EXPORT_LOCKED/);
   assert.equal(readFileSync(join(f.project, "sut/.ml-source.lock"), "utf8"), "owned elsewhere");
-});
-test("active profile 不能把ML命令路由回旧账本", t => {
-  const f = fixture(t); mkdirSync(join(f.project, "config"));
-  const profile = { schema_version: 1, business_id: "async-ml-inference", task_mode: "RELEASE_VERIFICATION", source_policy_ref: "config/ml-source-policy.json", source_lock_ref: "sut/ml-inference/upstream.lock.json", baseline_ref: "sut/ml-inference/workspaces/baseline", lab_ledger_ref: "artifacts/lab/ml-inference", api_adapter: "@egap/ml-inference-adapter" };
-  const path = join(f.project, "config/active-business.json"); writeFileSync(path, JSON.stringify(profile));
-  assert.equal(loadActiveBusiness(f.project).businessId, "async-ml-inference");
-  writeFileSync(path, JSON.stringify({ ...profile, lab_ledger_ref: "artifacts/lab/local" }));
-  assert.throws(() => loadActiveBusiness(f.project), /ACTIVE_BUSINESS_INVALID/);
-});
-test("即使旧账本被复制到ML目录，也在新尝试/状态输出前拒绝其来源资格", () => {
-  const source = { source_commit: "c200bcb4721c4428a9bfe808ca8a61648a2b16f6", build_revision: "ml-upstream-unbuilt-v1", business_revision: "unchanged-upstream", upstream_lock_sha256: "a".repeat(64) };
-  assert.doesNotThrow(() => assertActiveSourceBindings([null, source]));
-  assert.throws(() => assertActiveSourceBindings([{ ...source, source_commit: "894f2dbbe9aba2be6129748b6bbf5f30356deb07" }]), /ACTIVE_BUSINESS_SOURCE_MISMATCH/);
-  assert.throws(() => assertActiveSourceBindings([{ ...source, build_revision: "legacy-build" }]), /ACTIVE_BUSINESS_SOURCE_MISMATCH/);
 });

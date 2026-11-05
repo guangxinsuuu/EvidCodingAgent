@@ -6,7 +6,9 @@
 
 历史2026-11-03主场景更新：首期展示改为Stable→新增功能候选的Release Verification，单缺陷Incident Repair作为开发校准与另一入口。下面56项原ID/原名保持不变；新功能检查另外登记，不把原目录改名充数。历史Stable结果只供对照/资格与风险分析，不能成为新候选Final。文档后续修改须先获用户明确允许。
 
-2026-11-04经用户明确授权，当前主业务改为 **Async ML Inference Release Verification**。本附件保留原56个ID、名称和旧业务验收方向，作为历史来源追溯；**第3节原“首期”均指旧Eventuate计划，已退出当前ML主线**。当前ML业务适用性以新增3.1及11节为准，不能把旧订单检查改名或把旧构建证据计为ML通过。L2/L3公共治理要求继续适用，但需在新执行栈重新取得对应资格。
+历史2026-11-04经用户明确授权，主业务改为 **Async ML Inference Release Verification**。本附件保留原56个ID、名称和旧业务验收方向，作为历史来源追溯；**第3节原“首期”均指旧Eventuate计划，当时已退出ML主线**。该历史ML业务适用性保存在3.1及11节，不能把旧订单检查改名或把旧构建证据计为ML通过。L2/L3公共治理要求继续适用，但需在新执行栈重新取得对应资格。
+
+**当前适用性（2026-11-05）：主业务为GenAI客服发布验证。** 第3/3.1/11节均保存历史业务语义；当前L1处置和新增SUP检查见第12节。原56个ID与名称不改，公共L2/L3继续按新执行域取证；不把历史ML能力或PASS自动转移。
 
 ## 1. 来源、范围与计数口径
 
@@ -15,7 +17,7 @@
 - [v3 整合正文](../../EGAP-Order-Approval/docs/eventuate-production-plan-v3.md)：第30节 L1 基本正确性、第31节异步与并发、第32节 L2 可靠性、第33节 L2 安全、第34节 L3、第52节首批五项映射。
 - [外部接入 v3](../../EGAP-Order-Approval/docs/external-integration-v3.md)：接入01–06，包含字段检查、变化事件、双路径边界、激活门槛和代表性来源。
 - [v3 PDF](../../EGAP-Order-Approval/output/pdf/EGAP_Eventuate_Visual_Production_Plan_CN_v3.pdf)：图示与全文阅读参考；章节编号不等于 PDF 物理页码。
-- [当前总体阶段](00-overall-plan.md)、[ML Oracle](08-native-oracles.md)、[任务与 seed](09-seeded-defects.md)、[安全资格](15-security-and-qualification.md)、[真实发布资格](17-publication-and-ci.md)、[后续范围](22-future-roadmap.md)。
+- [当前总体阶段](00-overall-plan.md)、[SUP Oracle](08-native-oracles.md)、[任务与 seed](09-seeded-defects.md)、[安全资格](15-security-and-qualification.md)、[真实发布资格](17-publication-and-ci.md)、[后续范围](22-future-roadmap.md)。
 
 | 来源目录 | 原始条目数 | 本附件处理 |
 |---|---:|---|
@@ -41,7 +43,7 @@
 | 后续接入 | 20 | 指定来源的ACL、同步、删除、撤权与运营资格 |
 | 后续强化 | 21 | 并发/业务幂等/恢复强化、扩展业务与多租户 |
 
-第3节历史“首期核心”指旧五项native-final，其余章节当前主线按批准ML Profile解释。当前适用ML-01…06须分别映射到ML-C01…06检查与断言；目录列出不等于全部已准入。ML-07单列后续质量/性能准入。“部分”只覆盖表中明确子域，未覆盖子域保持缺口。“后续”是首期声明不具备的范围，不能因为延期而在企业级验收中自动标 N/A。
+第3节历史“首期核心”指旧五项native-final，3.1/11为ML迁移历史。当前主线按第12节SUP Profile解释，目录不表示实现或批准；语义质量/自动对客发送和真实业务动作另准入。“部分”只覆盖表中明确子域，未覆盖子域保持缺口。“后续”是首期声明不具备的范围，不能因为延期而在企业级验收中自动标 N/A。
 
 业务语义分类：N=原生流程的兼容性或正确性目标，仍需Owner确认和实测；H=需要额外注入、并发、恢复或终态政策的强化验收；X=新增业务语义/接口。N不表示源码已经满足，H不必然要求改业务代码，X不能冒充原生承诺。
 
@@ -49,7 +51,7 @@
 
 ## 3. 历史L1：原Eventuate业务目录24项
 
-以下原 ID、原名逐字沿用 v3 第30–31节。各行保留旧计划上下文，均未有完整验收资格；不再作为当前ML mandatory。具体保留/替换/延期在3.1逐项登记，订单金额场景不作强行一对一改名。
+以下原 ID、原名逐字沿用 v3 第30–31节。各行保留旧计划上下文，均未有完整验收资格；不再作为当前SUP mandatory。历史ML处置在3.1、当前GenAI处置在12逐项登记，订单金额场景不作强行一对一改名。
 
 | 原ID | 原实验名 | 语义与首期纳入情况 | 实施章节 / 阶段 | 具体验收证据与前置 |
 |---|---|---|---|---|
@@ -80,9 +82,9 @@
 
 首批精确映射：`EV-C01→L1-02`、`EV-C03→L1-01`、`EV-C04→L1-05`、`EV-C05→L1-03`、`EV-C06→L1-04`。L1-09/11/12/24等辅助或资格范围须单独报告，不能为宣传“覆盖更多项”把部分断言自动算成整项PASS。
 
-## 3.1 当前ML主线对24项历史业务要求的逐项处置
+## 3.1 历史ML映射快照（2026-11-04）
 
-下表是语义追溯，不是等价证明或Owner批准。`REPLACED`表示当前ML采用另一个领域规则；`HISTORICAL_ONLY`表示没有合理直接对应，旧要求保持历史而不计ML覆盖；`REUSED_PRINCIPLE`表示继续验证公共原则。所有适用检查仍需06/08批准、实现和独立校准；ML-xx为规则，ML-Cxx为检查目录ID。
+下表是语义追溯，不是等价证明或Owner批准。`REPLACED`表示当时ML采用另一个领域规则；`HISTORICAL_ONLY`表示没有合理直接对应，旧要求保持历史而不计ML覆盖；`REUSED_PRINCIPLE`表示继续验证公共原则。所有适用检查仍需06/08批准、实现和独立校准；ML-xx为规则，ML-Cxx为检查目录ID。
 
 | 历史ID | 当前处置 / ML映射 | 章节与阶段 | 未完成项、延期理由与必要证据 |
 |---|---|---|---|
@@ -189,7 +191,7 @@ G4的顺序不能倒置：实现Gateway/adapter→回15补验实际代码/身份
 | 接入03 / 同一来源，两种采集身份 | 07、14/G1/G3；20后续 | 首期证据身份必需；知识回流后续 | 历史DB/日志不能换标签成当前证据；知识风险重新实验，回流保留范围/ACL且不改原始结果；缺切面/屏障为INCONCLUSIVE。 |
 | 接入04 / 用最小权限读取 | 03–08、15/G0/G1/G4；20后续 | 首期测试域必需；真实企业来源延期 | 固定commit、只读DB、分配消息范围、独立故障注入能力/lease/恢复；Observer不写业务、候选不拿SQL/云管理/发布凭据；网络及缓存隔离。 |
 | 接入04 / 外部写回独立授权 | 15–17/G4；20后续 | 首期仅指定Fork CREATE_DRAFT_PR；评论/工单/文档写回延期 | 独立Action Gateway核对授权、精确对象/目标/payload/expiry/operation；UNKNOWN先observe；读取token与ACTIVE合同均不自动授写权。 |
-| 接入04 / 按证据逐步激活 | 00/G0–G5；19–21后续 | 保留先native闭环后Connector顺序 | 源码→ML环境/屏障→适用ML检查→Agent→一个只读来源→遥测/企业沙箱；8类测试、同步/撤权时效、漏删与归因记录；失败隔离不伪装正常。 |
+| 接入04 / 按证据逐步激活 | 00/G0–G5；19–21后续 | 保留先native闭环后Connector顺序 | 源码参考→自有客服SUT/可信trace→适用SUP检查→Verifier→一个只读企业来源→生产沙箱；8类测试、同步/撤权时效、漏删与归因记录；失败隔离不伪装正常。 |
 | 接入05 / 实施操作顺序 | 20；19身份/运营 | 延期每个真实来源，先合成Adapter | 注册合同/Owner→最小身份→读/拒绝测试→小范围回填→增量/ACL/删除→新鲜度/重试→激活→周期复核；配置变更有revision。 |
 | 接入05 / API事实的适用范围 | 20后续 | 具体厂商账号/API/配额待选，不能预填成功 | 实施时保存版本官方依据、账号资格/限制、验签与授权分别测试；403/超时/缺页不是删除证明。 |
 | 接入06 / 所有外部读取先变成可审查的来源对象 | 20后续；03/06来源索引局部复用 | SourceEnvelope正式Schema延期；原JSON只是design-example-only | 正式Schema/来源校验及必需字段负例；null保持未采集含义，不能从示意值生成实际证据；字段逐项见第8节。 |
@@ -243,7 +245,7 @@ G4的顺序不能倒置：实现Gateway/adapter→回15补验实际代码/身份
 | GitHub | 03固定源码/G0；17发布/G4；20知识Connector | 源码固定与指定Fork发布分别纳入；Contents/PR知识同步与Webhook Connector延期 | repo/ref/commit白名单、原payload验签、delivery去重、补拉对账；具体API/账号资格复核；17发布收据不能代替读取Connector资格。 |
 | SharePoint / OneDrive | 19/20 | 延期；无首期依赖 | 实施时核对Graph driveItem delta；nextLink遍历完整批次才登记deltaLink，deleted facet/游标失效/ACL变化分别测；权限不能靠delta永久继承。 |
 | Slack / 工单 | 19/20 | 延期；工单厂商尚未选定 | Slack scope/可访问会话、next_cursor分页、频道/项目/时间窗限制、原引用/当前权限；工单单独Adapter，消息不自动成为批准或PASS。 |
-| 测试DB / 事件 | 05、07、08、15/G0/G1/G4；20企业扩展 | 隔离ML Job/队列/结果事实观察纳入；企业DB/消息Connector延期 | 独立只读观察身份、真实Redis key/Stream/result映射、受控查询范围、模型字节/预处理身份及correlation，Collector绑定；不能访问生产或猜表名/header。 |
+| 测试DB / 事件 | 05、07、08、15/G0/G1/G4；20企业扩展 | 隔离Support Job/草稿/工具事实观察纳入；企业DB/消息Connector延期 | 独立只读观察身份、实际SUT DB/Redis/工具代理映射、受控查询范围、ticket/revision/job/model/policy/tool-call关联及Collector绑定；不能访问生产或猜表名/header。 |
 
 ## 8. 接入叙述中的子测试和字段完整性
 
@@ -283,7 +285,7 @@ NOT_APPLICABLE必须来自批准的适用规则，记录原因和Owner；延期�
 
 | 缺口 | 所在映射 | 下一步产物 / 责任角色（实际主体待决） |
 |---|---|---|
-| 历史L1与当前ML不是一对一等价 | 3.1逐项处置，ML-01…07 | 06/08明确新Profile；21补HTTP幂等、质量与全面恢复，Business/ML/Verification Owner确定各tier |
+| 历史L1、ML与当前SUP不是一对一等价 | 3.1/11保留历史，12逐项处置SUP | 06/08定义新Profile；21补工单版本、恢复/语义/动作范围，Business/Data/Verification Owner确定tier |
 | 关联/终态/消息重复的注入能力未证明 | L1-10/13–17 | 07固定框架hook与真实envelope调查、正反校准；未证实前不登记SUPPORTED |
 | 本地DB回退用例仍须具体化 | L2-R11 | 11/15补精确故障计划与运行证据，19做完整备份/PITR；Platform/SRE确认scope与恢复阈值 |
 | 本地身份不代表企业SSO/多租户 | L2-S05/06/09 | 15–17 verified-local-owner范围，19/20/21真实身份/数据/隔离资格；Security/Data/Repo Owner确认 |
@@ -293,7 +295,7 @@ NOT_APPLICABLE必须来自批准的适用规则，记录原因和Owner；延期�
 
 附件维护规则：新增/更名check时保留原ID映射；调整首期范围时按授权更新Acceptance Profile；本附件和docs内决定/状态记录只有获用户明确允许后才能修改，运行事实可先保存reports/artifacts。不得修改过去未通过的事实。报告必须带Profile、候选、环境与阶段，不能笼统声称v3全部通过。
 
-## 11. 当前ML Release新增覆盖（不计入原56项）
+## 11. 历史ML Release新增覆盖（2026-11-04，不计入原56项）
 
 | 新增规则 / 检查 | 需求 / 主要章节 | 完成前必须提供 |
 | --- | --- | --- |
@@ -309,4 +311,49 @@ NOT_APPLICABLE必须来自批准的适用规则，记录原因和Owner；延期�
 
 这些业务Oracle及评测均未取得实际验收资格。ML-01…07是7类规则，不意味着7项已经实现，也不能将source/API adapter单元测试计入该表PASS。06–09仍可按授权以DRAFT做校准；正式Final需批准的适用检查闭包与当前候选证据。
 
-章节导航：[03](03-environment-preflight.md)、[05](05-async-ml-baseline.md)、[06](06-contract-registry.md)、[07](07-observer-and-experiment-barrier.md)、[08](08-native-oracles.md)、[09](09-seeded-defects.md)、[10](10-durable-runtime.md)、[11](11-recovery-and-budget.md)、[12](12-codex-coding-worker.md)、[13](13-langgraph-verifier.md)、[14](14-final-gate-and-evidence.md)、[15](15-security-and-qualification.md)、[16](16-console-and-approval.md)、[17](17-publication-and-ci.md)、[18](18-evaluation-and-pilot.md)、[19](19-deployment-and-operations.md)、[20](20-enterprise-connectors.md)、[21](21-business-and-platform-extensions.md)、[22](22-future-roadmap.md)。
+章节导航：[03](03-environment-preflight.md)、[05](05-genai-support-baseline.md)、[06](06-contract-registry.md)、[07](07-observer-and-experiment-barrier.md)、[08](08-native-oracles.md)、[09](09-seeded-defects.md)、[10](10-durable-runtime.md)、[11](11-recovery-and-budget.md)、[12](12-codex-coding-worker.md)、[13](13-langgraph-verifier.md)、[14](14-final-gate-and-evidence.md)、[15](15-security-and-qualification.md)、[16](16-console-and-approval.md)、[17](17-publication-and-ci.md)、[18](18-evaluation-and-pilot.md)、[19](19-deployment-and-operations.md)、[20](20-enterprise-connectors.md)、[21](21-business-and-platform-extensions.md)、[22](22-future-roadmap.md)。
+
+## 12. 当前GenAI客服范围逐项追溯（2026-11-05）
+
+以下是替换或复用原则，不是业务等价证明。当前SUP仍待06批准、07观察、08正反校准；所有项目为NOT_RUN。第3节24个原始名称、第4–6节32个公共治理名称保持原样，新增表不增加“原56项”计数。
+
+| 历史ID | 当前处理与规则 | 章节/阶段 | 证据或延期理由 |
+| --- | --- | --- | --- |
+| L1-01 | REPLACED：SUP-01/04/07/08正常工单 | 05–09/G0–G1 | 正确政策、账单/工具参数、完整与缺失证据分别处理，真实草稿 |
+| L1-02 | REUSED_PRINCIPLE：SUP-06结果提交屏障 | 07–09/G1 | 候选外hold命中与完整提交轨迹，不以sleep或终态猜过程 |
+| L1-03 | REPLACED：SUP-07证据不足/资格不满足 | 06–09/G1 | 补证、拒绝与转人工有明确条件；信用不足金额语义不继承 |
+| L1-04 | HISTORICAL_ONLY；未知ticket/invoice另测 | 05–08/G0–G1 | 内部保留不存在/无权原因；对外响应按批准策略避免暴露其他租户对象存在性 |
+| L1-05 | HISTORICAL_ONLY；政策7/14日边界另测SUP-01 | 06–09/G1 | 时区/含端点/事件来源由Owner确认，金额等额不改名 |
+| L1-06 | HISTORICAL_ONLY；工单容量/配额另案 | 21/后续 | 无信用净额等价；批准容量、背压、provider配额及环境 |
+| L1-07 | REPLACED：SUP-06工具/provider/DB不可用 | 07–09、11/G1–G3 | 不假成功、不误归因业务拒绝；恢复窗口和费用UNKNOWN |
+| L1-08 | REPLACED：SUP-05/06迟到模型/工具结果 | 07–09、21 | 超时不造Job失败；旧revision/attempt不能覆写 |
+| L1-09 | REUSED_PRINCIPLE：失败/不确定归因 | 08、11、13–14 | CANDIDATE_DEFECT与环境/权限/合同歧义分开 |
+| L1-10 | REPLACED：SUP-02/05/08对象关联 | 07–09/G1 | tenant/ticket/revision/job/invoice/tool-call独立核对 |
+| L1-11 | REPLACED：SUP-06 API与持久草稿 | 05、07–09 | 202受理、DONE与提交一致，不推导RESOLVED或退款 |
+| L1-12 | REUSED_PRINCIPLE：无缺陷控制与活性 | 08–09、12–14、18 | 正确Stable/正确V4、必要工单正常完成；不强造补丁，一律转人工不能骗过验收 |
+| L1-13 | REUSED_PRINCIPLE：队列重复投递 | 07–09、21 | 同逻辑Job重领净效果和模型重复费用分别记录 |
+| L1-14 | REUSED_PRINCIPLE：同逻辑身份新投递 | 06–09、21 | 幂等/冲突、payload/revision绑定需批准 |
+| L1-15 | REUSED_PRINCIPLE：同key不同payload冲突 | 06、21/强化 | tenant/ticket/revision和请求摘要不同不得静默复用；具体HTTP/业务key语义另批 |
+| L1-16 | REUSED_PRINCIPLE：重复完成结果 | 07–09、21 | 合同定义终态；唯一草稿/版本约束和旁观对象 |
+| L1-17 | REPLACED：SUP-05旧revision/attempt迟到 | 07–09、21 | 真实条件写/fencing拒绝，不自报已拒绝 |
+| L1-18 | HISTORICAL_ONLY；多Worker并发另案 | 21/强化 | 无金额守恒等价；竞争提交与provider配额需新测试 |
+| L1-19 | REPLACED：SUP-06草稿提交后确认前退出 | 07–09/G1 | 可信提交、队列重投和恢复净效果 |
+| L1-20 | REUSED_PRINCIPLE：Redis/DB派发故障 | 05、07–09、21 | SUT outbox/Job对账；不假定原CDC机制存在 |
+| L1-21 | REPLACED：SUP-06完成事务前后退出 | 07–09/G1 | 草稿/Job事务和独立轨迹，失败窗口各自校准 |
+| L1-22 | REUSED_PRINCIPLE：事务/版本写冲突 | 05、07–09、21 | 真实数据库条件写和fencing；旧测试结果不可复用 |
+| L1-23 | REUSED_PRINCIPLE：重复HTTP提交 | 05–06、21/强化 | 请求幂等、payload冲突、保留及持久映射另定；POST超时不能盲目重发 |
+| L1-24 | REUSED_PRINCIPLE：观察器/屏障故障 | 07–08、14–15/G1–G4 | 错环境/epoch、trace缺段、代理被绕过、屏障未命中必须拒绝或INCONCLUSIVE，不能有可信PASS |
+
+| 新规则 | 适用性与阶段 | 必要证据 |
+| --- | --- | --- |
+| SUP-01 Policy Applicability | 首期核心；06–09/14 | 事件日期、政策生效区间、套餐/合同优先级、边界正反样本 |
+| SUP-02 Tenant Isolation | 首期合成最小负例；生产扩展19/20 | 可信认证主体、工具/RAG实际返回、缓存/引用无跨租户泄漏 |
+| SUP-03 Refund Authorization | 首期沙盒拒绝；真实动作延期21 | 建议、尝试、拒绝与效果分开；业务批准与发布批准不可互用 |
+| SUP-04 Evidence Grounding | 首期结构化关键事实；语义另评 | 实际账单与适用条款支持结论，引用存在不等于语义成立 |
+| SUP-05 Ticket Revision | 后续明确切片；宣称支持即变mandatory | 旧revision完成拒绝覆盖，迟到/竞争完整轨迹 |
+| SUP-06 Async Result Integrity | 首期基础；扩大故障模型后续 | 持久Job/outbox、草稿提交与DONE、清理/恢复事实 |
+| SUP-07 Escalation | 首期核心 | 缺证据/冲突明确补证或复核，充分证据不能一律转人工 |
+| SUP-08 Tool Use Correctness | 首期核心 | 实际工具Schema/参数/返回关联与日期映射，不信模型自述 |
+| 语义质量（独立报告范围，非新增SUP编号） | 独立语义报告；正式门槛后续 | 人工校准rubric、重复/统计/阈值及不确定处置，不能覆盖确定性失败 |
+
+附加平台验收：GenAI manifest贯穿Candidate/Final/批准/CI；供应商模型身份边界；SUT/Verifier/Grader/Coder全成本；候选外trace不可绕过；CANDIDATE_DEFECT协议版本；已有PR触发Check入口与Draft PR发布入口分开。上述分别映射10–18，不借新增业务遗漏原L2/L3要求。

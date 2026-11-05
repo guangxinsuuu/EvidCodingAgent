@@ -6,11 +6,11 @@
 
 ## 1. 怎样使用这份附件
 
-先用公开固定源码和合成数据实现登记、过滤、权限与删除测试。准备让实际企业源码、文档、日志、图片/特征或预测数据进入一个系统时，为每条流向填实际配置和证据，并由有权的Data Owner/Security确认该范围。系统需在启用Connector、构建模型输入、写日志/trace、导出证据及备份前检查对应有效记录。
+先用公开固定源码和合成数据实现登记、过滤、权限与删除测试。准备让实际企业源码、文档、日志、工单、账单、政策或回复草稿进入一个系统时，为每条流向填实际配置和证据，并由有权的Data Owner/Security确认该范围。系统需在启用Connector、构建模型输入、写日志/trace、导出证据及备份前检查对应有效记录。
 
 两个独立门槛：
 
-- `MODEL_DATA_EGRESS_READY`：第12章任何真实模型通道启用前，核对该通道实际接收的字段、账号/endpoint、数据用途、区域和服务端保留能力。公开源码/合成任务可用限定该数据等级的记录，不提前依赖完整企业部署；凭据和隐藏答案仍禁止外发。
+- `MODEL_DATA_EGRESS_READY`：第05/12/13/18章任何真实SUT、Coding、Verifier或Grader模型通道启用前，核对该通道实际接收的字段、账号/endpoint、数据用途、区域和服务端保留能力。公开源码/合成任务可用限定该数据等级的记录，不提前依赖完整企业部署；凭据和隐藏答案仍禁止外发。
 - `ENTERPRISE_DATA_READY`：第19/20章真实企业内容进入任何新系统前，适用流向全部登记、策略通过正反测试、Owner确认，且没有未解决的地区/保留/访问缺口。单个来源能读取成功不能替代这项门槛。
 
 `DataFlowRecord.status=DRAFT|ACTIVE|SUSPENDED|REVOKED` 表示记录生命周期；`DataAdmissionDecision.decision=ALLOW|BLOCKED` 与reason_codes表示某次操作的准入判断；两个READY名称表示资格门槛，不新增Run状态。ACTIVE记录也必须经过当前ACL、用途和配置复核，不能等同每次访问自动ALLOW。
@@ -50,12 +50,12 @@
 | DF-04 | 模型输出/工具调用事件 → Worker、响应归档 | 输出可能复述输入；按输入最高敏感度，工具参数脱敏 | 待登记；R-MODEL、R-WORK | 本Attempt的Worker、授权审阅者；输出不能赋权 | 12、13、16 |
 | DF-05 | Prompt与Graph state → checkpoint/store | 默认只存引用及必要状态；若框架保存全文，增加实际正文流记录 | 待登记；R-WORK | Verifier服务、受控恢复角色；Coder无权读隐藏状态 | 10、13 |
 | DF-06 | 候选源/构建上下文 → 隔离构建器、依赖代理/cache | 候选无平台凭据；代理日志/缓存不能额外收集源码，意外发送算违规 | 待登记；R-WORK、R-CACHE | 构建域只读冻结输入；预取器写限定依赖cache | 04、05、12、15 |
-| DF-07 | 合成fixture/获准图像输入 → ML Gateway、Redis Stream/Job/result、Worker | 首期只合成；真实数据另登记最小字段、key/Stream与对象范围 | 待登记；R-SUT | SUT服务、只读Observer；屏障控制另限权限 | 05、07、19、21 |
-| DF-08 | SUT Job/队列/模型加载/结果/日志/trace → Observer → 原始证据存储 | 关联范围内取数；原始完整证据受限保存，脱敏副本不得冒充原件 | 待登记；R-EVIDENCE | Observer采集、Collector登记；QA/审计按scope读 | 07、08、14 |
+| DF-07 | 合成工单/账单/政策fixture → SUT API、PostgreSQL Job/草稿、Redis、Worker | 首期合成；真实tenant/customer/invoice等另登记字段、范围与用途 | 待登记；R-SUT | SUT按主体读写，Observer只读；屏障控制另授权 | 05、07、19、21 |
+| DF-08 | SUT Job/工具/模型调用/草稿/日志trace → Observer → 原始证据 | 限定ticket/revision/job/check/attempt；完整原件受控，脱敏副本不冒充原件 | 待登记；R-EVIDENCE | 候选外网关/Observer采集、Collector登记；QA按scope读 | 07、08、14 |
 | DF-09 | Candidate/Git对象/制品 → ArtifactStore | 精确文件/对象闭包，拒绝工作区外文件；保留保密分类 | 待登记；R-EVIDENCE | 可信Collector写；Runner/Gateway按精确candidate读 | 12、14、17 |
 | DF-10 | 事件、批准、预算、身份与证据引用 → EGAP PostgreSQL | 载荷最小化，不在journal存原文/完整token；审计ID仍受控 | 待登记；R-AUDIT | Control Plane按角色写；审阅/运营有限读 | 10、11、16 |
 | DF-11 | 工作通知 → outbox、Redis/BullMQ、失败队列 | 只传对象引用；不夹带prompt、源码、密钥或授权快照作为权威 | 待登记；R-QUEUE | Relay/指定Worker；队列运维无业务内容默认访问权 | 10、11 |
-| DF-12 | 平台与SUT日志、错误栈 → 本地日志/可选外部日志平台 | 禁止token、请求正文、未脱敏图像、特征、预测或样本标识；错误栈可含路径和源码需检查 | 待登记；R-LOG | 按tenant/scope的SRE/审计；供应商人员另登记 | 15、19 |
+| DF-12 | 平台与SUT日志/错误栈 → 本地或外部日志系统 | 禁token、默认完整工单/账单/Prompt/客户回复正文；路径、工具参数及引用也检查 | 待登记；R-LOG | 按tenant/scope的SRE/审计；供应商支持另登记 | 15、19 |
 | DF-13 | trace/span/metrics → 采集器/APM | 属性白名单；不自动记录prompt、SQL参数和HTTP正文；采样不是脱敏 | 待登记；R-TRACE | 观测服务写、授权SRE读；不默认向全员开放 | 19、20 |
 | DF-14 | 原始证据/源码 → Console、报告、下载/导出 | 默认脱敏摘要；受保护下载经当前ACL鉴权代理，不能用直达对象的签名URL绕过；导出是新副本 | 待登记；R-EXPORT | 当前授权审阅者；导出目的地及二次分享需在scope内 | 14、16、18 |
 | DF-15 | 冻结Git对象/PR描述 → 自有Fork/托管Git服务 | 仅批准candidate和目标；PR正文不附敏感日志/隐藏答案 | 待登记；R-REMOTE | Gateway指定动作；Repo当前权限用户、服务端管理员另登记 | 17 |
@@ -64,14 +64,19 @@
 | DF-18 | Hidden ground truth/Seed答案 → 私有评估存储 | 与候选/普通报告/模型通道隔离；不进入通常构建上下文 | 待登记；R-EVAL | 数据集维护者、授权裁决器；Coder/Planner/provider禁止读取 | 09、18 |
 | DF-19 | 实验统计/失败案例 → 评测报告/支持诊断包 | 默认只导出聚合与脱敏案例；支持工单附件也是独立外发 | 待登记；R-EXPORT、R-AUDIT | 项目负责人/QA；供应商支持须指定实际接收者与用途 | 18、19 |
 | DF-20 | 密钥管理系统 → 各可信执行器的短期内存 | 只通过引用解析；禁止进入prompt、代码、证据、日志、备份正文 | 待登记；R-SECRET | 指定service identity；轮换/吊销由独立密钥管理员 | 12、15、17、19、20 |
-| DF-21 | 模型来源/注册库 → 预取器、模型cache、Worker加载目录 | 限来源、许可、不可变模型字节与摘要；不随意下载外部custom operator/可执行反序列化对象 | 待登记；R-ML-ARTIFACT | 可信预取器写；Worker只读批准模型；Coder无权改当前验收模型 | 03、05、12、15、21 |
-| DF-22 | 图片/特征snapshot/预处理 → 推理内存、临时文件、队列/结果 | 首期合成或明确获准图像；身份信息、EXIF、原始特征和embedding分别分类；摘要不自动匿名 | 待登记；R-SUT、R-ML-ARTIFACT | 当前Job的Worker、受限Observer；禁止默认为Agent prompt输入 | 05–08、15、21 |
-| DF-23 | 标注集/切片/holdout → 独立ML评估器与指标存储 | 数据许可/用途、标签隔离、样本去重/泄漏与派生统计；不流向Coder/Planner或普通报告 | 待登记；R-EVAL | Data/ML评估Owner、可信Evaluator；模型只能读获准汇总 | 09、18、21 |
-| DF-24 | 模型/feature注册元数据与alias → Connector、发布预览与审计 | 只读范围与promotion写权分离；记录版本/摘要/当前ACL，不把alias字符串当不可变身份 | 待登记；R-SOURCE、R-AUDIT、R-REMOTE | 只读Connector、独立批准推广Gateway；当前首期不接MLflow/Feast | 16–17、20–21 |
+| DF-21 | 历史ML：模型来源/注册库 → 预取器、模型cache、Worker加载目录 | 限来源、许可、不可变模型字节与摘要；不随意下载外部custom operator/可执行反序列化对象 | 待登记；R-ML-ARTIFACT | 可信预取器写；Worker只读批准模型；Coder无权改当前验收模型 | 03、05、12、15、21 |
+| DF-22 | 历史ML：图片/特征snapshot/预处理 → 推理内存、临时文件、队列/结果 | 首期合成或明确获准图像；身份信息、EXIF、原始特征和embedding分别分类；摘要不自动匿名 | 待登记；R-SUT、R-ML-ARTIFACT | 当前Job的Worker、受限Observer；禁止默认为Agent prompt输入 | 05–08、15、21 |
+| DF-23 | 历史ML：标注集/切片/holdout → 独立ML评估器与指标存储 | 数据许可/用途、标签隔离、样本去重/泄漏与派生统计；不流向Coder/Planner或普通报告 | 待登记；R-EVAL | Data/ML评估Owner、可信Evaluator；模型只能读获准汇总 | 09、18、21 |
+| DF-24 | 历史ML：模型/feature注册元数据与alias → Connector、发布预览与审计 | 只读范围与promotion写权分离；记录版本/摘要/当前ACL，不把alias字符串当不可变身份 | 待登记；R-SOURCE、R-AUDIT、R-REMOTE | 只读Connector、独立批准推广Gateway；当前首期不接MLflow/Feast | 16–17、20–21 |
+| DF-25 | 工单、适用政策片段、工具结果 → SUT模型代理 → 实际provider | 限合成/批准字段，隐藏真值与密钥禁止；逐次请求/响应、配置和用途绑定 | 待登记；R-MODEL、R-EVIDENCE | 可信模型代理、限定provider；候选无原始key | 03、05、07、15 |
+| DF-26 | 获准回复/证据摘要 → Semantic Grader/人工复核 | rubric、输入最小化；独立holdout标签不默认给grader；输出可能复述敏感字段 | 待登记；R-MODEL、R-EVAL | 独立Evaluator与复核人；Coder/Planner仅获准报告 | 08、18、21 |
+| DF-27 | 政策正文/ACL/生效区间 → corpus snapshot、索引、可选embedding/reranker | 内容与权限版本分开，历史政策保留用途明确；删除/撤权覆盖派生索引 | 待登记；R-GENAI-ASSET、R-SOURCE | 受控索引器写，SUT检索按当前Tenant/用途读 | 05–08、20–21 |
+| DF-28 | 认证主体/工具参数/返回/授权拒绝/实际效果 → 可信工具网关证据 | 候选外记录，原始受保护；schema引用/摘要不等于匿名；不能只存UI截断 | 待登记；R-EVIDENCE、R-AUDIT | 网关/Collector写；Oracle只读，候选无覆盖权 | 07–08、14–15 |
+| DF-29 | 业务建议/客户回复/退款批准 → SUT业务Action Gateway/人工桌面 | 首期仅草稿/沙盒；真实发送/支付另批准对象/目的地；与EGAP发布审批分域 | 待登记；R-SUT、R-AUDIT、R-REMOTE | 业务授权人员/服务；EGAP发布token无业务动作权 | 16、19、21 |
 
-DF-21–24属于ML新增流向。主来源是图片分类模板；本项目不处理真实信用申请数据，也不因附件的信用评分例子获得该数据授权。预测结果、嵌入和模型权重可能保留敏感关系，不因“不是原始输入”就自动降级。模型cache删除、Worker重启和证据保留之间需分别证明，清掉任务key不等于删完输入/结果副本。
+DF-21–24保留2026-11-04 ML历史设计，不是当前活动业务流向或数据许可。以后重新启用另行登记和激活，不能因为历史表存在就读取图像/特征/模型。当前GenAI新增流向见DF-25–29；派生摘要、embedding和模型输出仍按来源敏感度治理。
 
-DF-03/04要拆开登记Coding与Verifier的实际provider，不能因为使用同一品牌就认为账号、区域、保留配置相同。DF-12/13按每个实际本地或外部接收系统展开，DF-17按每个备份/复制目的地展开。未来增加embedding、崩溃报告、浏览器遥测或人工下载工具时新增行，不藏进“其他”。
+DF-03/04拆开登记Coding与Verifier，DF-25登记SUT模型，DF-26登记Grader；即使同品牌也不继承账号、区域、保留或费用设置。日志/APM、备份、embedding与人工支持各实际接收系统展开子记录，不藏进“其他”。
 
 受保护内容的下载、Range续传及导出取回应走可信代理，每次请求重新核验主体、当前ACL、用途和flow状态。短TTL直达签名URL本身不能实现即时撤权，不能作为用户可复用的绕过通道；如底层存储使用签名能力，只在代理内侧短期取回，或采用可验证撤销且仍强制上述检查的等价机制。在途流的停止边界需测试并记录，已合法取回的离线字节无法由服务端撤销；没有获准离线副本治理策略时拒绝该导出用途。
 
@@ -84,7 +89,8 @@ DF-03/04要拆开登记Coding与Verifier的实际provider，不能因为使用�
 | R-WORK | 工作区、临时构建、恢复上下文；Attempt/Run结束或取消 | 及时撤销访问，按批准期限清理；需要复现时转受限证据并登记新用途，不能无限留临时目录 |
 | R-SOURCE / R-CACHE | 来源正文、索引、摘要、依赖cache；取回/更新，ACL时效另算 | 内容TTL不等于权限TTL；撤权先禁读，删除按源规则和保留策略处理 |
 | R-MODEL | 输入、输出、本地调用归档及provider副本；实际发送/完成 | 分别记录本地和服务端期限、训练/日志例外；provider不可逐条删时明确最长保留与批准范围 |
-| R-ML-ARTIFACT | 模型、预处理/feature snapshot及模型cache；撤销、版本退役或实验结束 | 不可变身份与存续期限分别管理；运行中的授权Job按批准策略续用或停止，删除缓存不伪称撤回已加载内存；备份和证据副本另登记 |
+| R-ML-ARTIFACT | 历史ML范围的模型、预处理/feature snapshot及模型cache；撤销、版本退役或实验结束 | 不可变身份与存续期限分别管理；运行中的授权Job按批准策略续用或停止，删除缓存不伪称撤回已加载内存；备份和证据副本另登记 |
+| R-GENAI-ASSET | Prompt、corpus/index/retrieval/tool schema快照；版本退役或来源撤权 | 不可变内容与使用权限独立；索引/embedding/缓存/导出分别删除，provider副本按R-MODEL处理 |
 | R-SUT | 测试输入/结果、Redis/消息与快照；实验完成/环境租约结束 | 清理对应所有权资源；需保留反例时导出受限最小证据，不保留整个实例代替证据 |
 | R-EVIDENCE / R-EVAL | 原始观察、候选、结果、私有答案；任务/实验结束 | 完整性与可重验期限明确；到期删除原件后保留允许的墓碑/摘要，历史结果标明证据已不可复算，不能继续作新Gate依据 |
 | R-AUDIT | 批准/撤销、账本、身份与决策摘要；事件或Run终结 | 只保留获准审计字段；不可用“审计需要”把原始正文无限复制进账本 |
@@ -112,7 +118,7 @@ DF-03/04要拆开登记Coding与Verifier的实际provider，不能因为使用�
 | `tests/qualification/data-governance/` | 合成敏感字段、外发拒绝、TTL、ACL故障、备份恢复测试 |
 | `reports/data-governance/<review_id>/` | 脱敏流向图、实际配置引用、正反测试、缺口和批准记录 |
 
-1. **合成阶段。** 为DF-01/03/04/10/12建立最小登记与拒绝函数，用合成敏感标记检查模型载荷、日志和磁盘副本；不发送真实企业内容。
+1. **合成阶段。** 为DF-01/03/04/10/12及当前SUT的DF-25/27/28建立最小登记与拒绝函数，用合成敏感标记检查模型载荷、日志和磁盘副本；不发送真实企业内容。
 2. **第12/15章通道资格。** 盘点真实CLI/SDK、工具遥测、checkpoint、shell输出与异常路径的实际副本；核对供应商当前账号设置和证据，仅启用已获准数据等级。
 3. **第19章落地。** 对每个实际存储/观测/备份目的地填写区域、身份、期限，完成恢复和删除演练；只填一张架构图不算完成。
 4. **第20章来源准入。** 加入源ACL、数据分类与传播血缘，满足全部门槛后才小范围回填。扩大来源、字段或目的地重新计算flow_set_digest。
@@ -134,9 +140,9 @@ DF-03/04要拆开登记Coding与Verifier的实际provider，不能因为使用�
 | DG-10 | provider不支持请求的区域限制/删除期限 | 记录真实限制并拒绝该数据等级/流向；改为适配的目的地或明确缩小数据范围后重新评审 |
 | DG-11 | 证据原件到期或删除后，尝试新Final/发布引用 | 明确缺少可核验原件并阻断，不能因历史hash还在而当作证据完整 |
 | DG-12 | 在原文ACL收紧同时队列中有待发送模型/导出任务 | 发送前重读授权与flow状态；已发出的副本登记后续处置，不谎称已撤回 |
-| DG-13 | 图像EXIF、特征、预测、样本ID或holdout标签意外进入prompt/trace | 捕获真实出站与落盘字段，按来源用途拒绝/脱敏；聚合结果不能反推隐藏答案 |
-| DG-14 | 模型来源/许可或摘要变化，仍复用旧模型cache/批准 | 新下载/加载准入拒绝，记录实际字节与来源；alias变化不改变既有Job冻结身份 |
-| DG-15 | 输入/结果/模型cache到期或撤权，但Worker内存/重试队列/证据仍有副本 | 逐副本应用批准保留/停止策略与回执；如需有限证据保留单独hold，不能用清Redis key冒充全删 |
+| DG-13 | 工单/账单/客户标识、合同或holdout答案意外进入Prompt/trace | 捕获真实出站与落盘字段，按来源用途拒绝/脱敏；模型输出和聚合不得泄漏隐藏答案 |
+| DG-14 | Prompt/corpus/tool/provider配置变化仍沿用旧批准 | 请求与冻结manifest不符时拒绝；记录远端模型实际请求/响应身份与时间，不要求不可取得的权重摘要。历史ML/未来本地模型另核字节与来源 |
+| DG-15 | 工单/草稿/政策缓存到期或撤权，但Worker内存/重试队列/证据仍有副本 | 逐副本应用保留/停止策略，provider副本按实际能力单列；有限证据保留单独hold，不用清Redis key冒充全删。本地模型cache属于历史或后续子范围 |
 
 DG编号为本附件新增的数据治理测试，**不是v3原检查ID**；与[93 v3检查映射](93-v3-acceptance-coverage.md)相关L2-S/运营条目建立引用，不能替换其余安全要求。
 
@@ -144,7 +150,7 @@ DG编号为本附件新增的数据治理测试，**不是v3原检查ID**；与[
 
 签收对象至少包括 `flow_set_digest, policy_set_digest, account/config_revisions, qualification_refs, allowed_data_classes, approved_scope, reviewer_identity, valid_until`。任何实际期限或区域仍未知、适用DG测试未运行、权限链断裂或删除能力不满足批准策略，都保持阻断；不能以“后续补齐”自动激活。
 
-- [ ] DF-01–24已逐项标记适用/不适用；适用项按真实系统展开，没有未登记接收者。
+- [ ] DF-01–29已逐项标记（历史DF-21–24默认非活动）适用/不适用；适用项按真实系统展开，没有未登记接收者。
 - [ ] 处理、存储、备份、支持访问区域有配置与服务证据，未从用户所在地猜测。
 - [ ] 每种副本有明确期限、起算点、删除延迟、备份到期和负责人，例外可到期复核。
 - [ ] 访问者与用途明确，源ACL、派生访问、外发许可分别检查；服务不可用即拒绝。
@@ -154,3 +160,15 @@ DG编号为本附件新增的数据治理测试，**不是v3原检查ID**；与[
 下一次可复制：
 
 > 按第94章先建立合成DataFlowRecord与RetentionPolicy校验，覆盖缺区域/期限拒绝、未授权模型外发、日志秘密过滤、ACL不可用和过期备份恢复。只使用公开源码与合成标记，不连接真实企业来源。列出需要实际账号设置或Owner决策的字段，将结果写reports/artifacts；仅另获文档许可后更新91/92，不填虚构地区、保留天数或批准人。
+
+## 8. GenAI 新增的准入与删除验收
+
+| ID | 反例 | 必须观察到的结果 |
+| --- | --- | --- |
+| DG-16 | SUT模型已准入，Verifier/Grader使用未登记账号或endpoint | 各通道独立拒绝，不继承同品牌批准 |
+| DG-17 | 工单正文包含假key/跨租户账单引用 | 实际出站、工具返回、trace、日志与公开报告逐出口核验，不能仅测UI |
+| DG-18 | 政策撤权/删除后索引、embedding和缓存仍命中 | 当前授权入口阻断所有片段/引用；派生副本按血缘删除并留回执 |
+| DG-19 | 候选SDK关闭trace或伪造调用结果 | 可信代理/Observer记录不被候选控制；证据缺失为INCONCLUSIVE，不生成PASS |
+| DG-20 | 备份恢复使旧工单/Prompt/政策或业务批准复活 | 重放当前墓碑/撤权，旧能力无效；真实通信/退款与EGAP发布分别对账 |
+
+本轮仅定义和迁移这些数据范围，没有批准实际供应商区域、保留天数或企业数据，也没有运行SUT模型/Grader。当前HTTP mock不证明任何provider侧删除或驻留能力。正式激活依旧逐记录、逐真实账号完成本章验收。

@@ -14,6 +14,9 @@
       ],
       "@egap/ml-inference-adapter": [
         "./packages/ml-inference-adapter/src/index.ts"
+      ],
+      "@egap/genai-support-adapter": [
+        "./packages/genai-support-adapter/src/index.ts"
       ]
     }
   },

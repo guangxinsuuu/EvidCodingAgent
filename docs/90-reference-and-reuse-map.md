@@ -1,12 +1,14 @@
 # 90｜参考来源、复用矩阵与证据边界
 
-> 2026-11-04已授权切换到 **Async ML Inference Release Verification**。控制面骨架、file-lab账本与Docker适配器已有实现；旧Eventuate来源/构建证据保留历史，新ML业务尚未由真实运行证明。90.1及90.7的旧仓库快照属于2026-11-02历史读取，不能当作当前文件状态或ML资格。
+> 历史记录（2026-11-04）：已授权切换到 **Async ML Inference Release Verification**。控制面骨架、file-lab账本与Docker适配器已有实现；旧Eventuate来源/构建证据保留历史，新ML业务尚未由真实运行证明。90.1及90.7的旧仓库快照属于2026-11-02历史读取，不能当作当前文件状态或ML资格。
 
 这份附录的用途是：实现每一章前先找准相应参考，知道可以借鉴什么，也知道什么不能因“旧项目有这个名字”就当作新项目已经完成。它与 [02 工程决策](02-engineering-decisions.md)、[91 决策日志](91-decision-log.md) 一起使用。
 
+> 当前更新（2026-11-05）：主业务已按授权迁移到GenAI客服发布验证。只复用已证明的公共机制；参考源码不等于持久SaaS产品，准确范围见90.11及92。
+
 ## 90.1 本次来源快照
 
-历史读取日期：2026-11-02，按 Australia/Sydney 用户日期记录。新增ML来源在90.6单列，旧表不改写成新业务事实。
+历史读取日期：2026-11-02，按 Australia/Sydney 用户日期记录。90.6保存2026-11-04的ML来源快照；2026-11-05当前GenAI参考来源见90.11，历史表不改写为新业务事实。
 
 | 来源 | 本次确认 | 使用边界 |
 |---|---|---|
@@ -55,7 +57,7 @@ Eventuate 目录有晚于 PDF 生成的 Gradle 缓存及 problems 报告，不�
 |---|---|---|---|
 | [executor.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/executor.ts:124>) | 独立工作目录、固定 base、移动 .git、调用 DSH runner、生成 proposal | 保留候选冻结与适配器边界；主引擎改为 Codex provider，DSH 只留未来可选适配 | [12](12-codex-coding-worker.md) |
 | [executor 环境与测试](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/executor.ts:175>) | 模型子进程环境收缩；通用测试继承 process.env；同一 Worker 调用模型与验证 | 必须拆 Coding/Verifier/可信 Runner 与候选构建权限域，取消通用环境继承 | [15](15-security-and-qualification.md) |
-| [Kafka validator](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/kafka-validation.ts>) | Worker 自有断言、node:vm 内模拟 store、候选源码摘要关联 | 可借鉴独立 Oracle 的方向；实现独立ML Job/模型/预处理/结果及时间序列断言；历史金额Oracle不迁移为ML PASS | [07](07-observer-and-experiment-barrier.md)、[08](08-native-oracles.md)、[14](14-final-gate-and-evidence.md) |
+| [Kafka validator](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/kafka-validation.ts>) | Worker 自有断言、node:vm 内模拟 store、候选源码摘要关联 | 可借鉴独立 Oracle 的方向；实现独立Support Job/工具参数/政策/草稿及时间序列断言；历史金额和ML Oracle不迁移为SUP PASS | [07](07-observer-and-experiment-barrier.md)、[08](08-native-oracles.md)、[14](14-final-gate-and-evidence.md) |
 | [contracts/index.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/packages/contracts/src/index.ts:1>) | Zod 边界、类型、canonicalJson、approvalBinding | 选择性移植思路；新 runtime 边界用 JSON Schema Draft2020-12/Ajv2020，业务资产保持单一 Schema 权威 | [04](04-project-skeleton.md)、[06](06-contract-registry.md) |
 | [policy.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/control-plane/src/policy.ts:1>) 与 [Rego](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/policies/tool-policy.rego:1>) | 工具白名单、保护能力、参数绑定的审批路径 | 学习 allow/ask/deny；补身份、资源、租户、真实路径/链接与上下文权限测试 | [15](15-security-and-qualification.md)、[16](16-console-and-approval.md) |
 | [Compose Worker 环境](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/deploy/compose.yml:2>) | Worker 含 DB/内部/签名配置，多服务共享 run-data | 不能当安全部署模板；重建最小凭据、不同挂载与网络、候选构建隔离 | [15](15-security-and-qualification.md)、[19](19-deployment-and-operations.md) |
@@ -80,9 +82,9 @@ Kafka validator 的源码注释明确说明：其 store 模拟业务效果与去
 
 参考项目的 Jira comment/transition、Confluence change record 是其既有演示链；本项目首个原生闭环只做到自有 Fork Draft PR+CI，不顺带向第三方发消息或更新文档。企业连接在 [20](20-enterprise-connectors.md) 按读权限、数据来源、撤权和写回分别激活。
 
-## 90.6 当前 ML 来源与历史 Eventuate 的边界
+## 90.6 历史快照：2026-11-04 ML 来源与 Eventuate 的边界
 
-当前来源为 [kevin-sparkflow/ml-inference-service 固定提交](https://github.com/kevin-sparkflow/ml-inference-service/tree/c200bcb4721c4428a9bfe808ca8a61648a2b16f6)，commit `c200bcb4721c4428a9bfe808ca8a61648a2b16f6`。固定源码是 FastAPI + Redis Streams + ONNX Worker 的 MobileNetV2 图片分类示例，共27个tracked文件；文件清单与逐文件摘要以 `sut/ml-inference/upstream.lock.json` 为准。源码冻结不等于构建、模型下载或推理已成功。
+该历史快照的来源为 [kevin-sparkflow/ml-inference-service 固定提交](https://github.com/kevin-sparkflow/ml-inference-service/tree/c200bcb4721c4428a9bfe808ca8a61648a2b16f6)，commit `c200bcb4721c4428a9bfe808ca8a61648a2b16f6`。固定源码是 FastAPI + Redis Streams + ONNX Worker 的 MobileNetV2 图片分类示例，共27个tracked文件；文件清单与逐文件摘要以 `sut/ml-inference/upstream.lock.json` 为准。源码冻结不等于构建、模型下载或推理已成功。
 
 静态审计确认的边界：`POST /predictions` 接收multipart图片并返回202/Job ID；查询状态为 `queued/processing/done/failed`；health只反映Redis连接。Worker包含XAUTOCLAIM与Lua fencing机制，但实际崩溃恢复仍待测试。Redis AOF everysec和TTL3600不能支持未经限定的零丢失、永久结果保留承诺。没有逐Job模型身份字段、HTTP幂等键或真实信用评分模型；`/scoring-jobs`是附件示意，不是本源码接口。
 
@@ -155,9 +157,30 @@ git -C '/Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform' --no-optio
 - [ ] 已确认参考 HEAD、dirty 状态与引用文件摘要没有被当成同一概念。
 - [ ] 每项复用有对应新章节、待建文件与新验收，未直接迁移历史成绩。
 - [ ] 内存测试、模拟 SaaS、同 Worker 安全域、无原子 outbox 的限制已进入实现计划。
-- [ ] ML原生能力、自有衍生扩展、人工seed与历史Eventuate证据分开。
+- [ ] 当前GenAI参考Demo、自有SaaS扩展、人工seed与历史ML/Eventuate证据分开。
 - [ ] 参考仓库和已有 EGAP-Order-Approval 未被改动。
 
 可复制的下一次请求：
 
 > 开始实现某一章前，先按第 90 章核对对应参考文件与当前工作树摘要。只提取必要接口和不变量，为新项目重新写边界与测试；参考只读，旧报告不算新实现成绩。把本次实际复用、重做和未验证部分记入进度日志。
+
+## 90.11 2026-11-05 GenAI 参考来源、复用与新增边界
+
+固定参考为[OpenAI Customer Service Agents Demo](https://github.com/openai/openai-cs-agents-demo)，commit `bd7bfca0f5abf50529370814c3e7c88542011925`，tree `2a42aef137e25a239b5b5ed6ad90f21e81d057e7`，43个受控源码文件；实际清单以 `sut/genai-support/upstream.lock.json` 为准。MIT许可证随副本保留。导出目录为 `sut/genai-support/workspaces/reference/`，明确不是健康SaaS baseline。
+
+资格为 `SOURCE_REFERENCE_ONLY_NOT_RUNTIME_VALIDATED`，用途为 `NON_SAAS_DEMO_REFERENCE`；依赖未解析、模型未调用、自有SaaS SUT未实现。源码完整性、运行资格、业务合同批准和正式Final分开记录。既有ML27文件及锁已离线复验，旧证据保持原义。
+
+| 来源/组件 | 可以借鉴或复用 | 必须新建/重验 |
+| --- | --- | --- |
+| 航空Demo的Agent/tool/handoff | Python Agent编排及工具接口组织 | SaaS订阅/账单、政策生效日期、真实检索、Tenant、结构化草稿 |
+| 航空Demo的内存线程状态与模拟工具 | 开发交互参考 | SUT PostgreSQL Job/草稿/outbox、Redis派发、revision与恢复 |
+| Demo SDK/UI trace | 开发诊断和可视化 | 候选外LLM/工具代理记录、独立授权与提交观察；截断UI事件不能作完整证据 |
+| TS控制面、身份/命令/file-lab | 骨架、账本、锁、环境归属、精确资源操作 | 正式PostgreSQL Runtime、授权、可信持久ArtifactStore及真实拓扑 |
+| ML源码准备机制 | 固定策略、Git/blob/摘要校验、原子导出、已有副本只核验 | 新独立来源策略/锁/账本、reference命名与source-only资格 |
+| ML HTTP adapter | 超时/体积边界、无盲POST重试的实现经验 | 客服JSON契约、Bearer身份、Ticket/revision绑定与新mock检查 |
+| 第13章Verifier设计 | 受控实验、账本/Graph分离、独立裁决 | Context/Impact/Hypothesis/Proposal/Decision详细对象和真实业务选测 |
+| 旧ML/Eventuate事实 | 历史可追溯来源 | 不转换为SUP PASS，不在此次重启旧业务 |
+
+Source prepare只导出固定参考与登记实验身份，不运行requirements、不启动Demo、不调用模型。未来自有 `services/genai-support-sut/` 与只读reference分开；复制实质源码时保留许可、来源/派生摘要和修改说明。来源、我方正确实现、候选变异及验证Oracle不得混为同一信任域。
+
+迁移报告：[2026-11-05 GenAI迁移](../reports/migration/20261105-genai-support/report.md)。其中命令、测试和来源回执才是实际完成证据；本地图不签发业务资格。

@@ -1,109 +1,69 @@
-# 03 · ML 环境预检：来源、依赖和模型工件分别核验
+# 03 · GenAI环境预检：来源、依赖、模型访问与数据边界
 
-状态：`ML_SOURCE_FROZEN / RUNTIME_PREFLIGHT_NOT_RUN`。TS 工具链、控制面骨架及旧 Eventuate 构建已有历史证据；新ML来源27文件已冻结并重复核验，API适配器已完成mock HTTP测试。**旧 Java 编译、镜像下载或单元测试不证明 ML 栈能运行。** 当前实际命令与结果以 [92](92-progress-and-session-log.md)、`reports/`、`artifacts/` 为准。
+状态：`GENAI_MIGRATION_IN_PROGRESS`。来源参考冻结与客户端mock校验不等于真实SUT已构建。尚未进行真实LLM调用、SaaS业务启动或SUP验收。前置[02取舍](02-engineering-decisions.md)，下一章[04骨架](04-project-skeleton.md)、[05基线](05-genai-support-baseline.md)。
 
-前置：[02 工程取舍](02-engineering-decisions.md)；后续：[04 已有骨架](04-project-skeleton.md)、[05 ML 基线](05-async-ml-baseline.md)。本章输出分项 `PreflightReport`，将来源不明、依赖解析、模型缺失与业务缺陷分开。
+## 1. 固定来源与自有业务分开
 
-## 1. 固定的新来源与真实业务
+参考来源为`https://github.com/openai/openai-cs-agents-demo`。已核查它是MIT航空客服Demo，提供Python Agent编排和Next.js/ChatKit界面；FAQ/业务工具含静态或mock逻辑，线程/状态存于内存。它不是SaaS退款、历史政策RAG或持久Job服务。[来源](https://github.com/openai/openai-cs-agents-demo)、[许可](https://github.com/openai/openai-cs-agents-demo/blob/main/LICENSE)。
 
-来源为 [kevin-sparkflow/ml-inference-service](https://github.com/kevin-sparkflow/ml-inference-service)，固定 commit `c200bcb4721c4428a9bfe808ca8a61648a2b16f6`。本次来源审计识别 27 个文件；重新准备时仍须核验精确对象和每个文件摘要，不能跟随默认分支漂移。
+固定来源锁应记录repository、commit/tree、文件blob及SHA256、mode、许可证、导出方法。参考副本不能冒充自有健康Stable。自有SUT拟位于`services/genai-support-sut/`，其新增工单、账单、策略检索、队列与持久草稿形成独立业务revision，随后按09构造Stable/Candidate。
 
-这个上游是 **MobileNetV2 异步图片分类模板**：FastAPI 接受图片，Redis Streams 将任务交给 ONNX Worker。它不是信用评分系统，也没有已经核验的长期线上历史。用户材料中的信用评分、MLflow、Feast、`/scoring-jobs` 是可选设计方向，不能写成当前源码事实。
-
-| 已审计接口/机制 | 范围与限制 |
-| --- | --- |
-| `POST /predictions`，multipart `file` | 声明支持 PNG/JPEG/WebP；接受后 `202`，返回 `id` 与 `status=queued` |
-| `GET /predictions/{id}` | 状态 `queued / processing / done / failed`，具体响应以固定源码与真实运行核对 |
-| `GET /health` | 检查 Redis 可达，不证明模型加载、Worker 或端到端推理健康 |
-| Redis Streams `inference:queue:v2` | Consumer、`XAUTOCLAIM`、Lua 租约/fencing 的存在需真实故障实验验证语义 |
-| AOF `everysec`、任务/结果 TTL 3600 秒 | 不能宣称零数据丢失或永久保留；TTL 到期需要独立业务约定 |
-| MobileNetV2 ONNX | 模型字节、许可、下载来源、预处理、输入输出形状均需独立冻结 |
-| 缺少每任务模型身份/alias 绑定、API 幂等键 | 属于显式能力缺口，不可由适配器虚构支持，也不能称为已确认上游 bug |
-
-原 Eventuate 固定来源与 `sut/upstream.lock.json` 保留历史身份。新来源使用 `sut/ml-inference/upstream.lock.json` 与 `sut/ml-inference/workspaces/baseline/`，不覆盖旧锁，不改旧项目。
+ML与Eventuate的来源、基线和账本保持原位；新业务使用独立来源策略和账本。本轮实际参考commit为`bd7bfca0f5abf50529370814c3e7c88542011925`，tree为`2a42aef137e25a239b5b5ed6ad90f21e81d057e7`，43个文件导出到`sut/genai-support/workspaces/reference`。锁`upstream.lock.json`明确`reference_role=NON_SAAS_DEMO_REFERENCE`、build=`genai-reference-unbuilt-v1`、business=`unchanged-upstream`；依赖NOT_RESOLVED、LLM NOT_CALLED、自有SUT NOT_IMPLEMENTED。详见[本轮迁移报告](../reports/migration/20261105-genai-support/report.md)。
 
 ## 2. 文件与责任
 
-| 路径 | 责任 |
+| 位置 | 职责/状态 |
 | --- | --- |
-| `config/active-business.json` | 当前主业务和受控来源/适配器引用，不授予任意 URL 或命令执行权 |
-| `sut/ml-inference/upstream.lock.json` | 仓库、commit、文件摘要、许可、导出方式与来源证据 |
-| `sut/ml-inference/workspaces/baseline/` | 固定上游副本；不混入候选、新功能或隐藏答案 |
-| `config/toolchain-lock.json` 及后续 ML revision | 区分 TS 已验证工具与 ML 尚未核验的 Python/ONNX/容器矩阵 |
-| `artifacts/evidence/preflight/<inspection_id>/` | 来源、依赖、模型工件和真实命令结果 |
-| `reports/preflight/<inspection_id>/` | 脱敏摘要与下一步阻断项 |
+| `config/active-business.json` | 当前明确注册业务，拒绝任意路径和旧账本混用 |
+| `config/genai-support-source-policy.json` | 固定参考来源策略；以本轮实际导出为准 |
+| `sut/genai-support/` | 参考锁和冻结副本，不等于自有SUT构建 |
+| `tools/environment-host/` | 校验来源、登记实验、受控资源操作 |
+| `services/genai-support-sut/` | 拟建Python业务、独立依赖锁与运行配置 |
+| `packages/genai-support-adapter/` | 新API客户端和mock协议检查，不启动真实业务 |
+| `reports/`、`artifacts/evidence/` | 可读结果与原始证据分离；不纳入密钥 |
 
-以上包含既有文件与本次迁移目标，是否已创建由实际文件和执行报告决定。工具不能因为配置中出现路径就相信它经过审核；真实路径、符号链接、摘要和允许根目录都要校验。
+## 3. 03.1 冻结来源，不执行上游脚本
 
-## 3. 小步实施
+只读审查许可证、requirements/lock、构建脚本、网络下载、模型调用、trace外发和持久化能力。导出逐blob校验，拒绝symlink、额外/缺失文件、脏副本、策略摘要漂移。已有副本仅核验，不覆盖；没有网络不妨碍已完整副本的重验。
 
-### 03.1 冻结来源，不运行未经审查的上游脚本
+来源标签保持`SOURCE_REFERENCE_ONLY_NOT_RUNTIME_VALIDATED`，`runtime_qualification=NOT_RUN`、`business_verification=NOT_RUN`。不能把网页HEAD、文件存在或源码完整性当成构建/业务资格。GitHub同步我们的开发仓库也不代表EGAP发布功能已实现。
 
-记录远端对象 commit、tree、导出文件清单与许可。下载/导出到任务专属临时目录，先审查 Dockerfile、Compose、Python requirements、模型获取脚本、入口与网络请求。禁止把 `.git`、缓存、凭据或下载失败页面当源文件复制。
+## 4. 03.2 核对宿主与隔离执行域
 
-源码锁只证明“读到什么”，不证明“能构建”。记录缺失或未知摘要为 null/NOT_RUN，不能填示例 SHA。准备副本重复执行时应逐文件核验，发现漂移则拒绝覆盖并给出差异。
+记录实际Node/pnpm、Python、依赖管理器、Docker/Compose、CPU/架构、内存/磁盘及端口占用。现有TS工具链可复用；Python版本以依赖兼容性锁定，不能因主机已有版本就视为可用。
 
-### 03.2 核对宿主与执行域
+分开构建、候选Worker、SUT工具/模型网关、独立Observer与EGAP控制域。构建可执行候选安装脚本，不能持有模型key、Docker socket、治理DB或Git发布凭据。准备镜像时用明确受控来源/摘要；运行时默认仅允许配置中的必要网关和基础设施端点。
 
-按实际需要读取 OS/CPU、Node/pnpm、Python、Git、Docker client/server 版本。Docker CLI 存在与 daemon 可用分开记录；确认只使用本任务许可的本机宿主，不切换陌生或生产 context。不打印完整环境变量、Docker 凭据或云配置。
+provider key由可信模型网关持有；候选获得短期、有scope的访问能力。记录实际provider/账号/模型配置、请求/响应model身份、预算与数据通道。SUT、Verifier、grader、Coder通道分别登记，不能继承同品牌的区域或保留结论。首期只发合成数据，真实企业数据先通过94。
 
-已有 Node/pnpm 骨架无需重建。新 ML 构建需单独核对 Python ABI、ONNX Runtime wheel、Pillow/NumPy 以及镜像架构兼容性；macOS ARM 的工具可用不意味着 Linux ARM64 镜像和 wheel 已通过。镜像标签只能用于发现，运行身份最终固定 digest。
+## 5. 03.3 分层解析依赖与验证模型通道
 
-可信宿主能管理本实验的资源；候选安装/构建/测试进程无 Docker socket、宿主目录写权、治理 DB、模型 API key 和发布凭据。Python build backend、安装脚本、模型解析与 import 都是代码执行，不能当作只读文本检查。
+1. 固定Python/SDK/HTTP/数据库/队列依赖，生成锁；上游未锁requirements不能直接视为可复现环境。
+2. 审查自有SUT拓扑：API、Worker、SUT PostgreSQL、Redis、工具服务、LLM代理与观察角色。SUT数据库与EGAP治理数据库凭据/生命周期分开。
+3. 使用受控无密钥构建，保存依赖来源、构建命令和digest。测试依赖可安装不表示模型调用或业务能力通过。
+4. 模型调用前冻结合成数据范围、允许模型/参数、最大请求数/token/费用与超时。代理拒绝任意provider/URL；费用未知保持占用，不能用重试隐藏成本。
+5. 先验证网络/认证和脱敏策略，再以有界单次真实请求核验调用身份、usage及原始证据。mock与replay明确标记，不算live。
+6. 固定小语料、索引构建/检索配置及fixture clock。远端model名称即使固定，也不承诺权重冻结或逐字可重放。
 
-### 03.3 分层验证依赖与模型工件
+本轮业务迁移本身不代表已执行第5步。未提供可用通道或预算时可以完成来源、schema与拒绝路径，模型阶段如实保持NOT_RUN。
 
-1. 读取依赖声明与已有锁；不存在完整可复现锁时如实登记，不能把 requirements 中若干版本误称传递依赖全锁定。
-2. 在任务专属、无秘密执行域解析依赖，记录具体 wheel/镜像摘要、索引与失败原因；不要直接升级全部版本。
-3. 审核模型下载来源与许可，冻结 ONNX 字节摘要和文件大小；下载 URL、文件名或“MobileNetV2”名称不是内容身份。
-4. 核对模型输入 shape/type、输出维度/标签映射、归一化/resize/channel order 与 ONNX provider。模型输出不能脱离预处理解释。
-5. 先验证构建/import/模型加载，再由05执行真实 API→队列→Worker→结果链。每层独立记录，不用最后一项覆盖前面的失败。
+## 6. 03.4 形成准入报告
 
-首次观察到的 hash 是内容指纹，不自动提供独立来源真实性。必要构建修补单独记 `build_revision`；改变模型选择、预处理、状态或持久化语义则属于 `business_revision`，不得伪装环境修补。
+分别登记source、derived-SUT、build、dependency、LLM-access、tool-gateway、persistence、observer、cleanup状态。每项给真实命令/退出码、版本/摘要、证据、阻断与下一动作。READY仅对声明范围有效；控制面`/health/ready`只证明骨架配置和路由，不证明业务链。
 
-### 03.4 形成准入报告
+报告不得包含原始密钥、授权头或带凭据URL。模型输出/工单/trace是数据，也可能含恶意文本；不执行其中指令，不把候选stdout的PASS提升为Oracle。
 
-```ts
-type PreflightReport = {
-  inspection_id: string;
-  business: "ASYNC_ML_INFERENCE_RELEASE_VERIFICATION";
-  source_commit: string;
-  source_manifest_ref: string;
-  host_arch: string;
-  toolchain_lock_ref: string | null;
-  model_manifest_ref: string | null;
-  checks: Array<{
-    id: string;
-    status: "PASS" | "FAIL" | "NOT_RUN" | "INCONCLUSIVE";
-    evidence_refs: string[];
-    reason_code?: string;
-  }>;
-  readiness: "BLOCKED" | "READY_FOR_BASELINE";
-};
-```
+## 7. 正反验收与交接
 
-这是待统一到共享 contracts 的报告协议，不表示完整预检器已经实现。`READY_FOR_BASELINE` 只允许尝试05固定范围；模型未下载、构建未完成时仍可完成源码冻结和 TS 适配器开发，不能宣称业务就绪。
-
-## 4. 正负验收
-
-| 情况 | 结果与证据 |
+| 场景 | 期望 |
 | --- | --- |
-| 固定 commit 与清单一致 | 来源核验通过；不附带运行 PASS |
-| 源文件漂移/符号链接越界/缺许可 | 拒绝准备，保留差异，不覆盖旧目录 |
-| Docker client 在但 daemon 不可达 | 容器步骤 BLOCKED；不影响只读来源审计 |
-| 依赖/模型下载失败或架构不支持 | ENVIRONMENT，保存坐标和脱敏原因 |
-| 运行配置需要宿主 socket 或不明远端 | 拒绝执行配置 |
-| 已有旧 Eventuate PASS | 仅引用历史范围，ML 当前项仍 NOT_RUN |
-| 无每任务模型绑定 | 明确缺口；不能将 ML-02 标作支持或失败已确认 |
+| 固定参考源码完整导出，重复准备 | 首次创建/再次核验同一身份；无运行资格 |
+| 更换来源或混入ML账本 | 拒绝，不继承旧实验 |
+| policy/lock/file摘要变化 | 拒绝，显式新revision后重审 |
+| 未锁依赖、镜像或缺构建条件 | BUILD/DEPENDENCY阻断，不伪造READY |
+| 模型key不可用、额度不明、出口不可控 | 模型阶段阻断；已完成来源证据保留 |
+| provider响应超时或usage缺失 | UNKNOWN及预算占用，不宣称请求未发生 |
+| 请求试图直连未批准端点或泄露授权头 | 拒绝并记录脱敏证据 |
+| 原始trace/语料未经允许外发 | 拒绝，不以“只是测试”豁免 |
 
-失败保留首次命令、退出码与输出摘要，重试增加物理 attempt。缓存问题创建任务专属新缓存，不清用户全局缓存；任何新版本都产生新 revision。报告不得收录凭据、完整生产数据或隐藏模型认证信息。
-
-## 5. 交接
-
-- [ ] 新旧来源、构建与业务修订分开。
-- [ ] 真实 API、队列、模型和持久性限制已列明。
-- [ ] 构建执行域与可信宿主权限边界明确。
-- [ ] 模型/预处理内容身份已取得，或准确保留阻断项。
-- [ ] 已执行与 NOT_RUN 分项列出，未把来源冻结当作真实基线。
-
-下一步：复用04骨架，按05接通受控启动、实际端口发现和精确清理，再执行四条图片推理 API smoke；不直接进入模型修复或正式 Final。
+下一步按05新建可追踪实验、构建自有SUT并接真实启动/观察/清理。先获得一个可独立观察的工单结果，再进入07屏障与08Oracle；不把航空参考Demo启动当成SaaS业务通过。

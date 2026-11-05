@@ -1,14 +1,14 @@
 # 12 · 可信接收候选，并按已验证缺陷调用 Codex 修复
 
-实施状态：`NOT_STARTED`。本章描述拟建实现；所有代码、脚本、接口和证据路径都是设计，不表示当前已经存在。本文编写没有调用模型、修改异步推理业务代码或运行服务。
+实施状态：`NOT_STARTED`。本章描述拟建实现；代码、脚本、接口和证据路径均为设计，不表示已有 Coding Worker。当前没有真实模型修复或客服 SUT 运行资格。
 
 前一章：[11 · 恢复与预算](11-recovery-and-budget.md)。下一章：[13 · LangGraph 验证规划](13-langgraph-verifier.md)。本章还依赖 [04 · 项目骨架](04-project-skeleton.md)、[09 · 缺陷样本](09-seeded-defects.md)、[10 · 持久化 Runtime](10-durable-runtime.md)。
 
-Coding 只修改 WorkOrder 允许的业务代码及开发测试。批准的模型文件、feature snapshot、输入 schema、隐藏评估集、Oracle 与发布阈值属于独立冻结输入；需要改它们时产生范围/需求变更提案，不能把改验收答案算修复。候选封存必须绑定所有会改变推理行为的制品，而非仅 Python diff；模型字节变化也属于 CHANGED。
+Coding 只修改 WorkOrder 明确允许的业务代码、Prompt、检索/工具配置及开发测试。批准业务政策内容、账单事实、隐藏评估集、Oracle 和发布阈值属于独立冻结输入；需要改变它们时提交范围/需求变更，不把修改答案算修复。候选封存绑定所有会改变客服行为的资产；仅 Prompt、语料索引或工具配置改变也属于 CHANGED。
 
 ## 学完后应能演示什么
 
-主场景先由可信接收器接收“稳定发布基线→含新功能/重构的外部提交候选”，固定完整内容与谱系，再交 Discovery 验证；这个入口无需 CodingAttempt。只有发现可信 CODE_DEFECT 且修复已授权，才给 Coding Worker 当前候选、允许修改范围和已验证反例，在独立工作区产生后继候选。两条路径共用可信冻结器，需发布的候选在 Final 前固定精确 Git commit/tree。你可以回答：验证/修复的是哪个版本、为什么改、是否越界、下一次独立验证拿到哪份内容。
+主场景先由可信接收器接收“稳定发布基线→含新功能/重构的外部提交候选”，固定完整内容与谱系，再交 Discovery 验证；这个入口无需 CodingAttempt。只有发现可信 CANDIDATE_DEFECT 且修复已授权，才给 Coding Worker 当前候选、允许修改范围和已验证反例，在独立工作区产生后继候选。两条路径共用可信冻结器，需发布的候选在 Final 前固定精确 Git commit/tree。你可以回答：验证/修复的是哪个版本、为什么改、是否越界、下一次独立验证拿到哪份内容。
 
 先演示 `scripted-fake` provider 的协议与故障处理，再接入 `live` Codex。两者必须在数据库、界面和报告中分开。fake 根据固定脚本写出补丁，只能证明候选交接协议；它没有证明模型能找出或修复缺陷。Codex 输出“已修复”也只是提案，业务结论来自第 08、14 章的独立执行。
 
@@ -22,7 +22,7 @@ Coding 只修改 WorkOrder 允许的业务代码及开发测试。批准的模�
 
 官方 SDK 提供线程启动/恢复能力，可作为另一适配器；线程 ID 是模型会话定位符，不是 EGAP Run、Candidate 或副作用账本。是否使用 SDK 由恢复、认证和运维需求决定，不为了框架统一而立即替换已验证的进程适配器。[官方 Codex SDK](https://learn.chatgpt.com/docs/codex-sdk)
 
-旧 AAA 仓库的 [executor.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/executor.ts>) 已展示独立工作区、子进程、工具错误检查、候选提案交接等模式。但它运行 DSH，包含支付/Kafka fixture 和特定凭据配置；不能复制后改名就声称接入 Codex。其 [kafka-candidate.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/kafka-candidate.ts>) 对实际 Git 路径、未跟踪文件和 NUL 分隔的检查值得借鉴，具体允许路径须由 ML Release WorkOrder 决定。
+旧 AAA 仓库的 [executor.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/executor.ts>) 已展示独立工作区、子进程、工具错误检查、候选提案交接等模式。但它运行 DSH，包含支付/Kafka fixture 和特定凭据配置；不能复制后改名就声称接入 Codex。其 [kafka-candidate.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/apps/harness-worker/src/kafka-candidate.ts>) 对实际 Git 路径、未跟踪文件和 NUL 分隔的检查值得借鉴，具体允许路径须由 GenAI Release WorkOrder 决定。
 
 ## 拟建文件及职责
 
@@ -44,7 +44,7 @@ Provider 不直接更新 Run 到 `WAITING_APPROVAL` 或 `SUCCEEDED`，不直接�
 
 以下为项目接口伪代码，不是官方 SDK API。实际类型放在 `packages/contracts`，运行边界用同一 JSON Schema 校验。
 
-WorkOrder/Run/FrozenRunContext 在准入时冻结 `task_mode=RELEASE_VERIFICATION|INCIDENT_REPAIR`、`repair_policy=DISABLED|ON_VALIDATED_FINDING` 和独立的 `completion_mode=FINAL_ONLY|DRAFT_PR_CI`。Release 的外部候选先验证；DISABLED 可配 CODING=0。CodingProvider 仅在 ON_VALIDATED_FINDING、当前可信代码缺陷与 scope/预算有效时启动，不能为正常新增功能先跑一次模型。最终 change_kind 比较任务基线：有变化候选按 completion_mode 完成；相对基线完整输入相等且任务满足才可能 NO_CHANGE。Provider 无权改变这些模式或决定终态。
+WorkOrder/Run/FrozenRunContext 在准入时冻结 `task_mode=RELEASE_VERIFICATION|INCIDENT_REPAIR`、`repair_policy=DISABLED|ON_VALIDATED_FINDING` 和独立的 `completion_mode=FINAL_ONLY|DRAFT_PR_CI`。Release 的外部候选先验证；DISABLED 可配 CODING=0。CodingProvider 仅在 ON_VALIDATED_FINDING、当前可信候选资产缺陷与 scope/预算有效时启动，不能为正常新增功能先跑一次模型。最终 change_kind 比较任务基线：有变化候选按 completion_mode 完成；相对基线完整输入相等且任务满足才可能 NO_CHANGE。Provider 无权改变这些模式或决定终态。
 
 RELEASE_VERIFICATION 的 WorkOrder 冻结 `stable_release_manifest_ref, submitted_candidate_ref, release_changeset_ref, requirement_delta_ref, historical_coverage_refs`。外部提交内容经可信 intake 核验真实 Git 对象、完整输入、来源和批准需求后，生成/登记不可变 CandidateManifest，由第 10 章 RELEASE_CANDIDATE_ACCEPTED 直接进入 Discovery。历史覆盖只供分析和必要 Stable 资格核对，不签发当前候选 PASS；外部作者提交的“已通过”同样不是本系统 Final 结果。
 
@@ -79,13 +79,13 @@ type CodingOutcome = {
 
 协议校验按 outcome 区分：CANDIDATE_PROPOSED 必须有可核验 workspace_snapshot_ref；NO_CHANGE_PROPOSED 必须为 null。二者都不是可信 change_kind，也不能携带自行签发的业务 PASS；最终分类与候选身份由 Collector 产生。
 
-CodingRequest 的 validated_finding_refs 必须非空，且每项由可信裁决绑定当前 repair input、有效 scope 和 CODE_DEFECT；不能仅凭模型诊断启动。parent_candidate_ref 若填写必须与 repair_input_candidate_ref 一致，不接受另选 Stable 作为工作区起点。修复策略、exploration_closed、预算与租约由服务端重新检查。
+CodingRequest 的 validated_finding_refs 必须非空，且每项由可信裁决绑定当前 repair input、有效 scope 和 CANDIDATE_DEFECT；不能仅凭模型诊断启动。parent_candidate_ref 若填写必须与 repair_input_candidate_ref 一致，不接受另选 Stable 作为工作区起点。修复策略、exploration_closed、预算与租约由服务端重新检查。
 
 为请求和结果准备正常、缺字段、错误 Run、过期 lease、无预算、引用越权的 fixture。此时只用 fake，不接模型。完成标志是 Runtime 能登记一个 Attempt，接受合法提案、拒绝非法提案，且重放同一请求不会重复领预算。
 
 ## 检查点 12.2：准备工作区和最小上下文
 
-1. 由可信 supervisor 从 `repair_input_candidate_ref` 的完整冻结内容创建独立工作区，写入 source manifest；任务 comparison base 只作为对照，不能取代修复输入。Incident 的初始修复输入可来自原 fault 版本，Release 修复输入则保留提交候选的新功能/重构。不在冻结的 ML 上游来源副本或历史 Eventuate 参考目录直接工作。
+1. 由可信 supervisor 从 `repair_input_candidate_ref` 的完整冻结内容创建独立工作区，写入 source manifest；任务 comparison base 只作为对照，不能取代修复输入。Incident 的初始修复输入可来自原 fault 版本，Release 修复输入则保留提交候选的新功能/重构。不在冻结的上游参考副本、历史 ML 或 Eventuate 目录直接工作。
 2. 将源码、任务允许的局部测试放入工作区。批准可读的Stable源码、submitted/current候选及真实release diff可用于分析；私有正确V4参考实现、标准修复/seed答案、holdout、oracle、Registry、证据库和发布凭据留在其他权限域。上下文引用只授权本Run所需对象，不能借Git历史取回隐藏答案。
 3. 提供可解释任务包：问题现象、已批准新功能与保留不变量、最小反例、允许路径、批准的本地反馈命令、停止条件。明确哪些行为变化是预期需求，不能为消除反例删掉已批准功能。若使用 seed，来源写明 synthetic，但不暴露注入 diff 或标准答案。
 4. 保存输入包摘要、CLI/模型配置、prompt 模板版本、工作区 lease 和预算引用。模型上下文的恢复必须核对这些身份。
@@ -95,9 +95,9 @@ CodingRequest 的 validated_finding_refs 必须非空，且每项由可信裁决
 
 ## 检查点 12.3：实现 CLI 边界，先解决认证与执行隔离
 
-`workspace-write` 是工具配置的一部分，不能替代操作系统权限、出网规则和凭据隔离。Python build backend、依赖安装钩子、测试、模型反序列化和候选脚本均可执行代码；ONNX/custom operator 加载面也须明确限制。模型 API key 不得作为整个不可信构建 job 的全局环境变量；也不得出现在工作区、日志或可被工具读取的认证目录。
+`workspace-write` 是工具配置的一部分，不能替代操作系统权限、出网规则和凭据隔离。Python build backend、依赖钩子、插件和候选工具脚本都能执行代码。SUT 与 Coding 的模型 API key 分别由可信认证域管理，不作为整个候选构建 job 的全局环境变量，也不进入工作区、日志或可被工具读取的认证目录。
 
-拟采用可信 supervisor/认证代理与无秘密候选执行域分离的部署设计。模型认证由可信域管理；真实构建交给无模型密钥、无发布凭据的独立构建进程。CLI 的实际工具继承环境、认证文件可见性、网络和文件挂载必须通过否定测试验证。仅把 CLI 与 Python 构建/推理写成两个函数，不构成隔离。
+拟采用可信 supervisor/认证代理与无秘密候选执行域分离的部署设计。模型认证由可信域管理；真实构建交给无模型密钥、无发布凭据的独立构建进程。CLI 的实际工具继承环境、认证文件可见性、网络和文件挂载必须通过否定测试验证。仅把 CLI 与 Python 构建/客服执行写成两个函数，不构成隔离。
 
 如果选定 CLI/部署方式不能证明候选工具无法读取认证材料，live 接入保持阻断，先完成模型代理或受控工具执行通道；不通过放宽 sandbox 或把 key 写入仓库继续。第 15 章将做完整平台 qualification，本章在任何 live 工作区执行前仍须完成最小凭据与权限预检。
 
@@ -128,11 +128,11 @@ CodingRequest 的 validated_finding_refs 必须非空，且每项由可信裁决
 
 冻结前后若文件变化，返回 `CANDIDATE_MUTATED_DURING_FREEZE`，保留现场，不登记可验收候选。冻结存储的写身份与候选用户分离，后续 Runner 从已登记快照构建，不从仍可变工作目录构建。
 
-局部 Python 测试/构建与推理冒烟是开发反馈，记录命令、退出码、日志引用和工具链；失败不删除，重试产生新 physical attempt。独立验证会重新构建并验证当前 Candidate，所以不能将局部测试报告直接填入 Final coverage。若输入范围不允许修改依赖，解析失败转环境问题，不生成“升级整个项目”的补丁。
+局部 Python 测试/构建与客服 API 冒烟是开发反馈，记录命令、退出码、日志引用和工具链；失败不删除，重试产生新 physical attempt。独立验证会重新构建并验证当前 Candidate，所以不能将局部测试报告直接填入 Final coverage。若输入范围不允许修改依赖，解析失败转环境问题，不生成“升级整个项目”的补丁。
 
 ### 比较基线、修复输入与无修改提议必须分开
 
-CandidateManifest 保留可信派生的 `change_kind=UNCHANGED|CHANGED`、`base_commit_sha/base_input_digest` 和 `candidate_input_digest`。base 语义在任务内固定：RELEASE_VERIFICATION 为稳定版本，INCIDENT_REPAIR 为原故障/输入版本；不会随修复轮次改成上一个 Candidate。CodingAttempt 的 repair_input_candidate_ref 另行冻结。两个 input digest 使用相同规范化 ML release manifest：完整源码/资源与文件 mode、构建脚本和命令配置、依赖锁及实际解析依赖摘要、工具链/构建镜像、相关配置和 commit/tree 身份，另包含外置 ONNX 实际字节摘要、不可变模型身份、labels 文件摘要、输入/输出 schema、预处理代码与 manifest 摘要、影响推理的 feature snapshot 引用。外置工件必须有可复核的不可变对象及来源回执，不能只保存可变URL、alias或版本字符串。排除 run/candidate ID、时间戳等记录元数据。测试环境的实例/reset 身份仍绑定 CheckRun，不冒充输入相等性；评估集、阈值及Oracle版本另入冻结验收闭包，变化必须失效旧检查资格。只有相对任务 base 完整输入相等才是 UNCHANGED；“平台未修复”不等于无发布变化。
+CandidateManifest 保留可信派生的 `change_kind=UNCHANGED|CHANGED`、`base_commit_sha/base_input_digest` 和 `candidate_input_digest`。Release 的 base 始终是冻结稳定版；CodingAttempt 的 repair_input_candidate_ref 独立记录。两个 input digest 使用同一规范化 GenAI release manifest：源码/资源和 mode、构建脚本/命令、依赖锁及解析摘要、镜像/工具链、commit/tree、provider/model/request configuration、Prompt、corpus snapshot、index build/retrieval/embedding/reranker（未启用也明确记录）、tool schema/adapter、output schema、workflow/worker 配置及 SUT 政策镜像。远端模型只有供应商可提供的版本身份，不伪造权重摘要；实际请求/返回模型标识、request ID、时间和 usage 作为执行证据另存。外置内容须可定位不可变对象与来源回执，不能只存可变URL或alias。排除 run/candidate ID、采集时间等记录元数据。测试fixture/reset、独立批准合同、评估集/rubric/阈值与Oracle版本属于验收闭包，不由Coder改写；变化须重评资格。完整输入相等才是UNCHANGED，未调用Coder不等于无发布变化。
 
 完整输入 digest 不同而 Git tree 相同，例如外部配置或解析依赖漂移，既不是 UNCHANGED，也不能靠空 commit/空 PR 变成可发布代码修复。当前任务中未授权、不可重现或无法映射到批准 Git 发布包的输入变化，应阻断候选接收/发布，记录 `BUILD_INPUT_DRIFT_OUT_OF_SCOPE` 或相应完整性原因。可发布 CHANGED 必须有真实、授权的 Git 变更，且构建输入变化受批准包和执行配置约束；纯外部配置变更应另建独立 scope，不暗借 CREATE_DRAFT_PR 的权限。本轮不扩展该发布协议。
 
@@ -176,7 +176,7 @@ pnpm run coding:run -- --work-order <已批准WorkOrder-ID> --provider codex-exe
 | 源码相同但依赖/构建配置变化或缺失 | 完整 input digest 不等或不可核验，不能标 UNCHANGED。 |
 | input digest 变化但 Git tree 不变，变化不在批准发布包内 | 阻断接收/发布，不造空 commit/PR；外部配置任务另定 scope。 |
 | 相对任务 base 输入相等且当前需求独立通过 | Runtime 可 NO_CHANGE；不造空 commit、Approval 或 PR。 |
-| 回退 Stable 删除模型固定、版本回显等批准新功能 | 新需求检查阻断，不能靠旧版本冒烟通过宣布成功。 |
+| 回退Stable删除十一月政策、tool schema v2或历史适用性等批准新功能 | 新需求检查阻断，不能靠旧版本冒烟通过宣布成功。 |
 | 已知 seeded defect 原样返回 | Finding/Final 仍阻断，不能把未修改计为修复。 |
 
 拟建证据目录为 `reports/coding/<run_id>/<attempt_id>/`，包含脱敏输入 manifest、事件、局部反馈、路径审核、冻结收据和用量记录；真正的不可变内容由 ArtifactStore 管理，目录只作为人可读导出。
@@ -201,3 +201,11 @@ pnpm run coding:run -- --work-order <已批准WorkOrder-ID> --provider codex-exe
 
 > 请按第 12 章先实现可信外部候选接收和共同冻结器，验证 Release 无需 CodingAttempt 即可进入 Discovery；再实现 CodingProvider/scripted-fake 的修复交接。核对第 09–11 章证据、任务模式和权限，不复制 DSH/fixture 业务，不调用真实模型、不发布。验证修复必须有有效 Finding，NO_CHANGE_PROPOSED 保留 repair input，多提交父链正确，冻结竞态/越界/恢复均拒绝错误输入；记录实际证据与缺口。之后再推进 CLI adapter，live 前落实认证与工具隔离。
 
+
+## GenAI 修复交接的最小对象与反例
+
+`ValidatedFinding` 必须绑定当前 candidate、SUP rule/assertion、`CANDIDATE_DEFECT`、candidate_asset_kind、实际工具/模型调用及原始观察引用，并给出有限范围的期望/实际差异。示例：续费时间属于十月，但实际传入检索工具的是十一月工单时间。仅看到错误答复不能直接证明是 Prompt 缺陷；缺少工具参数或政策来源时先补证。
+
+允许修复字段通过 WorkOrder 显式展开。修复 Prompt 或参数映射后生成新的完整候选，重新验证新政策与历史兼容；删除十一月政策/schema v2、把所有工单转人工、改账单或放宽 Oracle 都不能成为有效修复。合同冲突走 CONTRACT_AMBIGUITY；provider 不可用走执行恢复；没有可信证据不触发 Coding。
+
+首期调用链：Runtime 验证 Finding/修复权限 → supervisor 准备当前候选工作区 → CodingProvider 提案 → Collector 冻结 GenAI manifest → 独立 Runner/Oracle → 可信关闭 Finding。模型文本中的“已修复”和开发测试 PASS 均不能关闭 Finding。

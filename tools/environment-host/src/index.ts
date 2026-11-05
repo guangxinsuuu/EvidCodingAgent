@@ -3,3 +3,5 @@ export type { LabState, LabExperiment, LabAction, LabResource, EnvironmentReserv
 export { acquireLabLock, readLabLockOwner, recoverAbandonedLabLock } from "./lab-lock.js";
 export { prepareMlBaselineSource } from "./ml-source.js";
 export type { MlSourceOptions, MlSourceReceipt } from "./ml-source.js";
+export { prepareGenAiReferenceSource } from "./genai-source.js";
+export type { GenAiSourceOptions, GenAiSourceReceipt } from "./genai-source.js";

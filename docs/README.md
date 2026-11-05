@@ -1,8 +1,8 @@
-# 实施手册：按章节搭建异步 ML 推理发布验证平台
+# 实施手册：按章节搭建企业 GenAI 发布验证平台
 
-本手册当前主业务为 **Async ML Inference Release Verification**，以固定FastAPI/Redis Streams/ONNX图片分类服务为SUT。TS控制面骨架、file-lab账本、Docker原语、ML来源冻结和API适配器已实现；真实ML环境、独立观察/Oracle与Agent/发布闭环尚未通过。精确进度见92，测试通过范围见实际报告，不再将整个系统标为NOT_STARTED。
+本手册主业务为 **Enterprise GenAI Release Verification & Governed Coding Harness**；被测对象是B2B SaaS续费退款争议的客服处理建议与草稿。TS控制面骨架、file-lab、Docker原语与来源准备机制已有；客服SUT、真实LLM/工具、SUP Oracle、Verifier及发布闭环尚待实现。当前迁移事实以92和实际报告为准，旧ML/Eventuate证据不转换为SUP资格。
 
-建议先读00–02建立整体认识，然后从03的新ML运行预检继续；04骨架与通用账本已经建立，不需重做。一个章节通常包含多个会话；完成一个检查点、看到真实证据，再继续下一个。
+先读00–02及13的详细设计，再从03/05的GenAI来源、运行条件和真实SUT切片继续；04骨架与通用账本不需重做。一次实现一个有证据的检查点。
 
 主场景已调整为**稳定版本→新功能候选→变更影响与针对性验证→可信Finding后可选修复→Final与按需交付**。03–08先建立可信实验能力，09的单缺陷用于开发校准；09的最小新增功能发布切片才是G3/G5主要展示，历史稳定结果不充当当前候选PASS。
 
@@ -17,15 +17,15 @@
 | 02 | [工程取舍](02-engineering-decisions.md) | 技术选择、替代方案、代价和改变条件 |
 | 03 | [环境预检](03-environment-preflight.md) | 源码身份、工具链、构建/运行条件与阻断报告 |
 | 04 | [项目骨架](04-project-skeleton.md) | TS monorepo、配置、编译、测试和健康入口 |
-| 05 | [ML真实基线](05-async-ml-baseline.md) | 受控环境、服务发现、四条图片API smoke及清理 |
+| 05 | [GenAI客服基线](05-genai-support-baseline.md) | 来源与自有SUT分离、持久Job、真实LLM/工具、草稿、smoke与清理 |
 | 06 | [Contract Registry](06-contract-registry.md) | 草案校验、引用闭包、摘要、批准/激活/撤销 |
-| 07 | [Observer与实验屏障](07-observer-and-experiment-barrier.md) | 任务/模型/结果观察、精确派发/提交控制、非干扰校准 |
-| 08 | [Oracle与发布切片检查](08-native-oracles.md) | ML-01..07目录、优先ML-C02/01、版本与兼容性检查 |
+| 07 | [Observer与实验屏障](07-observer-and-experiment-barrier.md) | 独立工具/模型调用记录、草稿/Job提交与revision屏障 |
+| 08 | [Oracle与发布切片检查](08-native-oracles.md) | SUP-01…08，确定性业务/trace裁决与独立语义评价 |
 | 09 | [校准与增量发布任务集](09-seeded-defects.md) | 单缺陷校准、Stable→新功能候选、回归对照及答案隔离 |
 | 10 | [持久化Runtime](10-durable-runtime.md) | Run/Check/Attempt、数据库事务、Outbox和租约 |
 | 11 | [恢复与预算](11-recovery-and-budget.md) | 对账、取消、恢复转换、预算和无进展停止 |
 | 12 | [Codex Coding Worker](12-codex-coding-worker.md) | 受控工作区、provider协议、精确候选冻结 |
-| 13 | [LangGraph Verifier](13-langgraph-verifier.md) | 变更/需求→风险/覆盖→针对性实验、Python checkpoint与可选修复 |
+| 13 | [LangGraph Verifier](13-langgraph-verifier.md) | Context/Impact/Hypothesis/Proposal/Decision、成本/无进展、恢复与提案策略 |
 | 14 | [Final Gate与证据](14-final-gate-and-evidence.md) | 当前候选的证据闭包和确定性验收 |
 | 15 | [安全与平台资格](15-security-and-qualification.md) | 实际隔离、凭据/权限否定测试和资格版本 |
 | 16 | [控制台与精确审批](16-console-and-approval.md) | 查看事实、审阅diff、服务端审批与失效处理 |
@@ -47,7 +47,7 @@
 
 **契约与Oracle相互校准。** 06先实现DRAFT校验、冻结和引用；07–08建立观察和断言，09前半做健康/缺陷对照；再回06完成真实Owner决策与激活，09后半输出正式受限WorkOrder。不能把“06尚未ACTIVE”误解为无法做已获隔离实验授权的校准，也不能为了进入下一章伪造批准。
 
-09的发布切片还需回06/08补模型B、preprocess/schema v2及批准v1兼容的需求和ML-C02/03/06校准，才能展示新版本验收；不要求先实现21全部扩展。章节实现顺序保持12→13，但Release任务运行时先封存已有candidate并验证，有授权的可信缺陷才进入Coding。
+09的发布切片需回06/08批准十一月政策、tool schema v2与历史事件兼容，并校准正确V4、latest-only和wrong-date变异。运行时先验证已有candidate；只有可信候选资产Finding和修复授权才进入Coding。
 
 **平台资格先本地，远端资格通过受限演练建立。** 14的候选Final不要求尚未发生的PR/CI；15先验证已经实现的组件。17开发出Action Gateway/实际Adapter后，先回15补齐该版本的隔离、权限与恢复资格，再用明确授权的首次受限fork资格任务建立真实provider证据，供后续常规发布使用。该任务不要求自己尚未产生的远端资格；它也不是跳过已有安全门槛的通用例外。
 
@@ -84,10 +84,10 @@
 
 | 名词 | 含义 |
 | --- | --- |
-| SUT | 被测业务系统，此处是固定异步图片推理服务及明确的自有业务扩展 |
+| SUT | 自有B2B SaaS客服应用；参考航空Demo不代表已经拥有账单、历史政策、持久队列或企业隔离 |
 | Oracle | 按批准规则从独立观察判定结果的可信程序 |
 | Experiment Barrier | 精确持有任务派发或结果提交的独立测试能力，各能力分别校准 |
-| Candidate | 冻结代码、依赖、配置、Git、模型、预处理/schema与数据身份的候选 |
+| Candidate | 冻结代码/依赖、Prompt、corpus/index/retrieval、tool/output schema、provider/model/config、workflow身份的候选 |
 | CheckRun / ExecutionAttempt | 一项逻辑检查 / 一次实际执行，重试历史保留 |
 | Mandatory | 当前批准范围必须完成的检查，模型不能删减 |
 | Qualification | 某平台/工具/环境版本在指定范围内的资格证据 |
@@ -99,14 +99,14 @@
 | budget_pool | CODING、DISCOVERY、FINAL、RECONCILIATION、CLEANUP；探索不能借用受保护额度 |
 | execution_mode | scripted-fake或live，防止模拟结果冒充模型能力 |
 
-Graph的实验模式A/B/C和第18章评测组别EVAL_A/B/C含义不同；每份报告写全名称。
+Graph实验模式A/B/C、18章EVAL_A/B/C与CONTEXT_ABLATION是三种不同分类；报告写全名称。新归因为CANDIDATE_DEFECT + candidate_asset_kind，旧CODE_DEFECT仅作历史版本映射。Job DONE、Ticket RESOLVED、EGAP PASS及两套业务/发布批准不得合并。
 
 ## 6. 从这里开始
 
-先读[总体计划](00-overall-plan.md)、[架构](01-system-architecture.md)、[取舍](02-engineering-decisions.md)。继续当前工作时打开[03 ML环境预检](03-environment-preflight.md)；每次续作先打开[92进度记录](92-progress-and-session-log.md)。对应模块实现前核对[93验收映射](93-v3-acceptance-coverage.md)，模型通道与企业接入前核对[94数据准入](94-data-flow-and-retention.md)。这套文档是实施基础；已有通用实现与来源事实保留，ML实际业务、正式平台和生产资格仍待验证。
+先读[总体计划](00-overall-plan.md)、[架构](01-system-architecture.md)、[取舍](02-engineering-decisions.md)。续作核对[92进度](92-progress-and-session-log.md)和实际报告，进入[03 GenAI预检](03-environment-preflight.md)与[05客服基线](05-genai-support-baseline.md)。[93验收映射](93-v3-acceptance-coverage.md)保留历史目录与当前适用性；SUT模型、Verifier、Grader和企业接入前逐通道核对[94数据准入](94-data-flow-and-retention.md)。
 
 ## 7. 本次迁移后的入口
 
-默认来源/账本由 `config/active-business.json` 选择：`sut/ml-inference/upstream.lock.json`、`sut/ml-inference/workspaces/baseline/`、`artifacts/lab/ml-inference/`。`egap:lab prepare-source`已默认ML；旧Eventuate适配和启动计划位于`legacy/eventuate/`，旧来源/账本/证据保留历史，不参与新ML资格。
+默认业务由 `config/active-business.json` 选择新的GenAI参考来源与独立 `artifacts/lab/genai-support/` 账本；准确锁与工作副本路径以该配置及来源回执为准。`prepare-source`只核验来源，不创建健康SaaS资格。历史ML和Eventuate代码、锁、账本及证据保持原义，不计SUP覆盖。
 
-当前下一步是03/05的Python/ONNX、镜像与模型工件核验，接着实现受控启动、动态端口发现、精确清理和四条真实API smoke。然后建设07/08的模型执行身份与结果提交观察，先校准ML-C02/01，再进入09的真实增量候选。
+当前下一步是03/05的Python/SDK/镜像/模型通道预检和自有客服SUT：可信身份下提交ticket/revision、队列执行、真实LLM与政策/账单工具、持久草稿及独立记录。之后07/08完成SUP政策/参数/补证与最小权限、持久性校准，再进入09真实增量候选。

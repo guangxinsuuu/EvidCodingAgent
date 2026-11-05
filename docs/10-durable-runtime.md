@@ -6,7 +6,7 @@
 
 先完成 [04 工程骨架](04-project-skeleton.md)、[06 合同注册](06-contract-registry.md) 和 [09 缺陷样本](09-seeded-defects.md)。本章先把执行载体做可靠；[12 Coding Worker](12-codex-coding-worker.md) 和 [13 Verifier](13-langgraph-verifier.md) 再把真实工作接入这些接口。
 
-ML Release 的完整候选身份须包含 `source/tree + dependency/build revision + model artifact digest + model identity + input/feature schema + preprocessing revision + runtime configuration` 的不可变 manifest 引用。模型或特征处理变化即使 Git diff 为空也产生新 Candidate/CheckKey；业务队列的 Job ID 与 EGAP 的 Run/CheckRun/ExecutionAttempt 分开。早期实现若暂未支持完整 ML manifest，保持校准范围，不能签发正式发布验收。
+GenAI Release 的完整候选身份绑定 `source/tree + dependency/build revision + provider/model/config + prompt digest + corpus/index/retrieval revision + tool schema/adapter + output schema + workflow/worker configuration`。Prompt、语料、工具或模型配置变化即使 Git diff 为空也产生新 Candidate/CheckKey；供应商模型标识不承诺权重冻结。SUT 的 Ticket/revision、Job、ToolCall 与 EGAP 的 Run/CheckRun/ExecutionAttempt 分开；Job DONE 既不代表 Ticket RESOLVED，也不是 EGAP PASS。未支持完整 GenAI manifest 时保持校准范围。
 
 ## 10.1 为什么数据库、队列和 Graph 各管一件事
 
@@ -153,8 +153,8 @@ DISCOVERY_VERIFYING / FINAL_VERIFYING
 | 事件 | 来源 → 目标 | 必要守卫 |
 |---|---|---|
 | RELEASE_CANDIDATE_ACCEPTED | BASELINING → DISCOVERY_VERIFYING | RELEASE_VERIFICATION；Stable 资格及环境核对完成；外部提交候选经可信封存；ChangeSet/RequirementDelta 及适用合同冻结；Discovery/Final 保护额有效 |
-| KNOWN_FINDING_REPAIR_ADMITTED | BASELINING → CODING | INCIDENT_REPAIR；当前输入上的 ValidatedFinding 为可信 CODE_DEFECT；repair_policy=ON_VALIDATED_FINDING；修复 scope、CODING 及后续 Final 预算有效 |
-| VALIDATED_FINDING_REPAIR_ADMITTED | DISCOVERY_VERIFYING / FINAL_VERIFYING → CODING | 当前候选有未解决可信 CODE_DEFECT；repair_policy=ON_VALIDATED_FINDING；exploration_closed=false；当前候选绑定为 repair_input_candidate_ref；修复与后续 Final 预算有效 |
+| KNOWN_FINDING_REPAIR_ADMITTED | BASELINING → CODING | INCIDENT_REPAIR；当前输入上的 ValidatedFinding 为可信 CANDIDATE_DEFECT；repair_policy=ON_VALIDATED_FINDING；修复 scope、CODING 及后续 Final 预算有效 |
+| VALIDATED_FINDING_REPAIR_ADMITTED | DISCOVERY_VERIFYING / FINAL_VERIFYING → CODING | 当前候选有未解决可信 CANDIDATE_DEFECT；repair_policy=ON_VALIDATED_FINDING；exploration_closed=false；当前候选绑定为 repair_input_candidate_ref；修复与后续 Final 预算有效 |
 
 Incident 的已知缺陷入口保留如下；无可信缺陷或未授权修复时不派发 Coding，而是记录证据/授权缺口，依事实进入 BLOCKED/INCONCLUSIVE 等状态：
 
@@ -175,7 +175,7 @@ Final通过、任务满足且相关UNKNOWN、完整性与清理阻断已解决�
 
 外部提交候选与修复候选都经第 12 章可信接收器进入同一 Candidate Registry。Coder 返回“无修改”且没有快照时，保留本次 `repair_input_candidate_ref` 指向的候选及完整输入，不回退稳定版；按需追加接收/交接记录，再继续当前候选的独立验证。`change_kind` 始终相对任务比较基线计算：新增功能候选即使没有 CodingAttempt 或 Agent 未修改，仍可为 CHANGED。只有相对 base 完整输入相等且任务满足，才可能在当前 Final 后 NO_CHANGE，不能从 CODING/BASELINING 直接终结。历史基线与本次最终执行集合不同，不默认复用旧 PASS。上述无发布路径均不生成发布 Approval、EffectOperation 或 PR；正常内部审查和业务合同批准仍按各自规则执行。
 
-Discovery/Final 发现可信代码缺陷且满足上表修复守卫时才可进入 CODING，必须新建 Attempt，并在产生实际新内容时建立后继 Candidate，保留原候选与证据。预期的新功能差异、环境/访问错误、合同歧义和模型怀疑都不能直接授权修复。repair_policy=DISABLED 时保留有效 Finding 和未达发布要求的结论，不为修复而修改策略。无修改提案但 Final 失败仍是失败/待处理，不是 NO_CHANGE；无修复通过与有效修复分别计量，见第 18 章。
+Discovery/Final 发现可信候选资产缺陷且满足上表修复守卫时才可进入 CODING，必须新建 Attempt，并在产生实际新内容时建立后继 Candidate，保留原候选与证据。预期的新功能差异、环境/访问错误、合同歧义和模型怀疑都不能直接授权修复。repair_policy=DISABLED 时保留有效 Finding 和未达发布要求的结论，不为修复而修改策略。无修改提案但 Final 失败仍是失败/待处理，不是 NO_CHANGE；无修复通过与有效修复分别计量，见第 18 章。
 
 预算协议采用第11章五池：`CODING / DISCOVERY / FINAL / RECONCILIATION / CLEANUP`。执行准入根据可信工作类型决定 `budget_pool`，调用者不能自选FINAL池支付探索；FINAL另绑定 `final_purpose=MANDATORY | DELIVERY` 及用途子额度，发布/CI和审批等待不得侵占强制验收。每次消费在同一事务锁定Run预算总额、对应池及适用用途，核对授权、pool_limits/pool_reserved/pool_settled及final_purpose_limits/reserved/settled后登记reservation和执行意图；未知用量仍占用原池/用途。第11章增加预算表，不能在本章队列层另存可消费余额。
 
@@ -193,7 +193,7 @@ Discovery/Final 发现可信代码缺陷且满足上表修复守卫时才可进�
 |---|---|---|
 | 正常提交合成 WorkOrder | 单一 Run，journal 与 outbox 同时出现 | 请求摘要、事务后查询、事件序列 |
 | Release 外部候选，repair_policy=DISABLED、CODING=0 | BASELINING 后直接 Discovery/Final，无 CodingAttempt | 模式、封存引用、RELEASE_CANDIDATE_ACCEPTED、预算记录 |
-| Release 预期变化 / 可信缺陷 / 环境错误 | 仅可信 CODE_DEFECT 且有修复授权时进入 CODING | RequirementDelta、Finding、归因与准入守卫 |
+| Release 预期变化 / 可信缺陷 / 环境错误 | 仅可信 CANDIDATE_DEFECT 且有修复授权时进入 CODING | RequirementDelta、Finding、归因与准入守卫 |
 | Redis 不可用后恢复 | Run 不丢失，outbox 最终派发 | 故障时间线、relay 日志、数据库行 |
 | 重复通知/重放提交 | 不新建逻辑 CheckRun，不覆盖历史尝试 | 唯一键冲突分类、attempt 列表 |
 | 两进程竞争租约 | 一方持有有效执行权 | 两连接记录、epoch、失租拒绝事件 |
@@ -246,3 +246,13 @@ pnpm exec vitest run tests/integration/runtime-persistence.spec.ts
 可复制的下一次请求：
 
 > 按第 10 章，从迁移与 createWorkOrderAndRun 原子事务开始实现，只完成步骤 A/B。使用隔离本地数据库和合成数据，先给出可复核证据；不要接真实模型或外部发布。完成后记录实际状态、遗留问题与下一步，不把未运行测试标通过。
+
+## GenAI 运行协议补充
+
+已有 file-lab 的 check_run_id 不是这里的数据库 CheckRun 实现。SUT Job/草稿/派发记录位于独立业务数据库；EGAP Run、审批、预算不与业务状态合并。候选 Worker 不持有治理数据库、可信证据写口或模型供应商密钥。
+
+新结果协议采用 `CANDIDATE_DEFECT`，以 `candidate_asset_kind=CODE|PROMPT|RETRIEVAL|TOOL_SCHEMA|TOOL_ADAPTER|CONFIG|WORKFLOW` 说明已证实缺陷的候选资产。只有独立证据确认、绑定当前 candidate 的 ValidatedFinding 才能进入修复；模型猜测、合同未定义和供应商故障不能触发。旧 `CODE_DEFECT` 记录保留原 schema/version 和内容，显式迁移时保留原始归因及映射版本，不原地重写；第08/12/13/14章使用同一共享 Schema。
+
+分别登记 `SUT_LLM`、`VERIFIER_LLM`、`SEMANTIC_GRADER`、`CODER` 的调用身份、配置版本、operation/attempt、预算和费用状态。SUT 模型调用由受控代理登记再派发；超时保留 UNKNOWN，不推断没有费用。provider 不支持幂等/查询时，仅按批准策略建立有界新物理尝试，不声称恰好一次。工具实际返回与副作用通过候选外网关采集；SDK 自报 trace 只作辅助。
+
+EGAP 的 `CREATE_DRAFT_PR` 批准不授予客服退款/沟通权限，客服业务批准也不能进入 EGAP 发布事务。

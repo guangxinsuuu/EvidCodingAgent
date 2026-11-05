@@ -8,7 +8,7 @@
 
 RELEASE_VERIFICATION与INCIDENT_REPAIR共享本章发布链。Release候选相对Stable有真实功能变更，即使未经Codex修复也可以通过验收并请求精确人审；是否运行Coding不作为发布资格。change_kind按冻结任务base判断，不能误把“无修复”当UNCHANGED，且全部批准新需求必须通过。
 
-本章发布对象为 ML Release 的冻结交付闭包。审批 payload 和 CI 除准确 Git head 外，还须绑定模型制品摘要、预处理/输入 schema、模型加载与部署配置；模型文件走外部制品库时绑定不可变对象及来源回执。任何字节或引用变化都使旧候选批准失效。Draft PR/可信 CI 不等于模型已推广到生产；alias promotion、流量切换与回滚是另行授权的部署动作。
+本章发布对象为 GenAI Release 冻结交付闭包。审批 payload 与 CI 除准确 Git head 外绑定Prompt、corpus/index/retrieval、tool/schema、provider/model/config、output/workflow及依赖配置摘要。外置语料与索引需不可变对象和构建来源；供应商模型标识不承诺权重固定，CI记录当次真实响应身份和时间。Draft PR/可信 CI 不表示已向客户发送回复、执行退款或推广模型/索引；这些属于独立授权的业务/部署动作。
 
 ## 17.1 批准的是具体对象
 
@@ -51,7 +51,7 @@ Action Gateway 单独持有短期、最小权限发布凭据。Coding Worker、V
 
 ### 步骤 A：实现完全离线的发布预览
 
-从冻结候选和 VerificationBundle 生成预览：目标仓库、base/head、完整 diff、title/body、需要的权限、CI Policy、所有待完成 Gate。payload 必须引用第12章规范化 ML release manifest 的同一摘要，以及相应 Candidate input digest、模型/labels/预处理/schema不可变对象；预览、批准、派发和CI复核同一闭包，不能各自生成字段较少的“发布摘要”。解析归一化后的目标由白名单配置决定，不使用模型给出的任意 URL。
+从冻结候选和 VerificationBundle 生成预览：目标仓库、base/head、完整diff、title/body、权限、CI Policy和待完成Gate。payload引用第12章同一规范化GenAI release manifest、Candidate input digest以及Prompt/corpus/index/tool/output等不可变对象；预览、批准、派发与CI复核同一闭包，不能各自生成字段较少的发布摘要。解析后的目标由白名单配置决定，不使用模型给出的任意URL。
 
 预览必须展示真实已存在的候选文件与证据。没有 Candidate/验证结果时显示缺少什么，不生成假的全绿报告。预览生成属于可逆工作，不需要额外发布批准。
 
@@ -202,3 +202,11 @@ pnpm exec vitest run tests/integration/publication.spec.ts
 可复制的下一次请求：
 
 > 按第 17 章先实现 publication-preview、审批绑定与本地 simulator 测试，把响应丢失和 CI head 不匹配跑通。只生成具体可审查预览，不写真实远端。之后核对既有平台安全/恢复资格与 RepoOwner 批准的具体隔离 Fork 资格计划，完成首次受限真实演练；不要要求预先已有本次将产出的远端资格，也不要跳过其他 Gate。单独报告外部操作、真实结果及后续常规发布的资格范围。
+
+## 两种 CI 接入方向的范围
+
+本章首期仍是 Final → 精确发布人审 → 自有Fork Draft PR → 读取可信exact-head CI。日常开发提交到本项目GitHub仓库不是EGAP已实现该能力的证据。
+
+“已有企业PR → Webhook触发EGAP → 发布Verification Check”是后续独立入口：需Webhook身份/去重、准确head冻结、PR变更取消或新Run、Check Publisher权限及状态对账。可复用同一候选/证据协议，但不能把现有CI Observer等同Check Publisher；首期不因业务切换自动扩大此范围。
+
+CI执行真实客服模型检查时按冻结计划记SUT/Grader成本、数据流向和模型响应身份；重试不得隐藏首次失败，不把模拟trace/replay标为live。若仅执行协议/构建测试，CI报告明确范围，不能补签尚未完成的业务Final。

@@ -17,6 +17,9 @@
       "path": "./packages/ml-inference-adapter"
     },
     {
+      "path": "./packages/genai-support-adapter"
+    },
+    {
       "path": "./tools/environment-host"
     }
   ]

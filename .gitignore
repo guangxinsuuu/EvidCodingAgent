@@ -18,4 +18,7 @@ coverage/
 /tmp/
 /sut/workspaces/
 /sut/ml-inference/workspaces/
+/sut/genai-support/workspaces/
+/sut/.genai-support-source.lock
+/sut/.genai-support-source-stage-*/
 /sut/candidates/

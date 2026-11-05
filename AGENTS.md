@@ -16,6 +16,9 @@
 
 ## 当前实施方向
 
+- 2026-11-05用户授权将主业务迁移为Enterprise GenAI Release Verification；首个SUT为合成B2B SaaS续费退款争议草稿。SUP合同、可信工具/模型trace与GenAI候选身份为新范围，旧ML/Eventuate证据不得转换。
+- 客服Agent是被测产品，Verifier是独立规划器；Job DONE、Ticket RESOLVED、EGAP PASS及客服业务批准/代码发布批准分别建模。真实SUT、LLM、Oracle、Verifier及正式治理闭环未实施的部分不得描述成已完成。
+
 - 主场景是 `RELEASE_VERIFICATION`：稳定版本、已提交的新功能候选、需求变化与历史覆盖 → 变更影响与针对性测试 → 可信Finding后按修复权限处理 → 当前候选Final及按需交付。`INCIDENT_REPAIR`保留另一入口。
 - 03–08建立可信实验基础；09单缺陷是校准，09新增功能发布切片是主Demo。Stable历史PASS不自动证明新候选正确；Mandatory不可由模型削减。
 - 起步仍从03环境预检开始。实施前只读核对手册、实际代码及最新reports/artifacts；docs因未获修改许可可能落后，不能据此重做已验证工作或把未实施内容算作完成。

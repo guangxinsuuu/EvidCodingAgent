@@ -1,8 +1,10 @@
 # 92 · 实现进度与会话记录
 
-建立日期：2026-11-02。**已有控制面骨架与实验账本；主业务于2026-11-04切换ML，真实ML基线与独立Oracle尚未通过。** 此表记录新目录的事实，不继承旧仓库的测试状态。文档校验与业务验收分开登记。
+建立日期：2026-11-02。已有控制面骨架与实验账本；以下保留2026-11-04 ML迁移的历史事实。**当前GenAI状态见第11节**，不继承旧仓库测试状态，文档校验与业务验收分开登记。
 
 2026-11-03用户要求本轮最后微调后，docs修改须先获明确允许。本日志后续也受此规则约束；未获许可的实现会话把真实结果存reports/artifacts并在会话交付，不能自动改本表。续作需同时核对实际代码与最新报告，避免因冻结日志滞后而误判进度。
+
+**当前更新：2026-11-05已获用户授权迁移到GenAI客服发布验证。** 以下ML清单保留为历史快照；当前状态见第11节与[本轮报告](../reports/migration/20261105-genai-support/report.md)。不把旧测试数量、源码或资格换成新业务成绩。
 
 ## 1. 状态约定
 
@@ -15,7 +17,7 @@
 
 手册00–02、22及90–94属于设计/导航/验收附件，不填写业务PASS。Gate只聚合实际证据。
 
-## 2. 实施清单
+## 2. 历史实施快照（2026-11-04）
 
 | 章 | 实施单元 | 状态 | 证据 / 阻塞 |
 | --- | --- | --- | --- |
@@ -39,7 +41,7 @@
 | 20 | 企业Connector | NOT_STARTED | 未连接真实账号 |
 | 21 | 业务与平台扩展 | NOT_STARTED | 按需求单独选择 |
 
-## 3. 当前Gate状态
+## 3. 历史Gate状态（2026-11-04）
 
 G0为 `IN_PROGRESS`：通用基础已实现，ML真实运行条件待验证。G1、G2、G3、G4、G5仍为 `NOT_STARTED`。第19–21章的扩展资格也未建立。业务与平台版本资格不得从文档勾选生成。
 
@@ -118,7 +120,7 @@ G0为 `IN_PROGRESS`：通用基础已实现，ML真实运行条件待验证。G1
 
 本轮文档核验通过：30份手册（28篇编号文档）、另有2份协作指令；275处本地链接有效，围栏闭合；56个原L1/L2/L3条目的ID、名称和顺序保持一致，20条数据流向及12项数据治理验收完整，8份AAA参考文件摘要仍匹配。03–21共19项均为NOT_STARTED并保留检查清单和续作入口。模式、任务基线/修复输入、预算、无修改终态与发布父链已交叉审阅，未发现剩余阻断性矛盾。结构校验初次遗漏4种既有续作标题，核对后修正校验器，未为通过检查修改正文。校验结果保存于`tmp/egap-release-doc-validation.json`；这些结果不代表业务测试通过。
 
-## 9. 后续继续工作的固定入口
+## 9. 历史继续入口（当前入口见第11节）
 
 > 先只读EGAP-Implementation/docs/92-progress-and-session-log.md、当前章节和最新reports/artifacts，核对实际代码及证据，继续第一个未完成检查点。实现后运行对应验证并交付真实结果。未获我明确允许不得修改docs；需要更新进度/ADR时先给具体拟改内容，运行记录先存reports/artifacts。
 
@@ -142,3 +144,28 @@ G0为 `IN_PROGRESS`：通用基础已实现，ML真实运行条件待验证。G1
 - 本轮未下载模型、未启动真实Redis/ONNX服务、未运行真实ML四条smoke，也没有把控制面health的ready改称业务验证通过。下一步仍是03/05的ML运行条件与真实基线。
 
 迁移收尾还核对了339个旧来源、证据及AGENTS文件的SHA-256，全部保持原样；旧实验/结果没有被本次ML迁移改写。
+
+## 11. 2026-11-05 GenAI客服业务迁移
+
+用户授权范围：按已讨论方案更新docs与当前已有实现。此次不实现完整客服产品、付费模型调用或发布闭环；后续docs修改仍需明确许可。
+
+| 范围 | 当前事实 / 状态 | 未完成及限制 |
+| --- | --- | --- |
+| 主业务与文档 | MIGRATED：GenAI SaaS退款争议草稿；SUP及Verifier详细协议迁移 | 文档设计不是Owner业务批准或业务PASS |
+| 来源参考 | 固定航空Demo commit `bd7bfca0f5abf50529370814c3e7c88542011925`，43文件；新来源导出与同实验复核已执行 | `SOURCE_REFERENCE_ONLY_NOT_RUNTIME_VALIDATED` / `NON_SAAS_DEMO_REFERENCE`，依赖未解析，LLM未调用 |
+| 新来源位置 | `sut/genai-support/upstream.lock.json`；`sut/genai-support/workspaces/reference/` | reference不是自有健康SaaS baseline |
+| 独立file-lab | `artifacts/lab/genai-support/`；来源准备1实验、2次尝试、journal seq3 | 0环境、0动作；不是正式数据库Runtime |
+| 共享基础 | 控制面健康骨架、身份/命令、file-lab、Docker原语保留 | ArtifactStore仍内存；执行鉴权、持久证据、真实拓扑待建 |
+| 客服API协议/adapter | 新DRAFT输入输出、HTTP客户端与模拟验证；共享协议4项、adapter15项测试通过 | 不是已运行SUT，Oracle/可信tool trace/语义质量未执行 |
+| 旧ML/Eventuate | 历史目录保留；ML27文件已离线复验，来源锁未改变 | 旧来源/mock/构建不能转为SUP或GenAI运行资格 |
+| 05真实SUT、07观察、08 Oracle、09候选 | NOT_STARTED | 待真实持久Job/工具/LLM/草稿、正反/坏观察对照 |
+| 06 Registry、10–17正式平台/Agent/交付 | NOT_STARTED | 尚无正式DB Runtime、LangGraph、Codex Worker、Final、人审和自动PR/CI |
+| 18评估、19–21企业扩展 | NOT_STARTED | 无价值结论、实际企业数据、生产或业务动作资格 |
+
+新锁SHA256为 `ff404d353d0c9b1067fd31a6cb9efc62124cf95af8568fc833d77a0a6bf3f27f`；旧ML锁仍为 `8ac054f6a0ed27d842c04a5f55a551dc65d99f8a5cc8ccd7a457ed15b388c91f`。本节记录来源事实；本轮最终 `pnpm typecheck` 通过，`pnpm test`（含build）100/100通过，控制面 `pnpm test:integration` 3/3通过；这些验证代码/协议及本机控制面，不是GenAI真实业务验收。全部命令与文档检查见[2026-11-05迁移报告](../reports/migration/20261105-genai-support/report.md)。
+
+首次adapter测试因默认sandbox不允许监听本机端口产生EPERM（4通过、14失败），保留原记录；取得本机端口执行权限后定向与全量验证通过。随后补测非法revision被错误受理的202回显：明确FAIL并保留未知任务身份待对账，最终adapter为15项。未隐藏首次失败，也未将测试环境权限错误归为客服业务缺陷。
+
+当前G0继续IN_PROGRESS，G1–G5未取得新范围资格。下一步是03/05：核验Python/SDK/镜像及受控模型通道，建设自有SaaS API/Worker/PostgreSQL/Redis，跑通合成工单→真实LLM/工具→持久草稿→DONE及精确清理，再做07/08独立观察和SUP正反校准。03–05来源与API模拟事实不可跳过真实运行。
+
+本轮正常开发提交/推送按用户指定GitHub同步；不计第17章的EGAP自动发布资格。

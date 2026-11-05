@@ -62,8 +62,8 @@ WorkOrder/Run 的 `completion_mode=FINAL_ONLY|DRAFT_PR_CI` 在准入时冻结。
 审阅页按“任务要求→代码变化→独立结果→发布对象”顺序组织：
 
 - 工单：task_mode、repair_policy、目标、允许路径、需求增量、合同范围和未批准事项；合成样本标注来源等级，不暴露私有seed答案。
-- 候选：Stable任务比较base、submitted/current commit/tree、真实Git parents和完整diff；另列模型文件摘要、模型/预处理/schema版本及其变化、修复输入/修复diff。无Python diff的模型制品变化也必须可审阅，大diff可折叠但不能静默截断。
-- 验证：当前Final全部适用mandatory与实际断言（适用的 ML-01…ML-06 与该 Release 已批准的新功能/兼容检查；ML-07 单列是否准入）、变更→需求→检查映射、选择理由、未决Finding、证据等级及各版本；历史Stable覆盖另栏展示。
+- 候选：Stable任务比较base、submitted/current commit/tree、真实Git parents和完整diff；另列Prompt、corpus/index/retrieval、tool/schema、provider/model/config、workflow与修复输入差异。没有Python diff的配置/Prompt变更也必须可审阅，大diff可折叠但不能静默截断。
+- 验证：当前Final适用SUP-01…08、批准新政策/schema与历史兼容检查；逐项显示mandatory、实际断言、变更→需求→检查映射、选择理由、未决Finding及证据等级。语义质量报告与是否获得自动对客发送资格单列；历史Stable覆盖不能混入当前PASS。
 - 治理：适用平台 qualification、当前撤销/权限状态、预算与清理缺口。
 - 目标动作：仅 DRAFT_PR_CI 且可信 CHANGED 显示自有 Fork、目标 base branch、拟建 head、动作 `CREATE_DRAFT_PR`、允许路径、有效期和 payload/diff digest；CHANGED 的 FINAL_ONLY 显示未请求发布，NO_CHANGE 显示发布不适用。
 
@@ -75,7 +75,7 @@ WorkOrder/Run 的 `completion_mode=FINAL_ONLY|DRAFT_PR_CI` 在准入时冻结。
 
 ## 检查点 16.3：生成精确的 Approval 请求
 
-Approval请求仅可由completion_mode=DRAFT_PR_CI且可信change_kind=CHANGED、当前Final合格的Run生成；NO_CHANGE/UNCHANGED不进入审批路径。服务端从冻结对象生成请求，至少绑定tenant/project/run、task_mode、completion_mode、change_kind、完整FrozenRunContext/需求增量/当前ChangeSet摘要、candidate tree、commit/真实parents/任务base、完整ML release manifest及模型/预处理制品摘要、ContractBundle、VerificationBundle/GateDecision、qualification、目标repo/branch、CREATE_DRAFT_PR、允许路径、expiry/nonce与请求版本。外部候选即使没有CodingAttempt也可在这些门槛满足后进入人审；actor/role来自认证上下文。
+Approval请求仅可由completion_mode=DRAFT_PR_CI且可信change_kind=CHANGED、当前Final合格的Run生成；NO_CHANGE/UNCHANGED不进入审批路径。服务端绑定tenant/project/run、task_mode、completion_mode、change_kind、FrozenRunContext/需求增量/当前ChangeSet摘要、candidate tree/commit/parents/base、完整GenAI release manifest、ContractBundle、VerificationBundle/GateDecision、qualification、目标repo/branch、CREATE_DRAFT_PR、允许路径、expiry/nonce及请求版本。外部候选没有CodingAttempt也可合格进入人审；actor/role来自认证上下文。
 
 首期本地身份可以使用明确标注、服务端配置的开发 principal；只用于隔离环境协议验证。它不构成企业 SSO/RBAC 已实现的证明。真实远端发布前必须有适用发布主体和权限资格；审批对象作者与审批人按既定职责分离策略校验，例外须显式记录。
 
@@ -158,3 +158,9 @@ pnpm run console:review-check -- --run <Run-ID>
 
 > 请按第 16 章先实现 Run 详情和候选审阅两页，用第 10/14 章真实只读 API。展示执行模式、三轴结果、首个失败、当前 candidate/bundle、mandatory 覆盖和缺口。不要先做发布按钮或自动审批。检查日志安全渲染、跨 scope artifact 拒绝和候选变化时的 stale 提示；记录截图与对应服务端证据。完成后再实现精确审批协议，actor 必须来自认证上下文。
 
+
+## 客服业务状态与发布审批分栏
+
+控制台分别展示 Support Job 的 QUEUED/PROCESSING/DONE/FAILED、Ticket 的 OPEN/WAITING_CUSTOMER/WAITING_AGENT/RESOLVED，以及 EGAP 原有 Run 状态。Job DONE 仅代表当前 revision 的处理结果保存完成，不表示问题解决、退款执行或发布通过。界面不能新增一个通用绿色“成功”来合并这些结论。
+
+客服侧的 HUMAN_REVIEW 是被测系统提出的建议，不是本章批准请求。SUT 退款/对客发送批准绑定 tenant/ticket/invoice/action/payload；本章发布批准绑定 candidate/repo/head/CREATE_DRAFT_PR。服务端主体、权限、撤销及审计分别建模，跨域批准一律拒绝。首期只读和模拟动作不在界面伪装成真实付款。

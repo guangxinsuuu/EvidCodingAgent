@@ -1,16 +1,18 @@
-# EGAP · Async ML Inference Release Verification
+# EGAP · Enterprise GenAI Release Verification
 
-本项目面向**异步机器学习推理的新版本发布验证**：提交稳定版本、包含真实功能变化的候选与需求增量，分析受影响行为，选择有针对性的实验；独立Runner/Oracle确认缺陷后，才按授权调用Coding Agent修复，再完成当前候选Final及可选Draft PR/CI。
+本项目验证企业GenAI应用的新版本：输入稳定版、新功能候选与批准需求，分析代码、Prompt、政策检索、工具和模型配置的变化，选择高价值实验；独立证据确认缺陷后，按授权调用Coding Agent修复，再完成当前候选Final与可选Draft PR/CI。
 
-首个SUT是固定来源的FastAPI + Redis Streams + ONNX图片分类服务（MobileNetV2），不是已建成的信用评分系统。重点验证排队任务的模型/预处理身份、结果提交与完成顺序，随后覆盖重复投递、恢复与schema兼容；真实模型质量评价需另有批准数据和门槛。
+首个被测业务是 **B2B SaaS续费退款争议的客服处理建议与回复草稿**。使用合成Tenant、账单、使用情况、合同例外和版本化政策。客服Agent是被测产品；Python LangGraph Verifier是EGAP规划器。首期无真实付款或对客发送，业务人工复核与代码发布审批分域。
 
-**当前已有：**TS控制面健康骨架、共享协议/制品原语、可恢复的单机实验账本、受限Docker适配器、新ML来源冻结与API适配器。新来源固定commit `c200bcb4721c4428a9bfe808ca8a61648a2b16f6`，27个源码文件已冻结，重复准备可核验已有副本。此次迁移typecheck/build通过，默认测试77/77、控制面生命周期集成3/3通过；ML API相关测试使用mock HTTP，不能作为真实业务证据。
+主实验为自有Stable V3.4→正确V4：新增十一月政策和tool schema v2，保留历史续费事件适用性；latest-policy-only与wrong-date为分别校准的人工变异。版本标签不代表上游发行版或线上运行史。缺少使用/合同证据时应补证/转人工，不能仅凭退款时间窗口宣布可退款；完整证据样本防止一律转人工通过。
 
-**尚未完成：**ML工具链/镜像/模型工件的完整运行预检、真实四场景smoke、可信Observer/实验屏障、ML Oracle、Python LangGraph Verifier及正式发布闭环。当前没有ML生产或业务PASS资格。
+**已有基础：**TypeScript控制面健康骨架、共享身份/命令与file-lab协议、可恢复单机实验账本、受限Docker操作及来源冻结机制。ArtifactStore当前仅内存原语，正式证据存储、数据库Runtime与执行鉴权仍待建设。本轮迁移新增GenAI来源入口及客服HTTP协议/适配器；精确实现、测试及资格范围见[92进度](docs/92-progress-and-session-log.md)和对应报告。最终typecheck/build通过，默认测试100/100、控制面生命周期集成3/3通过。模拟HTTP测试不是真实客服业务证据。
 
-- 从 [实施手册目录](docs/README.md)、[总体计划](docs/00-overall-plan.md) 和 [架构](docs/01-system-architecture.md) 理解主线。
-- 当前入口见 [03 ML环境预检](docs/03-environment-preflight.md)、[05 ML真实基线](docs/05-async-ml-baseline.md)；04与通用账本无需重做。
-- [92 真实进度](docs/92-progress-and-session-log.md) 区分已完成、待迁移与未运行；[93 覆盖映射](docs/93-v3-acceptance-coverage.md) 和 [94 数据治理](docs/94-data-flow-and-retention.md) 保留企业门槛。
+**尚未完成：**真实客服SUT、模型通道与LLM运行、独立工具trace/Observer/屏障、SUP Oracle、Registry激活、LangGraph、Codex Worker、Final、审批及PR/CI闭环。参考源码冻结不是健康SaaS基线，没有生产或业务PASS资格。
+
+- [实施手册](docs/README.md)、[总体计划](docs/00-overall-plan.md)、[系统架构](docs/01-system-architecture.md)和[Verifier详细设计](docs/13-langgraph-verifier.md)。
+- [03来源与环境](docs/03-environment-preflight.md)、[05 GenAI客服基线](docs/05-genai-support-baseline.md)是后续真实运行入口。
+- [93验收追溯](docs/93-v3-acceptance-coverage.md)、[94数据治理](docs/94-data-flow-and-retention.md)保留企业门槛。
 
 已注册的本地命令：
 
@@ -24,10 +26,8 @@ pnpm egap:lab prepare-source
 pnpm dev:control-plane
 ```
 
-`prepare-source`默认准备ML，可用 `--reference-repository <固定来源本地Git库>` 指定受控本地来源；它只建立/核验来源和实验身份，不下载模型、不启动SUT。控制面健康端点只声明当前骨架就绪。
+`prepare-source`依当前业务策略核验固定来源，可用`--reference-repository <固定来源本地Git库>`提供受控缓存；它不安装Python依赖、不调用模型、不启动SUT。控制面健康端点只声明骨架就绪。新业务由[活动配置](config/active-business.json)选择，锁为[sut/genai-support/upstream.lock.json](sut/genai-support/upstream.lock.json)，参考副本为`workspaces/reference/`，账本为`artifacts/lab/genai-support/`。43文件参考已导出并复核；模型未调用、SaaS派生SUT未实现。实验身份独立于历史ML/Eventuate。
 
-主业务配置在 [config/active-business.json](config/active-business.json)，新来源锁在 [sut/ml-inference/upstream.lock.json](sut/ml-inference/upstream.lock.json)，新账本位于 `artifacts/lab/ml-inference/`。旧Eventuate代码归档于 `legacy/eventuate/`，旧来源、账本和证据原样保留；它们不再进入默认构建/业务入口，旧PASS不能转移为ML资格。
+参考[OpenAI Customer Service Agents Demo](https://github.com/openai/openai-cs-agents-demo)的Agent/tool编排；其航空示例、内存状态与模拟工具不能作为我方SaaS账单、历史政策、持久任务或企业权限实现。源码、许可证、我方扩展与实验变异分别记录。
 
-架构保留TypeScript治理控制面，未来以 `services/verifier/` 中独立Python LangGraph进程规划实验，通过版本化JSON Schema交接。Coding Agent可修改授权业务和开发测试；可信验收、观察证据和发布批准位于其权限之外。另开一个LLM进程本身不构成独立验证。
-
-**文档修改约定继续有效：**本次业务迁移获得了用户明确授权；之后修改 `docs/**` 或项目README仍须取得明确许可。“继续实现”不自动授权修改文档。详见 [项目指令](AGENTS.md)。历史参考项目与其原始材料保持只读，运行事实与脱敏报告保存到 `artifacts/`、`reports/`。
+**协作约定：**本次文档迁移已获用户明确授权；后续修改docs或README仍需明确许可。代码实现按[AGENTS.md](AGENTS.md)补必要中文注释，验证后同步指定GitHub；该同步不代表EGAP自动发布功能已经实现。旧参考项目只读，旧业务源码与证据不改写为GenAI资格。

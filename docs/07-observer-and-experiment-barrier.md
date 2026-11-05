@@ -1,102 +1,79 @@
-# 07 · 独立观察与实验屏障：证明任务使用了什么、何时完成
+# 07 · 独立观察与实验屏障：证明实际工具、政策与提交事实
 
-状态：`NOT_STARTED`。尚无可信 ML Observer、模型切换/结果写入屏障或真实校准证据。接口规格不代表能力已经支持。
+状态：`NOT_STARTED`。新HTTP客户端的mock记录不是独立GenAI trace；本章网关、Observer与真实屏障尚未实现。前置[05真实SUT](05-genai-support-baseline.md)、[06 DRAFT](06-contract-registry.md)，下一章[08 Oracle](08-native-oracles.md)。
 
-前置：[05 真实 ML smoke 与 file-lab](05-async-ml-baseline.md)、[06.1–06.4 冻结草案](06-contract-registry.md)。本章仍为 `authority_mode=file-lab / evidence_scope=calibration-only`，不要求先有ACTIVE，不提前依赖第10章数据库 Runtime。后续：[08](08-native-oracles.md)。
+## 1. 两类观察目标
 
-## 1. 两个独立实验目标
+第一类是语义路径：实际传给政策/账单工具的参数、返回对象与policy revision、LLM实际请求的Prompt/Tool Schema摘要，以及结构化建议。用于SUP-01/04/07/08。
 
-**ML-02 模型绑定：**任务在提交时绑定模型A/预处理A；确认任务在受控边界等待后，将可变选择器切到模型B，再让任务执行。独立事实必须证明旧任务实际使用A，新提交任务按合同使用B；两者都能完成。只有任务结果返回一个 `model_version=A` 字符串不够，候选可能没有真正加载A。
+第二类是业务效果与因果：认证tenant与工具权限、是否产生敏感效果、ticket revision、draft事务提交与DONE顺序。用于SUP-02/03/05/06。候选自报trace、UI事件和最终数据库快照不能单独证明全过程。
 
-**ML-01 完成顺序：**在任务的结果提交边界设置可信屏障，实际命中后观察状态不能提前 `done`；释放后结果提交与最终成功有可验证因果。最终结果存在不排除曾短暂出现“done但结果不存在”，所以只轮询终态不足以证明安全性。
+所有事实绑定candidate或baseline、environment/reset、job/ticket revision、call/attempt、collector身份和摘要；模型hypothesis单独保存，不进入事实数组。
 
-上游无每任务模型绑定与alias管理，本章能力依赖自有业务扩展和可信环境控制。不能把暂停Worker、延迟网络、排队屏障、hold结果写入四者都称为同一屏障，也不能把候选函数中的sleep当独立可信控制。
+## 2. 07.1 建立事实与权限映射
 
-## 2. 先调查真实物理事实
-
-固定上游的 Redis Streams、任务/结果键、consumer group、ack、claim、Lua fencing、TTL与AOF是源码线索，运行时仍须核对。模型文件、标签映射、预处理与ONNX session由哪个进程加载，何时缓存，结果在哪里保存、成功状态如何写入，都需要源码和运行对应。
-
-| 拟建路径 | 责任 |
-| --- | --- |
-| `tools/environment-host/spikes/ml-experiment-barrier/` | 模型绑定、加载身份、结果提交控制点的可行性研究 |
-| `packages/ml-inference-adapter/src/schema-map.ts` | 实际任务/队列/结果结构与版本映射 |
-| `packages/ml-inference-adapter/src/observer.ts` | 独立读取事实，不返回PASS |
-| `packages/ml-inference-adapter/src/experiment-control.ts` | 受限arm/status/release/close协议 |
-| `apps/check-runner/src/observation-collector.ts` | 核验身份、完整性并登记不可变观察 |
-| `tests/integration/ml-observer-calibration.spec.ts` | 真实正反观察与非干扰校准 |
-
-这些均为计划文件。Coder、Verifier Planner、SUT运行身份不能写Observer记录或屏障控制；候选不能拥有Redis管理员凭据来删除受保护轨迹。单纯新增一个“只读类”不能代替角色/网络/存储权限验证。
-
-## 3. 07.1 映射任务、模型与结果
-
-输出实际 `schema-map.json`，至少涵盖：job ID、raw status、请求/input digest、入队消息ID、claim/attempt/fencing、任务绑定模型/预处理身份、实际模型加载证据、结果摘要/位置、结果提交与状态转换序列、TTL与清理作用域。
-
-尚不存在的模型绑定字段标为 `MISSING_CAPABILITY`，不能从结果预测反推版本。模型A/B必须内容不同且身份清楚；ONNX session复用、lazy load和文件替换要纳入观察。若运行时允许换字节但沿用旧标签，资格不成立。
-
-Redis单次读取、多个独立GET、Stream历史、Lua原子写、磁盘flush是不同观察范围。先记录能证明的事实，再确定ML-01持久性层级；不要从API成功推断已fsync。TTL到期后对象消失不自动等于写入未发生。
-
-## 4. 07.2 评审屏障实现点
-
-| 方案 | 可证明能力 | 限制 |
+| 事实 | 可信采集位置 | 不能替代它的内容 |
 | --- | --- | --- |
-| 可信队列/派发控制器精准持有目标任务 | 在执行前建立模型选择器切换窗口 | 必须证明Worker不能旁路、重试/claim不会偷跑 |
-| 可信模型选择代理/只读工件挂载 | 绑定不可变工件与实际加载身份 | 不可把代理返回标签当实际ONNX加载证据 |
-| 可信结果存储代理/提交控制 | 只阻塞目标结果提交，支持ML-01时序 | 要处理同Redis连接/事务与状态写入；阻塞全库可能掩盖缺陷 |
-| 暂停整个Worker | 依赖故障/恢复实验 | 未必是精确排队或结果提交屏障，不能直接授予前两项资格 |
-| 修改候选代码sleep/输出测试标记 | 开发诊断 | 候选可删改，不能单独作可信Oracle依据 |
+| tenant与授权主体 | 外部认证/工具网关的实际决策记录 | 模型传入tenant_id、客户文本 |
+| 账单/合同/使用事实 | 只读fixture服务/DB快照及版本 | 候选生成的解释或重新构造的日志 |
+| 检索请求与返回政策 | 候选外检索网关完整输入/输出及corpus/index版本 | 仅输出policy_ref或截断UI事件 |
+| 工具参数、拒绝、真实效果 | 工具执行网关与受控业务状态 | 只记录“调用了refund”字符串 |
+| LLM实际输入与返回 | 受控模型代理，request ID、model/config、usage、摘要 | 候选配置文件或任意stdout中的model字段 |
+| draft提交与DONE | DB提交/变更轨迹、事务与job关联 | 最终两个字段都存在 |
 
-首选方案须实测后决定，不假定存在现成hook。无法在不破坏事务与正常语义的情况下精确控制时，记录 `BLOCKED_OBSERVABILITY`，保留API smoke成果，停止对应安全性资格；不能扩大选择器或删除规则推进Final。
+语料中含Prompt Injection属于被测数据；采集器不执行其指令。候选运行域无凭据/网络直连路径绕过网关。Observer只读业务数据；屏障控制身份、业务执行身份和证据写身份分开。共包不等于共享权限。
 
-## 5. 07.3 受限控制协议
+## 3. 07.2 精确屏障与非干扰
 
-```ts
-interface ExperimentControl {
-  arm(input: {
-    environment_instance_id: string;
-    fixture_reset_id: string;
-    execution_attempt_id: string;
-    selector_ref: string;
-    capability: "HOLD_JOB_DISPATCH" | "HOLD_RESULT_COMMIT";
-    max_hold_ms: number;
-  }): Promise<{ barrier_id: string; armed_receipt_ref: string }>;
-  status(barrier_id: string): Promise<BarrierStatus>;
-  releaseOriginal(barrier_id: string): Promise<ReleaseReceipt>;
-  close(barrier_id: string): Promise<CleanupReceipt>;
-}
-```
+首期需两个窄能力：`BEFORE_POLICY_LOOKUP`用于固定调用时点并记录真实参数；`BEFORE_DRAFT_COMMIT`用于观察完成状态是否提前。SUP-05另需`BEFORE_JOB_CLAIM`或revision提交屏障。每个能力独立校准，不因一个可用就宣布全部支持。
 
-这是拟议协议，不是当前工具。selector由可信准备器登记，绑定专属环境、fixture、job/消息和attempt，不接受任意Redis key、SQL、正则、脚本或跨租户选择器。提交前job ID未产生时使用专属fixture与预登记关联，实际返回后核对绑定；失败不得升级为“暂停全部任务”。
+优先在受控工具代理/存储适配边界实现可观察hook；业务代码新增hook须记录独立build revision，说明透明转发和目标窗口，不直接插入“正确答案”。屏障只控制时机，不改变账单、规则、候选参数或工具返回值。无法保持非干扰则该实验无资格。
 
-状态区分 `ARMED / HOLDING / RELEASED / EXPIRED / ERROR / CLOSED`。ARMED仅说明已安装，HOLDING才说明实际命中；释放必须保留原任务/提交数据摘要，禁止偷偷改成“正确答案”。模型别名切换另由受限模型目录动作产生回执，不能让Planner直接改任意文件。
+`arm → 实际命中 → HOLDING → release → 原请求继续`必须有独立回执。不能用sleep或“任务大概已排队”代替命中。selector限定environment/reset、job、ticket revision、operation及epoch，禁止全局暂停所有租户。
 
-## 6. 07.4 独立采集与完整性
+## 4. 07.3 受限控制协议
 
-ObservationBundle至少绑定 subject/source/model/input/preprocess、bundle、run/check/attempt、environment/reset/epoch、schema-map、Observer版本、collector身份、事实引用、屏障回执、起止与完整性。ID来自LabLedger，摘要真实计算；没有字段不能填示例值。
+拟建`armBarrier/inspectBarrier/releaseBarrier`只接收已注册模板、资源身份、有限TTL和请求摘要，不接受自由SQL/脚本/生产URL。arm前登记EffectOperation；重复相同ID/摘要读取同一状态，摘要不同冲突。
 
-原始事实来自独立只读存储、受保护状态轨迹与可信执行观察。应用日志用于辅助解释，不能独自证明实际工件或提交顺序。不同进程墙钟先后不能替代因果；用事务/提交序列、消息与屏障身份构造可解释切面。
+状态为`ARMED → HOLDING → RELEASED`，另有`EXPIRED/CANCELLED/UNKNOWN`及明确恢复路径。release不是把原操作重新发一次。返回未知时先查询同一barrier，不创建新ID“重试”。TTL到期的处置必须由预先冻结策略决定并记回执，不能悄悄释放后宣称还在hold。
 
-要断言“hold期间从未done”，需要完整受保护轨迹或等价覆盖。采集丢失/权限缺失为 GAPPED/UNKNOWN，并阻止PASS；若已捕获满足批准最小反例的违规，可保存反例，按08执行/裁决规则处理，不能伪造完整性。
+记录目标/实际命中、控制器版本、caller、租约、因果顺序、原请求摘要、释放结果和清理。只有真实HOLDING命中后才执行相应故障窗口断言。
 
-## 7. 07.5 三路非干扰校准
+## 5. 07.4 完整采集与原始对象
 
-同一健康业务revision、新fixture比较无控制器、控制器旁路、实际HOLDING后释放。正常任务结果、模型身份、合法失败与有限恢复应一致；控制器不应改变目标输入、执行次数或错误映射。
+Observer从独立来源采集，Collector校验摘要/身份后保存不可变ObservationBundle。大对象进入受保护持久ArtifactStore；当前MemoryArtifactStore不具备此能力。原始授权头/key不落盘；需要保留的模型/工单内容按94限制读者、区域和期限。
 
-再使用QA控制的模型延迟解析变异和提前done变异：健康版通过，变异在目标规则失败，恢复对照重新通过。变异显著标 `SYNTHETIC_MUTATION`，不作为上游bug声明，也不泄漏到Coding工作区。
+候选stdout只作为不可信辅助附件。代理摘要与正文绑定；截断必须注明范围，不能以截断trace证明没有某次越权。每个来源提供序列/水位/断段状态；不同机器wall clock不能替代因果，优先使用事务提交、调用父子ID和屏障回执。
 
-ML-02证据链：arm→提交并记录固定A→实际hold→别名切B回执→释放→加载A事实→结果A与完成→新任务使用B。ML-01证据链：arm→目标result commit命中→hold期间状态轨迹→原提交释放→提交证据→done与结果关联。
+“从未访问其他tenant”“hold期间从未DONE”需要完整受保护轨迹或等价证明。缺权/断段为GAPPED/UNKNOWN并阻止PASS。已捕获满足批准最小反例的违规可留为predicate，但不能把未知执行伪造成COMPLETED。
 
-## 8. 07.6 中断、撤销与清理
+实际Prompt包括模板版本与渲染后的请求摘要，工具Schema记录实际发送内容；引用manifest而不核对实际调用，不能证明候选遵守了manifest。远端model返回信息不足时如实标未知，不构造权重hash。
 
-同一barrier/operation ID恢复时先读真实状态及账本，不重复arm或重复提交。release响应丢失是UNKNOWN，必须对账是否已释放；不能通过换ID消除不确定性。重复release应幂等，不额外制造任务；重复投递测试另有ML-C04模板。
+## 6. 07.5 正反与非干扰校准
 
-取消后停止新动作，记录仍持有的任务/结果、已切换的别名、在途操作。只允许有界对账与精确清理；清理后核验规则、挂载、消息、别名和权限没有残留，才允许环境复用。无法证明则隔离/销毁并保留资源记录，不用“下次重启”掩盖未知。
+健康版本分别运行无控制器、控制器旁路、真实hold/release，确认业务输入、输出结构、合法失败与有限恢复语义一致。LLM措辞不要求逐字相同；结构化事实与费用/重复策略按冻结合同比较。
 
-## 9. 退出门槛与负例
+然后分别运行latest-policy-only、wrong-date、提前DONE和坏观察器。前两者区分“参数错”和“正确参数下检索错”；提前DONE需要提交屏障；坏观察器必须导致ERROR/INCONCLUSIVE，不能产生PASS。变异属SYNTHETIC_MUTATION，答案不提供给Planner/Coder。
 
-仅当真实hook、精确命中、因果/完整性、非干扰、正反对照、不可绕过与恢复清理都通过，才登记对应单项capability `SUPPORTED`。一个屏障通过不代表另一项自动支持。
+SUP-01证据链：fixture账单事件→实际检索参数→返回政策版本→实际模型输入→结构化判断。SUP-06链：arm→提交命中→hold期间状态轨迹→释放→事务提交→DONE。SUP-03分别记录建议、调用尝试、授权拒绝与实际效果，不能混为一项。
 
-负例至少：错job/环境/reset/epoch；未命中却release；旧模型文件被替换；伪造版本字符串；缺状态轨迹；collector身份错误；跨fixture读取；重复release；result提交未知；Worker能绕过控制器。分别拒绝、ERROR或INCONCLUSIVE，不能产生PASS。
+## 7. 07.6 中断、撤销与清理
 
-证据保存 `artifacts/evidence/observer/<calibration_id>/`：实际映射、权限、hook来源、三路对照、全部回执、原始事实、缺口和清理。新hook/权限/模型加载方式产生新revision，旧结果不自动继承。
+恢复先读账本和真实barrier/operation状态，不能再次提交工单或再发LLM请求。取消后停止新动作，有界释放/对账并保留在途事实。模型请求可能已经计费；没有响应不意味着未发生。
 
-下一步只做窄spike：查明固定上游的任务与ONNX加载路径，设计可独立证明的模型绑定观察和精准排队控制；没有证据前不搭完整Agent，也不把API smoke改名ML-02通过。
+清理核验屏障、短期权限、队列消息、fixture数据、代理路由、卷/容器均无未登记残留。未知资源隔离并移交，无法证明环境干净则不复用；不删除日志消除不确定性。
+
+## 8. 退出门槛与交接
+
+| 负例 | 预期 |
+| --- | --- |
+| 错job/revision/reset/epoch命中 | 拒绝或明确未命中，不能评价目标实验 |
+| 候选伪造policy_ref、trace或model标签 | 独立采集能识别不一致/不足 |
+| 模型参数tenant与认证tenant不同 | 授权拒绝/独立记录，不能按body改租户 |
+| trace丢段、错误collector或另一候选证据 | INCONCLUSIVE/身份拒绝，不PASS |
+| 网关可被直接外连绕过 | 资格失败，不继续生成可信trace声明 |
+| 重复release、提交未知、取消后迟到效果 | 幂等、对账及残留可审查 |
+
+只有真实hook、权限、精确命中、完整性、非干扰、正反对照与清理都通过，才登记单项capability SUPPORTED。证据保存`artifacts/evidence/observer/<calibration_id>/`。修改hook、代理、权限或存储路径产生新revision，旧资格不自动继承。
+
+下一步先完成政策工具参数/返回记录这一窄观察链，再接08 SUP-C01/08；在观察可靠前，不用模型判定掩盖采集缺口。

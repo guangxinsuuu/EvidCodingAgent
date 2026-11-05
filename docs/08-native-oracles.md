@@ -1,189 +1,126 @@
-# 08 · ML Oracle：让版本、结果与 PASS 有明确含义
+# 08 · SUP Oracle：独立裁决政策、工具、权限与异步事实
 
-实施状态：`NOT_STARTED`。本章的测试、Oracle、可信结果与最终 Profile 尚未实现或运行；旧草案 PLANNED/NOT_RUN 仍保持原义。
+实施状态：`NOT_STARTED`。本章独立Oracle、可信ObservationBundle和业务结果尚未实现；新客户端mock只验证HTTP形状与关联。前置[06 DRAFT](06-contract-registry.md)、[07观察](07-observer-and-experiment-barrier.md)，下一章[09校准任务](09-seeded-defects.md)。早期沿用05 file-lab/calibration-only，校准后返回06.5激活。
 
-前置：[06.1–06.4 DRAFT Registry](06-contract-registry.md)、[07 Observer/实验屏障 校准](07-observer-and-experiment-barrier.md)。下一章：[09 缺陷样本](09-seeded-defects.md)。本章继续使用05的 file-lab 账本，DRAFT 校准不要求先取得 ACTIVE 合同；07–09的实际结果形成后再回06.5真正审批/激活。先实现纯判定函数和正负事实样本，再运行真实栈；纯样本通过只能证明 evaluator 逻辑，不证明 ML 业务已正确。
+## 1. 三类判定与信任边界
 
-## 目标与首期范围
+模板准备typed fixture/动作/屏障；Observer/Collector采集候选外事实；确定性Oracle对冻结事实与批准规则裁决。它不调用LLM、不改变SUT、不跨环境补事实，也不接收候选stdout中的PASS。
 
-先让 ML-C02 模型绑定与 ML-C01 结果提交顺序具备完整正反校准，再按能力准入 ML-C03/04/05/06。ML-C07 是质量/性能扩展，需独立数据和批准门槛。目录不是当前全部已实现或已激活的mandatory；发布承诺适用的MUST缺能力时必须阻断，不能默默跳过。
+Trace/Evidence校验确认实际工具参数、返回、权限与因果；这本身不证明所有自然语言都正确。Semantic evaluator按人工校准rubric与模型辅助评分生成独立质量报告，首期不作为自动对客放行依据。它不能覆盖硬规则FAIL/UNKNOWN。以后升为Gate需冻结grader版本、样本/重复/聚合、阈值、校准和不确定处理。
 
-Oracle判断明确规则下的事实，不判断“模型觉得代码合理”。预测值可以因合法模型升级而变化；版本/输入/预处理身份正确、批准行为与质量范围才是依据。旧订单Oracle与PASS不转为ML证据。
+Coder可改授权业务代码/Prompt/检索/工具映射与局部开发测试；不能改可信Oracle、批准规则、hidden ground truth、证据或mandatory。Verifier只提案，不能自行把风险升级为可信结果。
 
-## 三个组件的边界
+## 2. 拟建文件
 
-模板准备合成输入、执行受控动作和屏障；Observer/Collector独立采集事实并绑定身份；Oracle对冻结事实作确定性判定。Oracle不调用LLM、不修改SUT、不去另一个未绑定环境补事实，也不接收candidate stdout中的PASS。
-
-Coder可以写授权局部测试，但不能修改可信Oracle、隐藏数据/参数、证据存储、签名与最终强制集合。Verifier可以提出实验，不能把建议直接登记为裁决结果。
-
-## 计划文件
-
-| 路径 | 责任 |
+| 路径 | 职责 |
 | --- | --- |
-| `packages/oracles/src/result.ts` | 共享三轴结果构造，不另造枚举 |
-| `packages/oracles/src/ml/model-binding.ts` | ML-C02：绑定、实际加载与结果模型身份 |
-| `packages/oracles/src/ml/result-commit.ts` | ML-C01：成功前提交与释放后活性 |
-| `packages/oracles/src/ml/feature-consistency.ts` | ML-C03：输入快照/预处理/schema身份 |
-| `packages/oracles/src/ml/delivery-recovery.ts` | ML-C04/05：重复效果、claim/fencing和崩溃恢复 |
-| `packages/oracles/src/ml/schema-compatibility.ts` | ML-C06：批准版本矩阵 |
-| `packages/verification/src/templates/async-ml.ts` | 受限实验模板，不接受模型提供的脚本 |
-| `registry/drafts/async-ml-inference/verification-profile.json` | 检查、版本、参数与能力闭包 |
+| `packages/oracles/src/result.ts` | 统一三轴与候选资产归因 |
+| `packages/oracles/src/support/policy-applicability.ts` | C01：独立适用日期/套餐/合同规则 |
+| `packages/oracles/src/support/tool-grounding.ts` | C04/C08：实际参数、返回事实与结构化判断 |
+| `packages/oracles/src/support/access-effects.ts` | C02/C03：授权对象、尝试/效果分离 |
+| `packages/oracles/src/support/async-integrity.ts` | C05/C06：revision、提交顺序与活性 |
+| `packages/oracles/src/support/escalation.ts` | C07：缺信息、冲突与完整证据响应 |
+| `packages/verification/src/templates/saas-support.ts` | 批准实验模板；无自由shell/SQL |
+| `registry/packs/saas-support/` | 规则/检查/能力/验收版本闭包 |
 
-这些是后续计划，当前未实现。若将确定性ML判定器实现为Python，也须保持相同的冻结输入、受保护身份和共享结果协议，不能把任意Agent代码当Oracle。
+以上均为拟建，不因文档路径存在就有资格。Oracle实现若用Python也必须共享schema、受保护身份和纯输入边界。
 
-## 检查目录与证据
+## 3. 检查目录与适用范围
 
-| ID / 规则 | 实验 | 必须证明 | 范围边界 |
-| --- | --- | --- | --- |
-| ML-C01 / ML-01 | 精确hold目标结果提交，再释放 | hold期间完整轨迹无提前done；结果达到批准持久性边界后才done；释放后有界完成 | 一次进程恢复不证明宿主掉电零丢失或无限TTL |
-| ML-C02 / ML-02 | 提交绑定A→确认hold→别名切B→执行 | 旧job实际模型/预处理A与结果相符；新job按合同使用B；job/input关联正确 | 模型自述版本字符串不足；上游缺能力须先显式扩展 |
-| ML-C03 / ML-03 | 使用输入/特征snapshot与v1/v2预处理 | 实际消费内容、schema、顺序与缺失值语义符合冻结合同 | 首期合成图片不等于Feast或完整特征平台 |
-| ML-C04 / ML-04 | 精确重复投递同一逻辑job | 允许重复计算，但不能产生冲突结果或重复业务效果；其他job不受污染 | 队列at-least-once不等于API幂等；上游无幂等键 |
-| ML-C05 / ML-05 | 在预定阶段kill Worker并恢复 | claim/租约/fencing与结果状态一致，恢复或明确失败在批准界限内，旧Worker不能覆盖新结果 | 只在声明故障模型内成立，不外推掉电/网络分区 |
-| ML-C06 / ML-06 | 批准的客户端、任务、Worker、schema组合 | 兼容组合正确读取/转换；不支持组合有明确拒绝，旧任务身份不漂移 | 不自动包含任意滚动升级/回退排列 |
-| ML-C07 / ML-07 | 独立评估模型与数据切片、性能负载 | 满足批准指标、置信/样本策略、切片底线及硬件条件 | 目前延期；几个相同预测不是质量或性能证明 |
+| 检查 | 实验/必须事实 | 不允许的替代 |
+| --- | --- | --- |
+| SUP-C01 | 真实续费事件、时钟、规则优先级→实际检索参数/政策→选择结论 | 使用工单日期/latest；调用SUT自身eligibility函数当独立答案 |
+| SUP-C02 | 认证tenant、实际工具/RAG返回对象及完整授权记录 | 只比较模型body中的tenant_id |
+| SUP-C03 | 模拟敏感动作的建议、调用、授权决策、真实效果分别记录 | 拒绝尝试误说已退款，或没有UI按钮就说无权限风险 |
+| SUP-C04 | 实际账单/政策与关键结构化claim一致，引用可解析且适用 | 引用ID存在就认定自然语言结论被支持 |
+| SUP-C05 | 暂停旧revision、更新ticket、恢复旧attempt，拒绝覆写新结果 | 仅最终“看起来最新”，缺条件写/完整轨迹 |
+| SUP-C06 | 精确hold draft提交，完整轨迹无提前DONE，释放后有界完成 | 最终有draft就证明先保存后完成 |
+| SUP-C07 | 缺使用/合同/冲突时正确补证；完整正反事实时完成相应判断 | 全部转人工或仅测试缺资料案例 |
+| SUP-C08 | v1/v2工具参数的日期/账单/币种/ticket关联与返回Schema | 只看工具名或HTTP 200 |
 
-每项都有明确输入域、前提、参数、有限无污染范围、失败/未知路径和清理。05的有效图片/伪图片/415/404是API smoke，不能替代上表独立证据。
+优先C01/C08/C07与最小C02/C03/C06。C05和更广故障范围单独取得能力。目录不等于已激活mandatory；需求承诺的MUST缺能力时阻断。客户端四条smoke不是上述业务证据。
 
-## 发布切片的适用性
+## 4. 08.1 共享结果与版本化归因
 
-V3.4/V4.0是自有服务release；modelA/modelB、preprocess/schema v1/v2分别有内容身份。V4新增模型B、预处理/schema v2并保留批准v1兼容，Worker重构不得破坏已入队旧任务绑定与结果完成顺序。
-
-RequirementDelta驱动ML-C02/03/06的具体组合，ML-C01等适用安全项保持强制。模型B输出可不同于A；既不能要求所有预测逐项相同，也不能以“新模型自然不同”忽略错误输入/身份。没有ML-C07资格时报告明确不评价真实分类质量。
-
-正确新功能版、late-alias变异、schema/预处理错配变异及恢复对照分别校准。整版回滚到Stable即使通过旧检查，也会因V4需求缺失而拒绝。
-
-## 小步实现
-
-### 08.1 先把事实样本与判定接口写清
-
-每项检查输入为冻结 Profile、ObservationBundle 及受控参数；输出共享 CheckResult。execution_status、assertion_status、attribution 分开：
+CheckResult必须绑定schema_version、check/attempt、subject、candidate完整输入digest、Bundle、环境/reset/epoch、参数/seed、check/template/runner/oracle/collector版本、原始观察、清理状态与三轴。早期还标file-lab/calibration-only；正式字段交10章实现，不把文件账本改名成生产Runtime。
 
 ```ts
-type CheckResult = {
-  check_run_id: string;
-  execution_attempt_id: string;
-  authority_mode: "file-lab";
-  evidence_scope: "calibration-only";
-  candidate_or_baseline_ref: string;
-  bundle_digest: string;
-  check_version: string;
-  oracle_version: string;
-  environment_instance_id: string;
-  observation_bundle_ref: string;
+type Attribution = "NONE" | "CANDIDATE_DEFECT" | "ENVIRONMENT" | "ACCESS" | "CONTRACT_AMBIGUITY" | "UNKNOWN" | null;
+type CandidateAssetKind = "CODE" | "PROMPT" | "RETRIEVAL" | "TOOL_SCHEMA" | "TOOL_ADAPTER" | "CONFIG" | "WORKFLOW";
+type VerdictProjection = {
   execution_status: "QUEUED" | "RUNNING" | "COMPLETED" | "ERROR" | "CANCELLED" | "UNKNOWN";
   assertion_status: "PASS" | "FAIL" | "INCONCLUSIVE" | "NOT_EVALUATED";
-  attribution: "NONE" | "CODE_DEFECT" | "ENVIRONMENT" | "ACCESS" | "CONTRACT_AMBIGUITY" | "UNKNOWN" | null;
+  attribution: Attribution;
+  candidate_asset_kind: CandidateAssetKind | null;
   reason_codes: string[];
   predicate_results: Array<{ id: string; outcome: "TRUE" | "FALSE" | "UNKNOWN"; evidence_refs: string[] }>;
 };
 ```
 
-这是一份早期校准字段投影，不替代共享 DTO 完整定义；实际类型还应包括 tenant/run、参数摘要、seed、fixture/reset、采集身份与完整性字段。check_run/attempt 身份由05的 lab-ledger 先登记，`bundle_digest` 指06.4冻结的 DRAFT 内容，而非 ACTIVE 资格。
+以上是拟建正式结果投影，不与已实现的HTTP smoke verdict混用。CANDIDATE_DEFECT覆盖代码、Prompt、检索、工具与配置缺陷；具体asset kind只在证据足以定位时填写，否则null，不能因模型猜测就授权改某路径。旧CODE_DEFECT保持原schema和原文；显式映射到新版本并保留来源，不直接批量改旧证据。
 
-三轴统一约定：`attribution=NONE` 只表示执行已确认完成、断言 PASS，当前结果没有故障归因；`UNKNOWN` 只表示失败或不确定结果的原因尚未查明，不能用于正常 PASS。`null` 仅在 assertion_status=NOT_EVALUATED 且尚未进入归因时允许，包括排队/运行、取消未裁决、执行完成但尚未裁决；它不是成功。ERROR+NOT_EVALUATED 若已有环境等诊断可直接记录该归因。FAIL/INCONCLUSIVE 不得使用 null 或 NONE。适用性 `NOT_APPLICABLE` 另存，不扩充此枚举。以下是真值与路由约束，DTO、Oracle 和 Graph 共同遵守：
+| execution | assertion | attribution | 处理 |
+| --- | --- | --- | --- |
+| QUEUED/RUNNING | NOT_EVALUATED | null | 等待事实 |
+| UNKNOWN | NOT_EVALUATED/INCONCLUSIVE | ENVIRONMENT/ACCESS/UNKNOWN；未归因NOT_EVALUATED可null | 先执行对账，不能修复或通过 |
+| ERROR | NOT_EVALUATED/INCONCLUSIVE | ENVIRONMENT/ACCESS/CONTRACT_AMBIGUITY/UNKNOWN；未归因可null | 处理执行/证据问题 |
+| CANCELLED | NOT_EVALUATED | null或已知归因/UNKNOWN | 停止新业务，保留对账清理 |
+| CANCELLED | INCONCLUSIVE | ENVIRONMENT/ACCESS/CONTRACT_AMBIGUITY/UNKNOWN | 记录证据不足 |
+| COMPLETED | PASS | NONE | 身份/完整性有效后更新覆盖 |
+| COMPLETED | FAIL | CANDIDATE_DEFECT | 仍需ValidatedFinding、scope/授权/预算才可请求修复 |
+| COMPLETED | FAIL/INCONCLUSIVE | ENVIRONMENT/ACCESS/CONTRACT_AMBIGUITY/UNKNOWN | 调查或交Owner，不能自动改候选 |
+| COMPLETED | NOT_EVALUATED | null | 不完整，不能Final PASS |
+| 非COMPLETED | PASS | 任意 | 非法组合拒绝 |
+| COMPLETED | PASS | 非NONE | 拒绝，不静默改写 |
+| 任意 | FAIL/INCONCLUSIVE | null/NONE | 拒绝 |
 
-| execution_status | assertion_status | attribution | 必须采取的处理 |
-|---|---|---|---|
-| QUEUED / RUNNING | NOT_EVALUATED | null | 等待真实完成，不进入业务裁决。 |
-| UNKNOWN | NOT_EVALUATED / INCONCLUSIVE | ENVIRONMENT / ACCESS / UNKNOWN；仅 NOT_EVALUATED 且未归因时可 null | 先对账执行事实，不能因其他字段直接修复或放行。 |
-| ERROR | NOT_EVALUATED / INCONCLUSIVE | ENVIRONMENT / ACCESS / CONTRACT_AMBIGUITY / UNKNOWN；仅 NOT_EVALUATED 且未归因时可 null | 先处理执行或证据问题；不能自称代码已验证。 |
-| CANCELLED | NOT_EVALUATED | null 或已知问题归因/UNKNOWN | 停止新业务，保留对账与清理；不产生 PASS。 |
-| CANCELLED | INCONCLUSIVE | ENVIRONMENT / ACCESS / CONTRACT_AMBIGUITY / UNKNOWN | 保留明确的证据不足原因，不用 null 假装尚未判断。 |
-| COMPLETED | PASS | NONE | 经身份与完整性核验后更新 coverage。 |
-| COMPLETED | FAIL | CODE_DEFECT | 还需可信 ValidatedFinding 才能请求修复。 |
-| COMPLETED | FAIL / INCONCLUSIVE | ENVIRONMENT / ACCESS / CONTRACT_AMBIGUITY / UNKNOWN | 按已知原因处理或调查；不得直接驱动改代码。 |
-| COMPLETED | NOT_EVALUATED | null | 尚无断言结果，保持不完整；不能进入 Final PASS。 |
-| 任意非 COMPLETED | PASS | 任意值 | 非法组合，Collector/DTO 拒绝。 |
-| COMPLETED | PASS | 非 NONE | 非法组合，拒绝而非自动改写为正常通过。 |
-| 任意状态 | FAIL / INCONCLUSIVE | null / NONE | 非法组合，必须给出已知或 UNKNOWN 故障归因。 |
+CANDIDATE_DEFECT仅允许COMPLETED+FAIL且有可信反例；INCONCLUSIVE不能以该归因自动请求修复。非CANDIDATE_DEFECT时candidate_asset_kind必须null。执行轴→断言轴→归因的顺序固定；UNKNOWN不是正常PASS默认归因。适用性NOT_APPLICABLE另存批准依据，不扩充断言枚举。模型输出`CODE_DEFECT`或`CANDIDATE_DEFECT`字符串不构成可信Finding。
 
-路由优先级固定为 execution_status → assertion_status → attribution；先确认执行，再判断断言，最后使用归因选择修复责任。旧记录若以 UNKNOWN 表示 PASS 无故障，不可直接导入为新协议有效结果，须版本化转换并保留原文与转换依据。
+## 5. 08.2 证据有效性与最小反例
 
-先构造小事实集：健康模型绑定；错误模型/预处理；提前done；错误job/result关联；缺屏障回执；缺转换轨迹；环境不健康。每个样本说明它验证 evaluator 的哪一条决策，不能照抄函数分支做没有业务意义的镜像测试。
+先核验tenant/run、subject、环境/reset/epoch、call/attempt、来源权限、版本和摘要；两次物理attempt不能拼成完整轨迹。完整性缺失不能PASS。执行已确认完成且满足预先批准最小反例时可FAIL，同时保留无关缺口；执行仍UNKNOWN/ERROR时保存predicate与原始违规事实，不能伪造COMPLETED。
 
-### 08.2 实现证据有效性检查
+ValidatedFinding由可信校验器登记：rule/contract版本、实际与期望、最小可复现参数、必要观察引用、排除环境/合同问题的依据、候选资产定位（可未知）。Agent只提交FindingProposal。可信反例可证明确有违规但尚不知根因；此时不得任意改Prompt或政策。修复关闭需新候选的可信复验，不接受Coder“已修复”。
 
-进入业务断言前，核对 subject、bundle、环境实例、fixture reset、参数、Oracle/Observer 版本、lease/执行 attempt 与证据摘要。候选 A 的事实不能送给候选 B；同一个 CheckRun 的两次物理 attempt 不能拼成看似完整的一次轨迹。
+## 6. 08.3 先实现政策与参数Oracle
 
-缺证据不能产生 PASS。执行已确认完成且满足预先批准“最小反例证据”时，可给出 FAIL，并另列不影响该反例成立的观察缺口；不能将所有缺失都自动解释为代码缺陷。执行仍 UNKNOWN/ERROR 时先保留原始违反事实与 predicate，不伪造 COMPLETED；完成执行对账和可信裁决后才形成相应正式 FAIL。若无法证明违反，则 INCONCLUSIVE/NOT_EVALUATED，按原因归环境、访问、合同或未知。
+C01独立读取冻结账单事件和批准政策区间/优先级，计算适用policy集合；比较实际检索请求、返回政策及结构化选择。CS-1042应使用十月政策但仍需补证；不能直接期待ELIGIBLE。加入十一月边界前/后、窗口内/外、合同例外、完整/缺失使用事实，固定测试clock。
 
-检查点：篡改一个身份字段、移除屏障回执或替换观察摘要，都能阻止通过；错误明确指向该字段或证据。
+C08检查原invoice的renewal event与工具参数的对应。实际参数已误用ticket date时归参数映射；参数正确但返回latest政策时归检索路径。只有输出错而工具trace缺失时不能预设根因。C04再核对关键日期、金额、币种、资格与事实，不用字符串完全相等判断客服措辞。
 
-### 08.3 先实现 ML-C02 模型绑定判定
+独立Oracle可共享获批政策内容，但不能复用候选的同一个日期/eligibility辅助函数，以免同错自证。变更Oracle版本需重跑健康、变异、坏观察器控制。
 
-按因果回执确认：任务提交时记录固定A，精确HOLDING命中该job，随后alias切B，释放后实际加载A，结果关联同一job/input/model/preprocess，且有界完成；另一个新任务使用B。A/B工件hash不同，不能仅换标签使实验成为空操作。
+## 7. 08.4 权限、补证与异步判定
 
-任务绑定、实际加载、结果身份是不同predicate。只比相等的自述字段、只看top1类别、只看模型文件名都不足。模型缓存与lazy加载必须有观察依据；缺实际执行身份证据则INCONCLUSIVE，不能因为预测看起来合理就PASS。
+C02从认证上下文核对实际返回对象，包含RAG检索与缓存；跨tenant负例也要确认实际执行被拒绝。C03区分建议、尝试、拒绝和效果。未提供真实支付连接只能声明沙盒权限范围；不能宣称生产支付授权已获证。
 
-旧job偷偷使用B是目标反例；所有job永久queued不能算修复。记录实验窗口与健康前提，窗口尚未Owner批准时仅是校准参数，不升级成正式业务SLA。
+C07对缺失/冲突事实要求具体补证/正确转人工；对完整事实要求合同规定的判断，防止一律转人工。业务规则本身不明确为CONTRACT_AMBIGUITY，不能由模型补写规则。
 
-### 08.4 实现 ML-C01 安全与活性
+C06使用07精确提交屏障及完整DB轨迹，分别输出safety/liveness。最终结果存在不覆盖短暂提前DONE；释放状态UNKNOWN或环境未恢复时不伪造候选活性缺陷。C05通过revision条件写与完整提交历史验证旧attempt不能覆写新草稿。进程恢复不外推宿主掉电零丢失。
 
-证明arm先于目标动作、实际结果提交HOLDING命中、hold期间状态轨迹完整且无提前done、释放保持原提交摘要、结果达到批准提交边界、done与结果存在正确关联，以及释放/恢复后有界完成。
+## 8. 08.5 语义评价与重复策略
 
-分别输出safety/liveness predicate：任一FALSE导致FAIL，任一关键UNKNOWN不能PASS。最终结果存在不覆盖曾经的短暂非法done。AOF everysec、Redis返回成功与持久可恢复是不同层级；按合同选择已具备的证据，不能把内存键存在当磁盘flush已确认。
+首期SemanticQualityReport引用rubric、grader配置、输入/结果、人工校准样本、评分/不确定性和费用，独立于硬规则CheckResult。正文与结构化字段矛盾必须可见并交人工，不能用结构化PASS掩盖文本问题；报告明确“待审草稿，未评价自动对客资格”。
 
-若技术前提未恢复或释放状态UNKNOWN，优先记录环境/对账，不能伪造liveness CODE_DEFECT。无法证明过程完整时也不能声称“从未提前成功”。
+LLM真实运行按预注册重复/聚合策略留全部attempt；低temperature/seed不等于确定性。不反复重跑挑绿灯。模型/trace replay仅验证管道和Oracle，不算真实模型质量。基建失败、业务失败、语义不确定与provider漂移分账；grader不能把硬FAIL改为PASS。
 
-### 08.5 分步加入 ML-C03/04/05/06
+## 9. 08.6 模板连接与有意义验收
 
-ML-C03绑定输入字节、feature snapshot、预处理参数/顺序、schema与运行时；数值比较采用冻结容差，NaN/Inf、维度与dtype单独检查。
+模板只收typed fixture、受控参数/seed与环境引用，按05账本先登记后派发；try/finally清理失败单独保存，不覆盖首次失败。后续迁入DB记录origin_experiment_id并保留校准scope，不能自动升级Final。
 
-ML-C04明确逻辑job与物理delivery/attempt，验证重复投递后的最终效果唯一且一致，允许合同明确的重复计算。不要将“结果最后覆盖成一样”当无冲突证明；需要状态/写入历史。没有API幂等键时不得宣称HTTP重试安全。
+未来命令（实现注册后才可执行）：`pnpm egap:checks run --suite saas-support-final --subject <ref> --environment <id>`。套件名称不是资格。
 
-ML-C05按批准阶段真实中断Worker，观察pending/claim/lease/fencing及恢复结果。旧Worker恢复后覆盖新结果必须可检测；TTL到期、结果已丢失和未执行不是同一状态。ML-C06按批准组合保存旧任务/客户端fixture、实际新旧schema和转换证据，不用一个200响应替代兼容矩阵。
-
-每项先纯样本，再真实健康/变异/恢复对照。没有对应能力则保持UNQUALIFIED；在发布范围承诺该需求时阻断，不能当N/A自动放行。
-
-### 08.6 连接模板和运行器
-
-模板只接收 typed fixture/环境/受控参数，调用第05–07章 adapter；每项使用独立 fixture 或严格验证 reset。按 `try/finally` 设计清理，但清理失败不得覆盖原始业务结果，单独记录 cleanup_status 和未决资源。
-
-execution attempt 先由05的 lab-ledger 登记再派发，结果提交绑定同一 attempt；文件排他锁、追加事件与原子快照保证本机实验记录可恢复，不用一份覆盖写 `result.json` 代表所有运行。第10章引入 DB 事务/多Worker机制时保留 `origin_experiment_id` 和原身份映射，不改写旧记录的 authority_mode，也不将校准 PASS 自动转成正式 Final 证据。
-
-未来命令：实现并注册脚本后才可执行，当前不存在：
-
-```sh
-pnpm egap:checks run --suite ml-release-final --subject <frozen_subject_ref> --environment <environment_instance_id>
-pnpm egap:checks inspect --check-run <check_run_id>
-```
-
-此处 ml-release-final 只是套件选择；只有激活合同、有效环境/平台资格与证据满足时，才具备第14章 Final Gate 的放行意义。实验模式必须在报告中显式标记。
-
-## 有意义的正负测试集
-
-| 控制样本 | 应有结果 |
+| 控制样本 | 预期 |
 | --- | --- |
-| 健康事实、完整绑定与实际加载身份 | 在批准范围PASS |
-| 旧job绑定A，alias切B后实际执行B | ML-C02 FAIL |
-| 结果字符串写A但实际加载B | 不能被字段相等骗过；实际证据充分则FAIL，缺则INCONCLUSIVE |
-| hold期间短暂done，最终补写了结果 | ML-C01 safety FAIL，不被终态覆盖 |
-| 永远queued，没有提前done | 活性前提成立时FAIL，否则INCONCLUSIVE |
-| 版本正确但input/preprocess/job关联错 | 相应ML-C02/03 FAIL |
-| 重复投递产生冲突结果或旧Worker覆盖新结果 | ML-C04/05 FAIL |
-| 删除v1兼容或回滚整个V4 | ML-C06/需求覆盖拒绝 |
-| Observer缺权/断段，或另一candidate/environment/reset证据 | ERROR/INCONCLUSIVE或身份拒绝，不PASS |
-| COMPLETED + PASS + NONE | 正常coverage路径 |
-| COMPLETED + PASS + UNKNOWN，或 UNKNOWN + PASS | 非法组合拒绝，不静默改写 |
-| COMPLETED + INCONCLUSIVE + UNKNOWN | 保留证据不足，不请求修代码 |
-| UNKNOWN + NOT_EVALUATED + UNKNOWN | 先对账执行 |
-| CANCELLED + NOT_EVALUATED + null | 保留未裁决取消 |
-| FAIL/INCONCLUSIVE + null/NONE | 非法组合拒绝 |
+| 正确旧政策、完整工具事实、缺使用/合同 | C01/C08通过，C07确认NEEDS_MORE_EVIDENCE |
+| 十月事件错误选十一月政策 | 证据完整时C01失败 |
+| 正确policy_ref但实际检索/账单关联错 | C04/C08失败或缺证据INCONCLUSIVE |
+| 完整正反事实却一律转人工 | C07不通过 |
+| 拒绝的退款尝试 | 记录无实际效果；按独立行为约束判断尝试是否违规 |
+| 未授权实际效果、跨tenant数据 | 对应确定性规则失败 |
+| 提前DONE、旧revision覆盖 | C06/C05失败；不能被最终快照掩盖 |
+| 缺trace、错误collector/candidate/reset | 拒绝或INCONCLUSIVE，不PASS |
+| 回退Stable删除新政策/schema能力 | 需求覆盖失败 |
+| semantic评分好但硬规则FAIL | Gate仍拒绝 |
 
-先纯函数事实集，再真实健康与受控变异。预先固定重复次数/种子，保留全部attempt，不能挑某次绿灯当资格。静态fixture只验证evaluator逻辑，不证明真实ML栈正确。
-
-## 证据、排障与完成清单
-
-计划路径为 `artifacts/evidence/checks/<check_run_id>/<execution_attempt_id>/`，保存 plan、原始事实引用、predicate 结果、CheckResult、环境清单与清理回执。报告明确 static-fixture 或 real-stack 证据等级。
-
-Oracle与基线不一致先查合同、模型/输入身份和观察前提，不修改期望追绿。屏障缺口回07，数据/数值语义回06，构建/运行问题回03/05。Oracle变更产生新版本并重新校准，旧PASS不自动继承。
-
-- [ ] 当前适用检查的predicate、参数、前提与证据闭包明确。
-- [ ] ML-C02包含实际加载身份，ML-C01兼顾安全、持久性边界与活性。
-- [ ] 每项有正反控制；未实现能力不被当作已覆盖或N/A。
-- [ ] PASS使用NONE；执行、断言、归因按顺序路由，非法组合拒绝。
-- [ ] 失败attempt与原始身份保留，未把API smoke或fixture结果当真实资格。
-- [ ] 模型质量范围准确，没有因版本一致就宣称分类质量和生产就绪。
-
-下一步：先实现ML-C02/01纯判定与反例样本，再接07已获资格的真实观察和屏障；缺实际能力时保留阻断，不接模型自动修复来掩盖缺口。
+证据保存`artifacts/evidence/checks/<check>/<attempt>/`，报告区分static-fixture、scripted-fake/replay与live。下一步先完成C01/C08/C07纯判定和真实正反校准；缺能力保留阻断，不接自动修复来隐藏实验缺口。

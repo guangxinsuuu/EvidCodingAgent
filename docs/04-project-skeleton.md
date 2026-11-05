@@ -1,6 +1,6 @@
 # 04 · 建立项目骨架与最小开发闭环
 
-实现状态：`IMPLEMENTED_SKELETON / ML_ADAPTATION_IN_PROGRESS`。现有 control-plane、contracts、domain、artifacts 与统一构建命令可继续复用；本轮切换不重建已有骨架。前置：[03 环境预检](03-environment-preflight.md) 已明确工具链可用性与阻断项。本章结束时能编译、校验配置、运行最小测试和查看健康端点；此时没有 Agent、业务 PASS 或发布能力。
+实现状态：`IMPLEMENTED_SKELETON / GENAI_ADAPTATION_IN_PROGRESS`。现有control-plane、contracts、domain、artifacts摘要/内存存储与统一构建命令继续复用；本轮切换不重建已有骨架。前置：[03 环境预检](03-environment-preflight.md) 已明确工具链可用性与阻断项。本章结束时能编译、校验配置、运行最小测试和查看健康端点；此时没有 Agent、业务 PASS 或发布能力。
 
 ## 1. 本章为什么只搭最小骨架
 
@@ -19,6 +19,7 @@ EGAP-Implementation/
     action-gateway/         # 17
     console/                # 16
   services/
+    genai-support-sut/     # 拟建自有Python客服API/Worker
     verifier/              # 13，独立Python项目；pnpm不管理其依赖
       egap_verifier/       # graph、planner、check_client等
   packages/
@@ -26,7 +27,8 @@ EGAP-Implementation/
     domain/                 # 纯状态与规则；不依赖HTTP/DB
     persistence/            # 10：pg事务、迁移和Repository
     artifacts/              # 摘要、内容存储与授权读取
-    ml-inference-adapter/   # 05/07：异步任务 API、观察和实验控制
+    genai-support-adapter/  # 已有拟定HTTP客户端/mock；真实SUT/独立观察待实现
+    ml-inference-adapter/   # 保留历史ML协议，不作为当前主线
     oracles/                # 08：固定业务断言
     verification/           # 13/14：计划、覆盖和Final
     coding/                 # 12：CodingProvider与候选冻结
@@ -47,6 +49,8 @@ EGAP-Implementation/
 ```
 
 04 只需要创建 control-plane、contracts、domain、artifacts 的最小文件；其他包到对应章节再创建，避免空包形成维护负担。`reports/` 不存凭据和客户原文；大日志及原始证据进入受控 ArtifactStore。
+
+新增客服协议以`packages/contracts/src/support.ts`为准，客户端包只做拟定API的shape/身份关联/有界HTTP与mock测试。它不实现真实SUT、服务端认证/tenant隔离、可信trace或SUP Oracle。artifact内存实现也不提供持久证据资格。
 
 ## 3. 检查点 A：建立独立仓库和依赖锁
 
@@ -78,7 +82,7 @@ API 的 tenant_id、actor_id 来自认证上下文。首期只绑定 loopback �
 
 ## 5. 检查点 C：建立统一命令协议
 
-以下四个命令已在根 package.json 注册；它们验证 TS 骨架，不能代替 ML 真实环境验收。
+以下四个命令已在根 package.json 注册；它们验证 TS 骨架，不能代替 GenAI客服真实环境验收。
 
 ```bash
 pnpm typecheck
@@ -92,7 +96,7 @@ pnpm dev:control-plane
 - `build`：按包依赖顺序生成产物，禁止忽略失败包。
 - `dev:control-plane`：读取明确配置，只启动本控制面；不得连带启动 SaaS 写入或模型任务。
 
-后续章节的独立命令要在根 package.json 登记用途、前置、影响和证据目录。可以给 `test` 一个明确默认集合，但不能把 `pnpm test` 描述为自动覆盖真实 ML 推理系统、所有恢复、全部安全与生产验收。
+后续章节的独立命令要在根 package.json 登记用途、前置、影响和证据目录。可以给 `test` 一个明确默认集合，但不能把 `pnpm test` 描述为自动覆盖真实客服LLM/工具系统、所有恢复、全部安全与生产验收。
 
 ## 6. 检查点 D：第一组有意义的测试
 
@@ -131,4 +135,4 @@ pnpm dev:control-plane
 - [ ] 包依赖方向清楚；运行与 import 分开。
 - [ ] 更新 92；进入 05 前保留可重现的开发环境。
 
-下一次可以说：**“复核04现有骨架与业务迁移测试，保持健康端点只声明控制面就绪，再进入05的ML真实基线。”**
+下一次可以说：**“复核04现有骨架与业务迁移测试，保持健康端点只声明控制面就绪，再进入05的GenAI真实基线。”**

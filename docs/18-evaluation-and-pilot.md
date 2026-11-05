@@ -10,7 +10,7 @@
 
 试点出口允许三种结论：值得扩大；局部场景有收益、限定使用；收益不足、保留简单方案。若真实基线或隔离未达到门槛，可以形成有证据的未通过报告；不能靠增加模型调用、删除失败任务或只展示最好一次来获得绿色结论。
 
-旧 AAA [packages/evaluation/src/index.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/packages/evaluation/src/index.ts>) 已有工具顺序、禁止动作、批准在先、预算和恢复评估思路，可迁移为治理指标。它的 golden payment/Kafka 场景、固定 expectedTools 和历史结果不证明当前 ML 场景的业务正确性。新试点以独立 Oracle 和真实运行 manifest 为依据。
+旧 AAA [packages/evaluation/src/index.ts](</Users/neilsu/Desktop/AAA Enterprise-Governed-Agent-Platform/packages/evaluation/src/index.ts>) 已有工具顺序、禁止动作、批准在先、预算与恢复评估思路。历史payment/Kafka、ML模拟HTTP或固定expectedTools不证明GenAI客服正确；新试点必须有独立业务裁决和真实运行manifest。
 
 ## 拟建资产
 
@@ -29,11 +29,11 @@ hidden healthy patch、作为答案的正确 V4 参考实现、注入位置和 h
 
 ## 检查点 18.1：冻结任务集和判定标准
 
-主任务集以“稳定版本→有模型/预处理/Worker变化的候选→针对性验证”为单位。首个主展示使用第 09 章自有衍生 Stable V3.4→Candidate V4.0，不是上游真实版本，也不虚构线上运行史。Stable 先补冻结模型/预处理 manifest 与可信观察；V4 增加模型 B、preprocessing/schema v2、批准的 v1 兼容与 Worker 重构。第 06/08 章完成规则批准和正反校准后才能准入真实评测。
+主任务集以“稳定版→政策检索/工具Schema等真实变化的候选→针对性验证”为单位。V3.4/V4.0为自有实验标签，不虚构上游版本或线上历史。首期固定LLM和Worker，正确V4新增十一月政策与tool schema v2，保留十月续费事件适用性。待06/08批准规则并完成正反校准后才准入正式评测；以后模型、Prompt、Worker和handoff升级作为独立实验因素。
 
-正确功能版、late-alias-lookup 错模型 seed、提前成功/结果缺失 seed、预处理/schema 错配 seed分别登记；某种 seed 的检出不能代表其他规则有效。seed 是自有衍生版本的 `SYNTHETIC_MUTATION`，不声称上游自带这些缺陷。任务集还覆盖影响未知、环境失败、权限受限、合同含糊和无需修改控制；事故修复另标 task_mode。重复投递和 Worker 恢复是否参与某个 tier 由已批准 ML-04/05 能力决定，不能一边宣称范围包含恢复、一边删除缺能力检查。
+正确V4、latest-policy-only和ticket-date-as-renewal-date分别登记；结果提前DONE、工单旧revision覆写作为后续单独变异。所有seed为SYNTHETIC_MUTATION，不声称上游缺陷。另含未知影响、环境失败、权限受限、合同冲突、完整证据可通过/应拒绝、缺证据须补证、无需修复控制；永远转人工或回退stable删除新功能不能通过。
 
-ML-07 模型质量评估与“Verifier发现软件回归的能力”是两个实验。首期只用合成/获准图像数据验证系统协议与版本一致性，不从两张图片、模型输出分数或上游README推出分类准确率。质量评估需单独冻结标注集、切片、泄漏检查、统计方法、性能环境和门槛；不能用旧模型逐值相等要求阻止所有合法模型升级。
+业务确定性正确性、回复语义质量与“Verifier选择实验的收益”分开评估。首期回复为待人工审阅草稿，Semantic Evaluator输出独立报告，不覆盖SUP权限/政策/证据FAIL或UNKNOWN。要升级为自动对客发送门槛，另冻结rubric、标注/复核、语义grader版本、阈值、样本与不确定处置，并验证引用存在不等于正文结论成立。
 
 
 每项任务记录 dataset/task revision、source/base、seed provenance、可见 WorkOrder、独立 ground truth 引用、Profile、环境能力、允许路径、任务类别和 split。独立冻结 `task_mode=RELEASE_VERIFICATION|INCIDENT_REPAIR`、`repair_policy=DISABLED|ON_VALIDATED_FINDING`、`completion_mode=FINAL_ONLY|DRAFT_PR_CI`；Release 还需 `stable_release_manifest_ref`、`submitted_candidate_ref`、`release_changeset_ref`、`requirement_delta_ref`、`historical_coverage_refs`。`base_commit_sha/base_input_digest` 固定任务基线，Release 为 stable；后续 Coding 的 `repair_input_candidate_ref` 独立记录，不能改变该比较基线。`synthetic-seed` 明确是人为注入，不指称上游原版存在该缺陷。
@@ -42,7 +42,7 @@ ML-07 模型质量评估与“Verifier发现软件回归的能力”是两个实
 
 `accepted_release` 是本章评估指标：当前候选通过适用独立 Final、任务需求满足、相关未知/清理阻断解决，并与独立 ground truth 一致；它表示声明范围内验收正确，不代表已 Merge/Deploy。外部提交的正确新功能候选相对 stable 为 `CHANGED`，未做修复也可计 accepted_release 和按 mode 成功，必须记 `repair_success=false`，不得计入 NO_CHANGE。
 
-ground truth 先用正确功能版/缺陷版正反控制校准，记录应接受、应检出、应阻断及后续修复目标。`correct_no_change` 只适用于最终完整输入等于任务 base、任务需求满足、独立 Discovery/Final 合格且无未知/清理阻断的真实 UNCHANGED 任务；不能把“没有 Coding”或“修复前后无变化”当作该身份。`repair_success` 只在独立修复阶段判定，要求确有代码缺陷、修复该问题且保留批准新功能、无适用回归并通过当前 Final。仅空 diff、无 Coder 快照或 Run 终态不足以计算任一指标。
+ground truth 先用正确功能版/缺陷版正反控制校准，记录应接受、应检出、应阻断及后续修复目标。`correct_no_change` 只适用于最终完整输入等于任务 base、任务需求满足、独立 Discovery/Final 合格且无未知/清理阻断的真实 UNCHANGED 任务；不能把“没有 Coding”或“修复前后无变化”当作该身份。`repair_success` 只在独立修复阶段判定，要求确有候选资产缺陷、修复该问题且保留批准新功能、无适用回归并通过当前 Final。仅空 diff、无 Coder 快照或 Run 终态不足以计算任一指标。
 
 应修复却原样返回的修复任务是失败；错误声称 NO_CHANGE 单列 `incorrect_no_change`。Release 验证若漏检并错误接受 CHANGED 候选，则是错误接受/escaped regression，不应硬塞进 no-change 分类。held-out 裁决揭示 Oracle 漏检时，即使运行时曾给出成功/NO_CHANGE，也要记录评估失败和证据缺口，追加纠正记录，不改写历史。对本已正确的新功能候选做无必要改动，另计无效变更，不能算修复收益。
 
@@ -64,7 +64,7 @@ ground truth 先用正确功能版/缺陷版正反控制校准，记录应接受
 
 每次 reservation/usage 统一使用 `budget_pool=CODING|DISCOVERY|FINAL|RECONCILIATION|CLEANUP`；仅 FINAL reservation 必填 `final_purpose=MANDATORY|DELIVERY`，其余池不得填。Final 强制验收的 MANDATORY 与交付的 DELIVERY 子用途分别保护，发布/CI 不能挤占验收；对账/清理资源按第 11 章预留。三组总上限、分池/子用途规则和可调整范围在实验计划中固定，不能给 C 隐藏的恢复或额外实验额度。不能让 C 多跑一倍容器却只比较 token，也不能让 A 因不具备必要工具而必然失败。每组使用干净可重建的 fixture 和独立环境实例，避免上一组留下队列pending项、模型缓存、结果记录或故障屏障影响下一组。
 
-只有当前阶段实际必需的探索池耗尽才触发收尾；验证阶段的零 CODING 配额不是停止理由。触发时先原子记录 `exploration_closed=true` 并关闭探索派发；仅在当前候选满足第 14 章 Final readiness（送验条件，非 Final PASS）、没有当前已知代码 Finding/阻断未知、FINAL/MANDATORY 及相关恢复/清理预留和总截止时间足够时，通过 `FINAL_DRAIN_READY` 事件进入受限 FINAL_VERIFYING。可有界确认的未知先按第 11 章对账；决策截止仍不满足则 STOPPED，保留未完成结果。STOPPED 后不恢复 Coding/Discovery/Final，仅对账与清理或另建明确任务。三组采用同一规则，分别报告“探索耗尽后完成验收”“有效缺陷阻止验收”与“其他条件不足而停止”，不能选择性删除后者。
+只有当前阶段实际必需的探索池耗尽才触发收尾；验证阶段的零 CODING 配额不是停止理由。触发时先原子记录 `exploration_closed=true` 并关闭探索派发；仅在当前候选满足第 14 章 Final readiness（送验条件，非 Final PASS）、没有当前已知候选资产 Finding/阻断未知、FINAL/MANDATORY 及相关恢复/清理预留和总截止时间足够时，通过 `FINAL_DRAIN_READY` 事件进入受限 FINAL_VERIFYING。可有界确认的未知先按第 11 章对账；决策截止仍不满足则 STOPPED，保留未完成结果。STOPPED 后不恢复 Coding/Discovery/Final，仅对账与清理或另建明确任务。三组采用同一规则，分别报告“探索耗尽后完成验收”“有效缺陷阻止验收”与“其他条件不足而停止”，不能选择性删除后者。
 
 先做少量协议校准，不宣称统计效果。正式 plan 预先规定样本、重复、随机顺序/配对、预算、停止条件、基础设施失败处理和分析方法；不许看到结果后只增加对 C 有利的重复。具体样本量由目标差异、变异和可用预算确定，本文不编造固定次数能证明显著性的承诺。
 
@@ -88,7 +88,7 @@ FINAL_ONLY 与 NO_CHANGE 不执行 DELIVERY；如有原预留，确认未发送�
 | 真实缺陷 / 测试成本 | 按独立缺陷根因去重的检出数除以实际检查成本；同时给出含 Planner/环境/恢复的总验证成本口径，重复发现同一缺陷不增加分子。 |
 | 验收判断正确性 | 分别统计正确接受、正确拒绝和未决；accepted_release 必须符合本章独立真值标准，批准新行为不同于 stable 不应被错误拒绝。 |
 | 漏报与 escaped regression | 对 ground truth 的真实缺陷计算未检出率，另报错误接受候选的遗漏；分严重性/家族展示，不能用较少测试掩盖漏报。 |
-| 误报与错误归因 | 报告无效 Finding/错误拒绝、环境误作代码缺陷及人工核查负担；模型待验证假设与已宣称缺陷分开，不把假设总数直接当误报。 |
+| 误报与错误归因 | 报告无效 Finding/错误拒绝、环境误作候选资产缺陷及人工核查负担；模型待验证假设与已宣称缺陷分开，不把假设总数直接当误报。 |
 | QA 人工分钟 | 分析需求、准备环境、规划实验、复核 Finding、解释未知与审阅验收的分钟数分别记录；采集/计价方法各组一致。 |
 | 每个 accepted-release 成本 | 主验证阶段全部实耗（含失败、模型、环境、恢复、清理、人工及预定空闲分摊）/ accepted_release 数；分母为 0 标未定义。单列后续修复+再验证、交付和完整链路成本，不能隐藏失败修复。 |
 | 修复阶段质量与成本 | 仅独立修复任务报告 repair_success、修复耗时/费用与新引入回归；保留批准新功能。主验证无修复的新功能合格候选 repair_success=false，不进入有效修复分子。 |
@@ -101,17 +101,17 @@ FINAL_ONLY 与 NO_CHANGE 不执行 DELIVERY；如有原预留，确认未发送�
 
 ## 检查点 18.5：做一次可审查 native pilot
 
-首次主展示用第 09 章 release slice 证明新版本验证；原提前批准 seed 是底层校准基础。按以下顺序形成可审查证据，每一步都有失败出口：
+首次主展示用第 09 章 release slice 证明新版本验证；政策适用性与工具参数单缺陷是底层校准基础。按以下顺序形成可审查证据，每一步都有失败出口：
 
-1. 从固定 manifest 重建示例 stable 和外部提交的 candidate，展示真实 diff、批准的模型B/预处理v2新需求、保持不变的任务身份与成功时序规则、历史证据的版本/环境边界。历史覆盖仅作为先验，不宣称线上运行史，不重跑全部 stable 历史测试来冒充候选验证。
-2. 展示需求/风险/覆盖映射、检查选择和可选省略理由，Observer/Experiment Barrier 自检通过。正确功能版、late-alias-lookup、提前成功/结果缺失和预处理错配seed已按本次范围分别校准；运行时只提供获授权输入，不额外向 Agent 暴露 hidden 参考实现或 seed 答案。
+1. 从固定manifest重建stable与外部candidate，展示Prompt/语料/检索/tool schema真实diff、十一月新政策和历史事件兼容需求；模型/Worker首轮保持不变。历史证据仅作先验，不宣称生产史或复用为当前PASS。
+2. 展示需求→变化→风险假设→实验→观察→下一决策；可信工具参数/返回/授权和草稿提交轨迹可独立复核。正确功能版、latest-only和wrong-date变异分别校准；不向Agent挂载隐藏正确实现、变异标签或答案。
 3. 主验证阶段固定 RELEASE_VERIFICATION、DISABLED、FINAL_ONLY，展示“正确 CHANGED 候选无修复也可验收”和“有缺陷候选产生可信 Finding 并阻止验收”两个出口。mandatory 及变化触发检查仍执行；影响未知则扩大检查或阻断。
 4. 若展示修复，另建明确授权的修复 WorkOrder/Run，引用 Finding 和 `repair_input_candidate_ref`，保留原批准新需求。live Coding 产生新冻结候选，重新映射/检查并通过当前 Final；fake 记录不替代 live 修复，费用、时间、失败和所有尝试单列。
 5. 若声明完整 native pilot 外部交付，使用另行明确授权、准入时冻结为 DRAFT_PR_CI 的样本。它可以接收合格的新功能候选，并按当前规则重新验收；不得把已完成 FINAL_ONLY Run 改模式。人工查看精确对象，结合有效平台 qualification 批准 `CREATE_DRAFT_PR`。
 6. 第 17 章 Gateway 在自有 Fork 创建真实 Draft PR，读回目标/head，记录真实 CI；故障演示另展示 UNKNOWN 对账。仅有 FINAL_ONLY 证据时如实声明验证 pilot，不能声称已完成交付链。
 7. 清理隔离环境、归档证据，给出剩余问题、各阶段成本和评测结论。Merge/Deploy 未执行就明确写未执行。
 
-pilot 报告分层声明：`Native Pilot` 只涵盖限定原生业务和环境；`Enterprise Pilot` 另需适用强化、L2/L3、安全和运维；`Production` 需真实企业身份、数据、部署和灾备验收。不能因为使用真实模型、真实 Redis/ONNX 或真实 PR 就跳到 Production。
+pilot报告分层声明：Native Pilot只覆盖合成客服草稿与批准实验；Enterprise Pilot另需实际企业数据、身份、L2/L3及运营；Production还需对客沟通/业务动作和部署资格。真实LLM、Postgres/Redis或PR本身不产生生产资格。
 
 ## 未来命令、验收和回退
 
@@ -126,9 +126,9 @@ pnpm run pilot:assemble-report -- --run <NativePilot-Run-ID>
 
 | 验收场景 | 预期 |
 |---|---|
-| 正确模型B/预处理v2新功能候选，三组 DISABLED/CODING=0 | 直接验证且保持同一候选；合格为 CHANGED 成功，计 accepted_release、repair_success=false，不计 NO_CHANGE。 |
+| 正确十一月政策/tool schema v2候选，三组 DISABLED/CODING=0 | 直接验证同一候选；合格为CHANGED成功，计accepted_release、repair_success=false，不计NO_CHANGE。 |
 | 批准新行为与 stable 不同 | 依据 requirement_delta 验证，不误报为回归；原不变量仍检查。 |
-| 提前批准/引用字段丢失 seed | 分别经独立正反控制检出，不能用一个规则校准替代另一个。 |
+| latest-policy-only / wrong-date / 缺证据强行下结论变异 | 各自经独立正反控制检出；一次政策检查不能替代参数、依据和权限校准。 |
 | 只有历史 PASS 或 UNKNOWN_IMPACT | 不跨候选计 PASS；未知扩大检查或阻断，不让模型删 mandatory。 |
 | 某组在主验证中修复或换候选 | 判为比较协议违规，修复移到独立授权阶段并重新记账。 |
 | fake 与 live 混入同一结果集 | 验证器拒绝或强制分组，不能合算模型修复率。 |
@@ -166,4 +166,12 @@ pnpm run pilot:assemble-report -- --run <NativePilot-Run-ID>
 
 下一会话可复制：
 
-> 请按第 18 章先实现 Release QA 实验计划校验和结果汇总，不启动付费模型或创建 PR。核对第 06/08/09 章 ML release slice的需求、适用ML-C01…06正反校准和 hidden ground truth 隔离；三组固定同一候选、RELEASE_VERIFICATION、DISABLED、FINAL_ONLY、CODING=0。用明确标记的协议 fixture 验证公平预算、首个可信 Finding 时间、漏报误报、人工分钟、accepted-release 成本及零分母/未知处理，并证明无修复的新功能候选不算 NO_CHANGE 或 repair_success。建立真实 Run 导入和独立修复阶段分账接口，保留首次失败。报告哪些只是管道测试、哪些已有真实证据，以及正式 live 对照仍需的条件。
+> 请按第18章先实现GenAI Release QA实验计划校验和汇总，不调用模型或创建PR。核对06/08/09的SUP检查、正确V4/单缺陷对照及隐藏答案隔离；三组同候选、需求、业务上下文、模板、预算、mandatory，主验证为RELEASE_VERIFICATION、DISABLED、FINAL_ONLY、CODING=0。验证SUT模型/Verifier/Grader及环境全成本、重复策略、首次失败、误判/人工分钟与零分母处理；业务上下文消融另表，不削弱固定QA基线。将真实事实保存reports/artifacts；后续docs更新另获许可。
+
+## GenAI 随机性、消融与成本的补充规格
+
+1. 冻结候选、测试时钟、账单/政策fixture和样本split；真实provider/model/config、请求/响应标识与日期作为执行事实。低temperature或seed不承诺确定性。预注册每样本重复、配对/随机顺序、停止规则与基础设施失败处理，保留所有物理attempt，不看到结果后只给某组增加重复。
+2. EVAL_A/B/C继续比较固定QA、同工具只读Codex Planner、专用Verifier；三组相同业务输入和可信验收能力。另建 `CONTEXT_ABLATION`：无企业业务上下文的通用规划、有相同业务上下文的固定策略、有相同上下文的自适应策略。独立裁决标准始终相同，明确该实验测上下文和策略，不混成主对照成绩。
+3. 除pool外按SUT_LLM、VERIFIER_LLM、SEMANTIC_GRADER、CODER、ENVIRONMENT、TOOL分账。调用重试、等待、失败、恢复、清理与人工复核均计入；无账单写UNKNOWN/ESTIMATED，不作为免费。首期独立Final不复用Discovery PASS，其重复开销也必须计入。
+4. 校准semantic grader时使用独立人工标注/复核、rubric版本和冲突样本；grader输入不含变异答案，不共享Coder自证。报告与人工一致性、漏判/误判及不确定率。权限或政策断言失败不能被语义高分抵消。
+5. 增加行为陷阱样本：结构化policy_ref正确但正文错误承诺退款；一律转人工；引用真实却不适用的政策；工具越权尝试被拒绝；实际跨租户返回；模型请求超时但有费用。分别给出业务、权限、语义和执行结论，不能压成一个平均分。

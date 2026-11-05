@@ -12,7 +12,7 @@
 
 Run 的 `RECONCILING` 表示正在解释未知事实；CheckExecutionAttempt 的 `execution_status=UNKNOWN` 表示该次执行状态未知；断言轴仍为 `NOT_EVALUATED` 或 `INCONCLUSIVE`。这些状态不能被日志中的一句“成功”替代。
 
-技术超时不等于推理任务已失败或已取消；看到长期排队/执行中时，应保留队列、Worker、模型加载与结果存储的观察，不能凭测试等待超时把 Job 改成 FAILED。只在批准的任务期限/失败协议满足时判定业务终态；重投可能已产生结果时先对账。
+技术超时不等于客服 Job 已失败或已取消。长期排队/执行中时保留队列、Worker、模型代理、工具调用和草稿存储的观察；不能凭测试等待超时把 Job 改成 FAILED。LLM 响应或费用未知、工具动作未知、草稿保存未知分别登记，不能用一种 UNKNOWN 覆盖其他事实；重投前先核对已持久 Job/草稿和在途调用。
 
 恢复同时保留准入冻结的 `task_mode=RELEASE_VERIFICATION|INCIDENT_REPAIR`、`repair_policy=DISABLED|ON_VALIDATED_FINDING` 和 completion_mode。Release 先验证外部提交候选，Coding 只是可信缺陷且获准修复后的分支；重启、恢复或预算不足都不能把验证任务改造成先写代码的任务。Stable 历史覆盖可以帮助解释风险，不自动成为当前候选的通过事实。
 
@@ -115,7 +115,7 @@ BudgetReservation:
 
 | 池 | 允许的用途与发起者 | 不允许借此做什么 |
 |---|---|---|
-| CODING | repair_policy=ON_VALIDATED_FINDING 且当前可信代码 Finding 下的 Coding Attempt、模型调用及允许的局部反馈 | 未发现缺陷就改 Release 候选；改成 FINAL/恢复池继续修复，或让 Coder 自己追加额度 |
+| CODING | repair_policy=ON_VALIDATED_FINDING 且当前可信候选资产 Finding 下的 Coding Attempt、模型调用及允许的局部反馈 | 未发现缺陷就改 Release 候选；改成 FINAL/恢复池继续修复，或让 Coder 自己追加额度 |
 | DISCOVERY | 可信调度器接受的 Stable 资格/必要轻量核对、变更风险探索、参数化实验与 Planner 调用 | 默认重跑 Stable 全部历史测试；消耗 Final、恢复或清理保留额；模型自选池 |
 | FINAL | Final 协调器/可信 Runner 的当前候选强制验收；已批准 DRAFT_PR_CI 的交付动作只用单独受限的 DELIVERY 用途额度 | 新的 Coding/探索；用交付开销挤占 MANDATORY 验收额度 |
 | RECONCILIATION | 可信 reconciler 的有限 observe、事实确认、未知用量结算 | 用“恢复”名义新开模型修复、重跑业务 Final、创建未授权发布 |
@@ -149,7 +149,7 @@ RELEASE_VERIFICATION 可冻结 `repair_policy=DISABLED`，CODING 限额为零，
 
 记录候选摘要、已验证 Finding 集合、失败原因和每次尝试的增量。相同候选反复提交、反复产生同一反例、连续环境失败，都要触发明确停止策略。模型的“再试一次可能成功”不是预算豁免。
 
-当前阶段所需 CODING 或 DISCOVERY 额度耗尽，或探索时限到达时，首先原子设置 Run 的 `exploration_closed=true`，禁止新的探索/修复派发，**不能立即把所有 Run 都置 STOPPED**。未请求修复的 Release 任务 CODING=0 不触发此决定。此标记在本 Run 内不再改回 false。Runtime 在同一决策快照中核对 [第 14 章](14-final-gate-and-evidence.md) 的 Final readiness：当前可信 Candidate 已冻结、活动写入已停止、身份/合同/环境有效、无已知未解决代码 Finding、没有妨碍验收的未决执行/证据事实，并且保护的 Final 及相关恢复/清理预算与时间仍充足。这是允许送验的条件，不是 PASS，也不要求 Final 结果已经存在。
+当前阶段所需 CODING 或 DISCOVERY 额度耗尽，或探索时限到达时，首先原子设置 Run 的 `exploration_closed=true`，禁止新的探索/修复派发，**不能立即把所有 Run 都置 STOPPED**。未请求修复的 Release 任务 CODING=0 不触发此决定。此标记在本 Run 内不再改回 false。Runtime 在同一决策快照中核对 [第 14 章](14-final-gate-and-evidence.md) 的 Final readiness：当前可信 Candidate 已冻结、活动写入已停止、身份/合同/环境有效、无已知未解决候选资产 Finding、没有妨碍验收的未决执行/证据事实，并且保护的 Final 及相关恢复/清理预算与时间仍充足。这是允许送验的条件，不是 PASS，也不要求 Final 结果已经存在。
 
 若 readiness 满足，由 `FINAL_DRAIN_READY` 事件在预算和状态事务内将当前 CODING/DISCOVERY_VERIFYING 转为 `FINAL_VERIFYING`，关闭探索权限、转换 Final 预留并派发专门 Final 执行集合。接下来只用 FINAL 池完成批准验收，不因探索池为零而拒绝它。若 readiness 不满足，则记录具体原因与未完成 mandatory，发 `FINAL_DRAIN_NOT_READY → STOPPED`；合同/访问等独立阻断仍如实保留原因，不把它们当通过。
 
@@ -191,7 +191,7 @@ Final drain 必须在提交 STOPPED 之前完成分流。STOPPED 是终态，不
 | 活跃或特殊非终态 | USER_CANCELLED / STOP_POLICY_REACHED | CANCELLED / STOPPED | 用户有权取消，或非“可送验的探索耗尽”停止策略触发；探索耗尽必须先走上述 drain 判定 |
 | CANCELLED / STOPPED / FAILED / SUCCEEDED / NO_CHANGE | 无业务恢复事件 | 保持原终态 | 只允许有界 RECONCILIATION/CLEANUP 池动作并追加事实；新 Coding/检查/发布重新准入新 Run |
 
-合同 Bundle、task_mode、repair_policy、completion_mode 或授权 scope 需要改变时，不使用“前置条件恢复”事件原地修改冻结上下文，而是重新准入新 WorkOrder/Run。正常缺陷修复仅在 `exploration_closed=false`、可信代码 Finding 与既有修复授权均有效时，可按第 10 章在同一 Run 的 CODING 分支创建新 Attempt/Candidate，并重新建立该候选的检查上下文；不能借恢复事件把旧检查的 candidate 引用替换成新候选。进入 drain 后的有界对账只能补齐事实，再发 FINAL_DRAIN_READY/NOT_READY，不能恢复原 Coding/Discovery 执行。历史结果是否可引用仍受精确身份与导入策略限制。
+合同 Bundle、task_mode、repair_policy、completion_mode 或授权 scope 需要改变时，不使用“前置条件恢复”事件原地修改冻结上下文，而是重新准入新 WorkOrder/Run。正常缺陷修复仅在 `exploration_closed=false`、可信候选资产 Finding 与既有修复授权均有效时，可按第 10 章在同一 Run 的 CODING 分支创建新 Attempt/Candidate，并重新建立该候选的检查上下文；不能借恢复事件把旧检查的 candidate 引用替换成新候选。进入 drain 后的有界对账只能补齐事实，再发 FINAL_DRAIN_READY/NOT_READY，不能恢复原 Coding/Discovery 执行。历史结果是否可引用仍受精确身份与导入策略限制。
 
 当前候选 Final 满足、相关 UNKNOWN 和清理/完整性阻断解决后，按第 14 章的可信 `change_kind=UNCHANGED|CHANGED` 分流：UNCHANGED 且任务满足时，任一 completion_mode 都进入 `NO_CHANGE`，publication/CI 为 `NOT_APPLICABLE`，不建空 commit/PR；只有 CHANGED 且 `completion_mode=FINAL_ONLY` 才提交 `FINAL_ONLY_COMPLETED → SUCCEEDED`，publication/CI 为 `NOT_REQUESTED`。CHANGED 的 `DRAFT_PR_CI` 继续沿批准、发布、CI 链完成。不能从 INCONCLUSIVE、RECONCILING 或 STOPPED 直接绕过 Gate 成功。
 
@@ -211,7 +211,7 @@ Final drain 必须在提交 STOPPED 之前完成分流。STOPPED 是终态，不
 | DISCOVERY 耗尽但候选 ready、Final 保护额充足 | FINAL_DRAIN_READY→FINAL_VERIFYING，执行完整 Final | 误置 STOPPED，或因探索池为零拒绝 Final |
 | Release 修复关闭且 CODING=0，Discovery/Final 有额度 | 正常验证外部候选，零 CodingAttempt | 因未使用的 CODING 池为零提前 drain/STOPPED |
 | Release 对账恢复或修复返回无变化 | 保留提交/repair input 候选与新增需求 | 回退 Stable、静默改 repair_policy 或用历史 PASS 放行 |
-| 探索耗尽且有未解决代码 Finding/候选不可信 | STOPPED，保留缺口 | 把 readiness 当 PASS，或送验掩盖已知失败 |
+| 探索耗尽且有未解决候选资产 Finding/候选不可信 | STOPPED，保留缺口 | 把 readiness 当 PASS，或送验掩盖已知失败 |
 | FINAL 额度/硬期限不足 | STOPPED，保留未完成 mandatory | 跨池借额、部分通过、STOPPED 后继续 Final |
 | 跨池并发与未知费用 | 总额和池内同时受限；未知预留不释放 | CODING 消耗 Final/清理额、总额被并发击穿 |
 | 审批等待/发布/CI 与强制验收争用 | FINAL 用途子账隔离；DELIVERY 不足即阻断相应用途 | 占用 MANDATORY 保护额或伪造 final_purpose |
@@ -256,3 +256,11 @@ pnpm exec tsx scripts/recovery-demo.ts --profile local-isolated --provider simul
 可复制的下一次请求：
 
 > 按第 11 章先实现 EffectOperation、可控 simulator 和“提交后丢响应”的恢复测试，再实现预算预留。全部使用本地隔离资源，不调用真实付费模型或 SaaS。提交实际事件时间线和预算流水，保留未知状态，不用重试掩盖问题。
+
+## GenAI 调用预算与重试的补充验收
+
+每条 usage 除既有 budget_pool/final_purpose 外记录 `cost_role=SUT_LLM|VERIFIER_LLM|SEMANTIC_GRADER|CODER|ENVIRONMENT|TOOL`。SUT/Grader 的模型费用归属触发它的 Discovery 或 Final 检查；同一 reservation 不能由代理和 Runner 重复占用。Coding 模型使用 CODING；不能把所有进程名含 Agent 的调用都算到同一池。价格、token/调用数上限、墙钟和真实计费确认分别保存；估算及 UNKNOWN 不按免费计。
+
+同一实验的重复采样次数和停止规则在计划中冻结，保留首轮失败；不能在失败后追加“再试一次”直到绿。相同候选/参数反复产生相同观察且没有新增覆盖或证据时，按第13章的 no-progress 规则停止探索；强制 Final 的重复策略由 Profile 决定，不能由模型降为单次。
+
+增加故障矩阵：provider 已接受但代理响应丢失；响应已写证据而 CheckResult 未登记；SUT 工具请求未知但 Worker 重启；grader 超时但业务 Oracle 已失败；取消后迟到模型输出；Final 预留不足以支付 SUT+Grader 的完整批准集合。每项保持真实费用/效果与业务终态独立，禁止因重试隐藏首轮结果或绕过关闭的探索权限。

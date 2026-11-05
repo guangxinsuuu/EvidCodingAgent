@@ -79,7 +79,7 @@ revision和cursor首先视为不透明值。每个Adapter声明厂商是否保�
 
 普通SourceEnvelope不能直接变成CheckResult。运行观察必须绑定冻结candidate、Bundle、check/template/oracle、环境实例、fixture reset、seed/参数、execution_attempt、lease epoch和collector身份，并证明采集完整与因果关系。
 
-若工单引用了“任务显示成功但结果未持久化”或“执行模型版本与提交绑定不一致”日志，应生成已注册实验提案，在受控环境重新验证。只有历史材料时可以报告“存在风险线索”，不能为当前候选填PASS/FAIL。
+若工单引用“历史续费错误使用最新政策”“Job完成但草稿缺失”或“另一个租户的账单出现在回复中”，只能形成已注册实验提案。必须在受控环境按当前候选和批准规则重新取证；历史文档不是当前PASS/FAIL。
 
 ## 7. 写回独立建模
 
@@ -121,3 +121,11 @@ revision和cursor首先视为不透明值。每个Adapter声明厂商是否保�
 下一次可以说：**“按 20 先实现合成文件Connector，验证ACL变化、删除墓碑和游标恢复，再决定第一个真实来源。”**
 
 依据：[外部接入v3](../../EGAP-Order-Approval/docs/external-integration-v3.md)。当前未选择厂商账号、具体API版本或真实数据范围。
+
+## SUT 的政策检索与 EGAP 知识接入分开
+
+客服SUT的Policy KB是被测业务输入，其snapshot/index/retrieval配置进入候选身份；EGAP Connector用于取得获准资料、支持ContextBuilder和ContractProposal。两者可以读取相同批准来源，但权限、用途、缓存和证据等级分别登记，不能因SUT检索到一份政策就把它设为EGAP已批准合同。
+
+Company Verification Pack须包含规则/适用性、受控工具能力、观察与Oracle、模板、ContextBuilder映射、版本依赖和准入范围。首期为单一SaaS Support Pack，避免先做任意插件安装服务。领域ContextBuilder依据可信Tenant、账单事件和Owner批准规则解析适用性；缺失/冲突显式输出，不能只做关键词检索后让模型补写公司标准。
+
+业务资料出现新版本时生成新提案/快照，不能原地修改旧Run规则。Policy KB中保留有效历史版本与授权范围；事件日期与文档获取日期分别记录。首期合成数据可开发协议；真实工单/账单/RAG内容和外发到SUT模型、Verifier、Grader前分别通过94数据门槛。

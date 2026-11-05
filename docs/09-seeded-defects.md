@@ -1,166 +1,99 @@
-# 09 · ML 校准与发布任务集：验证真实变化，发现可信缺陷再修复
+# 09 · 客服发布任务集：正确新版本、单缺陷校准与隐藏评估
 
-状态：`NOT_STARTED`。没有自有stable模型绑定扩展、V4功能候选、人工mutation或真实评测。上游来源准备与API adapter不表示这些业务已实现。
+状态：`NOT_STARTED`。没有自有健康Stable、正确V4、人工变异或真实客服评测。来源参考冻结和客户端mock不表示这些业务已实现。前置[05](05-genai-support-baseline.md)、[06 DRAFT](06-contract-registry.md)、[07](07-observer-and-experiment-barrier.md)、[08](08-native-oracles.md)。校准后返回06.5激活，再接10–14正式执行。
 
-前置：[05](05-async-ml-baseline.md)、[06.1–06.4](06-contract-registry.md)、[07](07-observer-and-experiment-barrier.md)、[08](08-native-oracles.md)。先校准09.1–09.3，再回06.5审批激活；正式Release入口先验证已有候选，只有可信代码Finding和修复权限都成立才进入12 Coding。第10章Runtime与第13章规划器不是早期校准前提。
+## 1. 来源、派生基线与候选分开
 
-## 1. 区分来源、健康对照与发布价值
+固定OpenAI航空Demo仅提供工作流参考；SaaS工单、账单、历史政策、持久Job/草稿和可信网关是自有新增业务。先建立健康基线并正反校准，不把上游缺少我方需求称为bug。
 
-固定上游是MobileNetV2图片分类模板，没有per-job模型版本绑定或alias合同。先构造自有衍生健康版本，显式加入不可变模型/预处理manifest与任务绑定，再通过独立观察校准。不能把上游缺少新需求的事实直接标为缺陷，也不能把mock结果或版本标签当健康基线。
+Stable V3.4与Candidate V4.0是实验室发布标签，没有真实线上史。主展示为V4新增十一月政策和Tool Schema v2，同时保留十月事件适用性；第一轮固定LLM/Worker/无关Prompt，不同时变更六项。正确V4零Coding也可通过；有可信反例且获准修复才进入Coder。
 
-第一个开发校准样本 `ML-SEED-01` 是**延迟解析可变模型别名**：健康版提交时绑定A；变异版在Worker执行时才解析已切到B的别名，导致旧任务错误使用B。它验证ML-C02和治理闭环。随后ML-SEED-02提前done验证ML-C01。
+首个校准变异`SUP-SEED-01 latest-policy-only`错误丢弃历史政策；第二个`SUP-SEED-02 ticket-date-as-renewal-date`误传日期。两者分别植入，标`SYNTHETIC_MUTATION`，不暗示真实生产事故。
 
-主展示为Stable V3.4→有真实功能变化Candidate V4.0：模型B、preprocess/schema v2、批准v1兼容和Worker重构。正确新功能版无需Coding即可Final；含回归版先被独立发现，再按授权处理。不要人为规定每次必须“找一个bug修好”。
+## 2. 目录与可见性
 
-V3.4/V4.0仅服务实验标签；modelA/B有独立内容摘要，预处理/schema也各自版本化。没有真实线上证据就标“实验室稳定对照”。全部人工变异在QA校准/事后报告显著标 `SYNTHETIC_MUTATION`，不得称为上游bug或真实生产事故。
-
-## 2. 文件与可见性
-
-| 计划路径 | 读写角色 | 内容 |
+| 拟建位置 | 读者 | 内容 |
 | --- | --- | --- |
-| `datasets/ml-release-pilot/catalog.json` | 平台/评估器 | 任务与适用Profile、公开描述、资格状态 |
-| `tools/evaluation-host/seed-definitions/` | QA私有 | mutation、精确patch、目标规则、恢复答案 |
-| `tools/evaluation-host/release-scenarios/` | QA私有 | 正确V4、seed/no-seed、独立ground truth |
-| `tools/evaluation-host/src/materialize-task.ts` | 可信准备器 | 只导出授权stable/candidate对象闭包 |
-| `datasets/ml-release-pilot/releases/` | 按scope读取 | StableManifest、ChangeSet、RequirementDelta与历史覆盖投影 |
-| `packages/contracts/src/work-order.ts` | 公共协议 | 来源、候选、规则、预算和权限引用 |
-| `artifacts/evidence/seeds/<calibration_id>/` | 受控证据读者 | 全部attempt、原始事实、mutation摘要与结果 |
-| `artifacts/task-inputs/<task_id>/` | 当前Coding/Verifier | 授权源码、公开规则、差异与有效Finding |
+| `datasets/support-release-pilot/catalog.json` | 平台/评估器 | 任务、公开描述、适用Profile与资格 |
+| `datasets/support-release-pilot/releases/` | 按scope | Stable/Candidate manifest、真实ChangeSet、批准RequirementDelta |
+| `tools/evaluation-host/seed-definitions/` | QA私有 | 变异patch、答案、目标规则与校准证据 |
+| `tools/evaluation-host/release-scenarios/` | QA私有 | 正确V4、hidden案例、独立ground truth |
+| `artifacts/task-inputs/<task_id>/` | 当前Coder/Verifier | 获准候选、公开规则、差异与可信Finding |
+| `artifacts/evidence/seeds/<calibration_id>/` | 受控证据读者 | 全部attempt、原始事实、变异身份与结果 |
 
-目录叫hidden或.gitignore不能隔离答案。QA私有Git对象、正确V4、逆补丁、隐藏参数和ground truth不得出现在Coding/Verifier挂载、工具搜索或缓存中。Agent可读授权stable/candidate差异，以便做真实变更分析；不得因此获得QA完整仓库或本章的私有实现配方。
+hidden目录名或.gitignore不构成隔离。QA完整Git对象、正确参考实现、逆补丁和隐藏fixture不能挂载给Planner/Coder或进入其搜索/缓存。第一条公开演示只算校准；正式价值评估使用另建隐藏组合，不能声称已公开答案仍是盲测。
 
-## 3. 09.1 建立自有健康对照
+## 3. 09.1 健康基线与最小业务矩阵
 
-固定上游源码与模型/输入/预处理工件，记录显式业务扩展patch及原因。健康业务至少能将提交时选择的模型/预处理不可变身份写入任务，并确保Worker使用该身份；结果可独立关联实际执行工件。07的可信观察和屏障位于候选权限外。
+先锁代码/依赖、Prompt、provider/model配置、语料/索引/检索、工具Schema/adapter、输出schema、workflow、fixture和clock；记录可取得的真实模型返回身份，不造权重hash。
 
-分别记录 upstream、derived stable、build、business、model、preprocess/schema、environment、Oracle/Observer/barrier与fixture。05 smoke和07/08适用独立检查通过后才登记 `healthy_baseline_ref`；仍为file-lab/calibration-only，不自动获得发布资格。
+至少覆盖：十月事件适用十月政策；十一月事件适用新政策；证据充分的ELIGIBLE/INELIGIBLE；CS-1042缺使用/合同事实为NEEDS_MORE_EVIDENCE；合同冲突；A/B tenant隔离；未批准敏感效果；draft与DONE关联。范围未承诺的能力明确延期，不能偷偷删除已承诺规则。
 
-基线失败先查环境、观察和业务承诺，不能继续植入一个难以归因的mutation。缺功能必须先作为显式业务建设处理，不能让Coder根据验证失败随意设计合同。
+05真实smoke和07/08适用Oracle校准通过后才能登记healthy_baseline_ref，早期仍为file-lab/calibration-only。基线失败先查环境、观察和规则，不叠加mutation制造不可归因失败。
 
-## 4. 09.2 一个最小、可观察的模型版本mutation
+## 4. 09.2 单缺陷与因果对照
 
-ML-SEED-01只改变模型选择时点：从提交时冻结不可变身份，改为Worker执行时读取可变alias。保持输入、模型工件、预处理、队列与Oracle不变；若mutation只引起import/构建失败，它是构建样本，不是版本一致性反例。
+SUP-SEED-01仅改变检索过滤/索引，使历史事件得到latest政策；账单事件、工具参数、LLM配置、规则和Oracle不变。证明目标路径确实运行、错误政策实际被返回/采用；如果只导致构建失败，不是政策语义反例。
 
-实验步骤：提交绑定A的job→可信控制确认目标等待→alias切B→释放→观察实际加载与结果。必须证明A/B内容不同、切换确实发生、目标路径确实执行；仅修改版本字符串不能构成有效样本。
+SUP-SEED-02仅改变日期参数映射；检索器在给定日期下保持正确。观察实际工具参数以区分映射与检索根因。若只看到错误答案而缺trace，不能宣布是哪一类缺陷。
 
-QA私有记录父基线、patch/hash、目标ML-02、预期观察点、非目标约束与所需能力。给Coder的输入是批准规则、可验证反例和允许路径，不包含逆补丁或“把哪行改回去”的答案。
+QA私有记录parent、patch/digest、业务revision、目标规则、非目标约束、最小证据与恢复方式。候选允许修改路径中可以包含Prompt/检索配置/工具适配器，但不允许改业务标准、Oracle或隐藏答案。
 
-## 5. 09.3 三组校准与敏感性
+## 5. 09.3 正反、恢复与坏观察器
 
-| 对象 | 目标事实 |
-| --- | --- |
-| 健康衍生基线 | 旧job实际使用A，新job使用B，二者完成且身份正确 |
-| ML-SEED-01 | 旧job实际使用B，与提交绑定违背 |
-| 可信恢复对照 | 同一实验条件消除反例，其他功能仍成立 |
+每个样本运行健康→单变异→撤销变异后的恢复对照，使用独立fixture/reset和冻结重复策略。还要运行坏观察器/缺权限/断trace；它们必须拒绝通过而非补造事实。不得用重跑到绿替换首次失败。
 
-预先固定重复计划、窗口、故障位置和seed，全部物理attempt由LabLedger登记并绑定真实epoch、fixture、DRAFT bundle。任何失败不能被最后一次成功覆盖。复现不稳定先处理屏障、模型缓存/加载身份或fixture；不满足资格则UNQUALIFIED。
+模型输出不逐字比较。硬规则反例与语义报告分开，完整证据才能判定；环境/provider失败不算成功检测业务缺陷。固定样本数/重复/预算和停止条件，保留失败与未知费用。
 
-增加ML-SEED-02时同样跑健康/提前done/恢复三组，必须捕获结果未提交时的非法done轨迹。Oracle变更要独立审核、新revision和重新校准，不能为了让mutation“失败得正确”临时修改期望。
+## 6. 09.4 正式WorkOrder与任务冻结
 
-## 6. 09.4 正式WorkOrder与任务输入
+WorkOrder冻结`task_mode=RELEASE_VERIFICATION|INCIDENT_REPAIR`、`repair_policy=DISABLED|ON_VALIDATED_FINDING`、`completion_mode=FINAL_ONLY|DRAFT_PR_CI`，以及tenant/repo/scope、候选、规则、预算和允许修改资产。Release输入至少含stable_release_manifest_ref、submitted_candidate_ref、release_changeset_ref、requirement_delta_ref、historical_coverage_refs。
 
-校准完成后回06.5确认模型绑定、持久性、时间、重试和兼容语义及真实Owner决定，激活对应Bundle。DRAFT可先保存和校准，不能伪造ACTIVE或签名。正式准入由10冻结，历史校准不自动升级为当前Final。
+base_commit_sha/base_input_digest是稳定比较基线；CodingAttempt.repair_input_candidate_ref是当前待修候选，两者不能混用。外部功能候选先可信封存，不要求先出现CodingAttempt。修复后保留submitted候选谱系，重新计算Stable→当前候选差异；不通过替换checkpoint引用冒充同一次验证。
 
-```ts
-type WorkOrderCommon = {
-  work_order_id: string;
-  tenant_id: string;
-  repository_id: string;
-  base_commit_sha: string;
-  base_input_digest: string;
-  contract_bundle_ref: string;
-  allowed_paths: string[];
-  prohibited_asset_refs: string[];
-  budget_profile_ref: string;
-  repair_policy: "DISABLED" | "ON_VALIDATED_FINDING";
-  completion_mode: "FINAL_ONLY" | "DRAFT_PR_CI";
-};
-type ReleaseWorkOrder = WorkOrderCommon & {
-  task_mode: "RELEASE_VERIFICATION";
-  stable_release_manifest_ref: string;
-  submitted_candidate_ref: string;
-  release_changeset_ref: string;
-  requirement_delta_ref: string;
-  historical_coverage_refs: string[];
-};
-type IncidentRepairWorkOrder = WorkOrderCommon & {
-  task_mode: "INCIDENT_REPAIR";
-  source_artifact_ref: string;
-  symptom: string;
-  baseline_reproduction_refs: string[];
-};
-```
+early file-lab身份、正式Run和评估任务分别登记来源映射。DRAFT校准不能被命名替换为正式Final；隐私/费用/权限准入按15/94及实际通道分别核验。
 
-实际类型与contracts统一，上例不是已实现DTO。完整输入摘要还绑定代码/依赖/配置/模型/标签/预处理/schema/数据集与运行时；不能只固定Git commit后让模型文件漂移。
+## 7. 09.5 成功、修复与NO_CHANGE
 
-Release的base是冻结stable；submitted candidate含真实新增功能。CodingAttempt另记 `repair_input_candidate_ref`，从触发Finding的当前候选继续，不从stable重建丢掉功能。Incident的base是fault输入而非健康答案。Git直接parent、任务比较base和候选修复谱系分别核验。
+正确CHANGED V4在repair DISABLED/CODING=0下可直接独立Final；这是候选验收成功，不是repair_success或NO_CHANGE。CANDIDATE_DEFECT还需可信Finding、允许asset_kind/path和授权预算才能修复。规则模糊交Owner，provider不可用处理环境，不自动改Prompt追绿。
 
-Release先验证；`DISABLED`禁止任何Coding，`ON_VALIDATED_FINDING`仍需当前独立代码缺陷及scope/预算。环境、权限、合同不清转对应责任方，不靠改业务绕过。默认FINAL_ONLY不产生远端写入；DRAFT_PR_CI须明确仓库、动作与批准并满足15–17资格。
+Coder无修改提案须封存真实输入候选；不能丢掉提交时已有新功能，也不能空snapshot跳验收。仅最终完整输入等于任务base且需求满足时才可NO_CHANGE。两种completion mode下NO_CHANGE均无空PR。修复成功需缺陷被可信关闭、批准新功能与兼容要求仍满足；回退Stable删除十一月/schema v2能力必失败。
 
-首个mutation修复只授权模型选择/任务绑定的窄业务路径及必要开发测试；trusted Oracle、隐藏答案、权限策略、依赖安装脚本默认禁止。V4涉及schema与预处理的允许路径另行明确，不能沿用窄scope偷偷扩大。
+## 8. 09.6 扩展样本与禁止混算
 
-## 7. 09.5 修复成功与NO_CHANGE
-
-成功必须在当前冻结候选上满足批准需求与全部适用mandatory，模型/输入/结果身份和证据闭包完整。永久queued、全部failed、关闭Worker、伪造版本字符串、删除新功能、修改Oracle都不是修复。
-
-合法的局部回退可以修复缺陷，但不能回滚整个V4到V3.4或删模型B/schema v2来逃避新功能验收。无缺陷V4可以不运行Coder，仍相对stable为CHANGED；独立验收成功不计为AI修复成功。
-
-NO_CHANGE只有最终**完整输入**与冻结任务base相同且任务全部满足时成立。即便Coder无修改，也须可信封存现有Candidate、独立Final与明确终态；不能用“模型说没必要改”替代验收。有缺陷而不修不能计repair_success。
-
-## 8. 09.6 扩展样本目录
-
-| 样本 | 目标 | 需要补齐 |
+| 后续样本 | 目标 | 前提 |
 | --- | --- | --- |
-| ML-SEED-01 延迟alias解析 | ML-02 | 实际模型身份、精确排队控制、正常活性 |
-| ML-SEED-02 提前done | ML-01 | 结果提交屏障、完整状态轨迹、持久性边界 |
-| ML-SEED-03 错preprocess/schema | ML-03/06 | 输入snapshot、批准转换与兼容矩阵 |
-| ML-SEED-04 重投冲突/旧Worker覆盖 | ML-04/05 | 真实重复、崩溃、租约/fencing和写入历史 |
-| 无缺陷新功能候选 | 正确无需修复 | 同样Final与新需求覆盖 |
-| 环境故障/合同歧义 | 准确停止和归因 | 不产生伪代码Finding或无权修改 |
+| Prompt遗漏合同例外 | SUP-04/07 | 可信事实+独立关键claim判定 |
+| 票据/RAG中的Prompt Injection | SUP-02/03/08 | 网关权限和完整实际效果证据 |
+| 旧revision迟到提交 | SUP-05 | 精确claim/commit屏障、DB条件写 |
+| 提前DONE或写失败 | SUP-06 | 完整提交轨迹与非干扰屏障 |
+| Handoff上下文缺失 | 新批准需求 | handoff schema/规则/观察已定义 |
+| 换LLM/embedding/reranker | 质量/选测变化 | 版本、数据、重复、成本与评分资格 |
 
-目录项在能力和正反校准通过前保持PLANNED/UNQUALIFIED，不按样本数量声明覆盖。
+不要把所有样本混入首个发布。每次扩展重新确定适用检查和未知范围，逐项校准。模型随机失败不是可以随意归因的固定种子缺陷。
 
-## 9. 09.7 公平评测边界
+## 9. 09.7 公平评估边界
 
-按缺陷家族拆分开发、演示和held-out；相近patch、相同alias/schema变体属于潜在泄漏。公开演示记忆不能直接带进held-out。公开上游可能已被模型见过，报告说明限制。
+18主对照固定QA、同工具只读Planner、专用Verifier使用同候选、业务输入、能力、预算和mandatory；主验证关闭修复，修复收益另账。SUT LLM、Verifier、grader、Coder与环境/重试全部计费。无业务上下文/有上下文固定策略/有上下文自适应作为独立消融，不混称同一三组。
 
-18章三组使用同stable/candidate、规则、历史覆盖、工具、预算和Final。主对照固定Release+DISABLED+FINAL_ONLY；修复另建授权任务，不让某组先改候选再继续与其他组比发现率。衡量漏报/误报、首次有效Finding、测试成本、人工时间与有效覆盖，而不是要求多跑测试。
+先预注册split、样本、重复/随机顺序、异常处理、错误接受/遗漏/误报、首个可信Finding时间和人工分钟。公开校准不能证明隐藏任务泛化；一次漂亮Demo不证明统计收益。
 
-将来seed/materialize/export命令须实现注册后才可运行；QA生成入口不向Coder开放。公开manifest与私有答案分离，正式导出校验ACTIVE Bundle和completion_mode。
+## 10. 09.8 主展示步骤
 
-## 10. 09.8 主展示：模型与预处理升级发布
-
-| 变更 | 本次目标 | 进入正式验收前必须明确 |
-| --- | --- | --- |
-| 模型A→新增可选择的模型B | 新提交任务能使用获准B；旧任务保持提交绑定 | 模型字节/许可/输入输出、选择器更新与不可变绑定语义 |
-| preprocess/schema v2 | 新输入处理链真实发生变化，保留批准v1兼容 | schema版本、转换/拒绝、缺省与历史任务、输入输出容差 |
-| Worker重构 | 调度/加载/写入组织变化但保持旧不变量 | 允许路径、缓存、结果先提交、claim/fencing与恢复范围 |
-| 低风险文案对照 | 验证影响分析能区分非业务变化 | 不因低风险文案跳过强制安全项，也不无理由启动高成本故障矩阵 |
-
-实施顺序：
-
-1. 固定derived stable完整输入与历史覆盖，准备真实含新增功能的candidate和RequirementDelta；代码变化、模型字节变化与语义假设分别记录。
-2. 回06/08补适用ML-C02/03/06及ML-C01安全项，明确支持/不支持组合；ML-C04/05若被发布承诺触发必须补齐，ML-C07没有资格就明确不评价模型质量。
-3. QA准备无seed正确候选、late-alias回归候选、preprocess/schema错配候选及恢复对照；每个回归单独证明目标违规，不把单缺陷旧版本改个标签充数。
-4. Release入口可信封存后，Verifier分析影响、选择注册模板/批准参数。历史覆盖只辅助排序；未知影响扩大检查或QA复核，强制项不可删。
-5. 有效Finding且授权才Coding，修复从当前candidate继续；重新冻结完整输入与谱系，再验证新功能未丢失。
-6. 当前候选Final通过后按change_kind/completion_mode结束或进入精确人审。Draft PR/CI不等于自动合并、上线或真实业务生产资格。
-
-证据包括源/模型/预处理摘要、ReleaseChangeSet、RequirementDelta、历史覆盖、风险→实验选择、原始观察、Finding、全部attempt与修复谱系。主展示完成必须靠这些事实，不能靠流程图或模型复述预设答案。
+1. 展示Stable与提交V4的完整manifest、真实差异和批准新需求，标实验室标签。
+2. Verifier读取获准业务上下文，提取检索/工具变化，形成风险假设；未知影响明确保留。
+3. 选择政策日期边界、工具参数对照、缺证据与适用权限检查；说明成本与可选省略。
+4. 从实际工具记录区分错误参数与错误检索；无法区分则补证，不能提前指定根因。
+5. 正确V4独立通过；有变异V4产生可信反例并阻断。修复只在另有授权时执行。
+6. 修复后重新冻结候选、验证新功能与旧语义，再Final；按任务模式结束或精确审批Draft PR/CI。
 
 ## 11. 负例与交接
 
-| 负例 | 处理 |
-| --- | --- |
-| mutation未命中或只导致构建失败 | 拒绝对应业务样本资格 |
-| 健康基线同样失败 | 停止，排查环境/规则/观察，不派发自动修复 |
-| A/B只换标签、实际模型字节相同 | 实验不具区分性，重新准备 |
-| 只有版本自述字段，没有实际加载证据 | INCONCLUSIVE，不能ML-C02 PASS |
-| QA答案/Git对象经路径、缓存泄漏 | 评测无效，重建可见性 |
-| 无可信Finding即Coding或DISABLED改代码 | 拒绝派发 |
-| 回滚V4删除新功能 | 新需求/兼容验收拒绝 |
-| 无修复V4被标NO_CHANGE | 按完整base/candidate摘要纠正分类 |
-| Oracle/环境变更仍复用旧PASS | 身份拒绝，重新校准 |
-| 只保留最后一次成功 | 证据不完整，资格拒绝 |
+- [ ] 用工单日期代替续费日期、仅保留latest政策均可被独立区分。
+- [ ] 缺使用/合同信息不误判ELIGIBLE；完整信息不靠永远转人工通过。
+- [ ] 未发生的模型调用、工具效果或持久提交不能被日志伪装。
+- [ ] 删除新功能、改政策答案、改Oracle或读hidden答案均拒绝。
+- [ ] 合法新行为不因不同于Stable被误报回归。
+- [ ] 身份/环境/Oracle漂移、provider失败和坏观察器不能成为业务PASS。
 
-保持失败历史，新patch/环境/Oracle均新revision。下一步应先完成真实ML环境与自有健康能力；在07/08可裁决之前，本章样本和正式Agent修复均保持未开始。
+校准后先返回06激活，再接10–14；不在09偷偷实现发布或将公开seed当正式效果评估。

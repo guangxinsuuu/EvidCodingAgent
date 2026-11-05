@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "business_id": "genai-support",
+  "repository": "https://github.com/openai/openai-cs-agents-demo",
+  "commit": "bd7bfca0f5abf50529370814c3e7c88542011925",
+  "tree": "2a42aef137e25a239b5b5ed6ad90f21e81d057e7",
+  "file_count": 43,
+  "files": [
+    {
+      "path": ".gitignore",
+      "git_blob": "c7491cb8cf3d995f2d1383561637639b46fc039d",
+      "mode": 420,
+      "size": 1847,
+      "sha256": "d5dfcc8db2be6fcbfb913e16e20127795e9de7846a9adf9ca4f3e2ade41a1349"
+    },
+    {
+      "path": "LICENSE",
+      "git_blob": "ad0abbc418591dbe85544150546714dd4603d78a",
+      "mode": 420,
+      "size": 1053,
+      "sha256": "fdd680f28af4ae4e155cc35b3d37da81d57ffa94359fceb53fcb4c11d5ce2c0d"
+    },
+    {
+      "path": "README.md",
+      "git_blob": "d8cc8538f315848a50c0a1e98bf1251c49ebde22",
+      "mode": 420,
+      "size": 7978,
+      "sha256": "9afc1e50240d115b729137130d073fb61abd556d479bec38fcfeb27cb4eb27f3"
+    },
+    {
+      "path": "python-backend/__init__.py",
+      "git_blob": "c5f721d39f31a9a0a9e4fe26dc2de8531e4d60e7",
+      "mode": 420,
+      "size": 34,
+      "sha256": "aa5fc613daf6f5271b2cc462abb72853beb6e1100e654dd09b819a09692b0d73"
+    },
+    {
+      "path": "python-backend/airline/__init__.py",
+      "git_blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "mode": 420,
+      "size": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "python-backend/airline/agents.py",
+      "git_blob": "832a34fa729298b99579a59c877a119967c58d65",
+      "mode": 420,
+      "size": 11655,
+      "sha256": "5150198e01821dfefa8648a1b64fca969cc7b46e2ab39aae6b245049a7309682"
+    },
+    {
+      "path": "python-backend/airline/context.py",
+      "git_blob": "dd5247ccb617c12f2aa7ce83180bdd0dbc569ad0",
+      "mode": 420,
+      "size": 1887,
+      "sha256": "eaff31dd08df35bcf8378e23381af2050fa4b9a9b84451b444b2b4a454ebbe47"
+    },
+    {
+      "path": "python-backend/airline/demo_data.py",
+      "git_blob": "1e91e5cf157ee5ca5879679668c7d129ba55ff3f",
+      "mode": 420,
+      "size": 4959,
+      "sha256": "45f3cf7ae50dea154345c98db1945b74c5fb9cd3b2f22dff9bf4a76cf6b5d4ba"
+    },
+    {
+      "path": "python-backend/airline/guardrails.py",
+      "git_blob": "1bb1691a708e00c893f481c89b5a5b120b1836bb",
+      "mode": 420,
+      "size": 3438,
+      "sha256": "a8ceeb9db9f10e62fe0e4f486487b3786f70b55a7e9a19642a4dbfe764a64caa"
+    },
+    {
+      "path": "python-backend/airline/tools.py",
+      "git_blob": "2964a5109b625c6cc3a03fc926a268ee7eb015f7",
+      "mode": 420,
+      "size": 15766,
+      "sha256": "5e3489be4afd106357769e3f467abbff9ddf0fa03d0baaa7ab5f93ff230c4409"
+    },
+    {
+      "path": "python-backend/main.py",
+      "git_blob": "46e16beab58796346a40388f3f822c365df8befc",
+      "mode": 420,
+      "size": 3150,
+      "sha256": "bad9367fcb9f42e8130638c277f335535d9cbc2b3cf2af4a231285c4f52244c7"
+    },
+    {
+      "path": "python-backend/memory_store.py",
+      "git_blob": "789b7688159aba94ff0eab293905d813ff7c7d15",
+      "mode": 420,
+      "size": 6272,
+      "sha256": "82b2efa5ea2997a0d78d9cad9bbcadc93485bda0b93048445bef44d1731b7053"
+    },
+    {
+      "path": "python-backend/requirements.txt",
+      "git_blob": "219a35da02f23e10b63d9896ea28b3f028f646b2",
+      "mode": 420,
+      "size": 54,
+      "sha256": "71399dbdf0c032ec1a8720d5415d98206fe8549b7e99f26f636f1a9724bfda89"
+    },
+    {
+      "path": "python-backend/server.py",
+      "git_blob": "baac33ce544cb3759e55b2ea268c8f1dfc234bfc",
+      "mode": 420,
+      "size": 21208,
+      "sha256": "2ceb7406b2b93ceb5cd4f1507982b4430c31230c77b3d7d421d2ccf76dce9e16"
+    },
+    {
+      "path": "screenshot.jpg",
+      "git_blob": "412dd9ce51f0f725b1c18c3255256e0f948701f9",
+      "mode": 420,
+      "size": 903273,
+      "sha256": "0c35d0cee0849425ad3a4eead5061628ad58d7e8063b0a1982c2b6a93b101517"
+    },
+    {
+      "path": "ui/app/globals.css",
+      "git_blob": "b4a44c875f66af2e06a837c71e044cc34d82310a",
+      "mode": 420,
+      "size": 1565,
+      "sha256": "e57c517244aa087272d12a479911b4772931095db8f869c768ff81397f217a02"
+    },
+    {
+      "path": "ui/app/layout.tsx",
+      "git_blob": "bdd3ce2567c73bb8965dd9188702b45e1261f2d4",
+      "mode": 420,
+      "size": 775,
+      "sha256": "8a6ce5ba752d999ac458f763a0a297193668e935860473cb9b4a1bd5fb786fd3"
+    },
+    {
+      "path": "ui/app/page.tsx",
+      "git_blob": "189d2d33d5877aa90fc08376378dd871a9594d02",
+      "mode": 420,
+      "size": 4020,
+      "sha256": "b1f38a4e75ef9cda91a37a54130f4d1745b528c7818b6d9580fff076f1a7abd9"
+    },
+    {
+      "path": "ui/components.json",
+      "git_blob": "d9ef0ae537daba0b9fb71e78522e5aa763c4de93",
+      "mode": 420,
+      "size": 443,
+      "sha256": "1fe240f38a947a22d79d8b8afd880a3e1938eb34b905ccba2602aa269f16d388"
+    },
+    {
+      "path": "ui/components/agent-panel.tsx",
+      "git_blob": "09dc9e35528835c6189bed23258d030273e9ac22",
+      "mode": 420,
+      "size": 1660,
+      "sha256": "8bf9bd13c603d61ffa24bb7b0f75f42c9fa86743049b93aebd63dbdc32ad75b0"
+    },
+    {
+      "path": "ui/components/agents-list.tsx",
+      "git_blob": "85f71afd19547528d74981e1e8106117bfee718c",
+      "mode": 420,
+      "size": 1840,
+      "sha256": "097b3be7af7771aa7631f1c659f6894f4c54698a4752c2bf77758cacae284af5"
+    },
+    {
+      "path": "ui/components/chatkit-panel.tsx",
+      "git_blob": "d5ca166f3e64e3d72a5d2e1ec3a5748bbad3450c",
+      "mode": 420,
+      "size": 2960,
+      "sha256": "6b4a42a09b16a296df63d56215d875c1c4d0a3eb576e6a1caf5456838b94250d"
+    },
+    {
+      "path": "ui/components/conversation-context.tsx",
+      "git_blob": "743ddc840c010ee9420a93fa39f74dc7f7d29943",
+      "mode": 420,
+      "size": 2564,
+      "sha256": "2bd2bd38d5485520a1877d66a480bb11259b30297f6949140712827700942df5"
+    },
+    {
+      "path": "ui/components/guardrails.tsx",
+      "git_blob": "aa0bf1a60f33ed5de2fb31f8e06089c79fb4e68f",
+      "mode": 420,
+      "size": 2979,
+      "sha256": "aebb794d150ffa6d5341de72d80d9d3e49b42cf93130e4ba8f5fef49fa3aedf7"
+    },
+    {
+      "path": "ui/components/panel-section.tsx",
+      "git_blob": "0855094973c42dc6901011320668bfb7f2d48779",
+      "mode": 420,
+      "size": 969,
+      "sha256": "aef0de013878b4064125b7fe0d669e74f8e78e59b4c4792e427a7e43ac3f3090"
+    },
+    {
+      "path": "ui/components/runner-output.tsx",
+      "git_blob": "f8a660983fda580ac3e79b0dccc62f6d4fd317f5",
+      "mode": 420,
+      "size": 9388,
+      "sha256": "e095024d92d208e21bb2b2531fdd9f5123ac75c12003ddd15881122eb6f2cb4e"
+    },
+    {
+      "path": "ui/components/seat-map.tsx",
+      "git_blob": "69172ad013980219c9d0b32105dc5b6896910aa6",
+      "mode": 420,
+      "size": 6901,
+      "sha256": "b2e6f83af52fc378221a994ce8e50270b7ae7b0346d2b23bbd35c463e90e7a8c"
+    },
+    {
+      "path": "ui/components/ui/badge.tsx",
+      "git_blob": "2409a329dabd55956d5aafa5167fd435a53b5215",
+      "mode": 420,
+      "size": 1120,
+      "sha256": "2f1a4d33e9368168413d720c1fe645596ceacb04aad126d36193f11601353a68"
+    },
+    {
+      "path": "ui/components/ui/card.tsx",
+      "git_blob": "f62edea578d50058bef5e6bcc178b88d145564e9",
+      "mode": 420,
+      "size": 1858,
+      "sha256": "69afcf9c8e58ca6c3acf43c5b1ec9186bb6c88952f0ff49345dd2666f93d5480"
+    },
+    {
+      "path": "ui/components/ui/scroll-area.tsx",
+      "git_blob": "0b4a48d87fabda1c6e9612172abb56a78e26c14f",
+      "mode": 420,
+      "size": 1656,
+      "sha256": "edbaecbc4f5cb6e16ecb39d3678d81b26e1a968dfc273dbb77821de3c8626377"
+    },
+    {
+      "path": "ui/lib/api.ts",
+      "git_blob": "9fb8ce06265a5e6f7cc70dea8d9956bb657db590",
+      "mode": 420,
+      "size": 690,
+      "sha256": "d5b2671d9051fce2fc3fc7c298b29453e14e6aa1e2f42c69a01dba5427ba9f83"
+    },
+    {
+      "path": "ui/lib/types.ts",
+      "git_blob": "4ab557e80accfc589054fa0feb7a80c730872d05",
+      "mode": 420,
+      "size": 953,
+      "sha256": "aafbab3f6a69bcc9d29a84ca3d09bc7854220a5705f2a5ae36434572450948b1"
+    },
+    {
+      "path": "ui/lib/utils.ts",
+      "git_blob": "bd0c391ddd1088e9067844c48835bf4abcd61783",
+      "mode": 420,
+      "size": 166,
+      "sha256": "7c8c3dfc0cdd370d44932828eb067ef771c8fe7996693221d5d4b90af6d54f2d"
+    },
+    {
+      "path": "ui/next-env.d.ts",
+      "git_blob": "830fb594ca2970a827555c28a253b097367e08d8",
+      "mode": 420,
+      "size": 262,
+      "sha256": "85ae5aee75f011967cf2d25cbc342f62d69314e9d925f7f4aa3456fc2cffcca6"
+    },
+    {
+      "path": "ui/next.config.mjs",
+      "git_blob": "964e172ddf1be67ea2a47e6b1cd76229b1301908",
+      "mode": 420,
+      "size": 516,
+      "sha256": "1e74f1f458bf66830db05b9067f3ac00f338cacc0ee56a32b4667d4fedbedca4"
+    },
+    {
+      "path": "ui/package-lock.json",
+      "git_blob": "525548245e8acb1ffeb41b67058f2ef61567fd55",
+      "mode": 420,
+      "size": 176349,
+      "sha256": "9aa5e72e3a326c27ceaf9a222e3891dc30df500d9b0884cdf61030769bcea826"
+    },
+    {
+      "path": "ui/package.json",
+      "git_blob": "6d613c825e5649e95f3e81955a13e694c4f7ed74",
+      "mode": 420,
+      "size": 1183,
+      "sha256": "9b8c9b4ba1f15a6b68c111e94fc71b44071ea64b021d510469d41eb3fe17180d"
+    },
+    {
+      "path": "ui/pnpm-lock.yaml",
+      "git_blob": "ca98c4816d12a9c6f8cff1b89c7ad1281b5a3dc0",
+      "mode": 420,
+      "size": 92,
+      "sha256": "82ec0ef5f42a03e9ec68bb84a85223e87c046ffc3efb38ff34a96228e02f5199"
+    },
+    {
+      "path": "ui/postcss.config.mjs",
+      "git_blob": "1a69fd2a450afc3bf47e08b22c149190df0ffdb4",
+      "mode": 420,
+      "size": 135,
+      "sha256": "ac31e2a95ef64fe27ceb4124e101675273107aae2e33bc490b01d919e7f03646"
+    },
+    {
+      "path": "ui/public/openai_logo.svg",
+      "git_blob": "4334a9dfe07492af1fff86a7f50136795857e98b",
+      "mode": 420,
+      "size": 3273,
+      "sha256": "a60015dff9e88ad4801ab7f1ba5461283ccde4ddf315a6802d2f56897feaafe6"
+    },
+    {
+      "path": "ui/tailwind.config.ts",
+      "git_blob": "8332492ec81cf124a80d5cb43caadbfeae0f4bd4",
+      "mode": 420,
+      "size": 2211,
+      "sha256": "bc0ef95c84edf4656e2fb485b4cada29560e2457d1d4f650e8e3fd2bfcc98d7a"
+    },
+    {
+      "path": "ui/tsconfig.json",
+      "git_blob": "9483e7b8354c358ae47906bfafa70d71759d3362",
+      "mode": 420,
+      "size": 629,
+      "sha256": "70a1e4c2d1eb896d3dfd96351470a8c9302ae51e32aff02c1e11cb6da3dfd72b"
+    },
+    {
+      "path": "ui/tsconfig.tsbuildinfo",
+      "git_blob": "ab113d794e76c093a03ba38751746bd3eac1d778",
+      "mode": 420,
+      "size": 199279,
+      "sha256": "1b7ed600c814b0ee15cb4e53ff40274f9470ca43218fd176ba78bfdb6c028392"
+    }
+  ]
+}
