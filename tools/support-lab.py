@@ -118,10 +118,13 @@ def initialize_databases(directory: Path) -> dict:
         "redis_url": f"redis://:{secrets['redis_password']}@127.0.0.1:{metadata['ports']['redis']}/0",
     }
     Store(values["database_url"]).migrate_and_seed(load_fixture_bundle(DEFAULT_FIXTURE_PATH))
+    from genai_support.integrations.persistence import IntegrationStore
+    IntegrationStore(values["database_url"]).migrate()
     GatewayStore(values["gateway_database_url"]).migrate()
     with psycopg.connect(values["database_url"], connect_timeout=3) as connection:
         connection.execute("GRANT USAGE ON SCHEMA egap_support TO support_reader")
         connection.execute("GRANT SELECT (job_id,tenant_id,ticket_id,ticket_revision) ON egap_support.support_jobs TO support_reader")
+        connection.execute("GRANT SELECT ON egap_support.external_inputs TO support_reader")
     save(directory / "connections.private.json", values)
     return values
 
@@ -241,7 +244,13 @@ def require_previous_launch_stopped(directory: Path, state: dict) -> None:
             raise RuntimeError("EXISTING_MODEL_CHILD_REQUIRES_STOP")
 
 
-def start_services(directory: Path, mode: str, model: str, *, max_calls: int = 12) -> dict:
+def start_services(directory: Path, mode: str, model: str, *, max_calls: int = 12,
+                   integration_config: Path | None = None) -> dict:
+    """实验宿主启动真实角色；可选外部来源配置以私有冻结副本绑定本次环境。
+
+    首次写入后不得用新客户映射替换同一环境；修改接入配置须创建新环境。
+    Gateway只获得来源类型与只读DSN，不获得外部产品凭据。
+    """
     metadata = json.loads((directory / "environment.json").read_text())
     if mode != metadata["config"]["mode"] or (mode == "LIVE_MODEL" and model != metadata["config"]["model"]):
         raise RuntimeError("ENVIRONMENT_MODE_MODEL_MISMATCH")
@@ -252,6 +261,19 @@ def start_services(directory: Path, mode: str, model: str, *, max_calls: int = 1
         raise RuntimeError("ENVIRONMENT_EXPIRED")
     previous = json.loads((directory / "runtime.json").read_text()) if (directory / "runtime.json").exists() else {}
     require_previous_launch_stopped(directory, previous)
+    frozen_integration = directory / "integration.private.json"
+    if integration_config:
+        if integration_config.is_symlink() or integration_config.stat().st_mode & 0o077:
+            raise RuntimeError("PRIVATE_INTEGRATION_CONFIG_REQUIRED")
+        integration_value = json.loads(integration_config.read_text())
+        expected_digest = metadata["config"].get("integration_config_digest")
+        actual_digest = hashlib.sha256(json.dumps(integration_value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if expected_digest != actual_digest:
+            raise RuntimeError("INTEGRATION_CONFIG_IDENTITY_MISMATCH")
+        if frozen_integration.exists() and json.loads(frozen_integration.read_text()) != integration_value:
+            raise RuntimeError("INTEGRATION_CONFIG_CHANGED_REQUIRES_NEW_ENVIRONMENT")
+        if not frozen_integration.exists():
+            save(frozen_integration, integration_value)
     secrets = json.loads((directory / "secrets.json").read_text())
     connections = initialize_databases(directory)
     common = {"instance_id": instance, "expires_at": metadata["environment"]["expires_at"]}
@@ -287,6 +309,7 @@ def start_services(directory: Path, mode: str, model: str, *, max_calls: int = 1
         "reader_database_url": connections["reader_database_url"], "gateway_token": secrets["gateway_token"],
         "execution_mode": mode, "model_endpoint": endpoint + "/v1/chat/completions" if endpoint else None,
         "model_name": model if endpoint else None, "max_calls": max_calls,
+        "business_source": "CHATWOOT_LAGO" if frozen_integration.exists() else "SYNTHETIC_FIXTURE",
         "port": int(previous_endpoints["tool-model-gateway"].rsplit(":", 1)[1]) if "tool-model-gateway" in previous_endpoints else 0}, state)
     gateway_url = f"http://127.0.0.1:{gateway['port']}"
     wait_health(gateway_url + "/health")
@@ -298,6 +321,7 @@ def start_services(directory: Path, mode: str, model: str, *, max_calls: int = 1
         start_role(directory, role, config, state)
     api = start_role(directory, "api", {**common, "database_url": connections["database_url"], "redis_url": connections["redis_url"],
         "api_token_a": secrets["api_token_a"], "api_token_b": secrets["api_token_b"], "gateway_url": gateway_url, "execution_mode": mode,
+        "integration_config": str(frozen_integration) if frozen_integration.exists() else None,
         "port": int(previous_endpoints["support-gateway"].rsplit(":", 1)[1]) if "support-gateway" in previous_endpoints else 0}, state)
     state["endpoints"]["support-gateway"] = f"http://127.0.0.1:{api['port']}"
     wait_health(state["endpoints"]["support-gateway"] + "/health/ready")
@@ -372,6 +396,8 @@ def main() -> int:
     parser.add_argument("--environment")
     parser.add_argument("--mode", choices=("scripted", "live"), default="live")
     parser.add_argument("--model", default="qwen2:7b")
+    parser.add_argument("--integration-config", type=Path)
+    parser.add_argument("--max-calls", type=int, default=12)
     args = parser.parse_args()
     LAB.mkdir(parents=True, exist_ok=True, mode=0o700)
     with (LAB / ".host.lock").open("a+") as lock:
@@ -381,7 +407,14 @@ def main() -> int:
             if args.command == "up":
                 if (LAB / "active.json").exists():
                     raise RuntimeError("ACTIVE_ENVIRONMENT_EXISTS_USE_STATUS_OR_DOWN")
-                metadata = node("up", {"mode": mode, "model": args.model if mode == "LIVE_MODEL" else None})
+                provision = {"mode": mode, "model": args.model if mode == "LIVE_MODEL" else None}
+                if args.integration_config:
+                    if args.integration_config.is_symlink() or args.integration_config.stat().st_mode & 0o077:
+                        raise RuntimeError("PRIVATE_INTEGRATION_CONFIG_REQUIRED")
+                    configured = json.loads(args.integration_config.read_text())
+                    provision.update(business_source="CHATWOOT_LAGO", integration_config_digest=hashlib.sha256(
+                        json.dumps(configured, sort_keys=True, separators=(",", ":")).encode()).hexdigest())
+                metadata = node("up", provision)
                 env_id = metadata["environment"]["environment_instance_id"]
                 save(LAB / "active.json", {"environment_instance_id": env_id})
             else:
@@ -390,7 +423,8 @@ def main() -> int:
                 raise ValueError("INVALID_ENVIRONMENT")
             directory = LAB / env_id
             if args.command in {"up", "start"}:
-                state = start_services(directory, mode, args.model)
+                state = start_services(directory, mode, args.model, max_calls=args.max_calls,
+                                       integration_config=args.integration_config)
                 print(json.dumps({"status": "RUNNING", "environment_instance_id": env_id, "mode": mode, "endpoints": state["endpoints"]}, indent=2))
             elif args.command == "initialize":
                 initialize_databases(directory)

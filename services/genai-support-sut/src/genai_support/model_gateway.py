@@ -50,11 +50,15 @@ class GatewaySettings:
     max_output_tokens: int = 1024
     timeout_seconds: float = 120
     budget_id: str = "support-local-baseline-v1"
+    # 外部来源身份绑定到配置摘要；同Job不能通过切换来源模式重新生成。
+    business_source: str = "SYNTHETIC_FIXTURE"
 
     def __post_init__(self) -> None:
         if not re.fullmatch(r"[A-Za-z0-9._~-]{32,256}", self.token):
             raise ValueError("GATEWAY_CONFIGURATION_INVALID")
         if self.execution_mode not in {"SCRIPTED_CALIBRATION", "LIVE_MODEL"}:
+            raise ValueError("GATEWAY_CONFIGURATION_INVALID")
+        if self.business_source not in {"SYNTHETIC_FIXTURE", "CHATWOOT_LAGO"}:
             raise ValueError("GATEWAY_CONFIGURATION_INVALID")
         if type(self.max_calls) is not int or not 1 <= self.max_calls <= 100 or type(self.max_output_tokens) is not int \
                 or not 128 <= self.max_output_tokens <= 4096 or not 1 <= self.timeout_seconds <= 180:
@@ -76,7 +80,7 @@ class GatewaySettings:
         """身份绑定不含token/DSN；换模型/提示词/fixture须新实验，旧job不能悄悄重算。"""
         return digest({"mode": self.execution_mode, "model_endpoint": self.model_endpoint,
                        "model_name": self.model_name, "max_output_tokens": self.max_output_tokens,
-                       "fixture_sha256": fixture_sha256, "workflow_revision": WORKFLOW_REVISION,
+                       "fixture_sha256": fixture_sha256, "business_source": self.business_source, "workflow_revision": WORKFLOW_REVISION,
                        "prompt_revision": PROMPT_REVISION, "model_reply_schema_sha256": digest(MODEL_REPLY_SCHEMA)})
 
 
@@ -337,7 +341,14 @@ class ResolutionGateway:
             return _envelope(row)
         receipt = None
         try:
-            tools = BusinessTools(self.fixtures, lambda event: self.journal.observe_tool(request["job_id"], event))
+            sink = lambda event: self.journal.observe_tool(request["job_id"], event)
+            if self.settings.business_source == "CHATWOOT_LAGO":
+                # 实际API查询在受理阶段冻结并绑定Job。网关仅SELECT快照，既不持
+                # Chatwoot写凭据，也不在缺真实来源时悄悄回退合成事实。
+                from .integrations.persistence import ExternalSnapshotTools
+                tools = ExternalSnapshotTools(self.settings.job_reader_dsn, sink)
+            else:
+                tools = BusinessTools(self.fixtures, sink)
             context = tools.collect(request["tenant_id"], request["ticket_id"], request["ticket_revision"])
             decision = tools.evaluate_refund_policy(context)
             if self.settings.execution_mode == "SCRIPTED_CALIBRATION":

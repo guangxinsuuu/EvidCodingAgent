@@ -75,13 +75,20 @@ async function main(): Promise<void> {
     if (command === "up") {
       demand(!Object.values(ledger.snapshot().environments).some(e => e.status === "PLANNED"), "UNRESOLVED_ENVIRONMENT_REQUIRES_INSPECTION");
       demand(input.mode === "SCRIPTED_CALIBRATION" || input.mode === "LIVE_MODEL", "INVALID_MODE");
+      const external = input.business_source === "CHATWOOT_LAGO";
+      demand(input.business_source === undefined || external, "INVALID_BUSINESS_SOURCE");
+      demand(!external || (typeof input.integration_config_digest === "string" && /^[a-f0-9]{64}$/.test(input.integration_config_digest)), "INTEGRATION_IDENTITY_REQUIRED");
       const files = sourceManifest(); const digest = labDigest(files);
       const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-      const identity = ledger.createExperiment({ actor: "local-support-provisioner", authorization_scope: "User-authorized build and run of synthetic customer support SUT with local model, durable PostgreSQL/Redis, recovery and precise cleanup; calibration-only, no customer messages or refunds." });
+      const identity = ledger.createExperiment({ actor: "local-support-provisioner", authorization_scope: external
+        ? "User-authorized local Chatwoot/Lago/Keycloak test integration with synthetic customers, local model, durable PostgreSQL/Redis and private draft note writeback; no public customer messages or refunds."
+        : "User-authorized build and run of synthetic customer support SUT with local model, durable PostgreSQL/Redis, recovery and precise cleanup; calibration-only, no customer messages or refunds." });
       const build = `support-local-${digest.slice(0, 20)}`;
       ledger.bindSource(identity.experiment_id, { source_commit: sourceCommit, build_revision: build,
-        business_revision: "synthetic-v1-local-runtime", upstream_lock_sha256: digest });
-      const config = { mode: input.mode, model: input.model ?? null, images, source_manifest_sha256: digest, scope: "local-calibration" };
+        business_revision: external ? "chatwoot-lago-dispute-integration-i1" : "synthetic-v1-local-runtime", upstream_lock_sha256: digest });
+      const config = { mode: input.mode, model: input.model ?? null, images, source_manifest_sha256: digest,
+        business_source: external ? "CHATWOOT_LAGO" : "SYNTHETIC_FIXTURE",
+        integration_config_digest: external ? input.integration_config_digest : null, scope: "local-calibration" };
       const env = ledger.reserveEnvironment(identity.experiment_id, { environment_config_digest: labDigest(config), source_commit: sourceCommit,
         build_revision: build, expires_at: new Date(Date.now() + 24 * 3600_000).toISOString() });
       const action = ledger.beginAction(env.environment_instance_id, env.lease_epoch, "PROVISION");

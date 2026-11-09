@@ -101,7 +101,8 @@ def run_role(role: str, config: dict, directory: Path) -> None:
         settings = GatewaySettings(token=config["gateway_token"], execution_mode=config["execution_mode"],
             model_endpoint=config.get("model_endpoint"), model_name=config.get("model_name"),
             job_reader_dsn=config["reader_database_url"], max_calls=config["max_calls"],
-            max_output_tokens=1024, timeout_seconds=120, budget_id=config["instance_id"])
+            max_output_tokens=1024, timeout_seconds=120, budget_id=config["instance_id"],
+            business_source=config.get("business_source", "SYNTHETIC_FIXTURE"))
         app = create_gateway_app(settings, fixtures, GatewayStore(config["database_url"]))
     elif role == "api":
         store = Store(config["database_url"])
@@ -119,7 +120,21 @@ def run_role(role: str, config: dict, directory: Path) -> None:
             return checks
 
         app = create_app(Settings(api_token=config["api_token_a"], tenant_id="tenant-a"), fixtures, store,
-                         sessions={config["api_token_a"]: "tenant-a", config["api_token_b"]: "tenant-b"}, runtime_health=readiness)
+                         sessions={config["api_token_a"]: "tenant-a", config["api_token_b"]: "tenant-b"}, runtime_health=readiness,
+                         legacy_enabled=not bool(config.get("integration_config")))
+        if config.get("integration_config"):
+            # 外部产品凭据仅API/交付边界读取，Worker和模型网关不获得这些配置。
+            from .integrations.persistence import IntegrationStore
+            from .integrations.routes import mount_integration_routes
+            from .integrations.workflow import DisputeService
+            private = Path(config["integration_config"])
+            if private.is_symlink() or private.stat().st_mode & 0o077:
+                raise ValueError("PRIVATE_INTEGRATION_CONFIG_REQUIRED")
+            integration = json.loads(private.read_text())
+            dispute_service = DisputeService(IntegrationStore(config["database_url"]), integration)
+            mount_integration_routes(app, dispute_service)
+            if integration.get("automatic_writeback", True):
+                threading.Thread(target=dispute_service.run_writeback, args=(stop,), daemon=True).start()
     else:
         raise ValueError("INVALID_ROLE")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:

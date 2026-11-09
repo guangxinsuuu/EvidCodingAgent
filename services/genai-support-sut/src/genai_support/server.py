@@ -55,7 +55,8 @@ def _authenticated_tenant(request: Request, sessions: Mapping[str, str]) -> str 
 
 def create_app(settings: Settings, fixtures: FixtureBundle, store: Store | None = None,
                *, sessions: Mapping[str, str] | None = None,
-               runtime_health: Callable[[], dict[str, Any]] | None = None) -> FastAPI:
+               runtime_health: Callable[[], dict[str, Any]] | None = None,
+               legacy_enabled: bool = True) -> FastAPI:
     """组装无副作用ASGI应用。由main先校验配置/冻结fixture，再交给Uvicorn。
 
     health只代表进程；readiness须持久性、队列和Worker真实接通。
@@ -91,6 +92,9 @@ def create_app(settings: Settings, fixtures: FixtureBundle, store: Store | None 
 
     @app.post("/support-resolution-jobs")
     async def submit(request: Request) -> JSONResponse:
+        if not legacy_enabled:
+            # 真实集成只通过OIDC入口；不能借旧静态token绕过客户授权。
+            return _error(404, "LEGACY_API_DISABLED")
         # 先认证再读body，避免未认证调用占用解析资源。tenant只来自settings。
         tenant_id = _authenticated_tenant(request, identities)
         if tenant_id is None:
@@ -126,6 +130,8 @@ def create_app(settings: Settings, fixtures: FixtureBundle, store: Store | None 
 
     @app.get("/support-resolution-jobs/{job_id}")
     async def get_job(job_id: str, request: Request) -> JSONResponse:
+        if not legacy_enabled:
+            return _error(404, "LEGACY_API_DISABLED")
         tenant_id = _authenticated_tenant(request, identities)
         if tenant_id is None:
             return _error(401, "UNAUTHORIZED")

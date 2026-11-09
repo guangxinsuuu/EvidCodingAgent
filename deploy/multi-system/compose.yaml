@@ -1,0 +1,161 @@
+# 本地真实产品联调；仅发布 loopback 端口。全部资源归属 egap-multisystem，
+# deployment.py 负责凭据、生命周期和原生健康检查。该栈不具有生产部署资格。
+name: egap-multisystem
+x-chatwoot: &chatwoot
+  image: chatwoot/chatwoot:v4.19.1@sha256:a0d571a3a2f78f4fa4b1d7c21a53309c0184068d6021b3664ab37788faef04c1
+  environment: &chatwoot-env
+    RAILS_ENV: production
+    NODE_ENV: production
+    INSTALLATION_ENV: docker
+    FRONTEND_URL: http://127.0.0.1:58101
+    FORCE_SSL: "false"
+    ENABLE_ACCOUNT_SIGNUP: "false"
+    SECRET_KEY_BASE: ${CHATWOOT_SECRET}
+    POSTGRES_HOST: chatwoot-db
+    POSTGRES_DATABASE: chatwoot
+    POSTGRES_USERNAME: postgres
+    POSTGRES_PASSWORD: ${CHATWOOT_DB_PASSWORD}
+    REDIS_URL: redis://chatwoot-redis:6379
+    RAILS_LOG_TO_STDOUT: "true"
+    LOG_LEVEL: warn
+    RAILS_MAX_THREADS: "2"
+    WEB_CONCURRENCY: "0"
+    SIDEKIQ_CONCURRENCY: "2"
+    ACTIVE_STORAGE_SERVICE: local
+    MAILER_SENDER_EMAIL: lab@example.invalid
+  volumes:
+    - chatwoot-storage:/app/storage
+  restart: unless-stopped
+x-lago: &lago
+  image: getlago/api:v1.57.0@sha256:24678b61b372e5ca02f9bb4687c9aec012f8ba8a3539d28c4cbe989f131f3aed
+  environment: &lago-env
+    DATABASE_URL: postgresql://lago:${LAGO_DB_PASSWORD}@lago-db:5432/lago
+    REDIS_URL: redis://lago-redis:6379
+    LAGO_REDIS_CACHE_URL: redis://lago-redis:6379
+    SECRET_KEY_BASE: ${LAGO_SECRET}
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: "true"
+    LAGO_RSA_PRIVATE_KEY: ${LAGO_RSA_PRIVATE_KEY}
+    LAGO_ENCRYPTION_PRIMARY_KEY: ${LAGO_ENCRYPTION_PRIMARY_KEY}
+    LAGO_ENCRYPTION_DETERMINISTIC_KEY: ${LAGO_ENCRYPTION_DETERMINISTIC_KEY}
+    LAGO_ENCRYPTION_KEY_DERIVATION_SALT: ${LAGO_ENCRYPTION_KEY_DERIVATION_SALT}
+    LAGO_API_URL: http://127.0.0.1:58102
+    LAGO_FRONT_URL: http://127.0.0.1:58104
+    LAGO_DISABLE_SEGMENT: "true"
+    LAGO_DISABLE_PDF_GENERATION: "true"
+    LAGO_DISABLE_SIGNUP: "true"
+    LAGO_SIDEKIQ_WEB: "false"
+    LAGO_USE_AWS_S3: "false"
+    LAGO_USE_GCS: "false"
+    RAILS_MAX_THREADS: "2"
+    WEB_CONCURRENCY: "0"
+    SIDEKIQ_CONCURRENCY: "2"
+  volumes:
+    - lago-storage:/app/storage
+  restart: unless-stopped
+services:
+  chatwoot-db:
+    image: pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b
+    environment:
+      POSTGRES_DB: chatwoot
+      POSTGRES_PASSWORD: ${CHATWOOT_DB_PASSWORD}
+    volumes: [chatwoot-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d chatwoot]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  chatwoot-redis:
+    image: redis:7-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
+    command: [redis-server, --appendonly, "yes"]
+    volumes: [chatwoot-redis:/data]
+  chatwoot-migrate:
+    <<: *chatwoot
+    restart: "no"
+    depends_on:
+      chatwoot-db: {condition: service_healthy}
+    command: [bundle, exec, rails, db:chatwoot_prepare]
+  chatwoot:
+    <<: *chatwoot
+    depends_on:
+      chatwoot-migrate: {condition: service_completed_successfully}
+      chatwoot-redis: {condition: service_started}
+    entrypoint: docker/entrypoints/rails.sh
+    command: [bundle, exec, rails, s, -p, "3000", -b, 0.0.0.0]
+    ports: ["127.0.0.1:58101:3000"]
+  chatwoot-worker:
+    <<: *chatwoot
+    depends_on:
+      chatwoot-migrate: {condition: service_completed_successfully}
+      chatwoot-redis: {condition: service_started}
+    command: [bundle, exec, sidekiq, -C, config/sidekiq.yml]
+  lago-db:
+    image: getlago/postgres-partman:15.0-alpine@sha256:27a1e3a1138a69b5a0911ce125dfa613b9ced07604a2d781b9d31141f7f96036
+    environment:
+      POSTGRES_DB: lago
+      POSTGRES_USER: lago
+      POSTGRES_PASSWORD: ${LAGO_DB_PASSWORD}
+    volumes: [lago-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U lago -d lago]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  lago-redis:
+    image: redis:7-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
+    command: [redis-server, --appendonly, "yes"]
+    volumes: [lago-redis:/data]
+  lago-migrate:
+    <<: *lago
+    restart: "no"
+    depends_on:
+      lago-db: {condition: service_healthy}
+      lago-redis: {condition: service_started}
+    command: [./scripts/migrate.sh]
+    environment:
+      <<: *lago-env
+      LAGO_CREATE_ORG: "true"
+      LAGO_ORG_USER_PASSWORD: ${LAGO_USER_PASSWORD}
+      LAGO_ORG_USER_EMAIL: lab@example.invalid
+      LAGO_ORG_NAME: EGAP Integration Lab
+      LAGO_ORG_API_KEY: ${LAGO_API_KEY}
+  lago:
+    <<: *lago
+    depends_on:
+      lago-migrate: {condition: service_completed_successfully}
+    command: [./scripts/start.api.sh]
+    ports: ["127.0.0.1:58102:3000"]
+  lago-worker:
+    <<: *lago
+    depends_on:
+      lago-migrate: {condition: service_completed_successfully}
+    command: [./scripts/start.worker.sh]
+  lago-front:
+    image: getlago/front:v1.57.0@sha256:17458dbd65597dc5ec3f76fd781f12df119856140999e0fbb119fd3dd2464fe0
+    read_only: true
+    tmpfs: [/tmp]
+    environment:
+      API_URL: http://127.0.0.1:58102
+      APP_ENV: production
+      LAGO_DISABLE_PDF_GENERATION: "true"
+    ports: ["127.0.0.1:58104:8080"]
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:3879c623248408de29a5303178b5816c77e8dfef3890c361f8c0bbeaa979ba3b
+    command: [start-dev]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: lab-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HOSTNAME: http://127.0.0.1:58103
+      KC_HTTP_ENABLED: "true"
+      JAVA_OPTS_KC_HEAP: -Xms128m -Xmx512m
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    ports: ["127.0.0.1:58103:8080"]
+volumes:
+  chatwoot-db:
+  chatwoot-redis:
+  chatwoot-storage:
+  lago-db:
+  lago-redis:
+  lago-storage:
+  keycloak-data:
