@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-09",
+  "timezone": "Australia/Sydney",
+  "qualification": "LOCAL_REAL_SYSTEM_INTEGRATION",
+  "environment_id": "environment_5304e7f4-b38b-4038-b50d-ed0a3dcb4832",
+  "source_snapshot": "WORKING_TREE_CONTENT_SNAPSHOT",
+  "e2e_assertions": 39,
+  "e2e_status": "PASS_LOCAL_INTEGRATION",
+  "dependency_fault_assertions": 13,
+  "dependency_fault_status": "PASS_REAL_DEPENDENCY_FAULTS",
+  "python_tests": {
+    "passed": 149,
+    "skipped": 0
+  },
+  "typescript_tests": {
+    "passed": 108,
+    "skipped": 0
+  },
+  "control_plane_process_tests": 3,
+  "preparation_tool_tests": 9,
+  "real_model_calls": 5,
+  "private_notes": 4,
+  "stale_deliveries_without_note": 1,
+  "evidence": {
+    "deployment-evidence.json": {
+      "path": "artifacts/multi-system/deployment-evidence.json",
+      "sha256": "cd5f0010e7df3b4fb1758787c91d90d17493bb90926cb003401fe2a2c3da44ea"
+    },
+    "seed.json": {
+      "path": "artifacts/multi-system/seed.json",
+      "sha256": "2103da77d23ec319b192c9915cf0f80de98a6d5abb2d927f0ae3d1456ed573af"
+    },
+    "connector-live-read.json": {
+      "path": "artifacts/multi-system/connector-live-read.json",
+      "sha256": "258ac824d7828100d3d4fddd1200e64f4cbf1c4ed8ee52a4a3b3d82c91f33cc1"
+    },
+    "check.json": {
+      "path": "artifacts/multi-system/check.json",
+      "sha256": "0f4245c5a56d45c706f6b9e28ec22c669e276688603ba613aced7ffbc9fc2c34"
+    },
+    "check-attempt-1.json": {
+      "path": "artifacts/multi-system/check-attempt-1.json",
+      "sha256": "e03aa9cb331f93d5ddf4cdd03bc01a7885f912867c087d1cc344d466c66c54f7"
+    },
+    "fault-check.json": {
+      "path": "artifacts/multi-system/fault-check.json",
+      "sha256": "4edbbb9f01366c893f44afc8b2314fa9ccef6011fa90b1e157f2f24490ff6cbe"
+    },
+    "execution-summary.json": {
+      "path": "artifacts/multi-system/execution-summary.json",
+      "sha256": "8c633933414f73450b85ea3c2bc2bf880fc1c42a3db199a60fd58eebed27e3e9"
+    },
+    "python-tests.log": {
+      "path": "artifacts/multi-system/python-tests.log",
+      "sha256": "d8f4ee1760d2111e99a420c5c09624dba707750504e34f867363f4a52dfaa8f4"
+    },
+    "typescript-tests.log": {
+      "path": "artifacts/multi-system/typescript-tests.log",
+      "sha256": "a128e48c9bdfc072c748a59f57fa0f31b65f2c4c9dc71bed0157a36b70144d0a"
+    }
+  },
+  "not_implemented": [
+    "INDEPENDENT_ORACLE",
+    "LANGGRAPH_VERIFIER",
+    "CODING_REPAIR_LOOP",
+    "QUALIFIED_FINAL_GATE",
+    "WEBHOOK_INGRESS",
+    "EMBEDDED_INVOICE_SELECTION_UI",
+    "FROZEN_I0_VS_I1_RELEASE_COMPARISON"
+  ],
+  "company_team_adoption": false
+}
