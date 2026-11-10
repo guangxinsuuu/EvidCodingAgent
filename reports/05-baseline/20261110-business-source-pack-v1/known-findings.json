@@ -1,0 +1,14 @@
+{
+  "qualification": "OBSERVED_NOT_INDEPENDENT_ORACLE",
+  "findings": [
+    {
+      "id": "BSP-LLM-001",
+      "status": "OPEN",
+      "severity": "ADVISORY_WORDING_RISK",
+      "job_id": "aafbe67bb4704ab0a425d7c43078aa8f",
+      "observation": "结构为NEEDS_MORE_EVIDENCE，但原始模型草稿写“似乎符合退款标准”；部分草稿未主动写实验标签。",
+      "mitigation": "确定性私有备注包装保留本地实验与模拟资料范围；无对客发送权限。",
+      "next": "由独立业务Oracle检查回复与缺证事实、实验权限的一致性。"
+    }
+  ]
+}

@@ -30,7 +30,7 @@ from .gateway_store import GatewayStore, GatewayStoreError
 from .protocol import ProtocolValidationError, validate_support_job
 
 
-PROMPT_REVISION = "support-policy-decision-v2"
+PROMPT_REVISION = "support-commercial-source-v3"
 MODEL_REPLY_SCHEMA = {"type": "object", "additionalProperties": False,
                       "required": ["customer_reply_draft"],
                       "properties": {"customer_reply_draft": {"type": "string", "minLength": 1, "maxLength": 16_384}}}
@@ -209,6 +209,10 @@ def call_local_model(settings: GatewaySettings, context: dict[str, Any]) -> tupl
         "CONTRACT_TERMS_MISMATCH表示合同条件不符；BILLING_NOT_PAID表示账单未确认已支付；"
         "MISSING开头的理由要求具体补充缺失记录，已经存在的账单不要重复索要。"
         "必须说明decision.reason_codes对应的真实理由，数字只引用已有事实，不自行编造。"
+        # 商业来源服务的实验权益与付款不是原生计费事实；模型文案也必须保留这个范围。
+        "如果decision.authority_scope为LOCAL_LAB，必须写明‘仅依据本地实验规则’，"
+        "付款依据若为模拟记录须明确写‘模拟付款记录’，不得表述为客户真实已付款。"
+        "实验资格不代表真实客户权利；遇到特殊合同或未校准资料只说明需要人工核实。"
         "所有内容仍是草稿，本系统没有执行退款或发送消息的能力，绝不能声称已退款、已到账、已操作或已联系客户。"
         "不得输出eligibility、proposed_action、policy_ref等其他字段。"
     )

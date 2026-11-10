@@ -1,7 +1,7 @@
 """OIDC入口 → 受控客户绑定 → Chatwoot/Lago → 冻结输入 → 原有异步SUT。
 
 本模块是被测产品集成逻辑，不能作为独立Verifier/Oracle。客服生成的是内部待审
-草稿：首期未接入批准的政策/合同或用量完整性屏障，资格必须保留补证。
+草稿；商业来源只提供显式本地实验权益，不能冒充真实企业批准或执行退款。
 """
 
 from datetime import datetime, timezone
@@ -11,6 +11,7 @@ from uuid import uuid4
 from ..business_tools import digest
 from ..store import StoreError
 from .chatwoot import ChatwootClient
+from .commercial import CommercialClient, commercial_decision, instant
 from .http import IntegrationError
 from .identity import KeycloakIdentity
 from .lago import LagoClient
@@ -30,22 +31,8 @@ def customer_messages(messages: list[dict]) -> list[dict]:
 
 
 def external_decision(context: dict) -> dict:
-    """不把开票日当续费日，也不把API的0当全部事件到齐；返回明确缺证清单。
-
-    后续公司批准政策、合同及完整性证明接入后，才可扩展资格计算。目前这些资产
-    均为DRAFT/未接入，因此真实产品链路可跑通，但不能批准或拒绝实际退款。
-    """
-    missing = list(dict.fromkeys(context["missing_evidence"]))
-    billing = context["billing"]
-    return {"workflow_revision": "invoice-dispute-integration-i1", "policy_ref": None,
-            "billing_record_ref": billing["billing_record_id"], "elapsed_seconds": None,
-            "window_seconds": None, "within_window": None,
-            "usage_units": context["usage"].get("units") if context["usage"] else None,
-            "maximum_usage_units": None, "usage_within_limit": None,
-            "contract_terms_match": None, "billing_paid": billing.get("status") == "PAID",
-            "missing_evidence": missing, "eligibility": "NEEDS_MORE_EVIDENCE",
-            "proposed_action": "REQUEST_INFORMATION", "reason_codes": ["MISSING_" + item for item in missing],
-            "evidence_refs": [billing["billing_record_id"], context["subscription"]["subscription_id"]]}
+    """Gateway → 确定性商业判断；未配置来源仍补证，未知不作为零或不符合。"""
+    return commercial_decision(context)
 
 
 def build_context(tenant: str, account: int, conversation: int, messages: list[dict], scope: dict) -> dict:
@@ -74,9 +61,13 @@ def build_context(tenant: str, account: int, conversation: int, messages: list[d
                         "total_amount_cents": invoice.get("total_amount_cents"),
                         "status": "PAID" if invoice.get("payment_status") == "succeeded" else "PAYMENT_UNCONFIRMED"},
             "usage": usage, "contract": None, "policy": None,
+            "customer_message_refs": messages,
+            "lago_query_scope": {"customer_id": scope["external_customer_id"],
+                                 "subscription_id": scope["external_subscription_id"], "invoice_id": scope["invoice_id"]},
             "invoice_period": scope.get("invoice_period"),
             "observed_usage_period": scope.get("observed_usage_period"),
             "policy_asset_status": "DRAFT_NOT_APPROVED", "usage_source": scope["usage_source"],
+            "usage_binding": scope.get("usage_binding"),
             "missing_evidence": list(dict.fromkeys(missing)),
             "source_observed_at": datetime.now(timezone.utc).isoformat()}
 
@@ -117,6 +108,31 @@ class DisputeService:
         return matches[0]
 
     def submit(self, identity: Any, command: dict) -> dict:
+        """普通受理保留按消息/发票复用；新操作 key 不是刷新商业事实的授权。"""
+        return self._submit(identity, command)
+
+    def reevaluate(self, identity: Any, tenant: str, job: str, command: dict) -> dict:
+        """显式刷新：先校验父评估归属，收集新来源，再事务比较事实/消息摘要。
+
+        原操作重试优先返回原 Job，不发起新的外部读取。父 Job、理由与事实版本
+        全部保留；即使换了 key，没有新事实也不会重复模型调用。
+        """
+        if tenant not in identity.tenant_ids:
+            raise IntegrationError("CUSTOMER_ACCESS_DENIED", status=403)
+        binding = self._binding(tenant, identity.subject)
+        parent = self.store.delivery(tenant, job)
+        if parent is None:
+            raise IntegrationError("JOB_NOT_FOUND", status=404)
+        if parent["contact_id"] != binding["chatwoot_contact_id"] or parent["account_id"] != binding["chatwoot_account_id"]:
+            raise IntegrationError("CUSTOMER_ACCESS_DENIED", status=403)
+        ingress = {"tenant_id": tenant, "conversation_id": parent["conversation_id"],
+                   "invoice_id": parent["invoice_id"], "operation_key": command["operation_key"]}
+        return self._submit(identity, ingress, parent_job=job, reason=command["reason"],
+                            expected_revision=parent["current_revision"])
+
+    def _submit(self, identity: Any, command: dict, *, parent_job: str | None = None,
+                reason: str | None = None, expected_revision: int | None = None) -> dict:
+        """两类入口共用归属核验/快照收集；只有显式 reevaluate 传入父评估参数。"""
         tenant = command["tenant_id"]
         if tenant not in identity.tenant_ids:
             raise IntegrationError("CUSTOMER_ACCESS_DENIED", status=403)
@@ -126,7 +142,10 @@ class DisputeService:
         if not any(row["tenant_id"] == tenant and row["conversation_id"] == command["conversation_id"]
                    for row in self.config["bindings"]["cases"]):
             raise IntegrationError("CONVERSATION_NOT_AUTHORIZED", status=403)
-        fingerprint = digest({**command, "subject": identity.subject})
+        fingerprint_input = {**command, "subject": identity.subject}
+        if parent_job is not None:
+            fingerprint_input.update(mode="REEVALUATE", parent_job_id=parent_job, reason=reason)
+        fingerprint = digest(fingerprint_input)
         prior = self.store.operation(tenant, command["operation_key"], fingerprint)
         if prior:
             return {"job_id": prior["job_id"], "reused": True}
@@ -142,9 +161,41 @@ class DisputeService:
         scope = lago.resolve_invoice_scope(binding["lago_customer_id"], command["invoice_id"])
         context = build_context(tenant, cw.account_id, command["conversation_id"], messages, scope)
         context["source_correlation_id"] = correlation
+        commercial = self.config.get("commercial_source")
+        if commercial is not None:
+            def audit(event: dict) -> None:
+                self.store.observe(correlation, event)
+                receipts.append(event)
+            source = CommercialClient(commercial["base_url"], commercial["read_token"], audit=audit).context({
+                "tenant_id": tenant, "customer_id": scope["external_customer_id"],
+                "subscription_id": scope["external_subscription_id"], "invoice_id": scope["invoice_id"],
+                "account_id": cw.account_id, "conversation_id": command["conversation_id"]})
+            context["commercial_source"] = source
+            context["policy_asset_status"] = "LOCAL_CALIBRATION_NOT_ENTERPRISE_APPROVAL"
+            # 申请时点来自不可覆盖的 claim；消息继续参与 revision，但补充消息不重置窗口。
+            # 完整归属与原始消息核验由确定性判断负责，缺/坏字段仍输出补证。
+            claim = source.get("claim")
+            if claim and isinstance(claim.get("claimed_at"), str):
+                try:
+                    context["ticket"]["received_at"] = instant(claim["claimed_at"]).isoformat()
+                except (ValueError, TypeError):
+                    pass
+            decision = external_decision(context)
+            context["missing_evidence"] = decision["missing_evidence"]
+            # 保留原始来源集合，下面只是便于文案读取的已选择条款，不授予模型选择权。
+            for policy in source["policies"]:
+                if policy["policy_id"] + ":" + policy["version"] == decision["policy_ref"]:
+                    context["policy"] = policy
+            for contract in source["contracts"]:
+                if contract.get("contract_id") in decision["evidence_refs"]:
+                    context["contract"] = contract
+            for event in source["events"]:
+                if event.get("event_id") in decision["evidence_refs"]:
+                    context["billing"]["renewed_at"] = event.get("effective_at")
         return self.store.admit(tenant=tenant, key=command["operation_key"], request_sha=fingerprint,
             subject=identity.subject, account=cw.account_id, conversation=command["conversation_id"],
-            contact=contact, invoice=command["invoice_id"], message_sha=digest(messages), context=context, receipts=receipts)
+            contact=contact, invoice=command["invoice_id"], message_sha=digest(messages), context=context, receipts=receipts,
+            **({"parent_job": parent_job, "reevaluation_reason": reason, "expected_revision": expected_revision} if parent_job else {}))
 
     def deliver(self, tenant: str, job: str) -> dict:
         """DONE → 核对当前客户消息/revision → 私有备注 → 外部ID读回。
@@ -163,7 +214,10 @@ class DisputeService:
         receipts: list[dict] = []
         cw, _ = self._clients("delivery:" + job, receipts)
         marker = f"[EGAP draft {job}]"
-        content = f"{marker}\n待人工审核；基于工单输入版本 {row['ticket_revision']}，争议账单 {row['invoice_id']}。未执行退款，未发送客户消息。\n\n{row['draft']['customer_reply_draft']}"
+        # 实验范围由冻结来源确定，不依赖模型是否主动写出免责声明；同一前缀参与
+        # 丢回执后的全文核对，不能因恢复而把实验建议变成无范围的业务承诺。
+        scope_notice = "仅本地实验资格建议；商业政策、合同接受及付款含模拟来源，不代表真实客户权益或真实退款。\n" if row.get("commercial_source_present") else ""
+        content = f"{marker}\n{scope_notice}待人工审核；基于工单输入版本 {row['ticket_revision']}，争议账单 {row['invoice_id']}。未执行退款，未发送客户消息。\n\n{row['draft']['customer_reply_draft']}"
         if row["delivery_state"] in {"DISPATCHING", "UNKNOWN"}:
             matches = [m for m in cw.get_messages(row["conversation_id"]) if m.get("private") is True
                        and content == m.get("content") and m.get("conversation_id") == row["conversation_id"]]

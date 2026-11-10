@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "qualification": "LOCAL_BUSINESS_SOURCE_CALIBRATION",
+  "implementation": "Business Source Pack v1",
+  "environment_id": "environment_9f3fcf32-0cfd-487f-a889-0713ed24078a",
+  "source_instance_id": "commercial_51a3ca7e677042b98f4e319ac50728f4",
+  "source_digest": "97e9cce300caad617cce96d9ebc18d680098ec3dc7fe0f9180768384852ca5a9",
+  "sut_source_unchanged": true,
+  "sut_base_url": "http://127.0.0.1:50076",
+  "source_base_url": "http://127.0.0.1:63418",
+  "sut_expires_at": "2026-11-10T23:58:18.257Z",
+  "source_expires_at": "2026-11-10T23:53:56.447619+00:00",
+  "test_results": {
+    "model_projection_targeted": {
+      "passed": 2
+    },
+    "commercial_source_real_pg_http": {
+      "passed": 20,
+      "skipped": 0
+    },
+    "multi_system_tools": {
+      "passed": 27
+    },
+    "source_host_unit": {
+      "passed": 12
+    },
+    "source_database_permissions": {
+      "passed": 6
+    },
+    "source_host_lifecycle": {
+      "passed": 8
+    },
+    "real_live_e2e": {
+      "passed": 46,
+      "jobs": 7
+    },
+    "shared_protocol": "MATCH",
+    "sut_main_suite": {
+      "passed": 181,
+      "skipped": 0,
+      "batch_note": "Full batch before adding the two separately executed projection tests"
+    }
+  },
+  "source_records": {
+    "claim": 4,
+    "contract": 5,
+    "coverage": 4,
+    "event": 8,
+    "invoice_link": 4,
+    "payment": 4,
+    "policy": 4,
+    "subscription": 4
+  },
+  "source_operations": 42,
+  "external_observations": 122,
+  "commercial_api_reads": 9,
+  "snapshots": 7,
+  "parent_links": 2,
+  "model_calls": 7,
+  "model": "qwen2:7b",
+  "observed_tokens": {
+    "prompt_tokens": 17324,
+    "completion_tokens": 403,
+    "total_tokens": 17727
+  },
+  "budget": [
+    {
+      "max_calls": 24,
+      "reserved_calls": 7,
+      "reserved_output_tokens": 7168
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "aafbe67bb4704ab0a425d7c43078aa8f",
+      "status": "DONE",
+      "ticket_revision": 1,
+      "eligibility": "NEEDS_MORE_EVIDENCE"
+    },
+    {
+      "job_id": "8030e433ca4043d48d55f34b7f6b45d4",
+      "status": "DONE",
+      "ticket_revision": 2,
+      "eligibility": "ELIGIBLE"
+    },
+    {
+      "job_id": "64bbfa959ca84d0993aefc45d0fef9d6",
+      "status": "DONE",
+      "ticket_revision": 3,
+      "eligibility": "ELIGIBLE"
+    },
+    {
+      "job_id": "69259335b95c469faa8e95ede1d04bc7",
+      "status": "DONE",
+      "ticket_revision": 1,
+      "eligibility": "INELIGIBLE"
+    },
+    {
+      "job_id": "16606bf0c3bd4d3ab9b17523ca3862bc",
+      "status": "DONE",
+      "ticket_revision": 1,
+      "eligibility": "NEEDS_MORE_EVIDENCE"
+    },
+    {
+      "job_id": "030aa1b24f284fd38267aec13e049446",
+      "status": "DONE",
+      "ticket_revision": 1,
+      "eligibility": "NEEDS_MORE_EVIDENCE"
+    },
+    {
+      "job_id": "4fc8ac960a1743b7aca0d9af9e23440f",
+      "status": "DONE",
+      "ticket_revision": 1,
+      "eligibility": "NEEDS_MORE_EVIDENCE"
+    }
+  ],
+  "evidence_directory": "artifacts/business-source/bsp-v1-20261110-final",
+  "evidence_sha256": {
+    "integration-check.private.json": "826f933d10f23daf7e809289937b8e1f67951982173fe12dbf8b0c27250b535a",
+    "postcheck-audit.json": "f43da86bb200153200ba2e741bde2c4374cafdd8203ac2fd4e5a3a5eaf145517",
+    "source-preparation.private.json": "e0536a0540d4a27af081c64f7080f84ec7ac5bf07b9d380169903018b0021ad2",
+    "source-check.json": "1ae748d5796cc995906ddf0fba5e5626f9c1c6ac79cec8fb465106e92254a77b"
+  },
+  "human_policy_review": "PENDING_USER_REVIEW",
+  "natural_lago_renewal_verified": false,
+  "provider_payment_verified": false,
+  "independent_verifier_implemented": false,
+  "enterprise_release_gate_pass": false,
+  "docs_or_readme_modified": false,
+  "prior_failed_calibration_retained": "artifacts/business-source/bsp-v1-20261110"
+}

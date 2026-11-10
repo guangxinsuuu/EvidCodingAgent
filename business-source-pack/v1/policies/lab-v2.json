@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "policy_id": "refund-standard",
+  "authority_scope": "LOCAL_LAB",
+  "content_origin": "SYNTHETIC",
+  "review_status": "LOCAL_CALIBRATION",
+  "human_review_status": "PENDING_USER_REVIEW",
+  "terms": {
+    "selection": "RENEWAL_EFFECTIVE_AT",
+    "window_endpoint": "INCLUSIVE",
+    "usage_scope": "RENEWAL_TO_CLAIM",
+    "metric_code": "${metric_code}",
+    "unit": "units",
+    "maximum_usage_units": "0",
+    "require_payment": true,
+    "allowed_payment_source": "SIMULATED_PAYMENT",
+    "output_scope": "LOCAL_LAB_ADVISORY_ONLY",
+    "window_seconds": 604800
+  },
+  "source_document": {
+    "reference": "business-source-pack/v1/policies/rules.md",
+    "sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c",
+    "origin": "SYNTHETIC",
+    "text": "# Business Source Pack v1：本地实验商业规则\n\n本包是用户要求实现的合成商业上游，不是任何公司的正式退款政策、已签合同或付款证明。\n执行资格为 `LOCAL_CALIBRATION`，人工政策审阅状态为 `PENDING_USER_REVIEW`。本轮实现授权\n不能被写成法务、财务或真实客户批准。生产接入必须提供自己的权威来源。\n\n## R1 适用对象与政策选择\n\n只处理来源服务状态机产生、`term_number >= 2` 的 `SUBSCRIPTION_RENEWAL_EFFECTIVE`。\n首次开通、取消和终止结算都不是续期。标准实验合同须在续期和申请两个时点有效、存在\n明确的 `SIMULATED_ACCEPTANCE`，并引用本包的退款补充条款。特殊条款首期转人工补证。\n默认按续期生效时点选择政策：生效区间左闭右开，不能按申请日期或最新版本选择。\n本包 v1 为 2026-10-01 至 2026-11-10 UTC，v2 从 2026-11-10 UTC 起。\n\n## R2 窗口与申请时点\n\nv1 窗口为 14 × 86400 秒，v2 为 7 × 86400 秒；比较 UTC 经过时长，0 和窗口末端均包含。\n不是自然日，也不依赖宿主机时区。申请是商业来源服务接受的不可变 RefundClaim；\nclaimed_at 取该订阅的实验业务时钟，原生 Chatwoot 消息 ID、真实 created_at 和正文摘要另存。\n二者不是同一种时间。补充消息只能追加修订，不得移动原申请时点。模拟器只推进自己的\n业务时钟，不改变操作系统、Keycloak、数据库或 Worker 租约时间。\n\n## R3 用量规则与证明边界\n\n统计所选指标 `metric_code` 的 `units`，不跨指标相加；要求从续期生效至申请时点的闭区间\n用量不超过 0。期望事件是测试生成器预先登记的有限集合；每个事件须记录发送、接收及\n原生聚合核对。缺事件、待处理、指标歧义或聚合不一致均不允许封存覆盖记录。\n完整性范围固定为 `LOCAL_CONTROLLED_GENERATOR_ONLY`，不能表示公司的全部事件到齐。\n原生聚合期间必须与已绑定发票的计量期间一致；区间用量只能由已核对的事件明细计算，\n不能拿整期聚合冒充任意子区间。\n\n## R4 合同、发票与付款\n\n发票须属于同一客户、唯一订阅，费用期间与模拟续期事件期间严格一致。可以使用原生\nINITIAL 发票作为明确标注的实验账单，但不能因此宣称 Lago 自然续费已验证。\n现有终止关闭账单不能作为续期正例。付款须另有与发票、币种、金额一致的\n`SIMULATED_PAYMENT` 记录；不得修改 Lago 的付款状态或把开票成功等同付款成功。\n\n## R5 输出和失败语义\n\n事实充分时给出 ELIGIBLE 或 INELIGIBLE 的本地实验资格建议；缺失、不适用、歧义或\n未校准资产返回 NEEDS_MORE_EVIDENCE。文案必须标明实验范围，付款依据为模拟记录。\n始终只写正确会话的私有内部备注，不退款、不对客发送、不关单。\n上游服务不可用是执行失败，不伪造空资产继续，也不回退旧 fixture。\n\n## R6 重试与重新评估\n\n重试同操作保留原快照与 Job。新增事实必须通过显式 reevaluate 入口，记录父 Job、原因\n与稳定事实摘要；新事实产生新评估，旧快照不可覆盖。只有采集时间变化不算新事实。\n\n"
+  },
+  "version": "lab-v2",
+  "effective_from": "2026-11-10T00:00:00Z",
+  "effective_to": null,
+  "structured_source_sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c"
+}

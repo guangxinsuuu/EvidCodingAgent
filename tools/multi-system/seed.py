@@ -113,7 +113,7 @@ def usage_units(usage: dict, metric_code: str) -> Decimal:
 
 
 class Seed:
-    def __init__(self, config: dict, output: Path, *, run_id: str | None = None) -> None:
+    def __init__(self, config: dict, output: Path, *, run_id: str | None = None, align_current_period: bool = False) -> None:
         self.config, self.output = config, output
         self.state_path = output.with_name("seed-state.json")
         if self.state_path.exists():
@@ -127,6 +127,11 @@ class Seed:
             self.state = {"schema_version": 1, "run_id": actual, "operations": {}, "receipts": [],
                           "created_at": datetime.now(timezone.utc).isoformat()}
         self.run_id = self.state["run_id"]
+        # Business Source 实验从 UTC 零点开通，以原生 subscription_at 严格对齐
+        # current_usage 与订阅费期间；旧实验默认保持创建时点，不改系统时钟。
+        if "align_current_period" in self.state and self.state["align_current_period"] != align_current_period:
+            raise SeedError("SEED_PERIOD_MODE_CHANGED")
+        self.state["align_current_period"] = align_current_period
         cw, lago = config["chatwoot"], config["lago"]
         self.chatwoot = Api(cw["base_url"], {"api_access_token": cw["api_token"]}, service="chatwoot", receipts=self.state["receipts"])
         self.lago = Api(lago["base_url"], {"Authorization": "Bearer " + lago["api_key"]}, service="lago", receipts=self.state["receipts"])
@@ -283,9 +288,11 @@ class Seed:
                    "chatwoot_contact_id": contact_id, "subscriptions": []}
             for suffix, expected_units in (("zero", 0), ("used", 7)):
                 external_sub = self.run_id + "_" + letter + "_" + suffix
+                timing = {"subscription_at": datetime.fromisoformat(self.state["created_at"]).replace(
+                    hour=0, minute=0, second=0, microsecond=0).isoformat()} if self.state["align_current_period"] else {}
                 subscription = self.write_once("subscription_" + letter + "_" + suffix, self.lago, "POST", "/api/v1/subscriptions", {
                     "subscription": {"external_customer_id": external, "external_id": external_sub,
-                                     "plan_code": plan_code, "name": suffix, "billing_time": "anniversary", "consolidate_invoice": False}})["subscription"]
+                                     "plan_code": plan_code, "name": suffix, "billing_time": "anniversary", "consolidate_invoice": False, **timing}})["subscription"]
                 if expected_units:
                     self.write_once("event_" + letter + "_" + suffix, self.lago, "POST", "/api/v1/events", {"event": {
                         "transaction_id": self.run_id + "_event_" + letter + "_" + suffix,
@@ -338,10 +345,11 @@ def main() -> int:
     parser.add_argument("--runtime", type=Path, default=DEFAULT_RUNTIME)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--run-id")
+    parser.add_argument("--align-current-period", action="store_true")
     args = parser.parse_args()
     seed = None
     try:
-        seed = Seed(load_runtime(args.runtime), args.output, run_id=args.run_id)
+        seed = Seed(load_runtime(args.runtime), args.output, run_id=args.run_id, align_current_period=args.align_current_period)
         result = seed.run()
         print(json.dumps({"status": result["status"], "run_id": result["run_id"], "customers": len(result["customers"]),
                           "subscriptions": sum(len(row["subscriptions"]) for row in result["customers"]), "output": str(args.output)}))

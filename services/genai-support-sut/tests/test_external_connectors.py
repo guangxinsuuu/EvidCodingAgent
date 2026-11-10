@@ -120,6 +120,7 @@ class LagoTests(unittest.TestCase):
         self.period = {"lago_invoice_id": "invoice-a", "from_datetime": "2026-10-01T00:00:00Z",
                        "to_datetime": "2026-10-31T23:59:59Z", "charges_usage": [{"units": "0"}]}
         self.client.get_customer = Mock(return_value={"external_id": "customer-a"})
+        self.client.get_current_usage = Mock(return_value={**self.period, "lago_invoice_id": "other"})
 
     def test_foreign_invoice_rejected_before_detail_read(self) -> None:
         self.client.get_customer_invoices = Mock(return_value=[{"lago_id": "invoice-a"}])
@@ -153,6 +154,25 @@ class LagoTests(unittest.TestCase):
         result = self.client.resolve_invoice_scope("customer-a", "invoice-a")
         self.assertIsNone(result["usage"])
         self.assertEqual(result["missing_evidence"], ["INVOICE_USAGE_PERIOD_NOT_FOUND"])
+
+    def test_native_current_without_invoice_id_requires_exact_subscription_period_binding(self) -> None:
+        self.client.get_invoice_for_customer = Mock(return_value=self.invoice)
+        self.client.get_past_usage = Mock(return_value=[])
+        native = {**self.period, "lago_invoice_id": None}
+        self.client.get_current_usage = Mock(return_value=native)
+        result = self.client.resolve_invoice_scope("customer-a", "invoice-a")
+        self.assertEqual(result["usage_binding"], "SUBSCRIPTION_CURRENT_PERIOD")
+        self.assertIsNone(result["usage"]["lago_invoice_id"], "不能伪造原生发票ID")
+        self.client.get_current_usage.assert_called_once_with("customer-a", "sub-a")
+        self.client.get_current_usage.return_value = {**native, "from_datetime": "2026-10-01T00:00:01Z"}
+        self.assertIsNone(self.client.resolve_invoice_scope("customer-a", "invoice-a")["usage"])
+
+    def test_wrong_past_period_may_only_use_current_when_exact_fee_period_matches(self) -> None:
+        self.client.get_invoice_for_customer = Mock(return_value=self.invoice)
+        self.client.get_past_usage = Mock(return_value=[{**self.period, "to_datetime": "2026-10-01T00:00:00Z"}])
+        self.client.get_current_usage = Mock(return_value={**self.period, "lago_invoice_id": None})
+        result = self.client.resolve_invoice_scope("customer-a", "invoice-a")
+        self.assertEqual((result["usage_source"], result["usage_binding"]), ("CURRENT", "SUBSCRIPTION_CURRENT_PERIOD"))
 
     def test_invoice_identity_alone_cannot_hide_wrong_usage_period(self) -> None:
         self.client.get_invoice_for_customer = Mock(return_value=self.invoice)

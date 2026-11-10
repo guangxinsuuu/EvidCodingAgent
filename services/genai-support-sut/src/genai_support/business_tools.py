@@ -193,6 +193,19 @@ def model_reply_context(context: dict[str, Any], decision: dict[str, Any]) -> di
     """
     result = plain(context)
     result["ticket"] = {key: value for key, value in result["ticket"].items() if key not in {"body", "subject"}}
+    # 完整商业原文冻结在 external_inputs；文案模型只需要已计算的结果和出处。
+    # 去掉文档正文及原消息，限制上下文体积并缩小提示注入面。
+    source = result.pop("commercial_source", None)
+    result.pop("customer_message_refs", None)
+    if source:
+        result["commercial_basis"] = {"authority_scope": source.get("authority_scope"),
+            "source_revision": source.get("source_revision"),
+            "claim": {key: (source.get("claim") or {}).get(key) for key in ("claim_id", "claimed_at")},
+            "completeness_scope": (source.get("coverage") or {}).get("completeness_scope")}
+        for kind in ("policy", "contract"):
+            if isinstance(result.get(kind), dict):
+                result[kind] = {key: value for key, value in result[kind].items()
+                                if key not in {"source_document", "acceptance"}}
     result["decision"] = plain(decision)
     return result
 
@@ -210,4 +223,7 @@ def scripted_draft(context: dict[str, Any], decision: dict[str, Any] | None = No
         text = "根据提供的续费、使用及合同资料，您的申请初步符合政策条件，仍需人工审核；当前未执行退款。"
     else:
         text = "根据提供的续费、使用及合同资料，您的申请不满足当前政策条件；当前未执行退款。"
+    if decision.get("authority_scope") == "LOCAL_LAB":
+        # Scripted校准同样保留实验标签；LIVE模型链路不经过此替身函数。
+        text = "仅依据本地实验规则及模拟资料：" + text
     return assemble_draft(context, decision, text)

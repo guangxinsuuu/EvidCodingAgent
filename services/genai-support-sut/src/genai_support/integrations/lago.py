@@ -120,11 +120,8 @@ class LagoClient:
         source = "PAST"
         if len(matches) > 1:
             raise IntegrationError("USAGE_PERIOD_AMBIGUOUS", 409, "REJECTED")
-        if not matches:
-            current = self.get_current_usage(customer, external_subscription)
-            matches = [current] if current.get("lago_invoice_id") == invoice_id else []
-            source = "CURRENT" if matches else "MISSING"
         usage, missing = (matches[0], []) if matches else (None, ["INVOICE_USAGE_PERIOD_NOT_FOUND"])
+        binding = "INVOICE_PAST_PERIOD" if matches else None
         observed_usage_period = None
         if usage is not None:
             actual = _period(usage.get("from_datetime"), usage.get("to_datetime"))
@@ -136,8 +133,21 @@ class LagoClient:
                 # 预付订阅费与同张发票的计量期间可能合法地不同。保留双方事实供补证，
                 # 不把不适用的计量结果输入模型，也不擅自宣布上游有Bug。
                 usage, source, missing = None, "MISSING", ["INVOICE_USAGE_PERIOD_MISMATCH"]
+        if usage is None and invoice_period is not None:
+            # 原生 current_usage 可能尚无 lago_invoice_id。仅在已核验客户/唯一订阅的
+            # 受控查询中，且原生区间严格等于发票费用区间时，显式绑定当前订阅期间。
+            # 这不是把当前零值替代历史账单；不改写 raw invoice id，也不放宽端点。
+            current = self.get_current_usage(customer, external_subscription)
+            actual = _period(current.get("from_datetime"), current.get("to_datetime"))
+            if current.get("lago_invoice_id") in {None, invoice_id} and actual == _period(invoice_period["from_datetime"], invoice_period["to_datetime"]):
+                usage, source, binding, missing = current, "CURRENT", "SUBSCRIPTION_CURRENT_PERIOD", []
+                observed_usage_period = {"from_datetime": current["from_datetime"], "to_datetime": current["to_datetime"],
+                                         "lago_invoice_id": current.get("lago_invoice_id")}
+        if usage is None:
+            source, binding = "MISSING", None
         return {"customer": customer_object, "invoice": invoice, "subscription": subscription,
                 "usage": usage, "usage_source": source, "missing_evidence": missing,
+                "usage_binding": binding,
                 "external_customer_id": customer, "external_subscription_id": external_subscription,
                 "invoice_id": invoice_id, "invoice_period": invoice_period,
                 "observed_usage_period": observed_usage_period}

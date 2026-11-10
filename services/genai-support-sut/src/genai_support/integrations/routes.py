@@ -19,7 +19,7 @@ def mount_integration_routes(app: FastAPI, service: DisputeService) -> None:
         if isinstance(exc, IntegrationError):
             return JSONResponse(status_code=exc.status, content={"error_code": exc.code})
         if isinstance(exc, StoreError):
-            return JSONResponse(status_code=409 if exc.code == "OPERATION_KEY_CONFLICT" else 503,
+            return JSONResponse(status_code=409 if exc.code in {"OPERATION_KEY_CONFLICT", "ASSESSMENT_REVISION_CONFLICT", "ASSESSMENT_PARENT_MISMATCH"} else 503,
                                 content={"error_code": exc.code})
         return JSONResponse(status_code=422, content={"error_code": "INVALID_INPUT"})
 
@@ -65,6 +65,29 @@ def mount_integration_routes(app: FastAPI, service: DisputeService) -> None:
             delivery = await run_in_threadpool(service.store.delivery, tenant, job)
             return JSONResponse(content={"job": value, "delivery": service._delivery_result(delivery) if delivery else None})
         except (IntegrationError, StoreError) as exc:
+            return failure(exc)
+
+    @app.post("/integrations/disputes/{tenant}/{job}/reevaluate")
+    async def reevaluate(tenant: str, job: str, request: Request) -> JSONResponse:
+        """新事实刷新有独立意图，不用换普通提交 key 暗示刷新；始终先做 OIDC。"""
+        try:
+            identity = await authenticate(request)
+            if request.headers.get("content-type", "").split(";")[0] != "application/json" or request.headers.get("content-encoding", "identity") != "identity":
+                return JSONResponse(status_code=415, content={"error_code": "UNSUPPORTED_MEDIA_TYPE"})
+            raw = bytearray()
+            async for chunk in request.stream():
+                raw.extend(chunk)
+                if len(raw) > 4096:
+                    return JSONResponse(status_code=413, content={"error_code": "REQUEST_TOO_LARGE"})
+            command = json.loads(raw, object_pairs_hook=_unique_object, parse_constant=_reject_constant)
+            if not isinstance(command, dict) or set(command) != {"operation_key", "reason"} \
+                    or not isinstance(command["operation_key"], str) \
+                    or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", command["operation_key"]) is None \
+                    or not isinstance(command["reason"], str) or not 1 <= len(command["reason"].strip()) <= 500:
+                raise ValueError()
+            result = await run_in_threadpool(service.reevaluate, identity, tenant, job, command)
+            return JSONResponse(status_code=202, content=result)
+        except (IntegrationError, StoreError, ValueError, TypeError, RecursionError) as exc:
             return failure(exc)
 
     @app.post("/integrations/disputes/{tenant}/{job}/deliver")

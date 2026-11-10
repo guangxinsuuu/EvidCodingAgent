@@ -277,6 +277,80 @@ class ExternalPersistenceTests(unittest.TestCase):
             reader.collect("different-tenant", self.ticket, 1)
         self.assertEqual(len(events), 1)
 
+    def refresh(self, parent, context, *, key="explicit-refresh", expected_revision=1, **changes):
+        return self.admit(key=key, request_sha=digest({"mode": "REEVALUATE", "parent": parent, "key": key}),
+            context=context, parent_job=parent, reevaluation_reason="上游资料更新", expected_revision=expected_revision, **changes)
+
+    def test_explicit_refresh_freezes_new_facts_and_old_request_keeps_old_job(self):
+        old = self.admit()["job_id"]
+        old_snapshot = deepcopy(self.rows("SELECT context FROM egap_support.external_inputs WHERE tenant_id=%s", (self.tenant,))[0]["context"])
+        context = deepcopy(self.context)
+        context["commercial_source"] = {"source_revision": 12, "contracts": [{"contract_id": "newly-accepted"}]}
+        new = self.refresh(old, context)
+        self.assertEqual(new["assessment_status"], "REEVALUATED")
+        self.assertNotEqual(old, new["job_id"])
+        self.assertEqual(self.store.get_job(self.tenant, new["job_id"])["ticket_revision"], 2)
+        row = self.store.delivery(self.tenant, new["job_id"])
+        self.assertEqual((row["parent_job_id"], row["reevaluation_reason"]), (old, "上游资料更新"))
+        snapshots = self.rows("SELECT context,assessment_source_revision FROM egap_support.external_inputs WHERE tenant_id=%s ORDER BY ticket_revision", (self.tenant,))
+        self.assertEqual(snapshots[0]["context"], old_snapshot)
+        self.assertEqual(snapshots[1]["assessment_source_revision"], 12)
+        self.assertEqual(self.admit()["job_id"], old, "原 key 重试必须回原 Job")
+        self.assertEqual(self.refresh(old, {**context, "usage": {"units": 999}})["job_id"], new["job_id"], "原刷新 key 不重新读事实")
+
+    def test_refresh_without_new_facts_only_adds_operation_alias(self):
+        old = self.admit()["job_id"]
+        result = self.refresh(old, self.context)
+        self.assertEqual((result["job_id"], result["assessment_status"]), (old, "NO_NEW_FACTS"))
+        self.assertEqual(self.count("support_jobs"), 1)
+        self.assertEqual(self.count("external_inputs"), 1)
+
+    def test_old_projection_digest_does_not_manufacture_new_business_facts(self):
+        old = self.admit()["job_id"]
+        with psycopg.connect(self.dsn) as conn:
+            conn.execute("UPDATE egap_support.external_inputs SET assessment_facts_sha256=%s WHERE tenant_id=%s", ("old-projection-hash", self.tenant))
+        self.assertEqual(self.refresh(old, self.context)["assessment_status"], "NO_NEW_FACTS")
+        self.assertEqual(self.count("external_inputs"), 1)
+
+    def test_unrelated_source_revision_and_observation_time_do_not_refresh(self):
+        original = {**self.context, "commercial_source": {"source_revision": 1, "contracts": []}, "source_observed_at": "old"}
+        old = self.admit(context=original)["job_id"]
+        changed = deepcopy(original)
+        changed["commercial_source"]["source_revision"] = 9
+        changed["source_observed_at"] = "new"
+        changed["source_correlation_id"] = "different-observation"
+        self.assertEqual(self.refresh(old, changed)["assessment_status"], "NO_NEW_FACTS")
+
+    def test_same_changed_facts_concurrently_create_one_new_assessment(self):
+        old = self.admit()["job_id"]
+        context = {**self.context, "billing": {**self.context["billing"], "status": "PAID"}}
+        results = self.concurrent(lambda index: self.refresh(old, context, key=f"refresh-{index}"))
+        self.assertEqual(len({row["job_id"] for row in results}), 1)
+        self.assertEqual(sorted(row["reused"] for row in results), [False, True])
+        self.assertEqual(self.count("support_jobs"), 2)
+        self.assertEqual(self.count("external_inputs"), 2)
+
+    def test_stale_refresh_cannot_overwrite_newer_different_facts(self):
+        old = self.admit()["job_id"]
+        first = self.refresh(old, {**self.context, "billing": {**self.context["billing"], "status": "PAID"}})["job_id"]
+        with self.assertRaisesRegex(StoreError, "ASSESSMENT_REVISION_CONFLICT"):
+            self.refresh(old, {**self.context, "billing": {**self.context["billing"], "status": "PAYMENT_UNCONFIRMED"}}, key="stale-read", expected_revision=1)
+        self.assertEqual(self.count("support_jobs"), 2)
+        self.assertEqual(self.store.delivery(self.tenant, first)["current_revision"], 2)
+        self.assertIsNone(self.store.operation(self.tenant, "stale-read", "irrelevant"))
+
+    def test_changed_message_refreshes_even_when_commercial_facts_are_same(self):
+        old = self.admit()["job_id"]
+        new = self.refresh(old, self.context, message_sha=digest({"message": 2}))
+        self.assertFalse(new["reused"])
+        self.assertEqual(self.store.get_job(self.tenant, new["job_id"])["ticket_revision"], 2)
+
+    def test_refresh_parent_must_belong_to_same_ticket_and_invoice(self):
+        old = self.admit()["job_id"]
+        with self.assertRaisesRegex(StoreError, "ASSESSMENT_PARENT_MISMATCH"):
+            self.refresh(old, self.context, invoice="different-invoice")
+        self.assertEqual(self.count("support_jobs"), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
