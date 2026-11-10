@@ -1,0 +1,140 @@
+{
+  "qualification": "LOCAL_REVIEW_NOT_ENTERPRISE_FINAL",
+  "release_authorized": false,
+  "confirmed_candidate_findings": [
+    {
+      "code": "TERMINATED_SUBSCRIPTION_CURRENT_USAGE_405",
+      "status": "CONFIRMED",
+      "classification": "PRODUCT_ADAPTER_AVAILABILITY_HANDLING",
+      "label": "terminated_subscription",
+      "candidate": "bdccf89ea431ab6ff678e754a97113b54547e5d4",
+      "observed": "SUT HTTP 503 EXTERNAL_HTTP_REJECTED; Lago current_usage HTTP 405 no_active_subscription; zero Job created",
+      "basis": "Invoice and past_usage both200, Lago health200. Terminated subscription fee end00:55:33, historical usage end00:55:32; strict mismatch triggers unconditional current_usage.",
+      "expected": "保留终止与期间不匹配的缺证事实，形成补证结果；不伪造续费、零用量或放宽期间。",
+      "evidence_ref": "artifacts/business-source/release-v1-20261110/terminated-investigation.json",
+      "source_ref": "services/genai-support-sut/src/genai_support/integrations/lago.py:139",
+      "product_modified": false
+    },
+    {
+      "code": "EXPLANATION_FALSE_TIME_WINDOW",
+      "status": "CONFIRMED_CONTRADICTION",
+      "classification": "POST_RUN_EVIDENCE_REVIEW",
+      "label": "late_usage",
+      "stage": "after_seal",
+      "job_id": "d9c3018c6582414495d536f68306651c",
+      "draft_sha256": "2096ed84b6c65bf01c194bce01182706e146bf55b2704dbfbd783d0f365595ff",
+      "observed_text": "您的使用量已超过政策限制，且申请时间超出适用政策窗口。我们建议您查看合同条款以了解更多信息，并考虑是否需要调整使用策略或寻求其他解决方案。",
+      "basis": "实际申请距续期2天，lab-v2窗口7天；拒绝原因是申请区间已使用1单位、允许上限0。",
+      "expected_explanation": "应仅说明用量条件不满足，不声称超过窗口。",
+      "auto_assertion_changed": false,
+      "draft_hash_encoding": "SHA256_UTF8_TEXT"
+    },
+    {
+      "code": "SPECIAL_TERMS_PRESENT_BUT_REPORTED_MISSING",
+      "status": "CONFIRMED_EXPLANATION_IMPRECISION",
+      "classification": "POST_RUN_EVIDENCE_REVIEW",
+      "label": "special_contract",
+      "stage": "initial",
+      "job_id": "b005bd9d27304ccdaa91e6a00b6593d4",
+      "draft_sha256": "8a1a193fd5074156fe07937f2864b74c08605098dd62b16ffd3b6ec1a7a4dc7c",
+      "observed_text": "尊敬的客户，我们正在审核您的申请。根据我们的政策，您需要提供特殊合同条款和退款附加协议的相关证据。由于这些信息暂时缺失，我们需要进一步的人工审核来确认资格。请稍等，我们将尽快完成评估并通知您结果。",
+      "basis": "来源已有special_terms=true和EGAP-LAB-SPECIAL-1；结构化missing_evidence仍含SPECIAL_CONTRACT_TERMS与REFUND_ADDENDUM，需同时审视产品决定表示与文案输入。",
+      "expected_explanation": "条款存在，但当前标准规则不覆盖其解释，需要人工审核。",
+      "auto_assertion_changed": false,
+      "draft_hash_encoding": "SHA256_UTF8_TEXT"
+    }
+  ],
+  "additional_explanation_review": [
+    {
+      "code": "CURRENCY_CONFLICT_REPORTED_AS_RECORD_MISSING",
+      "status": "REVIEW_REQUIRED",
+      "classification": "POST_RUN_EVIDENCE_REVIEW",
+      "label": "wrong_currency",
+      "stage": "initial",
+      "job_id": "bca4a3f47cb74a1bb74f4773dd4b7725",
+      "draft_sha256": "4dc9bab9e6c6092128be11df46eff7253ff27486a834b386ef467e852c02a606",
+      "observed_text": "尊敬的客户，您的申请正在根据本地实验室规则进行人工审核。目前，我们发现缺少模拟付款记录证据。请提供此信息以完成审核流程。",
+      "basis": "来源存在模拟PAID 12000 EUR，账单12000 USD；结构化补证正确，文案未说明币种冲突。",
+      "expected_explanation": "说明已有付款记录与账单币种不一致，需核对，不笼统说记录不存在。",
+      "auto_assertion_changed": false,
+      "draft_hash_encoding": "SHA256_UTF8_TEXT"
+    }
+  ],
+  "automated_wording_probes": [
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "v1_history",
+      "stage": "initial",
+      "job_id": "a21077aed16d4d07b8b1585819778bf7",
+      "draft_sha256": "fdca3b615f3840f1dc215aa494b88ec1d429eb2c7f72d2a63ee2b03ae8099640"
+    },
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "v1_history",
+      "stage": "supplement",
+      "job_id": "31056b1c181141d4a6d6ab226ef589af",
+      "draft_sha256": "fdca3b615f3840f1dc215aa494b88ec1d429eb2c7f72d2a63ee2b03ae8099640"
+    },
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "v2_boundary",
+      "stage": "initial",
+      "job_id": "1618b3f439d4463c9b62bf4557f8ab8f",
+      "draft_sha256": "2a95d0befcc801fad737f5ba98924b1a488a9d5130535393e3118ceafb39facb"
+    },
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "draft_contract",
+      "stage": "initial",
+      "job_id": "023dd169b4a444b495855b80db424129",
+      "draft_sha256": "42b14185d00973534d5ab578dc418319a3da23130c86b65ed9008abe3aa1a9fa"
+    },
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "special_contract",
+      "stage": "initial",
+      "job_id": "b005bd9d27304ccdaa91e6a00b6593d4",
+      "draft_sha256": "8a1a193fd5074156fe07937f2864b74c08605098dd62b16ffd3b6ec1a7a4dc7c"
+    },
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "late_usage",
+      "stage": "after_seal",
+      "job_id": "d9c3018c6582414495d536f68306651c",
+      "draft_sha256": "2096ed84b6c65bf01c194bce01182706e146bf55b2704dbfbd783d0f365595ff"
+    },
+    {
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "label": "post_claim_usage",
+      "stage": "initial",
+      "job_id": "d6be1eb4c2e64d1b858591accfcb3ff5",
+      "draft_sha256": "005fbe3554659f2576332c020e822dc3912b4c91a12f66afa6de98b16bbea7cb"
+    }
+  ],
+  "automated_probes_are_not_full_semantic_review": true,
+  "tool_limitations": [
+    {
+      "code": "BOUNDARY_OBSERVATION_FAILURE_CLASSIFICATION",
+      "triggered_this_run": false,
+      "detail": "边界工具在无HTTP回执/连接失败时可能记录FAIL；本轮所有检查均有明确状态，未触发。未来工具需将观察不足归INCOMPLETE。"
+    },
+    {
+      "code": "MISSING_EVIDENCE_EXPECTATIONS_ARE_SUBSET",
+      "detail": "独立检查要求必要缺项存在，不证明其他附加缺项全部正确；特殊条款措辞由事后证据复核发现。"
+    }
+  ]
+}

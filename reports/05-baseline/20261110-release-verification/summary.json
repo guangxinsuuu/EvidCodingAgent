@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "INCOMPLETE_WITH_CONFIRMED_FINDINGS",
+  "automated_run_status": "INCOMPLETE",
+  "qualification": "LOCAL_RELEASE_CANDIDATE_VERIFICATION",
+  "target_candidate": "bdccf89ea431ab6ff678e754a97113b54547e5d4",
+  "sut_source_unchanged": true,
+  "verification_code": {
+    "release_check.py": "831eb4269e9063906c7191c72358b7a764ba2d1997c6af46c362cfef8d5b9ea3",
+    "release_seed.py": "e2a6206516012bda07a0cedbb9183b27d5b96d17bf293831b89a978913bfa556",
+    "release_oracle.py": "fdd237bde15645f1c174f9c126843a7c2a8ec8d31253db48a16331a8b9edc992",
+    "release_boundaries.py": "59f13829b46273de0e21b9f975e06d3786035a3c04e52a6816618be43766066e",
+    "seed.py": "15684a624c89f73bfa9d09f031658d81eb5b173d92bf7b63b69584cf5e0f21b5",
+    "check.py": "6596172bc12dc370e293807001d10e5ed21332d69bd3492914334bb4ac302623",
+    "business_source.py": "967bd6a212a46255a2088012e510222d1cf6515d681908174667f666ff413662"
+  },
+  "prepared_business_objects": 12,
+  "planned_stages": 14,
+  "observed_stages": 13,
+  "assertions": {
+    "passed": 470,
+    "failed": 1,
+    "failure_kind": "COVERAGE_INCOMPLETE_14_PLANNED_13_OBSERVED"
+  },
+  "boundary_checks": {
+    "passed": 12,
+    "total": 12,
+    "source_recovery": "RESTORED"
+  },
+  "preflight_runtime_checks": {
+    "passed": 11,
+    "total": 11
+  },
+  "unit_tests": {
+    "multi_system_tools_passed": 83,
+    "new_release_tests_passed": 56,
+    "log_ref": "artifacts/business-source/release-v1-20261110/tool-tests.log"
+  },
+  "business_execution": {
+    "jobs": {
+      "DONE": 13
+    },
+    "deliveries": {
+      "COMPLETE": 13
+    },
+    "snapshots": 13,
+    "parent_links": 2,
+    "calls": {
+      "COMPLETE": 13
+    },
+    "budget": [
+      {
+        "max_calls": 24,
+        "reserved_calls": 13,
+        "reserved_output_tokens": 13312
+      }
+    ],
+    "source_operations": 120,
+    "source_records": {
+      "claim": 11,
+      "contract": 12,
+      "coverage": 10,
+      "event": 24,
+      "invoice_link": 11,
+      "payment": 10,
+      "policy": 4,
+      "subscription": 12
+    },
+    "sut_source_check": {
+      "unchanged": true
+    },
+    "api_observations": 253,
+    "tokens": {
+      "prompt_tokens": 33879,
+      "completion_tokens": 712,
+      "total_tokens": 34591
+    }
+  },
+  "confirmed_candidate_findings": 3,
+  "additional_explanation_reviews": 1,
+  "automated_wording_probe_findings": 7,
+  "environment_id": "environment_f01e2256-26e1-42fe-84f0-0116fb960098",
+  "sut_base_url": "http://127.0.0.1:55322",
+  "sut_expires_at": "2026-11-11T01:01:25.858Z",
+  "source_instance_id": "commercial_ccc71b3e4ee0407bb89595d5fecd9e56",
+  "source_base_url": "http://127.0.0.1:61756",
+  "source_digest": "97e9cce300caad617cce96d9ebc18d680098ec3dc7fe0f9180768384852ca5a9",
+  "source_expires_at": "2026-11-11T00:45:05.975082+00:00",
+  "started_at": "2026-11-10T01:03:48.768694+00:00",
+  "completed_at": "2026-11-10T01:05:54.197892+00:00",
+  "evidence_directory": "artifacts/business-source/release-v1-20261110",
+  "evidence_sha256": {
+    "release-check.private.json": "a8949d4e72a52019db68acd20d4ab4c4abdadd6493ab5b62ea5854a77c300c3a",
+    "verification-expectations.private.json": "76c1442cea23fcc6e6bf1188e476cb55b95c91c46d12a030ce13c58bb0f5979f",
+    "source-preparation.private.json": "07431bd20b49ab41eadcd8ddc968b624077f0489f76bd83e6aef41b5376ae5cb",
+    "native/seed.json": "6c419291c584fb2d89a3876080f6b9245f85db3a60591225f3ec9dfc0e13da45",
+    "native/seed-state.json": "34e24b1a3cdb4802ef092a428d97d22ccbfb16390afb4868888b78e290e970bf",
+    "runtime-validation.json": "28957684a453476506ad2d7e178c193f76a13f71a1f7f71ca815c25e6e48ebc1",
+    "postcheck-audit.private.json": "9e70370fc09dc50d3a33a8e831a3f2c7125f37fcbd481c3f9e50770fd4887987",
+    "terminated-investigation.json": "8588a05be1bc691c6840f3204d77e7dc1340452bdc58447198efff73ffe7d423",
+    "native-preparation-finding.json": "0fb8d62a625b0171392eee4c80282805d5b4239add04327a239b111f45630f92"
+  },
+  "release_authorized": false,
+  "human_policy_review": "PENDING_USER_REVIEW",
+  "protected_oracle": false,
+  "independent_verifier_agent": false,
+  "natural_lago_renewal_verified": false,
+  "provider_payment_verified": false,
+  "product_modified": false,
+  "docs_or_readme_modified": false
+}

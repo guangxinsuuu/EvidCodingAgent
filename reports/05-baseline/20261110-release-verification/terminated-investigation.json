@@ -1,0 +1,205 @@
+{
+  "status": "CONFIRMED",
+  "candidate": "bdccf89ea431ab6ff678e754a97113b54547e5d4",
+  "qualification": "READ_ONLY_FAILURE_INVESTIGATION",
+  "classification": "PRODUCT_ADAPTER_AVAILABILITY_HANDLING",
+  "case": "terminated_subscription",
+  "scope": {
+    "tenant_id": "tenant-b",
+    "customer_id": "rel2_20261110_customer_b",
+    "subscription_id": "rel2_20261110_terminated_subscription",
+    "invoice_id": "787882db-467a-4e1e-a3bc-eeebd7d97ef1",
+    "account_id": 1,
+    "conversation_id": 18
+  },
+  "original_correlation_id": "94cfec88efc34667953c71d883cee1e8",
+  "original_sut_observations": [
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/accounts/1/conversations/18",
+        "query": {},
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "chatwoot",
+        "http_status": 200,
+        "response_sha256": "6f232bf7ba3980cc398e37e0739df3e55cb08a3cebf3d88dbfe8d41b8d188313"
+      },
+      "observed_at": "2026-11-10T01:05:03.781594+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/accounts/1/conversations/18/messages",
+        "query": {},
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "chatwoot",
+        "http_status": 200,
+        "response_sha256": "91038a65e41805ba7cdb72d1df9ef5ccad27bc6760a5f152a96e584c716b8182"
+      },
+      "observed_at": "2026-11-10T01:05:03.796553+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/accounts/1/conversations/18/messages",
+        "query": {
+          "before": 31
+        },
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "chatwoot",
+        "http_status": 200,
+        "response_sha256": "b6524c3c5cdd988fa6dbe65334f7b29526dbf5be50c9fe08a60b28e3b4183ece"
+      },
+      "observed_at": "2026-11-10T01:05:03.809203+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/customers/rel2_20261110_customer_b",
+        "query": {},
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "lago",
+        "http_status": 200,
+        "response_sha256": "77434ebd6ed0be86cb08f78e7a10ff1e931eefda06f5433f594a425615f3fdc6"
+      },
+      "observed_at": "2026-11-10T01:05:03.825366+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/customers/rel2_20261110_customer_b/invoices",
+        "query": {
+          "page": 1,
+          "per_page": 100
+        },
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "lago",
+        "http_status": 200,
+        "response_sha256": "56ba814a575df8f33986642c478856bb76fa0f8aebabf6b95e4d2e1635640211"
+      },
+      "observed_at": "2026-11-10T01:05:03.856512+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/invoices/787882db-467a-4e1e-a3bc-eeebd7d97ef1",
+        "query": {},
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "lago",
+        "http_status": 200,
+        "response_sha256": "f69f227daaad526d34b0be4d18b35ad72fada57e1460b867fe0ee0afc71d3ed2"
+      },
+      "observed_at": "2026-11-10T01:05:03.885586+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/customers/rel2_20261110_customer_b/past_usage",
+        "query": {
+          "periods_count": 12,
+          "external_subscription_id": "rel2_20261110_terminated_subscription"
+        },
+        "method": "GET",
+        "outcome": "OBSERVED",
+        "service": "lago",
+        "http_status": 200,
+        "response_sha256": "4dd9b3230236091100752519d766823f14f792ae4c4cae762b696886eeafac2b"
+      },
+      "observed_at": "2026-11-10T01:05:03.899599+00:00"
+    },
+    {
+      "correlation_id": "94cfec88efc34667953c71d883cee1e8",
+      "event": {
+        "path": "/api/v1/customers/rel2_20261110_customer_b/current_usage",
+        "query": {
+          "external_subscription_id": "rel2_20261110_terminated_subscription"
+        },
+        "method": "GET",
+        "outcome": "REJECTED",
+        "service": "lago",
+        "http_status": 405
+      },
+      "observed_at": "2026-11-10T01:05:03.910674+00:00"
+    }
+  ],
+  "current_native_observations": [
+    {
+      "method": "GET",
+      "path": "/api/v1/invoices/787882db-467a-4e1e-a3bc-eeebd7d97ef1",
+      "query": {},
+      "http_status": 200,
+      "response_sha256": "f69f227daaad526d34b0be4d18b35ad72fada57e1460b867fe0ee0afc71d3ed2",
+      "observed_at": "2026-11-10T01:07:12.574834+00:00"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customers/rel2_20261110_customer_b/past_usage",
+      "query": {
+        "external_subscription_id": "rel2_20261110_terminated_subscription",
+        "periods_count": 12
+      },
+      "http_status": 200,
+      "response_sha256": "4dd9b3230236091100752519d766823f14f792ae4c4cae762b696886eeafac2b",
+      "observed_at": "2026-11-10T01:07:12.585892+00:00"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customers/rel2_20261110_customer_b/current_usage",
+      "query": {
+        "external_subscription_id": "rel2_20261110_terminated_subscription"
+      },
+      "http_status": 405,
+      "response_sha256": "0c94e9910a1b5176c02ee05f24928b03d3677717799a3950625eaecbba9aa08c",
+      "observed_at": "2026-11-10T01:07:12.592423+00:00"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "query": {},
+      "http_status": 200,
+      "response_sha256": "5d770d8550e7b9655a626052255033b7748b9ce222a30609697e9388dcfbc7b4",
+      "observed_at": "2026-11-10T01:07:12.594850+00:00"
+    }
+  ],
+  "invoice_subscriptions": [
+    {
+      "external_id": "rel2_20261110_terminated_subscription",
+      "status": "terminated",
+      "started_at": "2026-11-10T00:00:00.000Z",
+      "terminated_at": "2026-11-10T00:55:32Z"
+    }
+  ],
+  "invoice_fee_periods": [
+    {
+      "from_date": "2026-11-10T00:00:00+00:00",
+      "to_date": "2026-11-10T00:55:33+00:00",
+      "external_subscription_id": "rel2_20261110_terminated_subscription"
+    }
+  ],
+  "matching_past_usage": [
+    {
+      "lago_invoice_id": "787882db-467a-4e1e-a3bc-eeebd7d97ef1",
+      "from_datetime": "2026-11-10T00:00:00Z",
+      "to_datetime": "2026-11-10T00:55:32Z",
+      "charges_usage": []
+    }
+  ],
+  "current_usage_http_status": 405,
+  "current_usage_error": {
+    "status": 405,
+    "error": "Method Not Allowed",
+    "code": "no_active_subscription"
+  },
+  "lago_health_http_status": 200,
+  "created_sut_jobs_for_case": 0,
+  "preparation_native_usage_aligned": false,
+  "inference": "严格费用期间不匹配后，LagoClient无视terminated状态请求current_usage；Lago明确405 no_active_subscription被通用HTTP层映射成503，阻断应保留缺证事实的业务处理。不能通过放宽一秒或伪造续费修复，也不据此宣称Lago上游bug。",
+  "no_resubmit": true,
+  "no_model_call": true
+}

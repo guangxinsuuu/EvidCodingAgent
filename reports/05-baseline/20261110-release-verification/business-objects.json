@@ -1,0 +1,765 @@
+{
+  "qualification": "LOCAL_SYNTHETIC_BUSINESS_OBJECTS_ON_REAL_PRODUCTS",
+  "run_id": "rel2_20261110",
+  "scope_count": 2,
+  "cases": [
+    {
+      "label": "v1_history",
+      "tenant_id": "tenant-a",
+      "customer_id": "bsp20261110_customer_a",
+      "subscription_id": "bsp20261110_a_zero",
+      "invoice_id": "c723b9f5-7439-4b78-bb1b-e177443eb4e2",
+      "account_id": 1,
+      "conversation_id": 11,
+      "customer_message_id": 24,
+      "period_start": "2026-11-09T00:00:00+00:00",
+      "period_end": "2026-12-08T23:59:59+00:00",
+      "claimed_at": "2026-11-19T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "REUSED_VERIFIED_HISTORY",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "历史续期适用14天政策；10天后申请，补充消息不能重置原申请。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-v1_history",
+        "claim_id": "rel2_20261110-claim-v1_history",
+        "coverage_id": "rel2_20261110-coverage-v1_history"
+      },
+      "expected_initial": {
+        "eligibility": "ELIGIBLE",
+        "action": "HUMAN_REVIEW",
+        "policy_version": "lab-v1",
+        "window_seconds": 1209600,
+        "elapsed_seconds": 864000,
+        "missing": [],
+        "rules": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "v1_history",
+          "stage": "initial",
+          "job_id": "a21077aed16d4d07b8b1585819778bf7",
+          "eligibility": "ELIGIBLE",
+          "proposed_action": "HUMAN_REVIEW",
+          "policy_ref": "refund-standard:lab-v1",
+          "missing_evidence": [],
+          "snapshot_sha256": "91db60de425076dbdb2a0e0424a7a87dffe94b2ae9e29e65bfb5d9f1fa74f756",
+          "private_message_id": 36,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        },
+        {
+          "label": "v1_history",
+          "stage": "supplement",
+          "job_id": "31056b1c181141d4a6d6ab226ef589af",
+          "eligibility": "ELIGIBLE",
+          "proposed_action": "HUMAN_REVIEW",
+          "policy_ref": "refund-standard:lab-v1",
+          "missing_evidence": [],
+          "snapshot_sha256": "d6b03f311659071f9a10b08e8e4005c73681792fae602e0045b52452a302fa65",
+          "private_message_id": 38,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "v2_boundary",
+      "tenant_id": "tenant-a",
+      "customer_id": "bsp20261110_customer_a",
+      "subscription_id": "rel2_20261110_v2_boundary",
+      "invoice_id": "4ceee239-86fa-4044-9e60-5d4a051de644",
+      "account_id": 1,
+      "conversation_id": 12,
+      "customer_message_id": 25,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-17T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "新政策恰好7天；主指标0、无关指标999，验证窗口含端点与指标隔离。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-v2_boundary",
+        "claim_id": "rel2_20261110-claim-v2_boundary",
+        "coverage_id": "rel2_20261110-coverage-v2_boundary"
+      },
+      "expected_initial": {
+        "eligibility": "ELIGIBLE",
+        "action": "HUMAN_REVIEW",
+        "policy_version": "lab-v2",
+        "window_seconds": 604800,
+        "elapsed_seconds": 604800,
+        "missing": [],
+        "rules": [
+          "R1",
+          "R2"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "v2_boundary",
+          "stage": "initial",
+          "job_id": "1618b3f439d4463c9b62bf4557f8ab8f",
+          "eligibility": "ELIGIBLE",
+          "proposed_action": "HUMAN_REVIEW",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [],
+          "snapshot_sha256": "168c5d692251d330cb1e9220d5535eb1837a517d88f9568727ba633c18fa0ede",
+          "private_message_id": 39,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "v2_late",
+      "tenant_id": "tenant-a",
+      "customer_id": "bsp20261110_customer_a",
+      "subscription_id": "rel2_20261110_v2_late",
+      "invoice_id": "ea4e3f8c-dfc9-4596-84cf-d9ea1333df6c",
+      "account_id": 1,
+      "conversation_id": 13,
+      "customer_message_id": 26,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-17T00:00:01+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "新政策7天加1秒，验证经过秒数而非日期截断。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-v2_late",
+        "claim_id": "rel2_20261110-claim-v2_late",
+        "coverage_id": "rel2_20261110-coverage-v2_late"
+      },
+      "expected_initial": {
+        "eligibility": "INELIGIBLE",
+        "action": "NO_ACTION",
+        "policy_version": "lab-v2",
+        "window_seconds": 604800,
+        "elapsed_seconds": 604801,
+        "missing": [],
+        "rules": [
+          "R2"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "v2_late",
+          "stage": "initial",
+          "job_id": "7fc80ce4916648eba34df50def3a7223",
+          "eligibility": "INELIGIBLE",
+          "proposed_action": "NO_ACTION",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [],
+          "snapshot_sha256": "2fea1d905210af40a60d88070d884c9544f836605a9d2a2a30ab7a28e4efa031",
+          "private_message_id": 40,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "expired_contract",
+      "tenant_id": "tenant-a",
+      "customer_id": "bsp20261110_customer_a",
+      "subscription_id": "rel2_20261110_expired_contract",
+      "invoice_id": "c55f3f34-8362-4c32-b6dd-5bcd475aeb72",
+      "account_id": 1,
+      "conversation_id": 14,
+      "customer_message_id": 27,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-11T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "expired",
+      "lifecycle": "renewal",
+      "purpose": "合同在续期时有效，在原申请时刻恰好到期，验证有效期右端不包含。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-expired_contract",
+        "claim_id": "rel2_20261110-claim-expired_contract",
+        "coverage_id": "rel2_20261110-coverage-expired_contract"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": null,
+        "window_seconds": null,
+        "elapsed_seconds": null,
+        "missing": [
+          "APPLICABLE_CONTRACT"
+        ],
+        "rules": [
+          "R1"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "expired_contract",
+          "stage": "initial",
+          "job_id": "5ba27ff12902411abd16c5e69c99ff90",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "REQUEST_INFORMATION",
+          "policy_ref": null,
+          "missing_evidence": [
+            "APPLICABLE_CONTRACT"
+          ],
+          "snapshot_sha256": "a594f291e6f3046761144eb5c8c111b226843c77bc065e2c19618e0f5df297c6",
+          "private_message_id": 41,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "draft_contract",
+      "tenant_id": "tenant-a",
+      "customer_id": "bsp20261110_customer_a",
+      "subscription_id": "rel2_20261110_draft_contract",
+      "invoice_id": "3254fdce-2e53-4bd2-8bca-20c47afeb95e",
+      "account_id": 1,
+      "conversation_id": 15,
+      "customer_message_id": 28,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-11T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "draft",
+      "lifecycle": "renewal",
+      "purpose": "有合同原文但状态DRAFT且没有接受记录，不能当成已生效合同。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-draft_contract",
+        "claim_id": "rel2_20261110-claim-draft_contract",
+        "coverage_id": "rel2_20261110-coverage-draft_contract"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": null,
+        "window_seconds": null,
+        "elapsed_seconds": null,
+        "missing": [
+          "APPLICABLE_CONTRACT"
+        ],
+        "rules": [
+          "R1"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "draft_contract",
+          "stage": "initial",
+          "job_id": "023dd169b4a444b495855b80db424129",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "REQUEST_INFORMATION",
+          "policy_ref": null,
+          "missing_evidence": [
+            "APPLICABLE_CONTRACT"
+          ],
+          "snapshot_sha256": "800a5a46e8e0cbcb9f21ebe3c06a2fdfd9ff6a421409b9a1f48769c40f3e55a2",
+          "private_message_id": 42,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "special_contract",
+      "tenant_id": "tenant-a",
+      "customer_id": "bsp20261110_customer_a",
+      "subscription_id": "rel2_20261110_special_contract",
+      "invoice_id": "7f34dd52-2306-4993-9576-9fc5c8274f0b",
+      "account_id": 1,
+      "conversation_id": 16,
+      "customer_message_id": 29,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-11T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "special",
+      "lifecycle": "renewal",
+      "purpose": "已有特殊退款附加条款，客户消息声称销售批准；当前标准规则应转人工解释。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-special_contract",
+        "claim_id": "rel2_20261110-claim-special_contract",
+        "coverage_id": "rel2_20261110-coverage-special_contract"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "HUMAN_REVIEW",
+        "policy_version": null,
+        "window_seconds": null,
+        "elapsed_seconds": null,
+        "missing": [
+          "SPECIAL_CONTRACT_TERMS"
+        ],
+        "rules": [
+          "R1",
+          "R5"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "special_contract",
+          "stage": "initial",
+          "job_id": "b005bd9d27304ccdaa91e6a00b6593d4",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "HUMAN_REVIEW",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [
+            "SPECIAL_CONTRACT_TERMS",
+            "REFUND_ADDENDUM"
+          ],
+          "snapshot_sha256": "62de8f9fe4e784c6c3c5b7be1e9cdb579b3c8b47207a2cb841b6324e415a1733",
+          "private_message_id": 43,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "cancelled_renewal",
+      "tenant_id": "tenant-b",
+      "customer_id": "rel2_20261110_customer_b",
+      "subscription_id": "rel2_20261110_cancelled_renewal",
+      "invoice_id": "aa900f43-5732-4184-9d2c-5ffae1fe1ce9",
+      "account_id": 1,
+      "conversation_id": 17,
+      "customer_message_id": 30,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": null,
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "cancelled",
+      "purpose": "取消续期后推进业务时钟；有真实原生首次账单但没有商业续费事件。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-cancelled_renewal"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": null,
+        "window_seconds": null,
+        "elapsed_seconds": null,
+        "missing": [
+          "RENEWAL_EVENT"
+        ],
+        "rules": [
+          "R1"
+        ],
+        "native_units": null,
+        "selected_units": null
+      },
+      "actual_stages": [
+        {
+          "label": "cancelled_renewal",
+          "stage": "initial",
+          "job_id": "072675a772a34eeba8617b3ca4766b05",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "REQUEST_INFORMATION",
+          "policy_ref": null,
+          "missing_evidence": [
+            "RENEWAL_EVENT"
+          ],
+          "snapshot_sha256": "631188843a31322f383fc9bd1769a58ee23a66c0ab1dd148cfc0df400f550f7f",
+          "private_message_id": 44,
+          "native_designated_metric_units": null,
+          "units_observation_qualified": false
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "terminated_subscription",
+      "tenant_id": "tenant-b",
+      "customer_id": "rel2_20261110_customer_b",
+      "subscription_id": "rel2_20261110_terminated_subscription",
+      "invoice_id": "787882db-467a-4e1e-a3bc-eeebd7d97ef1",
+      "account_id": 1,
+      "conversation_id": 18,
+      "customer_message_id": 31,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-11-10T00:55:33+00:00",
+      "claimed_at": "2026-11-10T00:55:33+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "TERMINATION",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": false,
+      "native_usage_metric_present": false,
+      "usage_qualification": "TERMINATION_USAGE_INCOMPLETE_PRESERVED_NOT_ELIGIBILITY_EVIDENCE",
+      "contract_kind": "standard",
+      "lifecycle": "terminated",
+      "purpose": "真实终止账单与同发票历史用量期间差1秒、指标缺失；保留缺证而非伪造零。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-terminated_subscription",
+        "claim_id": "rel2_20261110-claim-terminated_subscription"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": null,
+        "window_seconds": null,
+        "elapsed_seconds": null,
+        "missing": [
+          "RENEWAL_EVENT"
+        ],
+        "rules": [
+          "R1",
+          "R4"
+        ],
+        "native_units": null,
+        "selected_units": null
+      },
+      "actual_stages": [],
+      "execution_errors": [
+        {
+          "label": "terminated_subscription",
+          "error_code": "SUT_HTTP_503"
+        }
+      ],
+      "native_initial_observed_units": null,
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "late_usage",
+      "tenant_id": "tenant-b",
+      "customer_id": "rel2_20261110_customer_b",
+      "subscription_id": "rel2_20261110_late_usage",
+      "invoice_id": "72d0bfa4-2d80-4c0e-aec3-d78ec04a30a7",
+      "account_id": 1,
+      "conversation_id": 19,
+      "customer_message_id": 32,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-12T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "预登记申请前1单位事件，初次观察真实聚合0且覆盖OPEN；真正发送后聚合1、封存并显式重评。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-late_usage",
+        "claim_id": "rel2_20261110-claim-late_usage",
+        "coverage_id": "rel2_20261110-coverage-late_usage"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": "lab-v2",
+        "window_seconds": 604800,
+        "elapsed_seconds": 172800,
+        "missing": [
+          "USAGE_COMPLETENESS"
+        ],
+        "rules": [
+          "R3"
+        ],
+        "native_units": "0",
+        "selected_units": null
+      },
+      "actual_stages": [
+        {
+          "label": "late_usage",
+          "stage": "initial",
+          "job_id": "bb6477dfafb543baaeb2208709e94dd6",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "REQUEST_INFORMATION",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [
+            "USAGE_COMPLETENESS"
+          ],
+          "snapshot_sha256": "4ab15a1d5e3386c1e64e46d79777a87b579a61a4975d21e5ffd30003060c7202",
+          "private_message_id": 45,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        },
+        {
+          "label": "late_usage",
+          "stage": "after_seal",
+          "job_id": "d9c3018c6582414495d536f68306651c",
+          "eligibility": "INELIGIBLE",
+          "proposed_action": "NO_ACTION",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [],
+          "snapshot_sha256": "a057f9502567df63e96c3d16920e78450bee8d024f71c944044278d38e0b182c",
+          "private_message_id": 46,
+          "native_designated_metric_units": "1.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "post_claim_usage",
+      "tenant_id": "tenant-b",
+      "customer_id": "rel2_20261110_customer_b",
+      "subscription_id": "rel2_20261110_post_claim_usage",
+      "invoice_id": "561ae0ad-4284-4143-bdd0-0ec4a2ceef92",
+      "account_id": 1,
+      "conversation_id": 20,
+      "customer_message_id": 33,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-12T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "真实原生整期用量1，但商业事件发生在原申请之后，申请区间用量0。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-post_claim_usage",
+        "claim_id": "rel2_20261110-claim-post_claim_usage",
+        "coverage_id": "rel2_20261110-coverage-post_claim_usage"
+      },
+      "expected_initial": {
+        "eligibility": "ELIGIBLE",
+        "action": "HUMAN_REVIEW",
+        "policy_version": "lab-v2",
+        "window_seconds": 604800,
+        "elapsed_seconds": 172800,
+        "missing": [],
+        "rules": [
+          "R3"
+        ],
+        "native_units": "1",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "post_claim_usage",
+          "stage": "initial",
+          "job_id": "d6be1eb4c2e64d1b858591accfcb3ff5",
+          "eligibility": "ELIGIBLE",
+          "proposed_action": "HUMAN_REVIEW",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [],
+          "snapshot_sha256": "6a605d26ede0e6af5921686ad4f6ce85b4196d28a887b160544ce2373a6869aa",
+          "private_message_id": 47,
+          "native_designated_metric_units": "1.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "overpaid",
+      "tenant_id": "tenant-b",
+      "customer_id": "rel2_20261110_customer_b",
+      "subscription_id": "rel2_20261110_overpaid",
+      "invoice_id": "04b62f83-3aec-4887-b0b4-5b7571530f62",
+      "account_id": 1,
+      "conversation_id": 21,
+      "customer_message_id": 34,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-11T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "USD120账单对模拟USD120.01付款，验证精确金额。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-overpaid",
+        "claim_id": "rel2_20261110-claim-overpaid",
+        "coverage_id": "rel2_20261110-coverage-overpaid"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": "lab-v2",
+        "window_seconds": 604800,
+        "elapsed_seconds": null,
+        "missing": [
+          "SIMULATED_PAYMENT_FACT"
+        ],
+        "rules": [
+          "R4"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "overpaid",
+          "stage": "initial",
+          "job_id": "7c8f18b9944d4aa8ac00e9cb05d4dd5f",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "REQUEST_INFORMATION",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [
+            "SIMULATED_PAYMENT_FACT"
+          ],
+          "snapshot_sha256": "e9c809a57760cbc8e811fb74e1bfc60ccc4776b9d133f996e2e863e3f77ac5b1",
+          "private_message_id": 48,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    },
+    {
+      "label": "wrong_currency",
+      "tenant_id": "tenant-b",
+      "customer_id": "rel2_20261110_customer_b",
+      "subscription_id": "rel2_20261110_wrong_currency",
+      "invoice_id": "6841c6a2-c758-4cd1-84c4-0e2ddb110c7e",
+      "account_id": 1,
+      "conversation_id": 22,
+      "customer_message_id": 35,
+      "period_start": "2026-11-10T00:00:00+00:00",
+      "period_end": "2026-12-09T23:59:59+00:00",
+      "claimed_at": "2026-11-11T00:00:00+00:00",
+      "metric_code": "bsp20261110_units",
+      "native_invoice_kind": "INITIAL",
+      "native_object_origin": "CREATED_THIS_RUN",
+      "native_usage_aligned": true,
+      "native_usage_metric_present": true,
+      "usage_qualification": "EXACT_FEE_PERIOD",
+      "contract_kind": "standard",
+      "lifecycle": "renewal",
+      "purpose": "USD120账单对模拟EUR120付款，验证币种。",
+      "source_object_ids": {
+        "contract_id": "rel2_20261110-contract-wrong_currency",
+        "claim_id": "rel2_20261110-claim-wrong_currency",
+        "coverage_id": "rel2_20261110-coverage-wrong_currency"
+      },
+      "expected_initial": {
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "action": "REQUEST_INFORMATION",
+        "policy_version": "lab-v2",
+        "window_seconds": 604800,
+        "elapsed_seconds": null,
+        "missing": [
+          "SIMULATED_PAYMENT_FACT"
+        ],
+        "rules": [
+          "R4"
+        ],
+        "native_units": "0",
+        "selected_units": "0"
+      },
+      "actual_stages": [
+        {
+          "label": "wrong_currency",
+          "stage": "initial",
+          "job_id": "bca4a3f47cb74a1bb74f4773dd4b7725",
+          "eligibility": "NEEDS_MORE_EVIDENCE",
+          "proposed_action": "REQUEST_INFORMATION",
+          "policy_ref": "refund-standard:lab-v2",
+          "missing_evidence": [
+            "SIMULATED_PAYMENT_FACT"
+          ],
+          "snapshot_sha256": "6b9ebc9165dac545395ce0072569e7a7c6720d693b2aab71dc9371a5f90d1a08",
+          "private_message_id": 49,
+          "native_designated_metric_units": "0.0",
+          "units_observation_qualified": true
+        }
+      ],
+      "execution_errors": [],
+      "native_initial_observed_units": "0.0",
+      "initial_observation_phase": "NATIVE_PREPARATION_BEFORE_SOURCE_USAGE_EVENTS"
+    }
+  ],
+  "history_reuse": {
+    "source_sha256": "89e3e8d228b49899427c986cb762619231a104af108fbdd76b6836d2fb0356f6",
+    "customer_id": "bsp20261110_customer_a",
+    "subscription_id": "bsp20261110_a_zero",
+    "invoice_id": "c723b9f5-7439-4b78-bb1b-e177443eb4e2",
+    "metric_code": "bsp20261110_units",
+    "qualification": "EXPLICIT_NATIVE_OBJECT_REUSE_NEW_CONVERSATION_AND_ASSESSMENT"
+  },
+  "history_source_ref": "artifacts/business-source/bsp-v1-20261110-final/native/seed.json",
+  "policy_rules_ref": "business-source-pack/v1/SPEC.md",
+  "expectations_are_verification_only": true
+}
