@@ -237,9 +237,16 @@ def referenced_files(docs):
     return refs
 
 
-def verify_provenance(root, pack, docs):
-    """来源固定Git字节+当前工作副本+目录摘要三方核对；hash不代表Owner批准。"""
-    manifest = parse_yaml(safe_file(root, str(pack / "provenance.yaml")).read_bytes())
+def verify_provenance(root, pack, docs, *, registered_reader=None, catalog_reader=None):
+    """复用同一组身份/闭包/AST检查，支持工作树审查和固定版本消费两种读取方式。
+
+    默认维持原 CLI 的严格工作树与 Git 双重核对。CatalogReader 提供两个只读回调时，
+    所有来源和 AST 都从登记 commit 读取，清单从固定目录 commit 读取；工作树变化
+    不再被误判为历史登记错误。调用方必须先验证读取权限，hash 不代表 Owner 批准。
+    """
+    require((registered_reader is None) == (catalog_reader is None), "PROVENANCE_READERS_REQUIRED")
+    read_catalog = catalog_reader or (lambda path: safe_file(root, path).read_bytes())
+    manifest = parse_yaml(read_catalog(str(pack / "provenance.yaml")))
     basis = docs[FILES[0]]["catalog_basis_commit"]
     require(manifest.get("catalog_basis_commit") == basis, "PROVENANCE_BASIS_MISMATCH")
     records = manifest.get("files", [])
@@ -248,21 +255,27 @@ def verify_provenance(root, pack, docs):
     by_path = {x["path"]: x for x in records}
     require(len(by_path) == len(records) and set(by_path) == referenced_files(docs), "PROVENANCE_CLOSURE_MISMATCH")
     for path, record in by_path.items():
-        file = safe_file(root, path)
         require(record.get("git_commit") == basis and record.get("digest_algorithm") == "SHA256_RAW_BYTES", "PROVENANCE_REVISION_INVALID")
-        require(hashlib.sha256(file.read_bytes()).hexdigest() == record.get("sha256"), "SOURCE_CONTENT_DRIFT")
-        result = subprocess.run(["git", "show", basis + ":" + path], cwd=root, capture_output=True, timeout=10)
-        require(result.returncode == 0 and hashlib.sha256(result.stdout).hexdigest() == record["sha256"], "GIT_SOURCE_MISMATCH")
+        if registered_reader is None:
+            file = safe_file(root, path)
+            require(hashlib.sha256(file.read_bytes()).hexdigest() == record.get("sha256"), "SOURCE_CONTENT_DRIFT")
+            result = subprocess.run(["git", "show", basis + ":" + path], cwd=root, capture_output=True, timeout=10)
+            require(result.returncode == 0 and hashlib.sha256(result.stdout).hexdigest() == record["sha256"], "GIT_SOURCE_MISMATCH")
+        else:
+            require(hashlib.sha256(registered_reader(record["git_commit"], path)).hexdigest() == record.get("sha256"),
+                    "GIT_SOURCE_MISMATCH")
     catalog_hashes = manifest.get("catalog_documents", {})
     require(set(catalog_hashes) == set(FILES), "CATALOG_DIGEST_SET_INVALID")
     for name in FILES:
-        require(hashlib.sha256(safe_file(root, str(pack / name)).read_bytes()).hexdigest() == catalog_hashes[name],
+        require(hashlib.sha256(read_catalog(str(pack / name))).hexdigest() == catalog_hashes[name],
                 "CATALOG_CONTENT_DRIFT")
     # 静态AST只确认入口真实存在，不import、不运行测试枚举或模块顶层代码。
     for capability in docs[FILES[2]]["capabilities"]:
         entry = capability["entrypoint"]
         if entry.get("symbol") and entry["path"].endswith(".py"):
-            nodes = ast.parse(safe_file(root, entry["path"]).read_text()).body
+            raw = (safe_file(root, entry["path"]).read_bytes() if registered_reader is None
+                   else registered_reader(by_path[entry["path"]]["git_commit"], entry["path"]))
+            nodes = ast.parse(raw).body
             for part in entry["symbol"].split("."):
                 found = [n for n in nodes if isinstance(n, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == part]
                 require(len(found) == 1, "ENTRYPOINT_SYMBOL_MISSING")
@@ -270,16 +283,17 @@ def verify_provenance(root, pack, docs):
     return len(by_path)
 
 
-def verify_history(root, docs):
-    """将目录中的历史映射与已提交报告逐项比较，拒绝串候选、错Job或虚构完成。"""
+def verify_history(root, docs, *, read_file=None):
+    """比较原历史映射，拒绝串候选/错 Job；可注入经过授权的固定版本来源读取器。"""
+    read_file = read_file or (lambda path: safe_file(root, path).read_bytes())
     directory = "reports/05-baseline/20261110-release-verification/"
-    summary = json.loads(safe_file(root, directory + "summary.json").read_text())
-    objects = json.loads(safe_file(root, directory + "business-objects.json").read_text())
+    summary = json.loads(read_file(directory + "summary.json"))
+    objects = json.loads(read_file(directory + "business-objects.json"))
     by_label = {x["label"]: x for x in objects["cases"]}
     for capability in docs[FILES[2]]["capabilities"]:
         qualification = capability.get("qualification", {})
         require(qualification.get("applies_to_new_candidate") is False, "QUALIFICATION_SCOPE_REQUIRED")
-        report = json.loads(safe_file(root, qualification["report_ref"]).read_text())
+        report = json.loads(read_file(qualification["report_ref"]))
         if report.get("target_candidate"):
             require(qualification.get("candidate_ref") == report["target_candidate"], "QUALIFICATION_CANDIDATE_MISMATCH")
         else:
