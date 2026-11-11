@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "local_catalog_complete": true,
+  "enterprise_inputs_complete": false,
+  "gaps": [
+    {
+      "id": "REAL_OWNER_ASSIGNMENT",
+      "kind": "HUMAN_ORGANIZATION_INPUT",
+      "roles": 7,
+      "needed": "实际人员/服务身份、职责接受与升级路径；不能由Git作者推断。"
+    },
+    {
+      "id": "ENTERPRISE_RULE_AUTHORITY",
+      "kind": "BUSINESS_INPUT",
+      "needed": "公司正式政策、已签合同、产品支持边界及实际确认；当前仅LOCAL_CALIBRATION。"
+    },
+    {
+      "id": "ENTERPRISE_SOURCE_SCOPE",
+      "kind": "ACCESS_CONFIGURATION",
+      "needed": "实际账号、对象范围、身份映射、源ACL与允许用途；不把密钥放YAML。"
+    },
+    {
+      "id": "RETENTION_AND_RESIDENCY",
+      "kind": "DATA_GOVERNANCE_INPUT",
+      "policies": 9,
+      "needed": "实际处理/存储/备份/支持访问地域、保留期限、删除责任和审批；当前null。"
+    },
+    {
+      "id": "RAW_MODEL_AND_HTTP_ARCHIVE",
+      "kind": "IMPLEMENTATION_GAP",
+      "needed": "实际模型请求/原始返回、原生错误正文的受控持久对象和采集身份。"
+    },
+    {
+      "id": "REGISTERED_EXECUTION_PROFILES",
+      "kind": "IMPLEMENTATION_GAP",
+      "needed": "将现有组件入口封装为受控Runner/Observer/Rebuild Profile；当前entrypoint只定位、不派发。"
+    },
+    {
+      "id": "PROVIDER_API_CONTRACT",
+      "kind": "DOMAIN_INPUT",
+      "needed": "Lago等提供方的固定API版本语义及维护者确认；当前依据适配代码与真实历史观察。"
+    }
+  ]
+}

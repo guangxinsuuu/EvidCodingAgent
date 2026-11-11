@@ -1,0 +1,473 @@
+# 来源清单只登记已有依据；自动采集关闭，企业接入尚未获准。
+schema_version: 1
+pack_id: saas-support
+status: DRAFT
+scope: LOCAL_SYNTHETIC
+catalog_basis_commit: cb3881c0a9bfd67fec4ac05f31457b3d95e587b3
+approval_ref: null
+sources:
+- id: business_rules
+  kind: BUSINESS_RULE
+  maintainer_role: commercial_maintainer
+  semantic_owner_role: business_owner
+  source_refs: []
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  - business-source-pack/v1/policies/lab-v1.json
+  - business-source-pack/v1/policies/lab-v2.json
+  - business-source-pack/v1/contracts/standard.md
+  - business-source-pack/v1/contracts/special.md
+  - business-source-pack/v1/contracts/incomplete.md
+  authority_scope: SYNTHETIC_LOCAL_CALIBRATION
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: VERSIONED_GIT_FILES
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - rule_text
+    - version
+    - effective_interval
+    - structured_terms
+    - review_status
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 公司实际政策、已签合同、规则确认记录尚未取得。
+- id: public_reference
+  kind: REFERENCE_KNOWLEDGE
+  maintainer_role: commercial_maintainer
+  semantic_owner_role: business_owner
+  source_refs: []
+  provenance_refs:
+  - business-source-pack/v1/upstream/provenance.json
+  - business-source-pack/v1/upstream/common-paper-csa-2.1.html
+  authority_scope: PUBLIC_REFERENCE_NOT_COMPANY_RULE
+  data_classification: PUBLIC_REFERENCE
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: PINNED_LOCAL_COPY
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - fixed_document
+    - source_url
+    - license
+    - content_digest
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 公开底稿不自动成为公司的有效退款规则。
+- id: chatwoot_api
+  kind: BUSINESS_FACT
+  maintainer_role: sut_maintainer
+  semantic_owner_role: business_owner
+  source_refs: []
+  provenance_refs:
+  - services/genai-support-sut/src/genai_support/integrations/chatwoot.py
+  - tools/multi-system/release_seed.py
+  authority_scope: REAL_PRODUCT_SYNTHETIC_RECORDS
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: SCOPED_READ_ADAPTER
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - account_id
+    - conversation_id
+    - contact_id
+    - message_id
+    - message_type
+    - private
+    - content
+    - created_at
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 需重新核验当前实例、账号、绑定与权限；历史可用不证明当前在线。
+- id: lago_api
+  kind: BUSINESS_FACT
+  maintainer_role: billing_maintainer
+  semantic_owner_role: billing_maintainer
+  source_refs: []
+  provenance_refs:
+  - services/genai-support-sut/src/genai_support/integrations/lago.py
+  - reports/05-baseline/20261110-release-verification/terminated-investigation.json
+  authority_scope: REAL_PRODUCT_SYNTHETIC_RECORDS
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: SCOPED_READ_ADAPTER
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - customer_id
+    - subscription_id
+    - subscription_status
+    - invoice_id
+    - invoice_fees
+    - currency
+    - amount_cents
+    - usage_metric
+    - usage_period
+    - event_receipts
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - Lago接口的完整版本化提供方契约尚未作为独立资产接入。
+  - 终止订阅current_usage不适用；不得因无数据就补零。
+- id: identity
+  kind: IDENTITY_AUTHORITY
+  maintainer_role: identity_runtime_maintainer
+  semantic_owner_role: identity_runtime_maintainer
+  source_refs: []
+  provenance_refs:
+  - services/genai-support-sut/src/genai_support/integrations/identity.py
+  - services/genai-support-sut/src/genai_support/integrations/bindings.py
+  authority_scope: LOCAL_TEST_IDENTITY
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: AUTHENTICATED_RUNTIME_CHECK
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - subject
+    - tenant_scope
+    - authorization_decision
+    - issuer_identity
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 不索引token、密码、client_secret或完整认证响应。
+- id: commercial_api
+  kind: BUSINESS_FACT
+  maintainer_role: commercial_maintainer
+  semantic_owner_role: business_owner
+  source_refs: []
+  provenance_refs:
+  - services/commercial-source/src/commercial_source/protocol.py
+  - services/commercial-source/src/commercial_source/server.py
+  - services/commercial-source/src/commercial_source/store.py
+  authority_scope: SYNTHETIC_LOCAL_CALIBRATION
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: SIX_SCOPE_READ_ADAPTER
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - scope
+    - source_revision
+    - policies
+    - contracts
+    - events
+    - claim
+    - coverage
+    - payment
+    - invoice_link
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - records含可更新业务状态，不是所有历史版本的不可变库。
+  - 来源reader只读，不能执行准备命令；命令属于独立实验能力。
+- id: candidate_repository
+  kind: CANDIDATE_CHANGE
+  maintainer_role: sut_maintainer
+  semantic_owner_role: sut_maintainer
+  source_refs: []
+  provenance_refs:
+  - config/genai-support-source-policy.json
+  - tools/environment-host/src/genai-source.ts
+  - services/genai-support-sut/pyproject.toml
+  - services/genai-support-sut/src/genai_support/model_gateway.py
+  authority_scope: CANDIDATE_NOT_ACCEPTANCE_AUTHORITY
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: PINNED_REPOSITORY_VIEW
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - commit
+    - paths
+    - diff
+    - dependency_identity
+    - prompt_revision
+    - schema_revision
+    - configuration_digest
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 本次目录依据commit不等于下一次被测候选；候选另行封存。
+- id: sut_runtime
+  kind: PRODUCT_EXECUTION
+  maintainer_role: sut_maintainer
+  semantic_owner_role: qa_lead
+  source_refs: []
+  provenance_refs:
+  - services/genai-support-sut/migrations/002_integrations.sql
+  - services/genai-support-sut/migrations/003_commercial.sql
+  - services/genai-support-sut/src/genai_support/integrations/persistence.py
+  - services/genai-support-sut/src/genai_support/integrations/http.py
+  authority_scope: PRODUCT_SELF_REPORTED_REQUIRES_CORROBORATION
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: READ_ONLY_RUN_SCOPED_OBSERVER
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - job
+    - ticket_revision
+    - frozen_context
+    - delivery_state
+    - parent_job
+    - api_observation
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - SUT轨迹不是独立Observer证明。
+  - HTTP轨迹主要存状态和摘要，错误正文采集不完整。
+- id: model_gateway
+  kind: MODEL_EXECUTION
+  maintainer_role: sut_maintainer
+  semantic_owner_role: qa_lead
+  source_refs: []
+  provenance_refs:
+  - services/genai-support-sut/src/genai_support/gateway_store.py
+  - services/genai-support-sut/src/genai_support/model_gateway.py
+  - services/genai-support-sut/src/genai_support/business_tools.py
+  authority_scope: LOCAL_MODEL_EXECUTION_RECORD
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: READ_ONLY_RUN_SCOPED_OBSERVER
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - call_state
+    - draft
+    - model_identity
+    - prompt_revision
+    - schema_digest
+    - usage
+    - request_response_digest
+    - tool_events
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - gateway request_body是Job请求，不是实际model messages。
+  - 完整发送payload及provider原始响应尚无独立持久归档。
+- id: verification_tools
+  kind: TEST_AND_RECIPE_IMPLEMENTATION
+  maintainer_role: egap_maintainer
+  semantic_owner_role: qa_lead
+  source_refs: []
+  provenance_refs:
+  - tools/multi-system/release_seed.py
+  - tools/multi-system/release_check.py
+  - tools/multi-system/release_oracle.py
+  - tools/multi-system/release_boundaries.py
+  - services/genai-support-sut/tests/test_commercial_decision.py
+  authority_scope: IMPLEMENTATION_NOT_QUALIFICATION
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: STATIC_SOURCE_DISCOVERY
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - fixed_source
+    - test_entrypoint
+    - precondition
+    - side_effect
+    - oracle_scope
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 枚举入口不执行测试代码；目录中登记不代表平台允许调度。
+  - 产品单测不能取代独立Oracle。
+- id: historical_reports
+  kind: HISTORICAL_EVIDENCE
+  maintainer_role: egap_maintainer
+  semantic_owner_role: qa_lead
+  source_refs: []
+  provenance_refs:
+  - reports/05-baseline/20261110-release-verification/summary.json
+  - reports/05-baseline/20261110-release-verification/business-objects.json
+  - reports/05-baseline/20261110-release-verification/findings.json
+  - reports/05-baseline/20261110-release-verification/terminated-investigation.json
+  - reports/05-baseline/20261110-business-source-pack-v1/summary.json
+  authority_scope: HISTORICAL_LOCAL_CALIBRATION
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: PINNED_REPORT_READ
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - candidate_ref
+    - execution_identity
+    - stage_results
+    - findings
+    - evidence_digest
+    - limitations
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 旧470个PASS不是当前候选PASS；旧环境租期不能用作当前活跃资格。
+  - 原始私有证据只留受控引用，不复制到公开目录。
+- id: lab_runtime
+  kind: EXPERIMENT_ENVIRONMENT
+  maintainer_role: identity_runtime_maintainer
+  semantic_owner_role: egap_maintainer
+  source_refs: []
+  provenance_refs:
+  - tools/support-lab.py
+  - tools/commercial-source.py
+  - tools/multi-system/deployment.py
+  - tools/multi-system/sut.py
+  - tools/environment-host/src/lab-ledger.ts
+  authority_scope: LOCAL_LAB
+  data_classification: LOCAL_SYNTHETIC_OR_PROJECT_INTERNAL
+  allowed_use:
+  - CATALOG_DISCOVERY
+  - LOCAL_VERIFICATION_PLANNING
+  collection:
+    mode: HOST_CONTROLLED_STATUS
+    automatic_collection_enabled: false
+    credential_ref: null
+    allowed_fields:
+    - instance_identity
+    - source_digest
+    - lease
+    - resource_manifest
+    - readiness
+    - recovery_receipt
+    scope_resolution: SERVER_REGISTERED_SCOPE_REQUIRED
+    current_availability: NOT_PROBED_THIS_TASK
+  review_status: PENDING_REVIEW
+  approval_ref: null
+  retention_policy_ref: null
+  gaps:
+  - 生命周期能力不是普通读取；执行前需核对精确实例、权限、预算与清理。
+requirements:
+- id: R1
+  source_ref: business_rules
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  section: R1
+  semantic_owner_role: business_owner
+  review_status: LOCAL_CALIBRATION_PENDING_USER_REVIEW
+  approval_ref: null
+- id: R2
+  source_ref: business_rules
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  section: R2
+  semantic_owner_role: business_owner
+  review_status: LOCAL_CALIBRATION_PENDING_USER_REVIEW
+  approval_ref: null
+- id: R3
+  source_ref: business_rules
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  section: R3
+  semantic_owner_role: business_owner
+  review_status: LOCAL_CALIBRATION_PENDING_USER_REVIEW
+  approval_ref: null
+- id: R4
+  source_ref: business_rules
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  section: R4
+  semantic_owner_role: business_owner
+  review_status: LOCAL_CALIBRATION_PENDING_USER_REVIEW
+  approval_ref: null
+- id: R5
+  source_ref: business_rules
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  section: R5
+  semantic_owner_role: business_owner
+  review_status: LOCAL_CALIBRATION_PENDING_USER_REVIEW
+  approval_ref: null
+- id: R6
+  source_ref: business_rules
+  provenance_refs:
+  - business-source-pack/v1/policies/rules.md
+  section: R6
+  semantic_owner_role: business_owner
+  review_status: LOCAL_CALIBRATION_PENDING_USER_REVIEW
+  approval_ref: null
+collection_policy:
+  default: DENY_UNREGISTERED_SCOPE
+  credential_resolution: TRUSTED_RUNNER_ONLY
+  source_content_is_instruction: false
+  historical_evidence_is_current_pass: false
+  sensitive_content_to_model: REQUIRES_SEPARATE_VALID_DATA_FLOW
+  source_acl_failure: DENY
+  source_acl_stale: DENY
+  missing_enterprise_inputs:
+  - 实际企业规则与签收
+  - 维护人员身份
+  - 来源账号范围与ACL
+  - 各副本实际地区及保留删除策略

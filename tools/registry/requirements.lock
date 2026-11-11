@@ -1,0 +1,2 @@
+# 本机目录校验环境：Python 3.14 / macOS arm64；不属于SUT依赖。
+PyYAML==6.0.3 --hash=sha256:34d5fcd24b8445fadc33f9cf348c1047101756fd760b4dacb5c3e99755703310

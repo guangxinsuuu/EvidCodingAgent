@@ -1,0 +1,1555 @@
+# 本文件是验证侧场景目录，不是商业来源或SUT输入。
+# 修改阶段顺序会改变实验含义；历史13份结果不能变成当前候选的通过证据。
+schema_version: 1
+pack_id: "saas-support"
+status: "DRAFT"
+scope: "LOCAL_SYNTHETIC"
+catalog_basis_commit: "cb3881c0a9bfd67fec4ac05f31457b3d95e587b3"
+approval_ref: null
+dispatch_enabled: false
+current_evaluation_status: "NOT_RUN"
+purpose: "将已执行的12组对象和14个业务评估阶段登记为可追溯场景草案；不自动执行或扩大历史资格。"
+provenance_refs:
+  - "tools/multi-system/release_seed.py"
+  - "tools/multi-system/release_check.py"
+  - "tools/multi-system/release_oracle.py"
+  - "business-source-pack/v1/policies/rules.md"
+  - "reports/05-baseline/20261110-release-verification/business-objects.json"
+  - "reports/05-baseline/20261110-release-verification/summary.json"
+  - "reports/05-baseline/20261110-release-verification/findings.json"
+  - "tools/multi-system/release_boundaries.py"
+ownership_status: "ROLE_RESPONSIBILITIES_ONLY_NO_CONFIRMED_ENTERPRISE_ASSIGNEES"
+clock_semantics:
+  business_clock: "LOCAL_SIMULATED_BUSINESS_CLOCK"
+  native_clock: "REAL_SYSTEM_EVENT_AND_REQUEST_TIMESTAMPS"
+  preserve_fields:
+    - "claimed_at"
+    - "effective_at"
+    - "occurred_at"
+    - "native_occurred_at"
+    - "observed_at"
+  qualification: "原生API请求真实执行；商业续期、合同接受、申请业务时刻和付款是明确合成实验条件。"
+history_run:
+  run_id: "rel2_20261110"
+  candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+  catalog_commit_is_not_candidate: true
+  automated_status: "INCOMPLETE"
+  report_status: "INCOMPLETE_WITH_CONFIRMED_FINDINGS"
+  planned_business_stages: 14
+  observed_business_stages: 13
+  scenarios: 12
+  assertions:
+    passed: 470
+    coverage_failed: 1
+  model_jobs_completed: 13
+  environment_readiness: "NOT_REVALIDATED_BY_CATALOG_REGISTRATION"
+  current_candidate_coverage: false
+  release_authorized: false
+  evidence_refs:
+    - "reports/05-baseline/20261110-release-verification/summary.json"
+    - "reports/05-baseline/20261110-release-verification/report.md"
+scenario_execution_policy:
+  ordered_state_transitions: true
+  prepare_and_mutate_are_not_extra_business_stages: true
+  old_sealed_objects_are_not_fresh_initial_state: true
+  historical_playback_is_not_new_candidate_execution: true
+  candidate_identity_frozen_before_execution: true
+  check_code_and_business_rule_versions_frozen_before_execution: true
+  protected_oracle: false
+  enterprise_release_qualification: false
+  known_gaps:
+    - "实际模型请求/原始响应与原生错误响应尚未统一归档；完整解释归因不能只靠摘要。"
+    - "当前独立Oracle不是完整自然语言语义检验；已知错误解释仍需补独立语义检查。"
+    - "当前run.release仍固定旧候选，目录不会把它变成任意候选执行器。"
+scenarios:
+  -
+    id: "v1_history"
+    name: "历史续期政策与原申请不变"
+    purpose: "历史续期适用14天政策；10天后申请，补充消息不能重置原申请。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R6"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "EXPLICIT_NATIVE_INVOICE_ONLY_NEW_CONVERSATION_AND_SOURCE_STATE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "原生历史费用期间从2026-11-09 UTC开始，申请业务时间在第10天；明确复用历史原生发票，不复用旧PASS。"
+        - "原申请claim身份、claimed_at和原始消息引用在后续补充阶段保持不变。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "v1_history.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "v1_history"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "a21077aed16d4d07b8b1585819778bf7"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "91db60de425076dbdb2a0e0424a7a87dffe94b2ae9e29e65bfb5d9f1fa74f756"
+          eligibility: "ELIGIBLE"
+          proposed_action: "HUMAN_REVIEW"
+          native_designated_metric_units: "0.0"
+          known_finding_codes:
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+      -
+        id: "supplement"
+        stage_ref: "v1_history.supplement"
+        depends_on:
+          - "v1_history.initial"
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "同场景initial阶段完成并保存原Job、原快照与来源事实；尚未执行本阶段变更。"
+        steps:
+          -
+            order: 1
+            capability_ref: "claim.supplement"
+            effect: "追加真实incoming消息及来源claim修订；保留原申请身份与claimed_at。"
+          -
+            order: 2
+            capability_ref: "sut.reevaluate"
+            effect: "按当前场景父Job显式重新评估，并通过既有驱动有界等待新评估。"
+          -
+            order: 3
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 4
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+          - "原claim_id/claimed_at/original_message与初始阶段相同"
+          - "初始快照SHA保持不变"
+          - "新revision与父Job关系"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "v1_history"
+            stage: "supplement"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "31056b1c181141d4a6d6ab226ef589af"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "d6b03f311659071f9a10b08e8e4005c73681792fae602e0045b52452a302fa65"
+          eligibility: "ELIGIBLE"
+          proposed_action: "HUMAN_REVIEW"
+          native_designated_metric_units: "0.0"
+          known_finding_codes:
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+  -
+    id: "v2_boundary"
+    name: "新政策第7天端点与无关指标隔离"
+    purpose: "新政策恰好7天；主指标0、无关指标999，验证窗口含端点与指标隔离。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "原生费用期间从2026-11-10 UTC开始；申请间隔604800秒。"
+        - "指定指标为0，无关指标实际聚合999；禁止跨指标相加。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "v2_boundary.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "v2_boundary"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "1618b3f439d4463c9b62bf4557f8ab8f"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "168c5d692251d330cb1e9220d5535eb1837a517d88f9568727ba633c18fa0ede"
+          eligibility: "ELIGIBLE"
+          proposed_action: "HUMAN_REVIEW"
+          native_designated_metric_units: "0.0"
+          known_finding_codes:
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+  -
+    id: "v2_late"
+    name: "新政策第7天加1秒"
+    purpose: "新政策7天加1秒，验证经过秒数而非日期截断。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R2"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "申请间隔604801秒；不能截断为日期或整天比较。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "v2_late.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "v2_late"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "7fc80ce4916648eba34df50def3a7223"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "2fea1d905210af40a60d88070d884c9544f836605a9d2a2a30ab7a28e4efa031"
+          eligibility: "INELIGIBLE"
+          proposed_action: "NO_ACTION"
+          native_designated_metric_units: "0.0"
+          known_finding_codes: []
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+  -
+    id: "expired_contract"
+    name: "申请时合同恰好到期"
+    purpose: "合同在续期时有效，在原申请时刻恰好到期，验证有效期右端不包含。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R1"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "expired"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "合同在续期时有效；effective_to等于原申请时刻，合同有效期末端不包含。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "expired_contract.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "expired_contract"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "5ba27ff12902411abd16c5e69c99ff90"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "a594f291e6f3046761144eb5c8c111b226843c77bc065e2c19618e0f5df297c6"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "REQUEST_INFORMATION"
+          native_designated_metric_units: "0.0"
+          known_finding_codes: []
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+  -
+    id: "draft_contract"
+    name: "有原文但尚未成立的草稿合同"
+    purpose: "有合同原文但状态DRAFT且没有接受记录，不能当成已生效合同。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R1"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "draft"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "合同原文存在，状态DRAFT、acceptance为空；不能将检索到文档当作合同已成立。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "draft_contract.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "draft_contract"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "023dd169b4a444b495855b80db424129"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "800a5a46e8e0cbcb9f21ebe3c06a2fdfd9ff6a421409b9a1f48769c40f3e55a2"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "REQUEST_INFORMATION"
+          native_designated_metric_units: "0.0"
+          known_finding_codes:
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+  -
+    id: "special_contract"
+    name: "已有特殊条款与人工解释边界"
+    purpose: "已有特殊退款附加条款，客户消息声称销售批准；当前标准规则应转人工解释。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R1"
+      - "R5"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "special"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "商业来源存在special_terms=true和EGAP-LAB-SPECIAL-1。"
+        - "客户消息声称销售批准例外不构成权威批准；当前标准规则对特殊条款转人工。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "special_contract.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+          - "特殊条款原文和结构记录确实存在；需人工解释不能被偷换成材料缺失"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "special_contract"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "b005bd9d27304ccdaa91e6a00b6593d4"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "62de8f9fe4e784c6c3c5b7be1e9cdb579b3c8b47207a2cb841b6324e415a1733"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "HUMAN_REVIEW"
+          native_designated_metric_units: "0.0"
+          known_finding_codes:
+            - "SPECIAL_TERMS_PRESENT_BUT_REPORTED_MISSING"
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+  -
+    id: "cancelled_renewal"
+    name: "取消后未发生续期"
+    purpose: "取消续期后推进业务时钟；有真实原生首次账单但没有商业续费事件。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R1"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "cancelled"
+      contract_kind: "standard"
+      coverage_status: "NOT_CREATED"
+      native_invoice_kind: "INITIAL"
+      claim_present: false
+      simulated_payment_present: false
+      facts_to_establish:
+        - "先开通第一期间，再取消续期，随后推进业务时钟跨期；不产生续期事件。"
+        - "保留真实INITIAL发票，但不创建商业invoice_link、claim、coverage或payment。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "cancelled_renewal.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "cancelled_renewal"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "072675a772a34eeba8617b3ca4766b05"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "631188843a31322f383fc9bd1769a58ee23a66c0ab1dd148cfc0df400f550f7f"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "REQUEST_INFORMATION"
+          native_designated_metric_units: null
+          known_finding_codes: []
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+  -
+    id: "terminated_subscription"
+    name: "真实终止结算与不适用用量接口"
+    purpose: "真实终止账单与同发票历史用量期间差1秒、指标缺失；保留缺证而非伪造零。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+      - "reports/05-baseline/20261110-release-verification/terminated-investigation.json"
+    requirement_refs:
+      - "R1"
+      - "R4"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "terminated"
+      contract_kind: "standard"
+      coverage_status: "NOT_CREATED"
+      native_invoice_kind: "TERMINATION"
+      claim_present: true
+      simulated_payment_present: false
+      facts_to_establish:
+        - "通过Lago终止订阅，保留原生TERMINATION账单与SUBSCRIPTION_TERMINATED来源事件。"
+        - "历史费用止点00:55:33，历史用量止点00:55:32；原生charges_usage为空。"
+        - "保留缺失与期间不匹配；不将缺失计成0，不制造续期、封存coverage或付款。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "terminated_subscription.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "terminated_subscription"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "NOT_ADMITTED"
+          job_id: null
+          delivery_status: null
+          snapshot_sha256: null
+          eligibility: null
+          proposed_action: null
+          native_designated_metric_units: null
+          known_finding_codes:
+            - "TERMINATED_SUBSCRIPTION_CURRENT_USAGE_405"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+            - "reports/05-baseline/20261110-release-verification/terminated-investigation.json"
+          error_code: "SUT_HTTP_503"
+          http_status: 503
+          upstream_http_status: 405
+          root_cause_status: "CONFIRMED_PRODUCT_ADAPTER_AVAILABILITY_HANDLING"
+  -
+    id: "late_usage"
+    name: "迟到用量补齐后的显式重评"
+    purpose: "预登记申请前1单位事件，初次观察真实聚合0且覆盖OPEN；真正发送后聚合1、封存并显式重评。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R3"
+      - "R6"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "OPEN"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "初始coverage为OPEN，预登记1单位申请前事件，pending_count=1；尚未发送到Lago。"
+        - "原生整期聚合初值0不证明完整零用量；初次评估完成后才能发送迟到事件。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "late_usage.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "late_usage"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "bb6477dfafb543baaeb2208709e94dd6"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "4ab15a1d5e3386c1e64e46d79777a87b579a61a4975d21e5ffd30003060c7202"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "REQUEST_INFORMATION"
+          native_designated_metric_units: "0.0"
+          known_finding_codes: []
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+      -
+        id: "after_seal"
+        stage_ref: "late_usage.after_seal"
+        depends_on:
+          - "late_usage.initial"
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "同场景initial阶段完成并保存原Job、原快照与来源事实；尚未执行本阶段变更。"
+        steps:
+          -
+            order: 1
+            capability_ref: "usage.send_seal"
+            effect: "真实发送预登记事件→读回Lago聚合1→登记发送/接收→对账→封存coverage。"
+          -
+            order: 2
+            capability_ref: "sut.submit"
+            effect: "使用原普通操作键及新普通操作键分别重试；都应保留原Job，不能刷新原快照。"
+          -
+            order: 3
+            capability_ref: "sut.reevaluate"
+            effect: "按当前场景父Job显式重新评估，并通过既有驱动有界等待新评估。"
+          -
+            order: 4
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 5
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+          - "预登记expected/sent/received事件集合一致，pending_count=0，coverage=SEALED"
+          - "普通同key及新key重试均保留初始Job"
+          - "原生指定指标聚合1，申请区间用量1"
+          - "初始快照SHA保持不变，新Job保留父关系"
+          - "申请间隔仍2天、窗口7天；最终文案不能声称超窗"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "late_usage"
+            stage: "after_seal"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "d9c3018c6582414495d536f68306651c"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "a057f9502567df63e96c3d16920e78450bee8d024f71c944044278d38e0b182c"
+          eligibility: "INELIGIBLE"
+          proposed_action: "NO_ACTION"
+          native_designated_metric_units: "1.0"
+          known_finding_codes:
+            - "EXPLANATION_FALSE_TIME_WINDOW"
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+  -
+    id: "post_claim_usage"
+    name: "申请后的用量与申请区间隔离"
+    purpose: "真实原生整期用量1，但商业事件发生在原申请之后，申请区间用量0。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R3"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "准备阶段实际POST并读回原生整期聚合1，业务事件时刻在原申请之后，申请区间单位数0。"
+        - "coverage已封存；原生event timestamp与模拟business occurred_at分别保留，不能假装真实等待三天。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "post_claim_usage.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "post_claim_usage"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "d6be1eb4c2e64d1b858591accfcb3ff5"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "6a605d26ede0e6af5921686ad4f6ce85b4196d28a887b160544ce2373a6869aa"
+          eligibility: "ELIGIBLE"
+          proposed_action: "HUMAN_REVIEW"
+          native_designated_metric_units: "1.0"
+          known_finding_codes:
+            - "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+  -
+    id: "overpaid"
+    name: "模拟付款多1分"
+    purpose: "USD120账单对模拟USD120.01付款，验证精确金额。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R4"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "原生账单USD120.00，模拟付款USD120.01；不能只看PAID标签。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "overpaid.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "overpaid"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "7c8f18b9944d4aa8ac00e9cb05d4dd5f"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "e9c809a57760cbc8e811fb74e1bfc60ccc4776b9d133f996e2e863e3f77ac5b1"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "REQUEST_INFORMATION"
+          native_designated_metric_units: "0.0"
+          known_finding_codes: []
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+  -
+    id: "wrong_currency"
+    name: "模拟付款与账单币种不一致"
+    purpose: "USD120账单对模拟EUR120付款，验证币种。"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "chatwoot_api"
+      - "lago_api"
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+    requirement_refs:
+      - "R4"
+    requirement_mapping_status: "DRAFT_REQUIRES_OWNER_QA_CONFIRMATION"
+    dispatch_enabled: false
+    current_evaluation_status: "NOT_RUN"
+    rebuild:
+      capability_refs:
+        - "runtime.source"
+        - "native.prepare"
+        - "source.prepare"
+        - "runtime.sut"
+      mode: "FRESH_RUN_SCOPED_OBJECTS_WITH_EXPLICIT_HISTORY_PROVENANCE"
+      reuse_old_sut_job: false
+      reuse_historical_pass: false
+      history_object_reuse: "NONE"
+      constraints:
+        - "核验固定政策切换日期与原生账期前提，不为跑通而移动政策或改写原生回执。"
+        - "每次执行使用新的run身份；目录登记不删除旧启动标记、不重置已封存历史记录。"
+        - "环境、身份、预算、对象归属与清理能力在实际执行前重新核验。"
+    initial_business_state:
+      subscription_lifecycle: "renewal"
+      contract_kind: "standard"
+      coverage_status: "SEALED"
+      native_invoice_kind: "INITIAL"
+      claim_present: true
+      simulated_payment_present: true
+      facts_to_establish:
+        - "原生账单USD120.00，模拟付款EUR120.00；记录存在但币种冲突。"
+    stages:
+      -
+        id: "initial"
+        stage_ref: "wrong_currency.initial"
+        depends_on: []
+        current_evaluation_status: "NOT_RUN"
+        dispatch_enabled: false
+        preconditions:
+          - "所有重建前提已确认，当前阶段尚未执行；旧候选结果只作历史参考。"
+        steps:
+          -
+            order: 1
+            capability_ref: "sut.submit"
+            effect: "按当前场景提交并通过既有驱动有界等待原Job/交付终态。"
+          -
+            order: 2
+            capability_ref: "observe.native"
+            effect: "独立读回原生对象、商业来源和持久Job/快照；不以SUT自述代替原生观察。"
+          -
+            order: 3
+            capability_ref: "check.business"
+            effect: "调用固定独立Oracle核对适用规则、资格、动作、必需缺项和交付；缺观察不得PASS。"
+        required_observations:
+          - "经过认证的租户和绑定后的customer/subscription/invoice/account/conversation范围"
+          - "Chatwoot原始incoming消息与读取后的最终私有备注"
+          - "Lago真实发票、指定订阅指标用量及两者期间"
+          - "Commercial Source六项scope的当阶段事实与revision"
+          - "SUT冻结输入、Job状态、草稿及交付状态；与独立原生观察对照"
+          - "已有模拟付款记录为EUR，原生账单为USD；区分记录不存在与币种冲突"
+        verification_only_expectation:
+          capability_ref: "check.business"
+          oracle_path: "tools/multi-system/release_oracle.py"
+          oracle_symbol: "expectation_for"
+          arguments:
+            label: "wrong_currency"
+            stage: "initial"
+          domain: "VERIFICATION_ONLY"
+          send_to_business_source: false
+          send_to_sut: false
+        history:
+          run_id: "rel2_20261110"
+          candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+          overall_run_status: "INCOMPLETE"
+          use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+          execution_status: "DONE"
+          job_id: "bca4a3f47cb74a1bb74f4773dd4b7725"
+          delivery_status: "COMPLETE"
+          snapshot_sha256: "6b9ebc9165dac545395ce0072569e7a7c6720d693b2aab71dc9371a5f90d1a08"
+          eligibility: "NEEDS_MORE_EVIDENCE"
+          proposed_action: "REQUEST_INFORMATION"
+          native_designated_metric_units: "0.0"
+          known_finding_codes:
+            - "CURRENCY_CONFLICT_REPORTED_AS_RECORD_MISSING"
+          evidence_refs:
+            - "reports/05-baseline/20261110-release-verification/business-objects.json"
+            - "reports/05-baseline/20261110-release-verification/summary.json"
+            - "reports/05-baseline/20261110-release-verification/findings.json"
+shared_checks:
+  -
+    id: "release_boundaries"
+    capability_ref: "check.boundaries"
+    owner_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "verification_tools"
+      - "historical_reports"
+    provenance_refs:
+      - "tools/multi-system/release_boundaries.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/report.md"
+    depends_on:
+      - "v1_history.supplement"
+      - "v2_boundary.initial"
+      - "late_usage.after_seal"
+    preconditions:
+      - "不存在未完成模型任务；SUT冻结配置与本轮商业来源身份/端口/摘要匹配。"
+      - "仅可精确停止本轮商业来源，finally必须恢复，不操作其他实验或原生产品。"
+    checks:
+      - "reader_cannot_write"
+      - "admin_not_reader"
+      - "cross_tenant_invoice_denied"
+      - "cross_tenant_no_detail_read"
+      - "cross_tenant_no_job_or_budget"
+      - "concurrent_same_facts_reuse"
+      - "concurrent_no_job_or_model_budget"
+      - "source_down_is_503"
+      - "source_down_no_job_fixture_or_budget"
+      - "source_restored_same_identity_port_digest"
+      - "restored_same_facts_reuses_original_job"
+      - "restored_no_job_or_model_budget"
+    current_evaluation_status: "NOT_RUN"
+    dispatch_enabled: false
+    history:
+      candidate_commit: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      passed: 12
+      total: 12
+      source_recovery: "RESTORED"
+      use: "HISTORICAL_OBSERVATION_NOT_CURRENT_COVERAGE"
+      evidence_refs:
+        - "reports/05-baseline/20261110-release-verification/summary.json"
+        - "reports/05-baseline/20261110-release-verification/report.md"

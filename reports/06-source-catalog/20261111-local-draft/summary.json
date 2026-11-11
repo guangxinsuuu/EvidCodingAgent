@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-11",
+  "status": "VALID_DRAFT",
+  "scope": "LOCAL_SYNTHETIC",
+  "catalog_basis_commit": "cb3881c0a9bfd67fec4ac05f31457b3d95e587b3",
+  "catalog_path": "registry/packs/saas-support",
+  "validation": {
+    "status": "VALID_DRAFT",
+    "counts": {
+      "roles": 7,
+      "sources": 12,
+      "requirements": 6,
+      "capabilities": 19,
+      "scenarios": 12,
+      "stages": 14,
+      "data_flows": 19,
+      "retention_policies": 9,
+      "pinned_source_files": 66,
+      "historical_observed_stages": 13
+    },
+    "dispatch_authorized": false,
+    "enterprise_admission": "BLOCKED_PENDING_REGISTRATION",
+    "current_candidate_result": "NOT_RUN"
+  },
+  "tests": {
+    "passed": 21,
+    "scope": "READ_ONLY_CATALOG_VALIDATION_NO_BUSINESS_EXECUTION",
+    "log_ref": "artifacts/source-catalog/20261111-local-draft/tests.log"
+  },
+  "files_sha256": {
+    "registry/packs/saas-support/cross-team-scenarios.yaml": "cfc0890f0d784c18e33af71511662a85834f4c44139e37603271c1a527aed6f8",
+    "registry/packs/saas-support/data-flows.yaml": "9a722add21d97ccb9864e3c555a4b2dd703f82e9a800820048a2d97ae7744301",
+    "registry/packs/saas-support/ownership.yaml": "b50f3718e97d81ede6586677accdb52f4930fd96346ff6587dd9d2095f94655b",
+    "registry/packs/saas-support/provenance.yaml": "d9014dc764a55ed3cee05485d3ef567230434c21f85179c1933183991381e8e3",
+    "registry/packs/saas-support/sources.yaml": "6648e3ba71ff966799129cc796ce31e470f86b941d77b98cb983af4160a03a64",
+    "registry/packs/saas-support/test-catalog.yaml": "9c6a2fdb4eac2a44460617e605a3cfce2b0864f4177604628fe0240e8c663655"
+  },
+  "product_modified": false,
+  "docs_or_readme_modified": false,
+  "services_started": false,
+  "model_calls": 0,
+  "private_config_read_for_catalog": false,
+  "role_assignment": "UNASSIGNED",
+  "enterprise_admission": "BLOCKED_PENDING_REGISTRATION",
+  "runtime_dispatch": "NOT_IMPLEMENTED_BY_THIS_CATALOG",
+  "validation_command": "tools/registry/.venv/bin/python tools/registry/validate_catalog.py",
+  "test_command": "tools/registry/.venv/bin/python -m unittest discover -s tools/registry -p test_*.py -v",
+  "tool_environment": {
+    "dependency": "PyYAML 6.0.3",
+    "lock": "tools/registry/requirements.lock",
+    "qualification": "Python 3.14 / macOS arm64 wheel hash; isolated from SUT environment"
+  },
+  "limitations": [
+    "目录校验器仅面向本包DRAFT，不是通用第三方Schema、批准系统或派发引擎。",
+    "所有历史结果按原候选保留；6组旧测试批次缺显式candidate绑定，保持null。",
+    "数据来源可用性未实时探测，当前业务验证状态保持NOT_RUN。"
+  ]
+}

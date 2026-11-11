@@ -1,0 +1,1073 @@
+# 历史证据支持能力登记；dispatch_enabled=false 不得被目录读取器提升为执行许可。
+schema_version: 1
+pack_id: "saas-support"
+status: "DRAFT"
+scope: "LOCAL_SYNTHETIC"
+catalog_basis_commit: "cb3881c0a9bfd67fec4ac05f31457b3d95e587b3"
+approval_ref: null
+description: "按现有代码与历史证据登记能力；本文件不授权执行，不宣称统一Agent工具或企业资格已经实现。"
+capabilities:
+  -
+    id: "native.prepare"
+    name: "创建或显式复用原生业务对象"
+    kind: "PREPARE"
+    maintainer_role: "billing_maintainer"
+    semantic_owner_role: "billing_maintainer"
+    source_refs:
+      - "chatwoot_api"
+      - "lago_api"
+      - "lab_runtime"
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/seed.py"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_seed.py"
+      symbol: "NativeObjects.prepare"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "原生Chatwoot/Lago部署已登记，使用限定实验账号与已解析的私有运行配置。"
+      - "新run使用新目录、唯一run_id和未冲突对象；已有目录只能按账本恢复。"
+      - "固定实验日期为2026-11-09/10；当天激活和历史账单行为需重新核验。"
+      - "历史案例通过显式reuse_history_from核验真实账单、客户、订阅、指标与源文件摘要。"
+    side_effects:
+      - "创建Chatwoot联系人/收件箱/会话/客户incoming消息。"
+      - "创建Lago套餐、指标、客户、订阅与账单；终止案例真实终止订阅。"
+      - "将对象身份、请求与已完成操作回执写入本地实验账本。"
+    observations:
+      - "原生对象ID与客户/订阅/账单/会话绑定。"
+      - "native_invoice_kind、native_object_origin、原生期间及指标完整性。"
+      - "原生POST回执、准备检查点与历史复用来源摘要。"
+    limitations:
+      - "原生POST未知回执必须对账，不以再次提交覆盖。"
+      - "一次历史复用不继承旧PASS；原生真实账单不等于真实自然续费。"
+      - "终止负例保留期间差异及缺失指标，不能把缺失解释为0。"
+      - "原生业务对象无通用一键安全reset，需重新准备或按资源归属清理。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "source.prepare"
+    name: "登记版本化实验商业事实"
+    kind: "PREPARE"
+    maintainer_role: "commercial_maintainer"
+    semantic_owner_role: "commercial_maintainer"
+    source_refs:
+      - "business_rules"
+      - "commercial_api"
+      - "chatwoot_api"
+      - "lago_api"
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/business_source.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_seed.py"
+      symbol: "SourceObjects.prepare"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "runtime.source"
+      - "native.prepare"
+    preconditions:
+      - "native.prepare已完成且原生清单摘要与来源账本一致。"
+      - "runtime.source已就绪，admin身份仅由受控准备器解析。"
+      - "政策与合同来源限定LOCAL_CALIBRATION/PENDING_USER_REVIEW。"
+    side_effects:
+      - "通过来源command登记政策、合同、订阅、商业事件、申请、覆盖和模拟付款。"
+      - "post_claim_usage准备时真实发送用量并封存；late_usage仅预登记OPEN集合。"
+      - "推进独立商业时钟，不修改宿主/数据库/身份服务时钟。"
+    observations:
+      - "幂等operation_key与命令摘要、来源revision。"
+      - "各业务对象实际是否存在及coverage OPEN/SEALED状态。"
+      - "原始申请消息引用、业务发生时刻、原生事件时刻、实际观察时刻。"
+    limitations:
+      - "不包含资格预期，不向SUT发送独立答案表。"
+      - "取消与终止负例故意缺少部分对象，不能按计划ID推断对象已创建。"
+      - "SIMULATED_PAYMENT不是支付商资金证明；coverage只覆盖受控事件集合。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "usage.send_seal"
+    name: "发送预登记用量并对账封存"
+    kind: "MUTATE_AND_RECONCILE"
+    maintainer_role: "billing_maintainer"
+    semantic_owner_role: "billing_maintainer"
+    source_refs:
+      - "lago_api"
+      - "commercial_api"
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "services/commercial-source/src/commercial_source/store.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R3"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_seed.py"
+      symbol: "SourceObjects.send_usage"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "native.prepare"
+      - "source.prepare"
+    preconditions:
+      - "source.prepare已登记非空expected_events与对应coverage。"
+      - "首次迟到事件阶段必须来自OPEN覆盖，不能用已SEALED历史对象冒充初始状态。"
+      - "事件交易ID、订阅、指标、单位、业务时间与原生时间均已固定。"
+    side_effects:
+      - "真实POST Lago事件并等待指定订阅/指标聚合。"
+      - "记录发送、接收、原生聚合核对回执并将coverage封存。"
+      - "写入本地发送账本及来源命令账本。"
+    observations:
+      - "原生事件回执与transaction_id。"
+      - "expected/sent/received集合、pending_count、原生聚合和期间。"
+      - "封存前后来源revision与SEALED状态。"
+    limitations:
+      - "网络超时/未知原生写不能当成未执行重发。"
+      - "不能根据整体期间聚合直接推导任意申请子区间。"
+      - "现有实现对应固定有限预期集合，不证明生产全部事件到齐。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "claim.supplement"
+    name: "追加真实客户消息并保留原申请"
+    kind: "MUTATE"
+    maintainer_role: "commercial_maintainer"
+    semantic_owner_role: "commercial_maintainer"
+    source_refs:
+      - "chatwoot_api"
+      - "commercial_api"
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "services/commercial-source/src/commercial_source/store.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R2"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_seed.py"
+      symbol: "SourceObjects.supplement"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "native.prepare"
+      - "source.prepare"
+    preconditions:
+      - "来源已有claim且绑定原始消息。"
+      - "本轮客户会话与tenant范围已经核验。"
+      - "补充操作有持久operation_key，重试只能恢复同一动作。"
+    side_effects:
+      - "创建真实Chatwoot incoming消息。"
+      - "来源claim追加消息引用并增加revision，不修改原申请时间。"
+    observations:
+      - "新消息ID、创建时间与正文摘要。"
+      - "claim_id、claimed_at、original_message仍与原版本一致。"
+    limitations:
+      - "消息追加不是显式重评；需要单独调用sut.reevaluate。"
+      - "当前方法同label固定补充操作键，不代表可任意追加多次独立补充。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "sut.submit"
+    name: "以已授权身份受理争议任务"
+    kind: "PRODUCT_ACTION"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "identity"
+      - "chatwoot_api"
+      - "lago_api"
+      - "commercial_api"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/routes.py"
+      - "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      - "services/genai-support-sut/src/genai_support/integrations/persistence.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      symbol: "DisputeService.submit"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "runtime.sut"
+      - "native.prepare"
+      - "source.prepare"
+    preconditions:
+      - "runtime.sut真实就绪且当前租期、源配置身份已核验。"
+      - "由身份服务取得限定tenant的测试身份，服务端bindings限定会话与客户。"
+      - "明确任务对象、操作键和剩余模型预算。"
+    side_effects:
+      - "读取上游，冻结context，与Job/outbox在同一事务提交。"
+      - "异步模型执行可占用预算，自动交付正确会话私有备注。"
+    observations:
+      - "受理状态/Job ID或明确拒绝。"
+      - "外部调用轨迹、冻结输入、Job终态及交付状态。"
+    limitations:
+      - "产品内部收集和决定不是独立Oracle。"
+      - "本候选终止订阅当前用量405被映射503，见历史Finding。"
+      - "该组件入口须经现有HTTP认证；不得在Agent中绕过身份直接构造identity调用。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "历史计划14阶段完成13阶段；终止案例503未创建Job，不能将该能力登记为所有场景通过。"
+  -
+    id: "sut.reevaluate"
+    name: "显式重新评估商业事实"
+    kind: "PRODUCT_ACTION"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "identity"
+      - "sut_runtime"
+      - "commercial_api"
+      - "verification_tools"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      - "services/genai-support-sut/src/genai_support/integrations/persistence.py"
+      - "tools/multi-system/release_check.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R2"
+      - "R3"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      symbol: "DisputeService.reevaluate"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "runtime.sut"
+      - "native.prepare"
+      - "source.prepare"
+    preconditions:
+      - "父Job归属当前身份、客户、会话与tenant。"
+      - "显式提交operation_key和reason，父revision符合并发约束。"
+      - "新事实或消息变化由受控来源获得，不能直接改写旧快照。"
+    side_effects:
+      - "有新事实时新增Job、输入revision和父关系，可消耗模型预算并新增私有备注。"
+      - "同事实或同操作重试复用原Job。"
+    observations:
+      - "新旧Job、parent_job_id、事实摘要和重评原因。"
+      - "旧快照不变、新评估的结构结果与备注。"
+    limitations:
+      - "普通新operation_key不等同刷新授权。"
+      - "同时刷新与消息前移可能产生409；不能无限重试覆盖冲突。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "observe.native"
+    name: "对照产品快照独立读取原生对象"
+    kind: "OBSERVE_AND_CHECK"
+    maintainer_role: "qa_lead"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "chatwoot_api"
+      - "lago_api"
+      - "commercial_api"
+      - "sut_runtime"
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/check.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_check.py"
+      symbol: "ReleaseCheck.inspect"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "runtime.sut"
+      - "native.prepare"
+      - "source.prepare"
+    preconditions:
+      - "已得到当前Job的完整DONE/交付COMPLETE输出及独立对象定位。"
+      - "持有实验范围内的原生读取权限和产品快照只读观察能力。"
+      - "对象状态与本阶段前提一致；独立读回与冻结快照的时间关系可解释。"
+    side_effects:
+      - "GET原生消息、会话、发票、当前或历史用量与商业来源。"
+      - "读取SUT冻结快照并追加本地检查结果和Finding，不修改业务对象。"
+    observations:
+      - "原生对象与冻结快照的身份、版本、期间和指标一致性。"
+      - "调用check.business的分项结果及原始文案待复核提示。"
+    limitations:
+      - "这是ReleaseCheck内组件，并非已暴露的通用只读工具。"
+      - "本地同机观察尚无独立防篡改执行边界。"
+      - "响应并非都以完整不可变blob归档，摘要不能替代缺失原文。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "check.business"
+    name: "独立核对业务规则与交付边界"
+    kind: "ORACLE"
+    maintainer_role: "qa_lead"
+    semantic_owner_role: "business_owner"
+    source_refs:
+      - "business_rules"
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/release_oracle.py"
+      - "business-source-pack/v1/policies/rules.md"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_INDEPENDENT_RULE_CHECK"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_oracle.py"
+      symbol: "assess_case"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "场景/阶段在固定独立预期矩阵中。"
+      - "调用方提供已取得的原生观察、候选输出及冻结快照。"
+      - "规则仍为LOCAL_LAB，不能宣称企业批准或正式Final。"
+    side_effects:
+      - "纯函数产生分项断言与待复核文案Finding；不写产品或来源。"
+    observations:
+      - "资格、动作、适用政策、申请时间、用量、付款、对象范围和私有交付检查。"
+      - "OracleInputError区分缺观察；文案探针返回REVIEW_REQUIRED。"
+    limitations:
+      - "预期矩阵固定12对象/14阶段，未成为任意业务的通用裁决器。"
+      - "只要求必要缺项存在，不保证所有附加missing_evidence合理。"
+      - "未覆盖完整自然语言语义，本轮错误超窗与特殊条款解释由事后审查发现。"
+      - "不可调用产品commercial_decision生成期望。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "check.boundaries"
+    name: "权限并发与精确断源恢复"
+    kind: "FAULT_AND_BOUNDARY_CHECK"
+    maintainer_role: "egap_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "identity"
+      - "commercial_api"
+      - "sut_runtime"
+      - "model_gateway"
+      - "verification_tools"
+      - "lab_runtime"
+    provenance_refs:
+      - "tools/multi-system/release_boundaries.py"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_boundaries.py"
+      symbol: "run_boundaries"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "runtime.source"
+      - "runtime.sut"
+      - "native.prepare"
+      - "source.prepare"
+    preconditions:
+      - "历史政策与新政策边界Job已完成，当前无未完成模型任务。"
+      - "来源目录、实例、端口、源码摘要与SUT冻结配置完全绑定。"
+      - "操作者拥有仅本来源实例的停止/恢复权限。"
+    side_effects:
+      - "执行角色拒绝、跨tenant请求、两个不同key的真实HTTP并发重评。"
+      - "精确停止本轮来源并在finally恢复同实例端口；不停止原生三套产品。"
+      - "只读检查Job/模型调用/预算计数并记录结果。"
+    observations:
+      - "HTTP401/403/503/202、无越权详情读取、无额外Job或预算。"
+      - "来源恢复身份/端口/源码摘要一致及恢复后同事实复用。"
+    limitations:
+      - "依赖前置Job，不能任意打乱阶段。"
+      - "观察失败或无HTTP回执的错误分类仍有已知缺口；本轮未触发。"
+      - "故障操作不是只读采集；需专属实例和有界恢复。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10 12项边界检查通过，来源RESTORED；仅适用于该次明确取得HTTP响应的本地运行。"
+  -
+    id: "runtime.sut"
+    name: "准备并启动本地真实客服运行环境"
+    kind: "ENVIRONMENT"
+    maintainer_role: "identity_runtime_maintainer"
+    semantic_owner_role: "identity_runtime_maintainer"
+    source_refs:
+      - "identity"
+      - "sut_runtime"
+      - "model_gateway"
+      - "lab_runtime"
+    provenance_refs:
+      - "tools/multi-system/sut.py"
+      - "tools/support-lab.py"
+      - "tools/environment-host/src/genai-source.ts"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_ENVIRONMENT_LIFECYCLE"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/sut.py"
+      symbol: "main"
+      invocation_kind: "PYTHON_CLI"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "原生部署与bindings已完成，配置受限且不包含管理员口令投影。"
+      - "本机工具链、Docker、专用数据库/Redis和本地模型满足实验前提。"
+      - "不能以历史端口或旧报告代替当前实例/租期健康观察。"
+    side_effects:
+      - "prepare写私有只读集成配置；up创建环境、数据库和本地模型/网关/Relay/Worker/API进程。"
+      - "冻结配置与源码身份，记录实例、进程、资源与预算。"
+    observations:
+      - "运行环境清单、端点、源码摘要、进程身份、租期和健康检查。"
+    limitations:
+      - "CLI具体动作只有prepare/up/status；停止/销毁由support-lab按实例归属另行执行。"
+      - "准备配置不等于启动成功，健康也不等于推理或业务正确。"
+      - "尚无统一Agent Environment Profile或授权调度。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "runtime.source"
+    name: "启动并管理本地商业来源实例"
+    kind: "ENVIRONMENT"
+    maintainer_role: "identity_runtime_maintainer"
+    semantic_owner_role: "identity_runtime_maintainer"
+    source_refs:
+      - "commercial_api"
+      - "lab_runtime"
+    provenance_refs:
+      - "tools/commercial-source.py"
+      - "services/commercial-source/src/commercial_source/server.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R3"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_ENVIRONMENT_LIFECYCLE"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/commercial-source.py"
+      symbol: "execute"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "限定artifacts/business-source下合法实验目录，拒绝软链接和归属不明资源。"
+      - "Docker与私有配置满足要求；源码摘要、资源标签和租期一致。"
+      - "stop/start/down必须从该实例登记资源执行，不能按宽泛进程名清理。"
+    side_effects:
+      - "up/start创建或恢复专用PostgreSQL、角色、服务进程和私有凭据。"
+      - "stop停止登记进程；down可删除该实例登记的容器/卷，属于显式清理动作。"
+    observations:
+      - "READY、source_unchanged、实例/端口/摘要与资源清单。"
+      - "角色与数据库隔离检查；停止/恢复回执。"
+    limitations:
+      - "运行环境租期与数据保留策略不同；停止不等于删除所有实验数据。"
+      - "目录登记不授予Agent执行down权限。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10本地报告中的历史运行证据；不授予新候选或新环境资格。"
+  -
+    id: "run.release"
+    name: "执行固定候选的完整发布验证矩阵"
+    kind: "CROSS_SYSTEM_RUN"
+    maintainer_role: "qa_lead"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "business_rules"
+      - "candidate_repository"
+      - "verification_tools"
+      - "historical_reports"
+      - "lab_runtime"
+    provenance_refs:
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "tools/multi-system/release_boundaries.py"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "LOCAL_REAL_SYSTEM_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/release_check.py"
+      symbol: "ReleaseCheck.run"
+      invocation_kind: "PYTHON_COMPONENT"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs:
+      - "runtime.source"
+      - "native.prepare"
+      - "source.prepare"
+      - "runtime.sut"
+    preconditions:
+      - "候选目标固定bdccf89ea431ab6ff678e754a97113b54547e5d4，产品/来源/规则路径未漂移。"
+      - "12组业务对象准备完成，late_usage保持OPEN且事件尚未发送。"
+      - "新输出目录未存在运行启动标记，SUT/来源真实就绪。"
+      - "模型预算覆盖计划14阶段及有界恢复。"
+    side_effects:
+      - "提交真实任务与模型调用，写私有备注。"
+      - "追加历史申请消息并显式重评；发送迟到事件并封存后重评。"
+      - "执行精确断源/恢复边界并保存检查点。"
+    observations:
+      - "候选/验证工具摘要、13或14阶段实际执行结果、检查/错误/Finding。"
+      - "计划覆盖、预算与副作用、阶段状态和来源恢复。"
+    limitations:
+      - "不能直接用于不同代码候选：当前TARGET_COMMIT硬编码，需将候选绑定参数化并校验后才扩展。"
+      - "不得删除启动标记覆盖失败结果或把已有SEALED对象再当OPEN。"
+      - "未实现正式Verify Agent或受保护Final Oracle。"
+      - "当前历史整体INCOMPLETE：14计划/13观察，503案例未执行到业务终态。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "2026-11-10历史结果INCOMPLETE，470 PASS及1覆盖不足FAIL，13 LIVE_MODEL Job；不是发布资格。"
+  -
+    id: "unit.commercial"
+    name: "商业来源协议与持久化测试"
+    kind: "TEST_SUITE"
+    maintainer_role: "commercial_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "commercial_api"
+      - "business_rules"
+    provenance_refs:
+      - "services/commercial-source/tests/test_commercial_source.py"
+      - "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "DOMAIN_PROTOCOL_AND_REAL_POSTGRES"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/commercial-source/tests/test_commercial_source.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "services/commercial-source/tests/test_commercial_source.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "需独立来源测试数据库；数据库缺失会跳过，SKIP不得计PASS。"
+    side_effects:
+      - "测试会创建/修改专用测试库对象并启动本地HTTP测试服务。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+      candidate_ref: null
+      candidate_binding_status: "NOT_EXPLICIT_IN_REFERENCED_REPORT"
+      applies_to_new_candidate: false
+      detail: "历史报告记录测试批次，但未显式登记逐能力candidate；保留null，不补造候选绑定或新执行。"
+  -
+    id: "unit.sut_decision"
+    name: "产品退款判断单测"
+    kind: "TEST_SUITE"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "sut_runtime"
+      - "business_rules"
+    provenance_refs:
+      - "services/genai-support-sut/tests/test_commercial_decision.py"
+      - "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "PRODUCT_UNIT_TEST"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/tests/test_commercial_decision.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "services/genai-support-sut/tests/test_commercial_decision.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "安装项目测试依赖并从固定源码运行。"
+    side_effects:
+      - "构造内存业务对象并调用产品判断，不连接原生业务系统。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+      candidate_ref: null
+      candidate_binding_status: "NOT_EXPLICIT_IN_REFERENCED_REPORT"
+      applies_to_new_candidate: false
+      detail: "历史报告记录测试批次，但未显式登记逐能力candidate；保留null，不补造候选绑定或新执行。"
+  -
+    id: "unit.adapters"
+    name: "消费边界和集成编排分支测试"
+    kind: "TEST_SUITE"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "sut_runtime"
+      - "identity"
+      - "chatwoot_api"
+      - "lago_api"
+      - "commercial_api"
+    provenance_refs:
+      - "services/genai-support-sut/tests/test_external_connectors.py"
+      - "services/genai-support-sut/tests/test_external_workflow.py"
+      - "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "STUB_CONSUMER_BOUNDARY"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/tests/test_external_connectors.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "services/genai-support-sut/tests/test_external_connectors.py"
+        - "services/genai-support-sut/tests/test_external_workflow.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "安装项目测试依赖，使用测试替身而非真实上游。"
+    side_effects:
+      - "内存或stub HTTP调用，测试身份/归属/回执与分支行为。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+      candidate_ref: null
+      candidate_binding_status: "NOT_EXPLICIT_IN_REFERENCED_REPORT"
+      applies_to_new_candidate: false
+      detail: "历史报告记录测试批次，但未显式登记逐能力candidate；保留null，不补造候选绑定或新执行。"
+  -
+    id: "unit.snapshot"
+    name: "外部快照与重评持久化测试"
+    kind: "TEST_SUITE"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/tests/test_external_persistence.py"
+      - "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+    requirement_refs:
+      - "R2"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "REAL_POSTGRES_INTEGRATION"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/tests/test_external_persistence.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "services/genai-support-sut/tests/test_external_persistence.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "须专用EGAP_SUPPORT_TEST_DATABASE_URL；依赖缺失时SKIP不能计PASS。"
+    side_effects:
+      - "迁移并写入专用测试库，执行事务、并发和快照不变性检查。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+      candidate_ref: null
+      candidate_binding_status: "NOT_EXPLICIT_IN_REFERENCED_REPORT"
+      applies_to_new_candidate: false
+      detail: "历史报告记录测试批次，但未显式登记逐能力candidate；保留null，不补造候选绑定或新执行。"
+  -
+    id: "unit.model_projection"
+    name: "模型输入投影与实验范围测试"
+    kind: "TEST_SUITE"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "sut_runtime"
+      - "model_gateway"
+      - "business_rules"
+    provenance_refs:
+      - "services/genai-support-sut/tests/test_commercial_model_projection.py"
+      - "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+    requirement_refs:
+      - "R5"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "PRODUCT_PROJECTION_UNIT"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/tests/test_commercial_model_projection.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "services/genai-support-sut/tests/test_commercial_model_projection.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "固定产品源码和合成上下文；不调用真实模型。"
+    side_effects:
+      - "调用投影和scripted校准函数，无真实客户写入。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+      candidate_ref: null
+      candidate_binding_status: "NOT_EXPLICIT_IN_REFERENCED_REPORT"
+      applies_to_new_candidate: false
+      detail: "历史报告记录测试批次，但未显式登记逐能力candidate；保留null，不补造候选绑定或新执行。"
+  -
+    id: "unit.gateway"
+    name: "模型网关协议及预算持久化测试"
+    kind: "TEST_SUITE"
+    maintainer_role: "sut_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "model_gateway"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/tests/test_model_gateway.py"
+      - "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+    requirement_refs:
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "STUB_GATEWAY_AND_REAL_POSTGRES"
+    dispatch_enabled: false
+    entrypoint:
+      path: "services/genai-support-sut/tests/test_model_gateway.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "services/genai-support-sut/tests/test_model_gateway.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "区分MemoryJournal替身与专用EGAP_SUPPORT_TEST_GATEWAY_DATABASE_URL的真实PG组；缺DB会SKIP。"
+    side_effects:
+      - "测试替身模型/HTTP和专用网关库调用、状态及预算；不代表真实模型语义通过。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-business-source-pack-v1/summary.json"
+      candidate_ref: null
+      candidate_binding_status: "NOT_EXPLICIT_IN_REFERENCED_REPORT"
+      applies_to_new_candidate: false
+      detail: "历史报告记录测试批次，但未显式登记逐能力candidate；保留null，不补造候选绑定或新执行。"
+  -
+    id: "unit.release_tools"
+    name: "对象构建器与独立验证驱动测试"
+    kind: "TEST_SUITE"
+    maintainer_role: "egap_maintainer"
+    semantic_owner_role: "qa_lead"
+    source_refs:
+      - "verification_tools"
+    provenance_refs:
+      - "tools/multi-system/test_release_seed.py"
+      - "tools/multi-system/test_release_check.py"
+      - "tools/multi-system/test_release_oracle.py"
+      - "tools/multi-system/test_release_boundaries.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    requirement_refs:
+      - "R1"
+      - "R2"
+      - "R3"
+      - "R4"
+      - "R5"
+      - "R6"
+    implementation_status: "IMPLEMENTED_COMPONENT"
+    evidence_scope: "VERIFICATION_TOOL_UNIT"
+    dispatch_enabled: false
+    entrypoint:
+      path: "tools/multi-system/test_release_seed.py"
+      symbol: null
+      invocation_kind: "PYTHON_UNITTEST"
+      test_paths:
+        - "tools/multi-system/test_release_seed.py"
+        - "tools/multi-system/test_release_check.py"
+        - "tools/multi-system/test_release_oracle.py"
+        - "tools/multi-system/test_release_boundaries.py"
+    runner_profile_ref: null
+    observation_profile_ref: null
+    rebuild_profile_ref: null
+    profile_gaps:
+      - "未实现统一Runner Profile注册与派发适配，entrypoint仅作定位。"
+      - "未实现统一Observation Profile与受保护Collector，当前观察资格限本地实验。"
+      - "未实现统一Rebuild Profile；重建需核对下面的能力依赖及适用日期。"
+    rebuild_capability_refs: []
+    preconditions:
+      - "使用临时目录与替身；测试代码固定且无原生业务权限。"
+    side_effects:
+      - "创建临时文件、替身环境、并发线程；不实际启动业务或调用模型。"
+    observations:
+      - "测试实际执行数量、PASS/FAIL/SKIP及依赖状态。"
+      - "失败断言定位和测试源码版本。"
+    limitations:
+      - "测试实现不等于执行记录；历史绿灯不能复用于当前候选。"
+      - "产品单测或stub结果不能替代独立跨系统Oracle。"
+    qualification:
+      status: "HISTORICAL_LOCAL_EVIDENCE"
+      report_ref: "reports/05-baseline/20261110-release-verification/summary.json"
+      candidate_ref: "bdccf89ea431ab6ff678e754a97113b54547e5d4"
+      applies_to_new_candidate: false
+      detail: "历史报告记录本轮4组共56项工具测试通过；未建立新的候选运行资格。"

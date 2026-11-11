@@ -1,0 +1,98 @@
+# 维护责任目录：角色存在不代表已有人接受职责。
+schema_version: 1
+pack_id: saas-support
+status: DRAFT
+scope: LOCAL_SYNTHETIC
+catalog_basis_commit: cb3881c0a9bfd67fec4ac05f31457b3d95e587b3
+approval_ref: null
+assignment_policy: 角色职责来自项目设计；未取得实际人员确认，所有principal_ref保持null。
+roles:
+- id: business_owner
+  responsibility: 确定端到端业务支持范围、规则与解释要求；不由Agent替代批准。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+- id: qa_lead
+  responsibility: 确认要求覆盖、独立预期、跨系统场景及测试资格。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+- id: billing_maintainer
+  responsibility: 说明订阅、账单、用量指标/期间及计费接口适用性。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+- id: commercial_maintainer
+  responsibility: 维护政策、合同、申请、续期、覆盖和模拟付款来源。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+- id: sut_maintainer
+  responsibility: 维护客服集成、产品决定、模型投影和交付；接收产品Finding。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+- id: identity_runtime_maintainer
+  responsibility: 维护测试身份、授权范围、环境、租约和恢复。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+- id: egap_maintainer
+  responsibility: 维护目录、工具适配、证据关联和验证平台；不自批公司规则。
+  assignment_status: UNASSIGNED
+  principal_ref: null
+  approval_ref: null
+  provenance_refs:
+  - docs/06-contract-registry.md
+  - docs/20-enterprise-connectors.md
+  - docs/94-data-flow-and-retention.md
+routes:
+- id: terminated_subscription_adapter
+  first_contact_role: sut_maintainer
+  consulted_roles:
+  - billing_maintainer
+  - qa_lead
+  finding_ref: reports/05-baseline/20261110-release-verification/terminated-investigation.json
+  attribution: FIRST_CONTACT_NOT_AUTOMATIC_ROOT_CAUSE
+- id: reply_fact_consistency
+  first_contact_role: sut_maintainer
+  consulted_roles:
+  - business_owner
+  - commercial_maintainer
+  - qa_lead
+  finding_ref: reports/05-baseline/20261110-release-verification/findings.json
+  attribution: CHECK_DECISION_PROJECTION_GENERATION_DELIVERY_IN_ORDER
+- id: test_or_observer_error
+  first_contact_role: qa_lead
+  consulted_roles:
+  - egap_maintainer
+  - billing_maintainer
+  finding_ref: null
+  attribution: QUALIFY_TEST_BEFORE_REQUESTING_PRODUCT_PATCH
+gaps:
+- 实际业务Owner、QA及各域维护人员未登记；不能由Git作者身份推断。
+- 未记录真实企业批准或签收；本地资产整理不会补造审批。

@@ -1,0 +1,1092 @@
+# 本地合成实验数据流目录；代码实现状态与数据访问批准分开。
+# 地区、期限及批准待真实登记，不能由目录推导执行许可。
+schema_version: 1
+pack_id: "saas-support"
+status: "DRAFT"
+scope: "LOCAL_SYNTHETIC"
+catalog_basis_commit: "cb3881c0a9bfd67fec4ac05f31457b3d95e587b3"
+approval_ref: null
+enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+dispatch_enabled: false
+provenance_refs:
+  - "docs/94-data-flow-and-retention.md"
+  - "docs/20-enterprise-connectors.md"
+  - "docs/06-contract-registry.md"
+region_registration:
+  processing_regions: null
+  storage_regions: null
+  backup_regions: null
+  support_access_regions: null
+  status: "UNCONFIRMED"
+  applies_to: "ALL_FLOWS"
+semantics:
+  catalog_purpose: "记录现有实现与缺口，不授予执行或企业访问权。"
+  observed_implementation: "固定源码与历史报告中的实现路径；没有今日运行或探活声明。"
+  role_access: "allowed_consumer_roles为拟登记职责范围，不声称当前IAM已完整实现或实际人员已获授权。"
+  approval: "DRAFT不满足MODEL_DATA_EGRESS_READY或ENTERPRISE_DATA_READY。"
+  residency: "loopback或用户时区不能证明处理、存储、备份与支持访问地区。"
+  retention: "null表示未确定，不是零保留、永久保留或已执行自动删除。"
+  scope_exclusions:
+    - "历史ML流向未重新启用"
+    - "完整Coding、Verifier、Grader模型通道未实现，后续逐通道登记"
+    - "备份、外部APM、企业索引未盘点，不宣称不存在副本"
+retention_policies:
+  -
+    id: "R-SOURCE"
+    status: "DRAFT"
+    trigger_event: "SOURCE_FETCH_OR_ASSET_UPDATE"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "commercial_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "原文和派生摘要分别定位，内容期限不替代ACL新鲜度。"
+  -
+    id: "R-SUT"
+    status: "DRAFT"
+    trigger_event: "EXPERIMENT_COMPLETE_OR_ENVIRONMENT_LEASE_END"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "identity_runtime_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "环境租约结束不等于所有副本已清除，反例保留需限定用途。"
+  -
+    id: "R-QUEUE"
+    status: "DRAFT"
+    trigger_event: "DISPATCH_CONFIRMED_OR_RUN_TERMINAL"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "identity_runtime_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "数据库权威记录与通知分别管理期限。"
+  -
+    id: "R-MODEL"
+    status: "DRAFT"
+    trigger_event: "MODEL_REQUEST_SENT_OR_COMPLETED"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "sut_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "本地输入/输出、服务端日志及缓存分别登记。"
+  -
+    id: "R-TRACE"
+    status: "DRAFT"
+    trigger_event: "OBSERVATION_COLLECTED"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "sut_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "摘要和对象标识不自动匿名。"
+  -
+    id: "R-EVIDENCE"
+    status: "DRAFT"
+    trigger_event: "EXPERIMENT_TERMINAL"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "qa_lead"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "原件删除后不能仅凭hash作新Gate依据。"
+  -
+    id: "R-EXPORT"
+    status: "DRAFT"
+    trigger_event: "EXPORT_CREATED"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "egap_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "导出是新副本，不承诺即时撤回离线内容。"
+  -
+    id: "R-REMOTE"
+    status: "DRAFT"
+    trigger_event: "REMOTE_COMMIT_PUSHED"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "egap_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "远端Git对象及服务端副本需要实际能力登记。"
+  -
+    id: "R-SECRET"
+    status: "DRAFT"
+    trigger_event: "CREDENTIAL_ISSUED"
+    retention_value: null
+    unit: null
+    deletion_grace: null
+    backup_expiry: null
+    deletion_owner_role: "identity_runtime_maintainer"
+    approval_ref: null
+    enforcement_status: "NOT_IMPLEMENTED_AS_UNIFIED_POLICY"
+    note: "签发、取消、失租及撤销失效分别核验，不归档凭据正文。"
+flows:
+  -
+    id: "flow.reference_to_rule_pack"
+    owner_role: "commercial_maintainer"
+    source_refs:
+      - "public_reference"
+      - "business_rules"
+    provenance_refs:
+      - "business-source-pack/v1/upstream/provenance.json"
+      - "business-source-pack/v1/SPEC.md"
+      - "business-source-pack/v1/contracts/standard.md"
+    from: "固定公开参考原文及实验补充条款"
+    to: "版本化Business Source Pack"
+    purpose: "保存规则出处和本地实验例外；参考原文不自动成为企业合同。"
+    fields:
+      - "upstream_version"
+      - "source_url"
+      - "license"
+      - "fetched_at"
+      - "source_digest"
+      - "synthetic_addendum"
+      - "review_status"
+    forbidden_fields:
+      - "fabricated_acceptance"
+      - "fabricated_company_approval"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs: []
+    storage:
+      kind: "GIT_TRACKED_FILES"
+      location_ref: "business-source-pack/v1/"
+    allowed_consumer_roles:
+      - "commercial_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SOURCE"
+    gaps:
+      - "人工规则审阅待确认；公开合同底稿不证明真实客户接受。"
+  -
+    id: "flow.rules_to_commercial_source"
+    owner_role: "commercial_maintainer"
+    source_refs:
+      - "business_rules"
+      - "commercial_api"
+    provenance_refs:
+      - "tools/multi-system/business_source.py"
+      - "tools/multi-system/release_seed.py"
+      - "services/commercial-source/src/commercial_source/protocol.py"
+      - "services/commercial-source/src/commercial_source/store.py"
+    from: "受控准备器读取版本化实验规则与模板"
+    to: "Commercial Source command API及PostgreSQL"
+    purpose: "建立有原文摘要、版本和实验资格的商业事实。"
+    fields:
+      - "tenant_id"
+      - "policy_id"
+      - "contract_id"
+      - "version"
+      - "effective_from"
+      - "effective_to"
+      - "source_document"
+      - "structured_source_sha256"
+      - "SIMULATED_ACCEPTANCE"
+      - "source_revision"
+    forbidden_fields:
+      - "expected_test_answer"
+      - "eligibility"
+      - "fabricated_approved_flag"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.reference_to_rule_pack"
+    storage:
+      kind: "POSTGRESQL"
+      schema: "egap_commercial"
+      tables:
+        - "records"
+        - "operations"
+        - "tenants"
+    allowed_consumer_roles:
+      - "commercial_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SOURCE"
+    gaps:
+      - "来源为SYNTHETIC_BUSINESS_SOURCE / LOCAL_LAB；没有企业批准。"
+      - "政策/合同版本受应用约束；claim、coverage及订阅是可更新状态，不能称为完整不可变历史。"
+  -
+    id: "flow.native_preparation"
+    owner_role: "egap_maintainer"
+    source_refs:
+      - "verification_tools"
+      - "chatwoot_api"
+      - "lago_api"
+      - "lab_runtime"
+    provenance_refs:
+      - "tools/multi-system/release_seed.py"
+      - "tools/multi-system/seed.py"
+    from: "已登记配方和合成客户参数"
+    to: "Chatwoot及Lago原生API"
+    purpose: "创建会话、订阅、发票与用量，或显式核验复用历史对象。"
+    fields:
+      - "run_id"
+      - "tenant_id"
+      - "customer_id"
+      - "subscription_id"
+      - "invoice_id"
+      - "conversation_id"
+      - "message_id"
+      - "metric_code"
+      - "operation_key"
+      - "request_digest"
+      - "response_digest"
+      - "observed_at"
+    forbidden_fields:
+      - "production_customer_data"
+      - "verification_expected_result"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs: []
+    storage:
+      kind: "NATIVE_PRODUCT_DATABASES_AND_PRIVATE_LOCAL_LEDGER"
+      ledger_ref: "artifacts/business-source/<experiment>/native/"
+    allowed_consumer_roles:
+      - "egap_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SUT"
+    gaps:
+      - "真实API写入需要运行授权，目录登记不自动派发。"
+      - "对象清理依赖所有权账本；尚无统一数据TTL策略。"
+  -
+    id: "flow.identity_introspection"
+    owner_role: "identity_runtime_maintainer"
+    source_refs:
+      - "identity"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/identity.py"
+      - "services/genai-support-sut/src/genai_support/integrations/routes.py"
+    from: "请求的测试身份凭据及服务器端身份配置"
+    to: "配置限定的Keycloak introspection端点"
+    purpose: "实时核验主体、audience、期限和服务器租户绑定。"
+    fields:
+      - "transient_access_token"
+      - "transient_client_identity"
+      - "active"
+      - "subject"
+      - "issuer"
+      - "audience"
+      - "exp"
+      - "tenant_binding"
+    forbidden_fields:
+      - "token_in_snapshot"
+      - "token_in_prompt"
+      - "token_in_evidence"
+      - "token_forwarded_to_chatwoot_or_lago"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "SECRET_AUTH_MATERIAL"
+    upstream_flow_refs: []
+    storage:
+      kind: "REQUEST_MEMORY_AND_SUBJECT_REFERENCE"
+      token_archived_by_this_path: false
+      provider_logs_retention: "UNCONFIRMED"
+      subject_table: "egap_support.external_operations"
+    allowed_consumer_roles:
+      - "identity_runtime_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SECRET"
+    gaps:
+      - "本代码路径不归档token，但Keycloak自身日志、缓存和备份尚未逐副本盘点。"
+      - "本地身份检查不等于企业源ACL同步。"
+  -
+    id: "flow.chatwoot_to_sut"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "chatwoot_api"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/chatwoot.py"
+      - "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      - "services/genai-support-sut/migrations/002_integrations.sql"
+    from: "已授权账号、客户及会话的Chatwoot消息"
+    to: "SUT external_inputs冻结快照"
+    purpose: "保存原始incoming身份、正文和真实时间，绑定ticket revision。"
+    fields:
+      - "account_id"
+      - "conversation_id"
+      - "contact_id"
+      - "incoming_message_id"
+      - "content"
+      - "created_at"
+      - "ticket_revision"
+      - "input_sha256"
+      - "source_receipts"
+    forbidden_fields:
+      - "unrelated_conversation_content"
+      - "api_token"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.native_preparation"
+      - "flow.identity_introspection"
+    storage:
+      kind: "POSTGRESQL"
+      table_ref: "egap_support.external_inputs"
+      snapshot_key:
+        - "tenant_id"
+        - "ticket_id"
+        - "ticket_revision"
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SUT"
+    gaps:
+      - "本轮仅合成客户，真实工单正文尚未准入。"
+      - "产品输入快照证明产品使用了什么，不单独证明其业务解释正确。"
+  -
+    id: "flow.lago_to_sut"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "lago_api"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/lago.py"
+      - "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      - "services/genai-support-sut/migrations/002_integrations.sql"
+    from: "已核验客户名下发票、唯一订阅和用量API"
+    to: "SUT external_inputs冻结快照"
+    purpose: "固定指定订阅、指标与期间的计费事实，保留缺失及不匹配。"
+    fields:
+      - "customer_id"
+      - "invoice_id"
+      - "subscription_id"
+      - "payment_status_projection"
+      - "currency"
+      - "total_amount_cents"
+      - "invoice_period"
+      - "observed_usage_period"
+      - "charges_usage"
+      - "usage_source"
+      - "usage_binding"
+      - "missing_evidence"
+    forbidden_fields:
+      - "other_tenant_invoice_detail"
+      - "api_key"
+      - "invented_zero_usage"
+      - "invented_renewal"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.native_preparation"
+      - "flow.identity_introspection"
+    storage:
+      kind: "POSTGRESQL"
+      table_ref: "egap_support.external_inputs"
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SUT"
+    gaps:
+      - "历史终止案例存在不适用current_usage被转503的候选Finding，本目录不将其改为已通过。"
+      - "规范化快照不等于完整HTTP原始字节。"
+  -
+    id: "flow.commercial_to_sut"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "commercial_api"
+      - "business_rules"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/commercial-source/src/commercial_source/store.py"
+      - "services/genai-support-sut/src/genai_support/integrations/commercial.py"
+      - "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      - "services/genai-support-sut/migrations/003_commercial.sql"
+    from: "商业来源六项scope的只读一致快照"
+    to: "SUT external_inputs及事实摘要"
+    purpose: "绑定政策、合同、事件、原申请、覆盖和模拟付款。"
+    fields:
+      - "tenant_id"
+      - "customer_id"
+      - "subscription_id"
+      - "invoice_id"
+      - "account_id"
+      - "conversation_id"
+      - "policies"
+      - "contracts"
+      - "events"
+      - "claim"
+      - "coverage"
+      - "payment"
+      - "invoice_link"
+      - "source_revision"
+      - "assessment_facts_sha256"
+    forbidden_fields:
+      - "source_admin_token"
+      - "source_database_credentials"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.rules_to_commercial_source"
+      - "flow.identity_introspection"
+    storage:
+      kind: "POSTGRESQL"
+      table_ref: "egap_support.external_inputs"
+      snapshot_semantics: "显式重评新增revision，原快照不由应用路径覆盖。"
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SUT"
+    gaps:
+      - "LOCAL_LAB不能升级为企业批准。"
+      - "应用只追加和同机权限不是独立WORM或签名保护。"
+  -
+    id: "flow.outbox_to_worker"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "sut_runtime"
+      - "lab_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/relay.py"
+      - "services/genai-support-sut/src/genai_support/worker.py"
+      - "services/genai-support-sut/migrations/001.sql"
+    from: "同事务提交的Job及outbox"
+    to: "Redis通知与Worker"
+    purpose: "恢复和重复通知不改变数据库中的Job身份、租约与状态。"
+    fields:
+      - "job_id"
+    forbidden_fields:
+      - "raw_prompt"
+      - "business_document_body"
+      - "credentials"
+      - "queue_authority_override"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs: []
+    storage:
+      kind: "POSTGRESQL_OUTBOX_AND_REDIS"
+      authoritative_schema: "egap_support"
+      notification_payload: "仅job_id；Worker重新读取数据库身份、revision和租约。"
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-QUEUE"
+    gaps:
+      - "实际队列期限及备份未登记；清Redis不能代表全部副本已删除。"
+  -
+    id: "flow.snapshot_to_projection"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "sut_runtime"
+      - "model_gateway"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/persistence.py"
+      - "services/genai-support-sut/src/genai_support/business_tools.py"
+      - "services/genai-support-sut/src/genai_support/model_gateway.py"
+    from: "指定tenant、ticket、revision的冻结SUT快照"
+    to: "Gateway只读工具和model_reply_context"
+    purpose: "生成文案所需的最小事实投影及产品决定；完整来源保留在快照。"
+    fields:
+      - "ticket_identity"
+      - "billing_projection"
+      - "subscription_projection"
+      - "selected_policy_without_document"
+      - "selected_contract_without_document_or_acceptance"
+      - "commercial_basis"
+      - "decision"
+      - "reason_codes"
+    forbidden_fields:
+      - "original_ticket_body"
+      - "original_customer_messages"
+      - "commercial_source_full_collection"
+      - "source_document_text"
+      - "acceptance_record"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.chatwoot_to_sut"
+      - "flow.lago_to_sut"
+      - "flow.commercial_to_sut"
+    storage:
+      kind: "MEMORY_PROJECTION_AND_TOOL_METADATA"
+      source_table: "egap_support.external_inputs"
+      metadata_table: "egap_gateway.tool_events"
+      exact_projection_blob_persisted: false
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-MODEL"
+    gaps:
+      - "实际投影尚未独立持久归档，事后重算不能冒充当时发送证据。"
+      - "decision属于被测产品，不是独立Oracle。"
+  -
+    id: "flow.gateway_to_local_model"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "model_gateway"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/model_gateway.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    from: "Gateway实际模型请求构造器"
+    to: "配置限定的本地OpenAI-compatible模型服务"
+    purpose: "本地qwen2:7b生成内部待审文案，记录请求摘要及模型身份。"
+    fields:
+      - "system_prompt"
+      - "projected_context"
+      - "model_requested"
+      - "temperature"
+      - "max_tokens"
+      - "response_format"
+    forbidden_fields:
+      - "raw_customer_message_body"
+      - "full_commercial_source_documents"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.snapshot_to_projection"
+    storage:
+      kind: "LOCAL_MODEL_MEMORY_AND_GATEWAY_RECEIPT"
+      request_digest_saved: true
+      full_request_persisted: false
+      model_logs_and_cache: "UNCONFIRMED"
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-MODEL"
+    gaps:
+      - "历史模型名不证明今天实例仍运行。"
+      - "loopback不证明主机物理地区、模型日志保留或全部缓存副本。"
+      - "MODEL_DATA_EGRESS_READY正式登记及执行门禁尚未实现。"
+  -
+    id: "flow.model_to_draft"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "model_gateway"
+      - "sut_runtime"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/model_gateway.py"
+      - "services/genai-support-sut/src/genai_support/gateway_store.py"
+      - "services/genai-support-sut/src/genai_support/worker.py"
+    from: "本地模型返回及Gateway协议校验"
+    to: "Gateway calls与SUT持久Job草稿"
+    purpose: "保存可解析文案、调用状态、实际模型身份、usage和摘要。"
+    fields:
+      - "customer_reply_draft"
+      - "assembled_draft"
+      - "state"
+      - "execution_mode"
+      - "model_requested"
+      - "model_observed"
+      - "request_sha256"
+      - "response_sha256"
+      - "usage"
+      - "prompt_revision"
+      - "workflow_revision"
+      - "decision_sha256"
+    forbidden_fields:
+      - "model_output_grants_authority"
+      - "model_output_changes_structured_eligibility"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.gateway_to_local_model"
+    storage:
+      kind: "POSTGRESQL"
+      tables:
+        - "egap_gateway.calls"
+        - "egap_support.support_jobs"
+      full_provider_response_persisted: false
+      invalid_response_body_persisted: false
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-MODEL"
+    gaps:
+      - "完整响应和无效输出正文未独立保存，摘要不能恢复原件。"
+      - "输出可能复述输入，应继承来源分类；结构合法不保证解释正确。"
+  -
+    id: "flow.draft_to_private_note"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "sut_runtime"
+      - "chatwoot_api"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/workflow.py"
+      - "services/genai-support-sut/src/genai_support/integrations/persistence.py"
+      - "services/genai-support-sut/src/genai_support/integrations/chatwoot.py"
+    from: "已完成Job草稿及当前消息revision检查"
+    to: "正确会话的Chatwoot私有备注和交付账本"
+    purpose: "交付带Job、revision与实验声明的人工待审草稿；未知写入只对账。"
+    fields:
+      - "customer_reply_draft"
+      - "job_marker"
+      - "ticket_revision"
+      - "invoice_reference"
+      - "lab_scope_notice"
+      - "external_message_id"
+      - "delivery_state"
+    forbidden_fields:
+      - "public_customer_send"
+      - "refund_execution"
+      - "conversation_close"
+      - "cross_tenant_write"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.model_to_draft"
+    storage:
+      kind: "CHATWOOT_DATABASE_AND_DELIVERY_LEDGER"
+      table_ref: "egap_support.external_operations"
+      private_note: true
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-SUT"
+    gaps:
+      - "私有备注是新的数据副本；Chatwoot实际访问者与保留/删除尚未登记。"
+      - "UNKNOWN不能通过重POST或覆盖旧结果消除。"
+  -
+    id: "flow.product_http_trace"
+    owner_role: "sut_maintainer"
+    source_refs:
+      - "sut_runtime"
+      - "chatwoot_api"
+      - "lago_api"
+      - "commercial_api"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/integrations/http.py"
+      - "services/genai-support-sut/src/genai_support/integrations/persistence.py"
+      - "services/genai-support-sut/migrations/002_integrations.sql"
+    from: "产品领域HTTP适配器audit回调"
+    to: "SUT external_api_observations"
+    purpose: "记录访问路径、状态与correlation，辅助调查调用行为。"
+    fields:
+      - "correlation_id"
+      - "service"
+      - "method"
+      - "path"
+      - "query_scope"
+      - "http_status"
+      - "outcome"
+      - "response_sha256"
+      - "observed_at"
+    forbidden_fields:
+      - "authorization_header"
+      - "default_full_prompt"
+      - "default_full_business_body"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs: []
+    storage:
+      kind: "POSTGRESQL"
+      table_ref: "egap_support.external_api_observations"
+      raw_http_body_persisted: false
+    allowed_consumer_roles:
+      - "sut_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-TRACE"
+    gaps:
+      - "产品自报轨迹不是独立Observer证明。"
+      - "错误体未完整归档；终止405正文由事后独立GET补获。"
+      - "查询参数、路径和对象ID仍可能携带敏感关系。"
+  -
+    id: "flow.independent_reads_to_evidence"
+    owner_role: "qa_lead"
+    source_refs:
+      - "verification_tools"
+      - "chatwoot_api"
+      - "lago_api"
+      - "commercial_api"
+      - "sut_runtime"
+    provenance_refs:
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/release_oracle.py"
+      - "tools/multi-system/seed.py"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+    from: "验证工具原生GET、Job结果及只读快照"
+    to: "本地实验检查点与审计证据"
+    purpose: "固定候选/规则下对照原生事实、产品输入与输出，关联阶段和Finding。"
+    fields:
+      - "target_candidate"
+      - "verification_code_digest"
+      - "run_id"
+      - "scenario_label"
+      - "stage"
+      - "job_id"
+      - "native_observation"
+      - "snapshot"
+      - "draft"
+      - "receipt"
+      - "check_result"
+      - "finding"
+      - "limitations"
+    forbidden_fields:
+      - "credential_value"
+      - "new_candidate_pass_from_history"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.product_http_trace"
+      - "flow.model_to_draft"
+    storage:
+      kind: "PRIVATE_LOCAL_JSON"
+      location_ref: "artifacts/business-source/<experiment>/"
+      file_mode: "0600"
+      atomic_replace: true
+      all_original_http_bytes_archived: false
+    allowed_consumer_roles:
+      - "qa_lead"
+      - "egap_maintainer"
+    retention_policy_ref: "R-EVIDENCE"
+    gaps:
+      - "历史结果仅适用原候选，不能作为新候选PASS。"
+      - "本地同操作者目录不构成企业防篡改边界；并非全部观察原件已长期归档。"
+      - "原始字节hash与规范化JSON hash必须标明算法口径。"
+  -
+    id: "flow.evidence_to_report"
+    owner_role: "egap_maintainer"
+    source_refs:
+      - "historical_reports"
+      - "verification_tools"
+    provenance_refs:
+      - "reports/05-baseline/20261110-release-verification/report.md"
+      - "reports/05-baseline/20261110-release-verification/summary.json"
+      - "reports/05-baseline/20261110-release-verification/findings.json"
+      - "reports/05-baseline/20261110-release-verification/business-objects.json"
+    from: "本地实验结果及事后只读证据审查"
+    to: "脱敏报告、summary、findings和对象目录"
+    purpose: "记录已观察结果、未完成阶段、适用候选和限制。"
+    fields:
+      - "aggregate_counts"
+      - "synthetic_object_ids"
+      - "candidate_commit"
+      - "check_outcome"
+      - "redacted_finding"
+      - "evidence_reference"
+      - "content_digest"
+      - "limitations"
+    forbidden_fields:
+      - "raw_private_runtime_config"
+      - "automatic_company_approval"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.independent_reads_to_evidence"
+    storage:
+      kind: "GIT_TRACKED_REPORT_FILES"
+      location_ref: "reports/05-baseline/20261110-release-verification/"
+      report_is_projection_not_raw_evidence: true
+    allowed_consumer_roles:
+      - "business_owner"
+      - "qa_lead"
+      - "sut_maintainer"
+      - "egap_maintainer"
+    retention_policy_ref: "R-EXPORT"
+    gaps:
+      - "当前合成ID允许出现在本报告，不自动授权真实客户ID沿用此路径。"
+      - "历史本机地址不表示当前可达，也不授予运行许可。"
+  -
+    id: "flow.reports_to_git_remote"
+    owner_role: "egap_maintainer"
+    source_refs:
+      - "candidate_repository"
+      - "historical_reports"
+    provenance_refs:
+      - "AGENTS.md"
+      - "reports/05-baseline/20261110-release-verification/report.md"
+    from: "经过文件范围与凭据检查的代码和脱敏报告"
+    to: "用户指定EvidCodingAgent GitHub仓库"
+    purpose: "遵循现有同步约定保存版本；不代表部署或企业数据外发许可。"
+    fields:
+      - "source_code"
+      - "tests"
+      - "synthetic_rule_assets"
+      - "redacted_reports"
+      - "commit_identity"
+    forbidden_fields:
+      - "raw_artifacts"
+      - "private_runtime_files"
+      - "credential_value"
+      - "unapproved_customer_data"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.evidence_to_report"
+    storage:
+      kind: "REMOTE_GIT_REPOSITORY"
+      destination_ref: "github.com/guangxinsuuu/EvidCodingAgent"
+      access_review: "PENDING_REGISTRATION"
+    allowed_consumer_roles:
+      - "egap_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-REMOTE"
+    gaps:
+      - "实际仓库访问者、处理/存储/备份区域及删除能力未完成企业登记。"
+      - "删除本地文件不表示远端Git对象及副本已清除。"
+  -
+    id: "flow.private_credentials_to_runtime"
+    owner_role: "identity_runtime_maintainer"
+    source_refs:
+      - "identity"
+      - "lab_runtime"
+      - "commercial_api"
+      - "sut_runtime"
+    provenance_refs:
+      - "tools/commercial-source.py"
+      - "tools/support-lab.py"
+      - "tools/multi-system/sut.py"
+      - "services/genai-support-sut/src/genai_support/integrations/bindings.py"
+    from: "实验宿主私有配置及最小权限投影"
+    to: "指定角色进程内存和环境实例私有配置"
+    purpose: "为组件提供所需凭据；此目录只记录逻辑角色引用，不记录值。"
+    fields:
+      - "credential_ref_only_in_catalog"
+      - "component_identity"
+      - "allowed_scope"
+      - "expiry"
+      - "configuration_digest"
+      - "reader_vs_admin_role"
+    forbidden_fields:
+      - "source_admin_credentials_in_sut"
+      - "credential_value_in_model_input"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "OBSERVED_IMPLEMENTATION"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "SECRET_AUTH_MATERIAL"
+    upstream_flow_refs: []
+    storage:
+      kind: "PRIVATE_LOCAL_CONFIG_AND_MEMORY"
+      file_mode: "0600"
+      directory_mode: "0700"
+      enterprise_secret_store_implemented: false
+      observed_credential_purposes:
+        - "sut.commercial_reader"
+        - "sut.external_api_reader_writer"
+        - "gateway.job_reader"
+        - "commercial.writer"
+        - "commercial.reader"
+        - "lab.provisioner"
+    allowed_consumer_roles:
+      - "identity_runtime_maintainer"
+      - "egap_maintainer"
+    retention_policy_ref: "R-SECRET"
+    gaps:
+      - "本地私有配置不是企业Secret Store，轮换、撤销传播及备份排除须另验证。"
+      - "清单不含token、口令、DSN或私有文件内容。"
+  -
+    id: "flow.proposed_model_invocation_archive"
+    owner_role: "egap_maintainer"
+    source_refs:
+      - "model_gateway"
+      - "verification_tools"
+    provenance_refs:
+      - "services/genai-support-sut/src/genai_support/model_gateway.py"
+      - "services/genai-support-sut/src/genai_support/gateway_store.py"
+      - "packages/artifacts/src/index.ts"
+    from: "可信模型调用边界的实际发送和接收字节"
+    to: "拟建ModelInvocationArtifact及独立证据库"
+    purpose: "补齐投影/生成归因所需payload、响应和失败输出原件。"
+    fields:
+      - "candidate_ref"
+      - "run_ref"
+      - "job_ref"
+      - "invocation_ref"
+      - "projection_revision"
+      - "prompt_revision"
+      - "config_digest"
+      - "request_blob_ref"
+      - "response_blob_ref"
+      - "digest_encoding"
+      - "model_observed"
+      - "usage"
+      - "sent_at"
+      - "received_at"
+      - "redacted_view_ref"
+    forbidden_fields:
+      - "credential_value"
+      - "unauthorized_business_fields"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "PROPOSED"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs:
+      - "flow.gateway_to_local_model"
+      - "flow.model_to_draft"
+    storage:
+      kind: "PROPOSED_INDEPENDENT_ARTIFACT_STORE"
+      implementation_status: "NOT_IMPLEMENTED"
+      metadata_ref: "PROPOSED_EGAP_CONTROL_DATABASE"
+    allowed_consumer_roles:
+      - "egap_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-EVIDENCE"
+    gaps:
+      - "需实现持久化、按对象授权、字段准入及原件/脱敏副本血缘。"
+      - "现有MemoryArtifactStore仅骨架；计划字段不能冒充已留存证据。"
+  -
+    id: "flow.proposed_raw_observer"
+    owner_role: "egap_maintainer"
+    source_refs:
+      - "verification_tools"
+      - "chatwoot_api"
+      - "lago_api"
+      - "commercial_api"
+    provenance_refs:
+      - "tools/multi-system/release_check.py"
+      - "tools/multi-system/seed.py"
+      - "services/genai-support-sut/src/genai_support/integrations/http.py"
+      - "packages/artifacts/src/index.ts"
+    from: "实验授权范围内的验证侧原生观察"
+    to: "拟建ObservationBundle与受控原始对象库"
+    purpose: "保存原生响应及错误正文，绑定采集身份、对象范围、因果和版本。"
+    fields:
+      - "candidate_ref"
+      - "experiment_ref"
+      - "stage_ref"
+      - "operation_ref"
+      - "collector_identity"
+      - "source_scope"
+      - "request_metadata"
+      - "response_body_ref"
+      - "http_status"
+      - "started_at"
+      - "completed_at"
+      - "raw_byte_digest"
+      - "collection_completeness"
+    forbidden_fields:
+      - "authentication_header"
+      - "arbitrary_target_url"
+      - "unbounded_database_dump"
+      - "unrelated_tenant_objects"
+      - "credential_value_in_catalog_or_reports"
+      - "hidden_test_answers_in_business_inputs"
+      - "unapproved_enterprise_content"
+    collection_status: "PROPOSED"
+    data_flow_status: "DRAFT"
+    approval_ref: null
+    enterprise_admission: "BLOCKED_PENDING_REGISTRATION"
+    data_classification: "LOCAL_SYNTHETIC_AND_PUBLIC_CODE"
+    upstream_flow_refs: []
+    storage:
+      kind: "PROPOSED_INDEPENDENT_ARTIFACT_STORE"
+      implementation_status: "NOT_IMPLEMENTED"
+      metadata_ref: "PROPOSED_EGAP_CONTROL_DATABASE"
+    allowed_consumer_roles:
+      - "egap_maintainer"
+      - "qa_lead"
+    retention_policy_ref: "R-EVIDENCE"
+    gaps:
+      - "尚无独立受保护Observer/Collector执行域和统一证据索引。"
+      - "观察不足必须区别产品FAIL；存在hash不证明已取得原始响应。"
