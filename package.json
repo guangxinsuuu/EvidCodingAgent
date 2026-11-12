@@ -28,7 +28,13 @@
     "support:stop": "services/genai-support-sut/.venv/bin/python tools/support-lab.py stop",
     "support:start": "services/genai-support-sut/.venv/bin/python tools/support-lab.py start",
     "support:down": "services/genai-support-sut/.venv/bin/python tools/support-lab.py down",
-    "test:support:live": "services/genai-support-sut/.venv/bin/python tools/support-lab.py test"
+    "test:support:live": "services/genai-support-sut/.venv/bin/python tools/support-lab.py test",
+    "verify:runtime": "pnpm build && node packages/verify-runtime/dist/main.js",
+    "test:verify": "pnpm build && node --test packages/contracts/dist/verify.test.js packages/verify-runtime/dist/*.test.js",
+    "test:verify:python": "PYTHONPATH=services/verify-agent/src services/verify-agent/.venv/bin/python -m unittest discover -s services/verify-agent/tests -q",
+    "test:registry": "PYTHONPATH=tools/registry:. tools/registry/.venv/bin/python -m unittest discover -s tools/registry -p 'test_*.py' -q && tools/registry/.venv/bin/python -m unittest discover -s tests/catalog -q",
+    "verify:calibration": "tools/registry/.venv/bin/python tools/verify-agent-calibration.py",
+    "verify:live": "python3 tools/verify-agent-live.py"
   },
   "devDependencies": { "@types/node": "25.9.9", "typescript": "7.0.2" }
 }

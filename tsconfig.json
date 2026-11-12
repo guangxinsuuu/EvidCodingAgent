@@ -21,6 +21,7 @@
     },
     {
       "path": "./tools/environment-host"
-    }
+    },
+    { "path": "./packages/verify-runtime" }
   ]
 }

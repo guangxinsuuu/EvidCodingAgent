@@ -1,0 +1,21 @@
+[project]
+name = "egap-verify-agent"
+version = "0.1.0"
+description = "Bounded LangGraph investigation planner using the authoritative EGAP Runtime"
+requires-python = "==3.14.*"
+dependencies = [
+  "langgraph==1.2.20",
+  # 仅使用 tracing_context(enabled=False) 禁止继承外部 trace 出口。
+  "langsmith==0.14.17",
+  "jsonschema==4.26.0",
+]
+
+[tool.uv]
+# 独立于被测客服产品的环境；不允许依赖产品包或写入产品数据库。
+package = false
+required-version = "==0.13.7"
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true

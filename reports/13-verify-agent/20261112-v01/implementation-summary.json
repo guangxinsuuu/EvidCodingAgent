@@ -1,0 +1,609 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-12T12:46:32.432911+00:00",
+  "delivery": "Verify Agent V0.1 local read-and-plan runtime",
+  "base_repository_commit": "4a1b2f42f18aa6d9d529a8b0fef26c6a1b076f34",
+  "frozen_docs_changed": false,
+  "existing_sut_changed": false,
+  "catalog_yaml_changed": false,
+  "tests": {
+    "typescript_typecheck": "PASSED",
+    "typescript_tests": {
+      "passed": 273,
+      "failed": 0,
+      "skipped": 0,
+      "postgresql_tests_included": 22
+    },
+    "python_agent_tests_passed": 31,
+    "registry_tests_passed": 89,
+    "shared_contract_corpus_cases": 61
+  },
+  "final_calibration": [
+    {
+      "case": "20261112-window-bounded-01",
+      "run_id": "793b0eea-6ec2-4205-a513-ad835607a7ce",
+      "input_provenance": "CALIBRATION_SYNTHETIC",
+      "baseline_sha": "d913f2c31bcce1c456aad603210b404d9e2d19b7",
+      "candidate_sha": "914d62881bd66d8c2e6d19b9b40bc533be3975c3",
+      "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+      "model": {
+        "name": "mistral:latest",
+        "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+      },
+      "system_prompt_sha256": "40314b0beb68e27c9c6bdee2797ffbeac4737f2c62440b696f0ab32aebb90973",
+      "model_calls": 4,
+      "read_count": 3,
+      "status": "PLANNED",
+      "check_intent": {
+        "objective": "Investigate the impact of the changed elapsed time calculation on the renewal window.",
+        "scenario_ref": "v2_boundary",
+        "capability_ref": "check.business",
+        "observation_requirements": [
+          "Collect the actual renewal window rule and compare it with the changed elapsed time calculation in the candidate implementation."
+        ]
+      },
+      "requirement_refs": [
+        "R2"
+      ],
+      "current_candidate_coverage": [],
+      "business_verdict": "NOT_EVALUATED",
+      "planning_quality": "REQUIRES_IMPROVEMENT_AND_INDEPENDENT_EVALUATION",
+      "full_evidence_path": "artifacts/verify-agent/20261112-window-bounded-01/full-evidence.json",
+      "full_evidence_sha256": "8fbfcb4e067882e363f5485aec46e84b6d2757055c8ff1a4707aec9833ad129c",
+      "runtime_build_sha256": null,
+      "prompt_tokens_reported": 24998,
+      "output_tokens_reported": 922
+    },
+    {
+      "case": "20261112-projection-bounded-01",
+      "run_id": "582be260-97df-4204-8441-adcd9d030c2a",
+      "input_provenance": "CALIBRATION_SYNTHETIC",
+      "baseline_sha": "151d0cc3dbb6cd5406194aae5bf4a4f375eadf8a",
+      "candidate_sha": "fe7fb28a9cc5668d64295fbd9a673f19e7b3aa37",
+      "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+      "model": {
+        "name": "mistral:latest",
+        "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+      },
+      "system_prompt_sha256": "40314b0beb68e27c9c6bdee2797ffbeac4737f2c62440b696f0ab32aebb90973",
+      "model_calls": 4,
+      "read_count": 3,
+      "status": "PLANNED",
+      "check_intent": {
+        "objective": "Investigate the impact of the candidate code change on the handling of decision data in the business_tools.py file.",
+        "scenario_ref": "v1_history",
+        "capability_ref": "check.business",
+        "observation_requirements": [
+          "Collect the output of the business rule R5 with the changed candidate implementation."
+        ]
+      },
+      "requirement_refs": [
+        "R5"
+      ],
+      "current_candidate_coverage": [],
+      "business_verdict": "NOT_EVALUATED",
+      "planning_quality": "REQUIRES_IMPROVEMENT_AND_INDEPENDENT_EVALUATION",
+      "full_evidence_path": "artifacts/verify-agent/20261112-projection-bounded-01/full-evidence.json",
+      "full_evidence_sha256": "85c92ca6b1a73181a9519f777a861dacb4278d9f8de5afc99dd4355e37e7e915",
+      "runtime_build_sha256": "bbc5837189e7205eb0a2c8553e8c423771708e719adbcf1a9220229302e11cac",
+      "prompt_tokens_reported": 24356,
+      "output_tokens_reported": 917
+    }
+  ],
+  "development_attempts": [
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-bounded-01",
+      "run_id": "582be260-97df-4204-8441-adcd9d030c2a",
+      "model": "mistral:latest",
+      "status": "PLANNED",
+      "agent_outcome": "PLANNED",
+      "model_calls": 4,
+      "read_receipts": 3,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 73026,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 73025,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 73024,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-final-01",
+      "run_id": "af83be62-627e-46c3-8a36-cb76064dc2c3",
+      "model": "mistral:latest",
+      "status": "PLANNED",
+      "agent_outcome": "PLANNED",
+      "model_calls": 5,
+      "read_receipts": 4,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 62690,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 62689,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 62688,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-live-01",
+      "run_id": "b68c576f-f4e2-479a-9842-2aaa7a6c1073",
+      "model": "qwen2:7b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 56034,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 56033,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 56032,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-live-02",
+      "run_id": "b077032f-471f-415d-91f2-cecc7ddd72e3",
+      "model": "qwen2:7b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 56439,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 56438,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 56434,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-live-03",
+      "run_id": "34d5f3e2-c8cc-429b-8b07-1e7013673d6d",
+      "model": "qwen2:7b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 57330,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 57321,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 57320,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-llama-01",
+      "run_id": "1109d4f8-0181-46e8-a706-1b1f44381804",
+      "model": "llama3.2:3b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 57494,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 57493,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 57492,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-llama-native-01",
+      "run_id": "6a99c57f-e9e6-43f1-81b5-a500b0c3783b",
+      "model": "llama3.2:3b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 60766,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 60765,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 60764,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-mistral-01",
+      "run_id": "e40852c9-7f13-4593-acd1-53f0dfbbaacb",
+      "model": "mistral:latest",
+      "status": "PLANNED",
+      "agent_outcome": "PLANNED",
+      "model_calls": 3,
+      "read_receipts": 2,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 62165,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 62164,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 62155,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-native-01",
+      "run_id": "2c9b7c26-451d-4700-b325-984424549a67",
+      "model": "qwen2:7b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 60302,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 60301,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 60300,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-scoped-01",
+      "run_id": "f1ac4477-5c05-4a9c-a9dc-7988cb7542a4",
+      "model": "qwen2:7b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 6,
+      "read_receipts": 4,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 61682,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 61681,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 61680,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-projection-wire-01",
+      "run_id": "750b01bf-9e99-446a-9229-1d514d4f64f7",
+      "model": "qwen2:7b",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 61364,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 61363,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 61362,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-window-bounded-01",
+      "run_id": "793b0eea-6ec2-4205-a513-ad835607a7ce",
+      "model": "mistral:latest",
+      "status": "PLANNED",
+      "agent_outcome": "PLANNED",
+      "model_calls": 4,
+      "read_receipts": 3,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 72593,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 72592,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 72591,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-window-final-01",
+      "run_id": "6d43cf7b-9fc9-481d-9a6c-73f0066496aa",
+      "model": "mistral:latest",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 6,
+      "read_receipts": 4,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 63128,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 63127,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 63126,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    },
+    {
+      "directory": "artifacts/verify-agent/20261112-window-neutral-01",
+      "run_id": "be9f695c-7634-4d91-9764-79a919ffbf9c",
+      "model": "mistral:latest",
+      "status": "INCOMPLETE",
+      "agent_outcome": "STOPPED",
+      "model_calls": 2,
+      "read_receipts": 0,
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 72198,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 72197,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 72196,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ],
+      "raw_evidence_exported": true
+    }
+  ],
+  "not_implemented": [
+    "business_experiment_dispatch",
+    "trusted_business_CheckResult_and_Final",
+    "Codex_repair_handoff",
+    "MCP_server",
+    "enterprise_auth_and_untrusted_code_sandbox",
+    "LangGraph_PostgreSQL_checkpointer",
+    "five_pool_production_budget_ledger"
+  ],
+  "quality_assessment": "DIFF_SENSITIVE_PLANNING_DEMONSTRATED_ON_TUNING_CASES; EXECUTABLE_PLAN_PRECISION_AND_GENERALIZATION_NOT_ESTABLISHED"
+}

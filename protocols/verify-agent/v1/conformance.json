@@ -1,0 +1,2184 @@
+{
+  "schema_version": 1,
+  "schema_file": "decision-proposal.schema.json",
+  "cases": [
+    {
+      "name": "valid_read",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "valid_check_intent",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_novel_check",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "NOVEL_CHECK",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "objective": "验证新增的特殊合同条件。",
+          "capability_gap": "已登记Oracle尚不覆盖新参数。"
+        }
+      }
+    },
+    {
+      "name": "valid_clarify",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CLARIFY",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "question": "新增需求是否适用于历史续费？"
+        }
+      }
+    },
+    {
+      "name": "valid_finding",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "FINDING",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "summary": "疑似丢失拒绝理由，尚需运行观察确认。",
+          "limitations": [
+            "静态分析不构成业务反例。"
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_request_final",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "REQUEST_FINAL",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {}
+      }
+    },
+    {
+      "name": "valid_stop",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "STOP",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "reason": "当前能力不能执行实验，交付检查提案。"
+        }
+      }
+    },
+    {
+      "name": "valid_safe_integer_boundary",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 9007199254740991,
+        "candidate_epoch": 9007199254740991,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "valid_empty_optional_meaning_lists",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_wrong_version",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_string_version",
+      "valid": false,
+      "value": {
+        "schema_version": "1",
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_noncanonical_uuid",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "B700A836-EB63-4B59-A9F8-BC37F3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_uuid_urn",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "urn:uuid:b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_string_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": "0",
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_negative_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": -1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_fraction_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0.5,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_unsafe_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 9007199254740992,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_zero_epoch",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 0,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_boolean_epoch",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": true,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_null_ref",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": null,
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_query_not_reference",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "https://x?token=secret",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_unsupported_action",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_model_cannot_pass",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "PASS",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_oversized_rationale",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_duplicate_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5",
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_too_many_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "30",
+          "31",
+          "32"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_empty_expected",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_null_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": null
+      }
+    },
+    {
+      "name": "invalid_string_line",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:a",
+          "start_line": "1",
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_zero_line",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:a",
+          "start_line": 0,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_line_out_of_bound",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:a",
+          "start_line": 1,
+          "end_line": 1000001
+        }
+      }
+    },
+    {
+      "name": "invalid_unknown_payload_field",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:a",
+          "start_line": 1,
+          "end_line": 2,
+          "shell": "rm -rf /"
+        }
+      }
+    },
+    {
+      "name": "invalid_untrusted_hypothesis_status",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "test",
+            "status": "CONFIRMED",
+            "evidence_refs": []
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_unknown_hypothesis_field",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": [],
+            "coverage": "PASS"
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_too_many_hypotheses",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H0",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H1",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H2",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H3",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H4",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H5",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H6",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H7",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H8",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H9",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H10",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H11",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H12",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H13",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H14",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H15",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          },
+          {
+            "id": "H16",
+            "statement": "test",
+            "status": "OPEN",
+            "evidence_refs": []
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_schema_version",
+      "valid": false,
+      "value": {
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_proposal_id",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_based_on_decision_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_candidate_epoch",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_context_view_ref",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_action_kind",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_requirement_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_hypothesis_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_evidence_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_expected_information",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_rationale",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_hypothesis_updates",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid_actor_injection",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "actor": "admin"
+      }
+    },
+    {
+      "name": "invalid_check_intent_read_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_novel_check_read_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "NOVEL_CHECK",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_clarify_read_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CLARIFY",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_finding_read_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "FINDING",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_request_final_read_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "REQUEST_FINAL",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_stop_read_payload",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "STOP",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_null",
+      "valid": false,
+      "value": null
+    },
+    {
+      "name": "invalid_array",
+      "valid": false,
+      "value": []
+    },
+    {
+      "name": "invalid_string",
+      "valid": false,
+      "value": "READ"
+    },
+    {
+      "name": "invalid_missing_observations",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": []
+        }
+      }
+    },
+    {
+      "name": "invalid_finding_without_limitations",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "FINDING",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "summary": "疑似丢失拒绝理由，尚需运行观察确认。",
+          "limitations": []
+        }
+      }
+    },
+    {
+      "name": "invalid_final_self_approval",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "REQUEST_FINAL",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "result": "PASS"
+        }
+      }
+    }
+  ]
+}
