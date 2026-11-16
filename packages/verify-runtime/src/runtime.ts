@@ -5,6 +5,7 @@ import { DecisionProposalError, decisionProposalSchema, parseDecisionProposal, t
 import { Store, type RunRow } from "./store.js";
 import { contextRef, contextView, evidenceRefs, finalEligibility, groundedRequirements, modelBodySchema, modelShapeHint } from "./context.js";
 import { invokeLocalModel, validateModelConfig } from "./model.js";
+import { assessCheckQuality } from "./check-quality.js";
 import { canonical, digest, requireThat, RuntimeError, sha, validateBundle,
   type Json, type Limits, type ReleaseBundle, type RuntimeConfig, type RunState } from "./types.js";
 
@@ -26,7 +27,7 @@ export class Runtime {
   constructor(readonly config: RuntimeConfig) {
     validateModelConfig(config.model);
     this.store = new Store(config.databaseUrl);
-    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js",
+    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "check-quality.js",
       "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
     this.identities = { runtime_build_sha256: digest(modules), module_sha256: modules,
       planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema),
@@ -39,8 +40,12 @@ export class Runtime {
   async acceptRun(input: unknown, token: string, limits: Limits = { model_calls: 6, reads: 4, no_progress: 2 }, id: string = randomUUID()): Promise<string> {
     const bundle = validateBundle(input);
     requireThat(/^[0-9a-f-]{36}$/.test(id) && token.length >= 32, "INVALID_RUN_IDENTITY", 400);
-    for (const [key, bound] of Object.entries({ model_calls: 12, reads: 8, no_progress: 3 }))
-      requireThat(Number.isInteger(limits[key as keyof Limits]) && limits[key as keyof Limits] >= 1 && limits[key as keyof Limits] <= bound, "INVALID_BUDGET", 400);
+    const bounds = { model_calls: 12, reads: 8, no_progress: 3 };
+    for (const key of ["model_calls", "reads", "no_progress"] as const)
+      requireThat(Number.isInteger(limits[key]) && limits[key] >= 1 && limits[key] <= bounds[key], "INVALID_BUDGET", 400);
+    const repairs = limits.plan_repairs ?? Math.min(1, limits.model_calls - 1);
+    requireThat(Number.isInteger(repairs) && repairs >= 0 && repairs <= 2 && repairs < limits.model_calls, "INVALID_BUDGET", 400);
+    limits = { ...limits, plan_repairs: repairs };
     const state: RunState = { run_id: id, status: "ACTIVE", candidate_epoch: 1, decision_basis_revision: 1,
       event_seq: 0, config_digest: this.configDigest, limits, model_calls_used: 0, reads_used: 0,
       no_progress: 0, hypotheses: [], read_receipts: [], latest_feedback: null, stop_reason: null, identities: this.identities };
@@ -48,7 +53,8 @@ export class Runtime {
       await c.query("INSERT INTO verify_runtime.runs(id,bundle,bundle_digest,state,token_hash) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING",
         [id, bundle, digest(bundle), state, sha(token)]);
       const row = await this.store.lock(c, id);
-      requireThat(digest(row.bundle) === digest(bundle) && row.token_hash === sha(token) && row.state.config_digest === this.configDigest, "RUN_IDENTITY_CONFLICT");
+      requireThat(digest(row.bundle) === digest(bundle) && row.token_hash === sha(token) && row.state.config_digest === this.configDigest &&
+        canonical(row.state.limits) === canonical(limits), "RUN_IDENTITY_CONFLICT");
     });
     return id;
   }
@@ -81,7 +87,9 @@ export class Runtime {
           scope: bundle.scope, input_provenance: bundle.input_provenance },
         budgets: { model_calls: { limit: state.limits.model_calls, used: state.model_calls_used }, reads: { limit: state.limits.reads, used: state.reads_used },
           accounting_basis: "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
-          profile: "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls, FINAL: 0, RECONCILIATION: "LOCAL_STATE_ONLY", CLEANUP: "NO_SUT_RESOURCES" } },
+          check_repair: { reserved_within_total: state.limits.plan_repairs ?? 0, used: state.check_repair?.attempts_used ?? 0 },
+          profile: "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls - (state.limits.plan_repairs ?? 0),
+            CHECK_REPAIR: state.limits.plan_repairs ?? 0, FINAL: 0, RECONCILIATION: "LOCAL_STATE_ONLY", CLEANUP: "NO_SUT_RESOURCES" } },
         model_calls: calls.rows.map(call => ({ model_call_id: call.id, status: call.status, basis: call.basis, applied: call.applied })),
         operations: ops.rows.map(op => ({ operation_id: op.id, status: op.status, action_kind: op.proposal.action_kind, result: op.result })),
         current_candidate_coverage: [], final_eligibility: finalEligibility(),
@@ -115,6 +123,18 @@ export class Runtime {
         await this.store.event(c, s, "STOPPED", { reason: s.stop_reason }); await this.store.save(c, s);
         return null;
       }
+      // 修正池只在登记了具体缺项之后开放；探索 READ 不能花掉预留额度。
+      // 一次修正机会按模型调用计，故无效 JSON 或继续 READ 也不能无限延长修正。
+      const pendingRepair = s.check_repair?.status === "PENDING" ? s.check_repair : undefined;
+      const discoveryLimit = s.limits.model_calls - (s.limits.plan_repairs ?? 0);
+      const exhausted = pendingRepair ? pendingRepair.attempts_used >= pendingRepair.attempts_limit : s.model_calls_used >= discoveryLimit;
+      if (exhausted) {
+        s.status = "STOPPED"; s.stop_reason = pendingRepair ? "CHECK_REPAIR_LIMIT" : "DISCOVERY_BUDGET_EXHAUSTED";
+        if (pendingRepair) pendingRepair.status = "EXHAUSTED";
+        await this.store.event(c, s, "STOPPED", { reason: s.stop_reason }); await this.store.save(c, s);
+        return null;
+      }
+      if (pendingRepair) pendingRepair.attempts_used += 1;
       s.model_calls_used += 1;
       const callId = randomUUID(); const ref = contextRef(row.bundle, s);
       const request = { model: this.config.model.name, stream: false, format: modelBodySchema(row.bundle, s),
@@ -123,21 +143,36 @@ export class Runtime {
           { role: "system", content: this.config.plannerPrompt + "\n" + modelShapeHint() },
           { role: "user", content: JSON.stringify({ context_view: contextView(row.bundle, s),
             execution_limits: { model_calls_remaining_after_this: s.limits.model_calls - s.model_calls_used,
+              discovery_calls_remaining_after_this: pendingRepair ? 0 : Math.max(0, discoveryLimit - s.model_calls_used),
+              repair_calls_remaining_after_this: pendingRepair ? pendingRepair.attempts_limit - pendingRepair.attempts_used : s.limits.plan_repairs ?? 0,
+              decision_phase: pendingRepair ? "CHECK_REPAIR" : "DISCOVERY",
               reads_remaining: s.limits.reads - s.reads_used },
             model_identity: { name: this.config.model.name, digest: this.config.model.digest } }) },
         ] };
       const requestText = JSON.stringify(request);
-      requireThat(Buffer.byteLength(requestText) <= 100_000, "CONTEXT_TOO_LARGE");
+      if (Buffer.byteLength(requestText) > 100_000) {
+        // 规格可以合法但过大。不能事务回滚后永远保持 ACTIVE，让重启反复同错。
+        // 尚未创建/派发调用，所以撤销本次预增记账，持久化阻塞和实际字节数。
+        s.model_calls_used -= 1;
+        if (pendingRepair) pendingRepair.attempts_used -= 1;
+        s.status = "BLOCKED"; s.stop_reason = "CONTEXT_TOO_LARGE";
+        await this.store.event(c, s, "MODEL_CONTEXT_REJECTED", { reason: s.stop_reason, request_bytes: Buffer.byteLength(requestText) });
+        await this.store.save(c, s); return null;
+      }
       // jsonb 会重排对象键。对 LLM/生成语法而言顺序影响动作选择：必须先生成
       // action_kind，再生成对应 payload。单独保存实际 wire 文本，恢复也发送原字节。
       const result = await c.query<CallRow>("INSERT INTO verify_runtime.calls(id,run_id,command_id,basis,status,context_ref,request,request_text) VALUES($1,$2,$3,$4,'RESERVED',$5,$6,$7) RETURNING *",
         [callId, id, command.command_id, s.decision_basis_revision, ref, request, requestText]);
       await c.query("INSERT INTO verify_runtime.outbox(id,run_id,kind,status) VALUES($1,$2,'MODEL','PENDING')", [callId, id]);
-      await this.store.event(c, s, "MODEL_RESERVED", { model_call_id: callId, budget_pool: "DISCOVERY", config_digest: this.configDigest,
+      await this.store.event(c, s, "MODEL_RESERVED", { model_call_id: callId, budget_pool: pendingRepair ? "CHECK_REPAIR" : "DISCOVERY", config_digest: this.configDigest,
+        repair_root_proposal_id: pendingRepair?.root_proposal_id ?? null, repair_attempt: pendingRepair?.attempts_used ?? null,
         request_bytes_sha256: sha(requestText) });
       await this.store.save(c, s); return result.rows[0]!;
     });
-    if (!registered) return { status: "BLOCKED", reason: "DISCOVERY_BUDGET_EXHAUSTED" };
+    if (!registered) {
+      const state = (await this.projection(id));
+      return { status: "BLOCKED", reason: state.stop_reason };
+    }
     if (registered.status !== "RESERVED") return this.callProjection(registered);
     const dispatch = await this.store.transaction(async c => {
       const row = await this.store.lock(c, id);
@@ -198,7 +233,14 @@ export class Runtime {
   private feedback(state: RunState, result: Json, progress: boolean): void {
     state.latest_feedback = result; state.decision_basis_revision += 1;
     state.no_progress = progress ? 0 : state.no_progress + 1;
-    if (state.no_progress >= state.limits.no_progress && state.status === "ACTIVE") {
+    const repair = state.check_repair;
+    // 第一次质量拒绝不被通用 no_progress 抢先终止；给出明确、有界的修正权利。
+    // 最后一次机会被 READ/无效响应用完时也结束，不能重置计数再申请模型调用。
+    if (repair?.status === "PENDING" && state.status === "ACTIVE") {
+      if (repair.attempts_used >= repair.attempts_limit) {
+        repair.status = "EXHAUSTED"; state.status = "STOPPED"; state.stop_reason = "CHECK_REPAIR_LIMIT";
+      }
+    } else if (state.no_progress >= state.limits.no_progress && state.status === "ACTIVE") {
       state.status = "STOPPED"; state.stop_reason = "NO_PROGRESS_LIMIT";
     }
   }
@@ -233,7 +275,6 @@ export class Runtime {
     if (p.action_kind === "CHECK_INTENT") {
       if (s.read_receipts.length === 0 || p.requirement_refs.length === 0 || p.evidence_refs.length === 0) return "CHECK_GROUNDING_REQUIRED";
       if (p.requirement_refs.some(ref => !groundedRequirements(b, s).includes(ref))) return "APPLICABLE_RULE_READ_REQUIRED";
-      if (p.payload.observation_requirements.some(item => b.requirement_refs.includes(item.trim()))) return "OBSERVATION_DETAILS_REQUIRED";
       const caps = b.catalog.capabilities as Json[], scenarios = b.catalog.scenarios as Json[];
       if (!caps.some(c => c.id === p.payload.capability_ref) || !scenarios.some(c => c.id === p.payload.scenario_ref)) return "CAPABILITY_REFERENCE_INVALID";
     }
@@ -283,13 +324,34 @@ export class Runtime {
             !groundedRequirements(row.bundle, s).includes(String(r.id))).map(r => r.material_ref);
           result.correction = "Read the complete applicable rule excerpt before proposing assertions. A rule title or a baseline behavior is not the contract text.";
         }
-        if (error === "OBSERVATION_DETAILS_REQUIRED") result.correction = "A rule ID is not an observation. Describe the concrete product input/output/state to collect and the rule-backed distinction the experiment should test.";
       }
       else if (p.action_kind === "READ") { status = "QUEUED"; result = null; s.reads_used += 1; }
       else if (p.action_kind === "CHECK_INTENT") {
-        result = { status: "PROPOSED_ONLY", check_intent: p.payload, requirement_refs: p.requirement_refs,
-          gaps: ["CAPABILITY_NOT_DISPATCH_ENABLED", "NO_CURRENT_CANDIDATE_CHECK_RESULT"] };
-        s.status = "PLANNED"; s.stop_reason = "PLANNING_SLICE_COMPLETE";
+        // 传输 Schema 允许旧的笼统 CHECK；业务规划完整性在此一次返回全部缺项。
+        // Runtime 不替模型补预期答案，且结构完整与业务正确性/可派发性分别记账。
+        const quality = assessCheckQuality(row.bundle, p);
+        const previous = s.check_repair;
+        const lineage = { root_proposal_id: previous?.root_proposal_id ?? p.proposal_id,
+          previous_proposal_id: previous?.latest_proposal_id ?? null,
+          attempt: previous?.attempts_used ?? 0, limit: previous?.attempts_limit ?? s.limits.plan_repairs ?? 0 };
+        if (quality.status === "NEEDS_REVISION") {
+          error = "CHECK_SPEC_INCOMPLETE"; status = "REJECTED";
+          s.check_repair = { status: "PENDING", root_proposal_id: lineage.root_proposal_id,
+            latest_proposal_id: p.proposal_id, attempts_used: lineage.attempt, attempts_limit: lineage.limit,
+            latest_proposal: structuredClone(p), quality: { ...quality } };
+          result = { status: "NEEDS_REVISION", error_code: error, quality, repair: lineage,
+            rejected_action: { action_kind: p.action_kind, payload: p.payload },
+            correction: "Use the issue paths to revise check_spec. Specify a registered stage, concrete inputs, observations from registered fact sources, rule-backed expectations and a discriminating control. Repair requests consume the reserved bounded model-call allowance. Structural completion does not establish correctness or permit execution." };
+        } else {
+          if (previous) {
+            previous.status = "SATISFIED"; previous.latest_proposal_id = p.proposal_id;
+            previous.latest_proposal = structuredClone(p); previous.quality = { ...quality };
+          }
+          result = { status: "PROPOSED_ONLY", check_intent: p.payload, requirement_refs: p.requirement_refs,
+            quality, repair: lineage,
+            gaps: ["CAPABILITY_NOT_DISPATCH_ENABLED", "NO_CURRENT_CANDIDATE_CHECK_RESULT"] };
+          s.status = "PLANNED"; s.stop_reason = "PLANNING_SLICE_COMPLETE";
+        }
       } else if (p.action_kind === "REQUEST_FINAL") { result = { status: "NOT_ELIGIBLE", ...finalEligibility() }; }
       else if (p.action_kind === "STOP") { result = { status: "STOPPED", reason: p.payload.reason }; s.status = "STOPPED"; s.stop_reason = p.payload.reason; }
       else {

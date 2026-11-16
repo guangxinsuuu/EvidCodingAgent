@@ -198,7 +198,7 @@ def run_agent(runtime: RuntimePort, run_id: str, *, max_iterations: int = 32) ->
     projection = state.get("projection", {})
     safe_keys = ("status", "decision_basis_revision", "candidate_epoch", "context_view_ref",
                  "task_identity", "budgets", "model_calls", "operations", "hypotheses",
-                 "read_receipts", "current_candidate_coverage", "final_eligibility", "latest_feedback")
+                 "read_receipts", "current_candidate_coverage", "final_eligibility", "latest_feedback", "check_repair")
     return {"schema_version": 1, "run_id": run_id, "agent_version": "0.1.0",
             "outcome": state["outcome"], "iterations_this_process": state["iterations"],
             "authority": "TS_POSTGRESQL_RUNTIME", "checkpoint_mode": "REBUILD_FROM_RUNTIME_PROJECTION",

@@ -8,4 +8,4 @@ export { supportRequestSchema, supportSubmissionSchema, supportJobSchema,
   parseSupportRequest, parseSupportSubmission, parseSupportJob } from "./support.js";
 export type { SupportRequest, SupportSubmission, SupportJob, ResolutionDraft } from "./support.js";
 export { decisionProposalSchema, parseDecisionProposal, DecisionProposalError } from "./verify.js";
-export type { DecisionProposal, HypothesisUpdate } from "./verify.js";
+export type { DecisionProposal, HypothesisUpdate, CheckSpec } from "./verify.js";

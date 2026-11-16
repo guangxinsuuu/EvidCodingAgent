@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { HypothesisUpdate } from "@egap/contracts";
+import type { DecisionProposal, HypothesisUpdate } from "@egap/contracts";
 
 export type Json = Record<string, unknown>;
 export interface Material {
@@ -18,7 +18,15 @@ export interface RuntimeConfig {
   model: { endpoint: string; name: string; digest: string; timeoutMs: number; maxOutputTokens: number };
   plannerPrompt: string;
 }
-export interface Limits { model_calls: number; reads: number; no_progress: number }
+/** plan_repairs 从 model_calls 总额内预留，不能作为额外、未计费调用。 */
+export interface Limits { model_calls: number; reads: number; no_progress: number; plan_repairs?: number }
+export interface CheckRepair {
+  status: "PENDING" | "SATISFIED" | "EXHAUSTED";
+  root_proposal_id: string; latest_proposal_id: string;
+  attempts_used: number; attempts_limit: number;
+  latest_proposal: Extract<DecisionProposal, { action_kind: "CHECK_INTENT" }>;
+  quality: Json;
+}
 export interface RunState {
   run_id: string; status: "ACTIVE" | "PLANNED" | "STOPPED" | "CANCELLED" | "BLOCKED";
   candidate_epoch: number; decision_basis_revision: number; event_seq: number;
@@ -26,6 +34,8 @@ export interface RunState {
   no_progress: number; hypotheses: HypothesisUpdate[]; read_receipts: Json[];
   latest_feedback: Json | null; stop_reason: string | null;
   identities?: Json;
+  /** 与 latest_feedback 分开持久化：后续 READ 回执不能抹掉待补缺项或重置次数。 */
+  check_repair?: CheckRepair;
 }
 export class RuntimeError extends Error {
   constructor(readonly code: string, readonly statusCode = 409) { super(code); }

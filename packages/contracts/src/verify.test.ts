@@ -60,3 +60,19 @@ test("Verify 校验反馈只含keyword/path，不含Ajv params、原始输入或
     return true;
   });
 });
+
+test("CHECK 部分规格保持协议兼容；嵌套输入、观察、期望及对照都递归冻结", () => {
+  const sample = corpus.cases.find(item => item.name === "valid_check_structured_spec")!;
+  const input = structuredClone(sample.value);
+  const parsed = parseDecisionProposal(input);
+  assert.equal(parsed.action_kind, "CHECK_INTENT");
+  if (parsed.action_kind !== "CHECK_INTENT") return;
+  const spec = parsed.payload.check_spec!;
+  for (const value of [spec, spec.inputs, spec.inputs![0], spec.observations, spec.observations![0],
+    spec.expectations, spec.expectations![0], spec.control, spec.control!.inputs, spec.control!.inputs[0]]) {
+    assert.equal(Object.isFrozen(value), true);
+  }
+  assert.notEqual(spec, (input as { payload: { check_spec: unknown } }).payload.check_spec);
+  const partial = corpus.cases.find(item => item.name === "valid_check_partial_spec")!;
+  assert.equal(parseDecisionProposal(partial.value).action_kind, "CHECK_INTENT");
+});

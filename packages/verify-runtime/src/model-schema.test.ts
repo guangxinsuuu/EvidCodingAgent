@@ -33,7 +33,7 @@ function authorityAcceptsBody(value: unknown): boolean {
   catch { return false; }
 }
 
-// 61份相同样本已由 Python jsonschema 和 TS 权威解析器消费。
+// 同一份协议样本由 Python jsonschema 和 TS 权威解析器消费。
 // 身份缺失/格式错误在此归一成 Runtime 提供的合法身份，因此只比较模型动作体语义。
 for (const sample of corpus.cases) {
   test(`生成Schema与共享权威协议等价：${sample.name}`, () => {
@@ -140,6 +140,25 @@ function scopedCheck(): Json {
 function recordCompleteRule(state: RunState): void {
   state.read_receipts.push({ material_ref: "rule:R1", start_line: 1, end_line: 3, receipt_ref: "read:complete-rule-R1" });
 }
+
+test("Scoped：修正生成提示要求完整spec，而传输协议继续接收旧CHECK以返回具体缺项", () => {
+  const { bundle, state } = scopedFixture();
+  recordCompleteRule(state);
+  const proposal = parseDecisionProposal({ ...scopedCheck(), ...identity });
+  assert.equal(proposal.action_kind, "CHECK_INTENT");
+  if (proposal.action_kind !== "CHECK_INTENT") throw new Error("fixture action");
+  state.check_repair = { status: "PENDING", root_proposal_id: proposal.proposal_id,
+    latest_proposal_id: proposal.proposal_id, attempts_used: 0, attempts_limit: 1,
+    latest_proposal: proposal, quality: { status: "NEEDS_REVISION" } };
+  const before = JSON.stringify(decisionProposalSchema);
+  const native = modelBodySchema(bundle, state);
+  assert.equal(ajv.compile(native)(scopedCheck()), false);
+  assert.equal(authorityAcceptsBody(scopedCheck()), true);
+  const defs = native["$defs"] as Json;
+  assert.deepEqual((defs["checkSpec"] as Json)["required"],
+    ["schema_version", "stage_ref", "inputs", "observations", "expectations", "control"]);
+  assert.equal(JSON.stringify(decisionProposalSchema), before, "native提示不污染权威接收协议");
+});
 
 test("Scoped：合法动作仍满足共享权威协议，新增enum只缩小引用范围", () => {
   const { bundle, state } = scopedFixture();

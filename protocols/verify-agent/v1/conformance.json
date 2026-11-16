@@ -2179,6 +2179,869 @@
           "result": "PASS"
         }
       }
+    },
+    {
+      "name": "valid_check_partial_spec",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "valid_check_structured_spec",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "valid_check_presence_spec",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "PRESENT",
+                "value": "",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_spec_missing_version",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "stage_ref": "fixture.after"
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_spec_version",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_spec_unknown_field",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "execute": true
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_input_value_type",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": 10
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_observation_unknown_field",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount",
+                "execute": "command"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_observation_missing_field",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_expectation_operator",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "PASS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_control_relation",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "LIKELY",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_check_control_missing_inputs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [
+              {
+                "id": "result",
+                "source_ref": "fixture_api",
+                "field": "result.amount"
+              }
+            ],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "valid_check_empty_observations_for_quality_feedback",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "stage_ref": "fixture.after",
+            "inputs": [
+              {
+                "name": "amount",
+                "value": "10"
+              }
+            ],
+            "observations": [],
+            "expectations": [
+              {
+                "observation_ref": "result",
+                "operator": "EQUALS",
+                "value": "10",
+                "requirement_ref": "SUP-R5"
+              }
+            ],
+            "control": {
+              "scenario_ref": "fixture",
+              "stage_ref": "fixture.before",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "value": "0"
+                }
+              ],
+              "observation_ref": "result",
+              "expected_relation": "DIFFERENT",
+              "reason": "Compare the same field with a different amount."
+            }
+          }
+        }
+      }
     }
   ]
 }

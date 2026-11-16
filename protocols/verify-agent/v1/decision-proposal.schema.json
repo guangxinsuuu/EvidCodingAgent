@@ -126,6 +126,170 @@
       "items": {
         "$ref": "#/$defs/reference"
       }
+    },
+    "checkInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "checkObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_ref",
+        "field"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "source_ref": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "field": {
+          "type": "string",
+          "maxLength": 512
+        }
+      }
+    },
+    "checkExpectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation_ref",
+        "operator",
+        "value",
+        "requirement_ref"
+      ],
+      "properties": {
+        "observation_ref": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "EQUALS",
+            "NOT_EQUALS",
+            "CONTAINS",
+            "PRESENT",
+            "ABSENT",
+            "UNCHANGED",
+            "GREATER_THAN",
+            "LESS_THAN"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "requirement_ref": {
+          "type": "string",
+          "maxLength": 512
+        }
+      }
+    },
+    "checkControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario_ref",
+        "stage_ref",
+        "inputs",
+        "observation_ref",
+        "expected_relation",
+        "reason"
+      ],
+      "properties": {
+        "scenario_ref": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "stage_ref": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "inputs": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/checkInput"
+          }
+        },
+        "observation_ref": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "expected_relation": {
+          "type": "string",
+          "enum": [
+            "SAME",
+            "DIFFERENT"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "checkSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "stage_ref": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "inputs": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/checkInput"
+          }
+        },
+        "observations": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/checkObservation"
+          }
+        },
+        "expectations": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/checkExpectation"
+          }
+        },
+        "control": {
+          "$ref": "#/$defs/checkControl"
+        }
+      },
+      "$comment": "合法的部分提案由Runtime收集全部缺项；类型、嵌套字段与上界仍严格校验。结构完整不代表业务正确或允许执行。"
     }
   },
   "allOf": [
@@ -209,6 +373,9 @@
                 "items": {
                   "$ref": "#/$defs/text"
                 }
+              },
+              "check_spec": {
+                "$ref": "#/$defs/checkSpec"
               }
             }
           }

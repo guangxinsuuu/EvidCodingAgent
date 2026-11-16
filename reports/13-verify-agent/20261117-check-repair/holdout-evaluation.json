@@ -1,0 +1,1499 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-11-16T23:43:48.462058+00:00",
+  "evaluator": "independent_holdout_subagent_manual_semantic_review",
+  "scope": "TWO_SYNTHETIC_SOURCE_DERIVED_READ_AND_PLAN_HOLDOUTS",
+  "business_verdict": "NOT_EVALUATED",
+  "release_authorized": false,
+  "pre_registered_rule": {
+    "rubric_scale": "5 dimensions; each 0 absent/wrong, 1 partial, 2 concrete/correct",
+    "semantic_pass": "total >= 8/10 AND discriminating_input=2 AND expected_relation=2; no fabricated execution/PASS or silently invalid scenario coverage",
+    "original_and_revisions_scored_separately": true,
+    "runtime_acceptance_is_not_semantic_pass": true,
+    "rubrics_frozen_before_implementation_disclosure": true
+  },
+  "integrity": {
+    "holdout_prepared_at": "2026-11-16T23:19:30.848669+00:00",
+    "holdout_freeze_path": "artifacts/verify-agent/20261117-holdout-prepared/freeze.json",
+    "holdout_freeze_sha256": "60d9abcabeafeb3d270027b8fbedef3396075564befed00a587e06a6eb69dd34",
+    "implementation_frozen_at": "2026-11-16T23:27:34.443992+00:00",
+    "implementation_freeze_path": "artifacts/verify-agent/20261117-validation/implementation-freeze.json",
+    "implementation_freeze_sha256": "6b45be62653d4cf3781bf8656cf80de1f9ff870a8dbc38cce67089e085b299d9",
+    "prepared_file_mismatches": [],
+    "implementation_file_count": 85,
+    "implementation_file_mismatches": [],
+    "source_commit": "6f1b144cfa9af3e83a07bd951a4827f2f383e363",
+    "first_run_only": true,
+    "retuned_after_opening": false,
+    "heldout_after_future_tuning": false,
+    "actual_runtime_identity_identical_across_runs": true,
+    "actual_prompt_matches_frozen_file_sha256": true,
+    "actual_model_digest_matches_frozen": true
+  },
+  "cases": [
+    {
+      "case_id": "holdout_a",
+      "run_id": "ecb9db01-930b-4d80-9daa-d0d64e7ca840",
+      "synthetic_intervention": "人工删除付款币种与发票币种的精确相等检查，其余付款条件不变。",
+      "is_real_product_pr": false,
+      "paths": {
+        "bundle": "artifacts/verify-agent/20261117-holdout-prepared/model-input/holdout_a-bundle.json",
+        "rubric": "artifacts/verify-agent/20261117-holdout-prepared/evaluation-only/holdout_a-rubric.json",
+        "ledger": "artifacts/verify-agent/20261117-holdout-a-run-01/full-evidence.json",
+        "summary": "artifacts/verify-agent/20261117-holdout-a-run-01/summary.json"
+      },
+      "sha256": {
+        "bundle": "a8fa1d1857a1b5854dd7022733ad6c165d86661cbc496a5229baa3894eaa41f9",
+        "rubric": "72e5e136310491a394f2dba8ca9371546f88d0d9b9af0701e633964b9203ae45",
+        "ledger": "3a294dcf25c2cec0b6b75fcec55f32921c436ed64e5918a7fc58ec757338a82f",
+        "summary": "abd4c93b2d8244d7e3e0aaf227de1f93561507e6c95462d7780dfa1a09b41366"
+      },
+      "task_identity": {
+        "baseline_sha": "fe24f452e96f564f50ed048a2514ec0512aaf72a",
+        "candidate_sha": "9f93d08ced14d493fc7349dfcc2d88477c9a053f",
+        "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "input_provenance": "CALIBRATION_SYNTHETIC"
+      },
+      "actual_runtime_identity": {
+        "model_name": "mistral:latest",
+        "module_sha256": {
+          "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+          "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+          "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+          "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+          "context.js": "6c016aeb726a71b4062aef4fe2aa9082dd8ca727089cae074245b6a7e8f8ce92",
+          "runtime.js": "19e6f08348bf211780a9aaf88cd99a011f473978606c57f97cdf541a5f3f598f",
+          "check-quality.js": "325f51e845a42f33abe8e2861ae3a98434b301d203960e17ac085e36d181fcc1",
+          "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+        },
+        "action_schema_sha256": "e4e9e4d20619641592eeb9cd46c7a471102c130ba8a47f94c3bdaa918e30e5d0",
+        "runtime_build_sha256": "1e2b7d62d9bd41c8cb3e829f6ea964c7b85d4d4e7f760c64c5d305408495d872",
+        "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+        "planner_prompt_sha256": "78ec9ecab06efe35597be2361379441c304c9818ed87101406347b3c7def590b"
+      },
+      "input_integrity": {
+        "driver_bundle_equals_frozen_bundle": true,
+        "runtime_bundle_equals_frozen_bundle": true,
+        "evaluation_markers_in_model_requests": [],
+        "model_received_separate_evaluation_files": false,
+        "diff_initially_available": true,
+        "initial_diff_truncated": false,
+        "actual_model_options_match_frozen": true
+      },
+      "runtime_result": {
+        "status": "STOPPED",
+        "stop_reason": "CHECK_REPAIR_LIMIT",
+        "check_repair": {
+          "status": "EXHAUSTED",
+          "attempts_used": 2,
+          "attempts_limit": 2
+        },
+        "all_checks_rejected": true,
+        "no_business_execution": true,
+        "no_release_authorization": true
+      },
+      "reads": [
+        {
+          "call_index": 1,
+          "call_id": "94d1ff6a-78b9-40ce-8eb1-fe30c28594c3",
+          "material_ref": "rule:R4",
+          "start_line": 1,
+          "end_line": 8,
+          "declared_requirement_refs": [
+            "R4"
+          ],
+          "relevance": "直接相关：R4 明确付款必须与发票币种、金额一致。"
+        },
+        {
+          "call_index": 2,
+          "call_id": "c96d6fb3-d5c3-4d8d-bef7-b1439391e3fe",
+          "material_ref": "rule:R3",
+          "start_line": 1,
+          "end_line": 10,
+          "declared_requirement_refs": [
+            "R4"
+          ],
+          "relevance": "背景规则；本次唯一变化是付款币种比较，未说明读取 R3 用量规则的必要性。"
+        },
+        {
+          "call_index": 3,
+          "call_id": "652f18b2-2061-4997-ab79-513a00f99412",
+          "material_ref": "rule:R2",
+          "start_line": 1,
+          "end_line": 9,
+          "declared_requirement_refs": [
+            "R3"
+          ],
+          "relevance": "背景规则；未说明窗口规则 R2 能减少本次币种变化的不确定性。"
+        }
+      ],
+      "check_attempts": [
+        {
+          "attempt_index": 0,
+          "kind": "ORIGINAL",
+          "call_index": 4,
+          "call_id": "d6ecf79e-75aa-491c-8432-3fa75b290394",
+          "proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b",
+          "operation_id": "a5f2306f-4a4b-4736-9021-dd5d57aef800",
+          "operation_status": "REJECTED",
+          "proposal": {
+            "payload": {
+              "objective": "Investigate the impact of the changed behavior in the candidate implementation on the refund eligibility rule R1.",
+              "check_spec": {
+                "inputs": [
+                  {
+                    "name": "candidate_implementation",
+                    "value": "changed"
+                  }
+                ],
+                "control": {
+                  "inputs": [
+                    {
+                      "name": "candidate_implementation",
+                      "value": "baseline"
+                    }
+                  ],
+                  "reason": "The control uses the baseline implementation to compare with the candidate implementation.",
+                  "stage_ref": "v1_history.initial",
+                  "scenario_ref": "v1_history",
+                  "observation_ref": "OBS1",
+                  "expected_relation": "SAME"
+                },
+                "stage_ref": "v1_history.initial",
+                "expectations": [
+                  {
+                    "value": "",
+                    "operator": "NOT_EQUALS",
+                    "observation_ref": "OBS1",
+                    "requirement_ref": "R1"
+                  }
+                ],
+                "observations": [
+                  {
+                    "id": "OBS1",
+                    "field": "R1",
+                    "source_ref": "business_rules"
+                  }
+                ],
+                "schema_version": 1
+              },
+              "scenario_ref": "v1_history",
+              "capability_ref": "native.prepare",
+              "observation_requirements": [
+                "{id: 'OBS1', source_ref: 'business_rules', field: 'R1'}"
+              ]
+            },
+            "rationale": "The hypothesis is open because the rule R1 has not been read yet. Reading the applicable rule will help determine whether the change in the candidate implementation impacts the refund eligibility.",
+            "action_kind": "CHECK_INTENT",
+            "proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b",
+            "evidence_refs": [
+              "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+            ],
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "hypothesis_refs": [],
+            "context_view_ref": "context:d1ffcc9faf924821cce8063f7ea19d4c0a6349acace4427ccf0100276c7979e3",
+            "requirement_refs": [
+              "R2",
+              "R3",
+              "R4"
+            ],
+            "hypothesis_updates": [
+              {
+                "id": "H1",
+                "status": "OPEN",
+                "statement": "The changed behavior in the candidate implementation affects the refund eligibility rule.",
+                "evidence_refs": []
+              }
+            ],
+            "expected_information": "Whether the changed behavior in the candidate implementation affects the refund eligibility rule R1, and if so, how it does so.",
+            "based_on_decision_revision": 4
+          },
+          "check_spec_sha256": "52ccf4b6814c294c8dcb28812eb9d589e521408fc1ae18e6bc4fba414d584e2b",
+          "quality_feedback": {
+            "issues": [
+              {
+                "code": "SOURCE_NOT_OBSERVABLE",
+                "path": "/payload/check_spec/observations/0/source_ref",
+                "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+              },
+              {
+                "code": "OBSERVATION_FIELD_REQUIRED",
+                "path": "/payload/check_spec/observations/0/field",
+                "message": "指定实际观察字段或字段路径，不能以规则编号、空值或占位词替代。"
+              },
+              {
+                "code": "EXPECTATION_REQUIREMENT_NOT_BOUND",
+                "path": "/payload/check_spec/expectations/0/requirement_ref",
+                "message": "期望必须引用发布包登记且列入本提案 requirement_refs 的要求。"
+              },
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/0/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              }
+            ],
+            "status": "NEEDS_REVISION",
+            "policy_version": "check-specificity-v1",
+            "dispatch_qualified": false,
+            "semantic_correctness": "NOT_ESTABLISHED"
+          },
+          "feedback_from_previous_attempt_delivered_exactly": null,
+          "scores": {
+            "source_grounding": {
+              "score": 1,
+              "reason": "完整币种删除 diff 已在初始上下文可见，且成功读取 R4；CHECK 未指出币种关系，转而要求未读 R1，使用的 R1 又不在自身 requirement_refs 中。"
+            },
+            "discriminating_input": {
+              "score": 0,
+              "reason": "只有 candidate_implementation=changed/baseline，没有付款/发票币种、金额、绑定、时点等可区分 B/C 的具体输入。"
+            },
+            "expected_relation": {
+              "score": 0,
+              "reason": "NOT_EQUALS 值为空；没有 B=False/C=True 的回归假设或币种不符必须拒绝的业务断言。"
+            },
+            "observation_and_control": {
+              "score": 0,
+              "reason": "把 business_rules.R1 当运行观察；baseline 标签没有有效业务输入和实际结果观察，不能成为可执行对照。"
+            },
+            "qualified_scope": {
+              "score": 0,
+              "reason": "选择 native.prepare 与 v1_history.initial，没有说明如何检验付款谓词，也未选择 wrong_currency 或提出等价新检查。虽未伪造 PASS，但不构成合格验证方案。"
+            }
+          },
+          "total_score": 1,
+          "semantic_status": "FAIL",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 642,
+            "prompt_tokens": 8853
+          }
+        },
+        {
+          "attempt_index": 1,
+          "kind": "REPAIR",
+          "call_index": 5,
+          "call_id": "73ffd01e-79d1-4607-bb9c-dcee9c60ebdd",
+          "proposal_id": "86df89d5-cd9b-4fc4-b695-2b6f9f096c33",
+          "operation_id": "87206edb-da49-4c8d-a602-95d900af41ce",
+          "operation_status": "REJECTED",
+          "proposal": {
+            "payload": {
+              "objective": "Investigate the impact of the changed behavior in the candidate implementation on the refund eligibility rule R1.",
+              "check_spec": {
+                "inputs": [
+                  {
+                    "name": "candidate_implementation",
+                    "value": "changed"
+                  }
+                ],
+                "control": {
+                  "inputs": [
+                    {
+                      "name": "candidate_implementation",
+                      "value": "baseline"
+                    }
+                  ],
+                  "reason": "The control uses the baseline implementation to compare with the candidate implementation.",
+                  "stage_ref": "v1_history.initial",
+                  "scenario_ref": "v1_history",
+                  "observation_ref": "OBS1",
+                  "expected_relation": "SAME"
+                },
+                "stage_ref": "v1_history.initial",
+                "expectations": [
+                  {
+                    "value": "",
+                    "operator": "NOT_EQUALS",
+                    "observation_ref": "OBS1",
+                    "requirement_ref": "R1"
+                  }
+                ],
+                "observations": [
+                  {
+                    "id": "OBS1",
+                    "field": "R1",
+                    "source_ref": "business_rules"
+                  }
+                ],
+                "schema_version": 1
+              },
+              "scenario_ref": "v1_history",
+              "capability_ref": "native.prepare",
+              "observation_requirements": [
+                "{\"id\": \"OBS1\", \"source_ref\": \"business_rules\", \"field\": \"R1\"}"
+              ]
+            },
+            "rationale": "The hypothesis is open because the applicable rule R1 has not been read yet. Reading the applicable rule will help determine whether the change in the candidate implementation impacts the refund eligibility.",
+            "action_kind": "CHECK_INTENT",
+            "proposal_id": "86df89d5-cd9b-4fc4-b695-2b6f9f096c33",
+            "evidence_refs": [
+              "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+            ],
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "hypothesis_refs": [],
+            "context_view_ref": "context:4452b7cc1d8777110f3718724c91de6c8751837b4fc3b1da720107b750d6d795",
+            "requirement_refs": [
+              "R2",
+              "R3",
+              "R4"
+            ],
+            "hypothesis_updates": [
+              {
+                "id": "H1",
+                "status": "OPEN",
+                "statement": "The changed behavior in the candidate implementation affects the refund eligibility rule.",
+                "evidence_refs": []
+              }
+            ],
+            "expected_information": "Whether the changed behavior in the candidate implementation affects the refund eligibility rule R1, and if so, how it does so.",
+            "based_on_decision_revision": 5
+          },
+          "check_spec_sha256": "52ccf4b6814c294c8dcb28812eb9d589e521408fc1ae18e6bc4fba414d584e2b",
+          "quality_feedback": {
+            "issues": [
+              {
+                "code": "SOURCE_NOT_OBSERVABLE",
+                "path": "/payload/check_spec/observations/0/source_ref",
+                "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+              },
+              {
+                "code": "OBSERVATION_FIELD_REQUIRED",
+                "path": "/payload/check_spec/observations/0/field",
+                "message": "指定实际观察字段或字段路径，不能以规则编号、空值或占位词替代。"
+              },
+              {
+                "code": "EXPECTATION_REQUIREMENT_NOT_BOUND",
+                "path": "/payload/check_spec/expectations/0/requirement_ref",
+                "message": "期望必须引用发布包登记且列入本提案 requirement_refs 的要求。"
+              },
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/0/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              }
+            ],
+            "status": "NEEDS_REVISION",
+            "policy_version": "check-specificity-v1",
+            "dispatch_qualified": false,
+            "semantic_correctness": "NOT_ESTABLISHED"
+          },
+          "feedback_from_previous_attempt_delivered_exactly": true,
+          "scores": {
+            "source_grounding": {
+              "score": 1,
+              "reason": "完整币种删除 diff 已在初始上下文可见，且成功读取 R4；CHECK 未指出币种关系，转而要求未读 R1，使用的 R1 又不在自身 requirement_refs 中。"
+            },
+            "discriminating_input": {
+              "score": 0,
+              "reason": "只有 candidate_implementation=changed/baseline，没有付款/发票币种、金额、绑定、时点等可区分 B/C 的具体输入。"
+            },
+            "expected_relation": {
+              "score": 0,
+              "reason": "NOT_EQUALS 值为空；没有 B=False/C=True 的回归假设或币种不符必须拒绝的业务断言。"
+            },
+            "observation_and_control": {
+              "score": 0,
+              "reason": "把 business_rules.R1 当运行观察；baseline 标签没有有效业务输入和实际结果观察，不能成为可执行对照。"
+            },
+            "qualified_scope": {
+              "score": 0,
+              "reason": "选择 native.prepare 与 v1_history.initial，没有说明如何检验付款谓词，也未选择 wrong_currency 或提出等价新检查。虽未伪造 PASS，但不构成合格验证方案。"
+            }
+          },
+          "total_score": 1,
+          "semantic_status": "FAIL",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 603,
+            "prompt_tokens": 9449
+          }
+        },
+        {
+          "attempt_index": 2,
+          "kind": "REPAIR",
+          "call_index": 6,
+          "call_id": "5e4b91df-a1cb-4e1e-a4ad-f003b8cd73b9",
+          "proposal_id": "531804a7-9d55-4bcc-a01c-c7acad0c78f2",
+          "operation_id": "b1caf507-13c3-4c1c-b8dd-59bd92c1ec80",
+          "operation_status": "REJECTED",
+          "proposal": {
+            "payload": {
+              "objective": "Investigate the impact of the changed behavior in the candidate implementation on the refund eligibility rule R1.",
+              "check_spec": {
+                "inputs": [
+                  {
+                    "name": "candidate_implementation",
+                    "value": "changed"
+                  }
+                ],
+                "control": {
+                  "inputs": [
+                    {
+                      "name": "candidate_implementation",
+                      "value": "baseline"
+                    }
+                  ],
+                  "reason": "The control uses the baseline implementation to compare with the candidate implementation.",
+                  "stage_ref": "v1_history.initial",
+                  "scenario_ref": "v1_history",
+                  "observation_ref": "OBS1",
+                  "expected_relation": "SAME"
+                },
+                "stage_ref": "v1_history.initial",
+                "expectations": [
+                  {
+                    "value": "",
+                    "operator": "NOT_EQUALS",
+                    "observation_ref": "OBS1",
+                    "requirement_ref": "R1"
+                  }
+                ],
+                "observations": [
+                  {
+                    "id": "OBS1",
+                    "field": "R1",
+                    "source_ref": "business_rules"
+                  }
+                ],
+                "schema_version": 1
+              },
+              "scenario_ref": "v1_history",
+              "capability_ref": "native.prepare",
+              "observation_requirements": [
+                "{\"id\": \"OBS1\", \"source_ref\": \"business_rules\", \"field\": \"R1\"}"
+              ]
+            },
+            "rationale": "The hypothesis is open because the applicable rule R1 has not been read yet. Reading the applicable rule will help determine whether the change in the candidate implementation impacts the refund eligibility.",
+            "action_kind": "CHECK_INTENT",
+            "proposal_id": "531804a7-9d55-4bcc-a01c-c7acad0c78f2",
+            "evidence_refs": [
+              "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+            ],
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "hypothesis_refs": [],
+            "context_view_ref": "context:8c874e4af8069c49c6e6a78c082e9878f95dba6b45c9c7017d7cdc9645d2f62f",
+            "requirement_refs": [
+              "R2",
+              "R3",
+              "R4"
+            ],
+            "hypothesis_updates": [
+              {
+                "id": "H1",
+                "status": "OPEN",
+                "statement": "The changed behavior in the candidate implementation affects the refund eligibility rule.",
+                "evidence_refs": []
+              }
+            ],
+            "expected_information": "Whether the changed behavior in the candidate implementation affects the refund eligibility rule R1, and if so, how it does so.",
+            "based_on_decision_revision": 6
+          },
+          "check_spec_sha256": "52ccf4b6814c294c8dcb28812eb9d589e521408fc1ae18e6bc4fba414d584e2b",
+          "quality_feedback": {
+            "issues": [
+              {
+                "code": "SOURCE_NOT_OBSERVABLE",
+                "path": "/payload/check_spec/observations/0/source_ref",
+                "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+              },
+              {
+                "code": "OBSERVATION_FIELD_REQUIRED",
+                "path": "/payload/check_spec/observations/0/field",
+                "message": "指定实际观察字段或字段路径，不能以规则编号、空值或占位词替代。"
+              },
+              {
+                "code": "EXPECTATION_REQUIREMENT_NOT_BOUND",
+                "path": "/payload/check_spec/expectations/0/requirement_ref",
+                "message": "期望必须引用发布包登记且列入本提案 requirement_refs 的要求。"
+              },
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/0/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              }
+            ],
+            "status": "NEEDS_REVISION",
+            "policy_version": "check-specificity-v1",
+            "dispatch_qualified": false,
+            "semantic_correctness": "NOT_ESTABLISHED"
+          },
+          "feedback_from_previous_attempt_delivered_exactly": true,
+          "scores": {
+            "source_grounding": {
+              "score": 1,
+              "reason": "完整币种删除 diff 已在初始上下文可见，且成功读取 R4；CHECK 未指出币种关系，转而要求未读 R1，使用的 R1 又不在自身 requirement_refs 中。"
+            },
+            "discriminating_input": {
+              "score": 0,
+              "reason": "只有 candidate_implementation=changed/baseline，没有付款/发票币种、金额、绑定、时点等可区分 B/C 的具体输入。"
+            },
+            "expected_relation": {
+              "score": 0,
+              "reason": "NOT_EQUALS 值为空；没有 B=False/C=True 的回归假设或币种不符必须拒绝的业务断言。"
+            },
+            "observation_and_control": {
+              "score": 0,
+              "reason": "把 business_rules.R1 当运行观察；baseline 标签没有有效业务输入和实际结果观察，不能成为可执行对照。"
+            },
+            "qualified_scope": {
+              "score": 0,
+              "reason": "选择 native.prepare 与 v1_history.initial，没有说明如何检验付款谓词，也未选择 wrong_currency 或提出等价新检查。虽未伪造 PASS，但不构成合格验证方案。"
+            }
+          },
+          "total_score": 1,
+          "semantic_status": "FAIL",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 603,
+            "prompt_tokens": 9455
+          }
+        }
+      ],
+      "raw_record_retention": [
+        {
+          "call_index": 1,
+          "call_id": "94d1ff6a-78b9-40ce-8eb1-fe30c28594c3",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "318135770f22fb203f19cfa10bb35e8b4edd5e8dad1bbba014d6c98a1632af65",
+          "raw_response_sha256": "eb4128439b9fac19a908924976b5d436416263e975c39182b6b7c8f31c8252db",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 256,
+            "prompt_tokens": 4311
+          }
+        },
+        {
+          "call_index": 2,
+          "call_id": "c96d6fb3-d5c3-4d8d-bef7-b1439391e3fe",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "e7a7c4397b01d554a0ecea0691e78abbd39d5035f04218f83288289266358da0",
+          "raw_response_sha256": "61ec3e040435b7ec8c0dc9ea01cb6e3eee3b9441e4c55770fcf1136806ec7ef0",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 163,
+            "prompt_tokens": 7685
+          }
+        },
+        {
+          "call_index": 3,
+          "call_id": "652f18b2-2061-4997-ab79-513a00f99412",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "b44c40ca1b412cf84d6476a51f2d9f5de720c8cef5bac5ac01d405637cab53c4",
+          "raw_response_sha256": "bd1385b15ee4bfcefa7f6b3ff94728171e3ad46333e2b49e985da0d55e955c18",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 164,
+            "prompt_tokens": 8321
+          }
+        },
+        {
+          "call_index": 4,
+          "call_id": "d6ecf79e-75aa-491c-8432-3fa75b290394",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "ad68d7d545c2631c110a96df3f9521b3ed152b4b7ea0d138f62150c25b25321c",
+          "raw_response_sha256": "e91fd5bffec9816d0ee376b41836e22736d0ca9f6afb4bb62fa7ee54e11cff2a",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 642,
+            "prompt_tokens": 8853
+          }
+        },
+        {
+          "call_index": 5,
+          "call_id": "73ffd01e-79d1-4607-bb9c-dcee9c60ebdd",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "26ffb206e669f1a8e13e440e70be92a688d58ff673a13d7fbd495e645780fbd2",
+          "raw_response_sha256": "ee4b744e7f89d45d70e29f1ca0e95783e5ace378b770531b9afc61ce3d43dff9",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 603,
+            "prompt_tokens": 9449
+          }
+        },
+        {
+          "call_index": 6,
+          "call_id": "5e4b91df-a1cb-4e1e-a4ad-f003b8cd73b9",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "a2044bcec3aa1f95e70160633bb78867f0e81abb0408a56bc3fd806a7e5cbc0d",
+          "raw_response_sha256": "b33ef6e4b1aeef3aa6ef35b12eeb8867ba1aefe0ea8556a40b4a9de6f055f3da",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 603,
+            "prompt_tokens": 9455
+          }
+        }
+      ],
+      "usage": {
+        "model_calls": 6,
+        "reads": 3,
+        "original_checks": 1,
+        "repair_calls": 2,
+        "prompt_tokens": 48074,
+        "output_tokens": 2431,
+        "total_tokens": 50505,
+        "repair_prompt_tokens": 18904,
+        "repair_output_tokens": 1206,
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_interpretation": "未记录供应商账单；不能解释为计算/电力成本为零。",
+        "budget": {
+          "model_calls": {
+            "limit": 6,
+            "used": 6
+          },
+          "reads": {
+            "limit": 3,
+            "used": 3
+          },
+          "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+          "check_repair": {
+            "reserved_within_total": 2,
+            "used": 2
+          },
+          "profile": "READ_ONLY_DISCOVERY",
+          "pools": {
+            "CODING": 0,
+            "DISCOVERY": 4,
+            "CHECK_REPAIR": 2,
+            "FINAL": 0,
+            "RECONCILIATION": "LOCAL_STATE_ONLY",
+            "CLEANUP": "NO_SUT_RESOURCES"
+          }
+        },
+        "duration_seconds": 302.653828
+      },
+      "semantic_result": {
+        "status": "FAIL",
+        "initial_score": 1,
+        "final_score": 1,
+        "max_score": 10,
+        "threshold": 8,
+        "discriminating_input_met": false,
+        "expected_relation_met": false,
+        "not_a_business_failure_verdict": true
+      },
+      "human_reference_check": {
+        "stage": "wrong_currency.initial；固定其他付款、scope、时点和完整资格前提",
+        "setup": "发票 USD 1000；模拟付款 EUR 1000、PAID、同客户/订阅/发票、有收据且付款不晚于申请。",
+        "control": "同一份输入只把付款币种改为 USD；另设金额或 scope 不匹配的拒绝对照。",
+        "expected_relation": "两版本均应拒绝 EUR/USD 对应为已核验付款；纯谓词 B=False/C=True 揭示回归。若集成观察，应保持 NEEDS_MORE_EVIDENCE、SIMULATED_PAYMENT_FACT，不能仅凭 PAID 放行。USD 对照 B=C=True。",
+        "observations": [
+          "B/C commit 与实际函数输入",
+          "原始 payment.currency 和 billing.currency",
+          "付款谓词结果；集成模式另读冻结决定 billing_paid/missing_evidence/eligibility"
+        ],
+        "qualification": "单测可证明所改谓词的 B/C 区分；目录历史结果或只比较 amount/status 的测试不能覆盖此变化。"
+      },
+      "acceptable_scenarios": [
+        "wrong_currency.initial",
+        "NOVEL_CHECK with equivalent currency mismatch and matched control"
+      ],
+      "repair_effect": {
+        "issue_counts": [
+          4,
+          4,
+          4
+        ],
+        "semantic_score_trajectory": [
+          1,
+          1,
+          1
+        ],
+        "check_spec_changed": [
+          false,
+          false
+        ],
+        "explanation": "四个缺项一直保留；两次修正的 check_spec 与原案完全相同。只改了外层说明/引号形式，没有修正核心计划。"
+      }
+    },
+    {
+      "case_id": "holdout_b",
+      "run_id": "8aab9e56-8ccd-4337-aa18-e7d202d8a09f",
+      "synthetic_intervention": "人工将观察元数据剔除扩为所有 *_at 字段，误删 paid_at 等真实商业时点。",
+      "is_real_product_pr": false,
+      "paths": {
+        "bundle": "artifacts/verify-agent/20261117-holdout-prepared/model-input/holdout_b-bundle.json",
+        "rubric": "artifacts/verify-agent/20261117-holdout-prepared/evaluation-only/holdout_b-rubric.json",
+        "ledger": "artifacts/verify-agent/20261117-holdout-b-run-01/full-evidence.json",
+        "summary": "artifacts/verify-agent/20261117-holdout-b-run-01/summary.json"
+      },
+      "sha256": {
+        "bundle": "8de8800e0721c1d74c1e9112ad3eec8f6f70f3d7eacca31f320e8a35db60354b",
+        "rubric": "c92571f20c9a8f2df77b9ec985c263dca9a03124192cc7dc4d1d3ddd3bfb71d4",
+        "ledger": "a1da612b1cc5b7279398d73ddddb76f27f91af29b36abb219d1768c1a5bbbf72",
+        "summary": "32bc9206e51f37bd9058b4002178989cf9d30fc194bfa7aca622603d96ebc8b9"
+      },
+      "task_identity": {
+        "baseline_sha": "a944c67515961cc6e6c11d982b038471069e2846",
+        "candidate_sha": "938a91216d613c482a7a957cc87e26fbe013ab85",
+        "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "input_provenance": "CALIBRATION_SYNTHETIC"
+      },
+      "actual_runtime_identity": {
+        "model_name": "mistral:latest",
+        "module_sha256": {
+          "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+          "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+          "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+          "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+          "context.js": "6c016aeb726a71b4062aef4fe2aa9082dd8ca727089cae074245b6a7e8f8ce92",
+          "runtime.js": "19e6f08348bf211780a9aaf88cd99a011f473978606c57f97cdf541a5f3f598f",
+          "check-quality.js": "325f51e845a42f33abe8e2861ae3a98434b301d203960e17ac085e36d181fcc1",
+          "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+        },
+        "action_schema_sha256": "e4e9e4d20619641592eeb9cd46c7a471102c130ba8a47f94c3bdaa918e30e5d0",
+        "runtime_build_sha256": "1e2b7d62d9bd41c8cb3e829f6ea964c7b85d4d4e7f760c64c5d305408495d872",
+        "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+        "planner_prompt_sha256": "78ec9ecab06efe35597be2361379441c304c9818ed87101406347b3c7def590b"
+      },
+      "input_integrity": {
+        "driver_bundle_equals_frozen_bundle": true,
+        "runtime_bundle_equals_frozen_bundle": true,
+        "evaluation_markers_in_model_requests": [],
+        "model_received_separate_evaluation_files": false,
+        "diff_initially_available": true,
+        "initial_diff_truncated": false,
+        "actual_model_options_match_frozen": true
+      },
+      "runtime_result": {
+        "status": "STOPPED",
+        "stop_reason": "CHECK_REPAIR_LIMIT",
+        "check_repair": {
+          "status": "EXHAUSTED",
+          "attempts_used": 2,
+          "attempts_limit": 2
+        },
+        "all_checks_rejected": true,
+        "no_business_execution": true,
+        "no_release_authorization": true
+      },
+      "reads": [
+        {
+          "call_index": 1,
+          "call_id": "b1332950-4283-4dc3-aa49-ef74f6b3025b",
+          "material_ref": "candidate:services/genai-support-sut/src/genai_support/integrations/persistence.py",
+          "start_line": 1,
+          "end_line": 27,
+          "declared_requirement_refs": [
+            "R1",
+            "R3"
+          ],
+          "relevance": "直接相关：完整读取候选 _stable_fact_value 与 stable_facts_changed。"
+        },
+        {
+          "call_index": 2,
+          "call_id": "353a589f-0a48-4cc3-b132-abf6e6bbd50b",
+          "material_ref": "rule:R1",
+          "start_line": 1,
+          "end_line": 9,
+          "declared_requirement_refs": [
+            "R1",
+            "R2",
+            "R3"
+          ],
+          "relevance": "读到真实 R1，但这不是重试/新事实规则 R6，未建立与变更的因果联系。"
+        },
+        {
+          "call_index": 3,
+          "call_id": "84919df1-8a7f-423e-a2a1-c05288e8a898",
+          "material_ref": "baseline:services/genai-support-sut/src/genai_support/integrations/persistence.py",
+          "start_line": 1,
+          "end_line": 27,
+          "declared_requirement_refs": [
+            "R1"
+          ],
+          "relevance": "直接相关：完整读取基线源码；rationale 却称读取 candidate，版本描述不准确。"
+        }
+      ],
+      "check_attempts": [
+        {
+          "attempt_index": 0,
+          "kind": "ORIGINAL",
+          "call_index": 4,
+          "call_id": "2b96ed4e-2c2c-4611-a40f-aa6f9777d692",
+          "proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a",
+          "operation_id": "dffcc40f-062e-49f0-bcd6-d291a2c6545e",
+          "operation_status": "REJECTED",
+          "proposal": {
+            "payload": {
+              "objective": "Investigate the impact of the change in persistence.py on the refund dispute resolution process under R1.",
+              "check_spec": {
+                "inputs": [
+                  {
+                    "name": "policy",
+                    "value": "R1"
+                  }
+                ],
+                "control": {
+                  "inputs": [
+                    {
+                      "name": "policy",
+                      "value": "baseline"
+                    }
+                  ],
+                  "reason": "The control checks the refund dispute resolution process under the baseline policy.",
+                  "stage_ref": "v1_history.initial",
+                  "scenario_ref": "v1_history",
+                  "observation_ref": "OBS2",
+                  "expected_relation": "SAME"
+                },
+                "stage_ref": "v1_history.initial",
+                "expectations": [
+                  {
+                    "value": "services",
+                    "operator": "EQUALS",
+                    "observation_ref": "OBS1",
+                    "requirement_ref": "R1"
+                  },
+                  {
+                    "value": "",
+                    "operator": "NOT_EQUALS",
+                    "observation_ref": "OBS2",
+                    "requirement_ref": "R1"
+                  }
+                ],
+                "observations": [
+                  {
+                    "id": "OBS1",
+                    "field": "applicable_object",
+                    "source_ref": "business_rules"
+                  },
+                  {
+                    "id": "OBS2",
+                    "field": "refund_dispute_resolution_process",
+                    "source_ref": "sut_runtime"
+                  }
+                ],
+                "schema_version": 1
+              },
+              "scenario_ref": "v1_history",
+              "capability_ref": "observe.native",
+              "observation_requirements": [
+                "{id: 'OBS1', source_ref: 'business_rules', field: 'R1'}",
+                "{id: 'OBS2', source_ref: 'sut_runtime', field: 'refund_dispute_resolution_process'}"
+              ]
+            },
+            "rationale": "The hypothesis is open because the diff shows a change in the persistence.py file, which may affect the behavior of the refund dispute resolution process according to R1.",
+            "action_kind": "CHECK_INTENT",
+            "proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a",
+            "evidence_refs": [
+              "diff:services/genai-support-sut/src/genai_support/integrations/persistence.py",
+              "rule:R1"
+            ],
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "hypothesis_refs": [
+              "H1"
+            ],
+            "context_view_ref": "context:11cfc3c24de249b2c9138fd0833cd1bd3e83815dcd4b8682ca417e2c0510c640",
+            "requirement_refs": [
+              "R1"
+            ],
+            "hypothesis_updates": [
+              {
+                "id": "H1",
+                "status": "OPEN",
+                "statement": "The change in the persistence.py file may affect the behavior of the refund dispute resolution process.",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/persistence.py"
+                ]
+              }
+            ],
+            "expected_information": "The change in the persistence.py file affects the behavior of the refund dispute resolution process under R1.",
+            "based_on_decision_revision": 4
+          },
+          "check_spec_sha256": "1be169ed1a8f44f9c66ea7a95b48ff37d9f0e2be8fb34654efab5783402da109",
+          "quality_feedback": {
+            "issues": [
+              {
+                "code": "INPUT_VALUE_REQUIRED",
+                "path": "/payload/check_spec/inputs/0/value",
+                "message": "输入取值必须具体，不能是空值、占位词或裸规则编号。"
+              },
+              {
+                "code": "SOURCE_NOT_OBSERVABLE",
+                "path": "/payload/check_spec/observations/0/source_ref",
+                "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+              },
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/1/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              },
+              {
+                "code": "CONTROL_NOT_DISTINGUISHABLE",
+                "path": "/payload/check_spec/control/inputs",
+                "message": "主实验与对照至少需要一个同名输入取不同值；只换场景名或重复相同输入不够。"
+              }
+            ],
+            "status": "NEEDS_REVISION",
+            "policy_version": "check-specificity-v1",
+            "dispatch_qualified": false,
+            "semantic_correctness": "NOT_ESTABLISHED"
+          },
+          "feedback_from_previous_attempt_delivered_exactly": null,
+          "scores": {
+            "source_grounding": {
+              "score": 1,
+              "reason": "完整读取 B/C 稳定事实函数，引用的 diff/R1 确实存在；但未识别 *_at 误删业务时点的语义，也未读取适用 R6。"
+            },
+            "discriminating_input": {
+              "score": 0,
+              "reason": "仅使用 policy=R1/baseline/candidate 标签；没有 paid_at 等业务时点变化输入，也没有仅元数据变化输入。"
+            },
+            "expected_relation": {
+              "score": 0,
+              "reason": "空字符串 NOT_EQUALS 无法核对结果；SAME/DIFFERENT 被反复切换，没有说明稳定事实应变或不变的具体关系。"
+            },
+            "observation_and_control": {
+              "score": 0,
+              "reason": "refund_dispute_resolution_process 是宽泛过程名称，不是样本可读出的字段；未观察投影/摘要比较，也没有元数据与业务时点双重对照。"
+            },
+            "qualified_scope": {
+              "score": 0,
+              "reason": "observe.native/v1_history.initial 没有当前新事实变更步骤，未提出 unit.snapshot 或必要新检查；不能用初始场景代替重新评估语义覆盖。"
+            }
+          },
+          "total_score": 1,
+          "semantic_status": "FAIL",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 793,
+            "prompt_tokens": 9680
+          }
+        },
+        {
+          "attempt_index": 1,
+          "kind": "REPAIR",
+          "call_index": 5,
+          "call_id": "c765295e-2341-43be-9047-d9610f327c50",
+          "proposal_id": "a2a6f2c7-1977-421b-b197-d49c05dd0e12",
+          "operation_id": "cb2db3a6-39af-4a86-aa56-cbd526dd89fb",
+          "operation_status": "REJECTED",
+          "proposal": {
+            "payload": {
+              "objective": "Investigate the impact of the change in persistence.py on the refund dispute resolution process under R1.",
+              "check_spec": {
+                "inputs": [
+                  {
+                    "name": "policy",
+                    "value": "baseline"
+                  }
+                ],
+                "control": {
+                  "inputs": [
+                    {
+                      "name": "policy",
+                      "value": "candidate"
+                    }
+                  ],
+                  "reason": "The control checks the refund dispute resolution process under the candidate policy.",
+                  "stage_ref": "v1_history.initial",
+                  "scenario_ref": "v1_history",
+                  "observation_ref": "OBS2",
+                  "expected_relation": "DIFFERENT"
+                },
+                "stage_ref": "v1_history.initial",
+                "expectations": [
+                  {
+                    "value": "",
+                    "operator": "EQUALS",
+                    "observation_ref": "OBS1",
+                    "requirement_ref": "R1"
+                  },
+                  {
+                    "value": "",
+                    "operator": "NOT_EQUALS",
+                    "observation_ref": "OBS2",
+                    "requirement_ref": "R1"
+                  }
+                ],
+                "observations": [
+                  {
+                    "id": "OBS1",
+                    "field": "applicable_object",
+                    "source_ref": "business_rules"
+                  },
+                  {
+                    "id": "OBS2",
+                    "field": "refund_dispute_resolution_process",
+                    "source_ref": "sut_runtime"
+                  }
+                ],
+                "schema_version": 1
+              },
+              "scenario_ref": "v1_history",
+              "capability_ref": "observe.native",
+              "observation_requirements": [
+                "{id: 'OBS1', source_ref: 'business_rules', field: 'R1'}",
+                "{id: 'OBS2', source_ref: 'sut_runtime', field: 'refund_dispute_resolution_process'}"
+              ]
+            },
+            "rationale": "The hypothesis is open because the diff shows a change in the persistence.py file, which may affect the behavior of the refund dispute resolution process according to R1.",
+            "action_kind": "CHECK_INTENT",
+            "proposal_id": "a2a6f2c7-1977-421b-b197-d49c05dd0e12",
+            "evidence_refs": [
+              "diff:services/genai-support-sut/src/genai_support/integrations/persistence.py",
+              "rule:R1"
+            ],
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "hypothesis_refs": [
+              "H1"
+            ],
+            "context_view_ref": "context:fc73047d82a90a6f4f90072ab84c5cf7ea5618ec5d89ab4e433e573b88fc1d0a",
+            "requirement_refs": [
+              "R1"
+            ],
+            "hypothesis_updates": [
+              {
+                "id": "H1",
+                "status": "OPEN",
+                "statement": "The change in the persistence.py file may affect the behavior of the refund dispute resolution process.",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/persistence.py"
+                ]
+              }
+            ],
+            "expected_information": "The change in the persistence.py file affects the behavior of the refund dispute resolution process under R1.",
+            "based_on_decision_revision": 5
+          },
+          "check_spec_sha256": "993c7700ff8799d9ddc30313b4f5b91bac6ee16063e7cc3f06d939e0ec4b87e6",
+          "quality_feedback": {
+            "issues": [
+              {
+                "code": "SOURCE_NOT_OBSERVABLE",
+                "path": "/payload/check_spec/observations/0/source_ref",
+                "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+              },
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/0/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              },
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/1/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              }
+            ],
+            "status": "NEEDS_REVISION",
+            "policy_version": "check-specificity-v1",
+            "dispatch_qualified": false,
+            "semantic_correctness": "NOT_ESTABLISHED"
+          },
+          "feedback_from_previous_attempt_delivered_exactly": true,
+          "scores": {
+            "source_grounding": {
+              "score": 1,
+              "reason": "完整读取 B/C 稳定事实函数，引用的 diff/R1 确实存在；但未识别 *_at 误删业务时点的语义，也未读取适用 R6。"
+            },
+            "discriminating_input": {
+              "score": 0,
+              "reason": "仅使用 policy=R1/baseline/candidate 标签；没有 paid_at 等业务时点变化输入，也没有仅元数据变化输入。"
+            },
+            "expected_relation": {
+              "score": 0,
+              "reason": "空字符串 NOT_EQUALS 无法核对结果；SAME/DIFFERENT 被反复切换，没有说明稳定事实应变或不变的具体关系。"
+            },
+            "observation_and_control": {
+              "score": 0,
+              "reason": "refund_dispute_resolution_process 是宽泛过程名称，不是样本可读出的字段；未观察投影/摘要比较，也没有元数据与业务时点双重对照。"
+            },
+            "qualified_scope": {
+              "score": 0,
+              "reason": "observe.native/v1_history.initial 没有当前新事实变更步骤，未提出 unit.snapshot 或必要新检查；不能用初始场景代替重新评估语义覆盖。"
+            }
+          },
+          "total_score": 1,
+          "semantic_status": "FAIL",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 748,
+            "prompt_tokens": 10105
+          }
+        },
+        {
+          "attempt_index": 2,
+          "kind": "REPAIR",
+          "call_index": 6,
+          "call_id": "f62dde10-f72d-4445-9206-85216028d4bc",
+          "proposal_id": "203e65d3-82e3-4f78-85a4-760417c2e55a",
+          "operation_id": "c8d66edc-7aa8-435a-89b1-25a6785c18dd",
+          "operation_status": "REJECTED",
+          "proposal": {
+            "payload": {
+              "objective": "Investigate the impact of the change in persistence.py on the refund dispute resolution process under R1.",
+              "check_spec": {
+                "inputs": [
+                  {
+                    "name": "policy",
+                    "value": "candidate"
+                  }
+                ],
+                "control": {
+                  "inputs": [
+                    {
+                      "name": "policy",
+                      "value": "baseline"
+                    }
+                  ],
+                  "reason": "The control checks the refund dispute resolution process under the baseline policy.",
+                  "stage_ref": "v1_history.initial",
+                  "scenario_ref": "v1_history",
+                  "observation_ref": "OBS1",
+                  "expected_relation": "SAME"
+                },
+                "stage_ref": "v1_history.initial",
+                "expectations": [
+                  {
+                    "value": "",
+                    "operator": "NOT_EQUALS",
+                    "observation_ref": "OBS1",
+                    "requirement_ref": "R1"
+                  }
+                ],
+                "observations": [
+                  {
+                    "id": "OBS1",
+                    "field": "refund_dispute_resolution_process",
+                    "source_ref": "sut_runtime"
+                  }
+                ],
+                "schema_version": 1
+              },
+              "scenario_ref": "v1_history",
+              "capability_ref": "observe.native",
+              "observation_requirements": [
+                "{id: 'OBS1', source_ref: 'business_rules', field: 'R1'}"
+              ]
+            },
+            "rationale": "The hypothesis is open because the diff shows a change in the persistence.py file, which may affect the behavior of the refund dispute resolution process according to R1.",
+            "action_kind": "CHECK_INTENT",
+            "proposal_id": "203e65d3-82e3-4f78-85a4-760417c2e55a",
+            "evidence_refs": [
+              "diff:services/genai-support-sut/src/genai_support/integrations/persistence.py",
+              "rule:R1"
+            ],
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "hypothesis_refs": [
+              "H1"
+            ],
+            "context_view_ref": "context:16964d4bbfaf1c3a9bf1f538658a0f7820458eac4d193228be2ee302e6ab0e2e",
+            "requirement_refs": [
+              "R1"
+            ],
+            "hypothesis_updates": [
+              {
+                "id": "H1",
+                "status": "OPEN",
+                "statement": "The change in the persistence.py file may affect the behavior of the refund dispute resolution process.",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/persistence.py"
+                ]
+              }
+            ],
+            "expected_information": "The change in the persistence.py file affects the behavior of the refund dispute resolution process under R1.",
+            "based_on_decision_revision": 6
+          },
+          "check_spec_sha256": "9dcf3d8b578ce63158bcffac8942e1920028b741e218dfbd8a5351b5102436c0",
+          "quality_feedback": {
+            "issues": [
+              {
+                "code": "EXPECTED_VALUE_REQUIRED",
+                "path": "/payload/check_spec/expectations/0/value",
+                "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+              }
+            ],
+            "status": "NEEDS_REVISION",
+            "policy_version": "check-specificity-v1",
+            "dispatch_qualified": false,
+            "semantic_correctness": "NOT_ESTABLISHED"
+          },
+          "feedback_from_previous_attempt_delivered_exactly": true,
+          "scores": {
+            "source_grounding": {
+              "score": 1,
+              "reason": "完整读取 B/C 稳定事实函数，引用的 diff/R1 确实存在；但未识别 *_at 误删业务时点的语义，也未读取适用 R6。"
+            },
+            "discriminating_input": {
+              "score": 0,
+              "reason": "仅使用 policy=R1/baseline/candidate 标签；没有 paid_at 等业务时点变化输入，也没有仅元数据变化输入。"
+            },
+            "expected_relation": {
+              "score": 0,
+              "reason": "空字符串 NOT_EQUALS 无法核对结果；SAME/DIFFERENT 被反复切换，没有说明稳定事实应变或不变的具体关系。"
+            },
+            "observation_and_control": {
+              "score": 0,
+              "reason": "refund_dispute_resolution_process 是宽泛过程名称，不是样本可读出的字段；未观察投影/摘要比较，也没有元数据与业务时点双重对照。"
+            },
+            "qualified_scope": {
+              "score": 0,
+              "reason": "observe.native/v1_history.initial 没有当前新事实变更步骤，未提出 unit.snapshot 或必要新检查；不能用初始场景代替重新评估语义覆盖。"
+            }
+          },
+          "total_score": 1,
+          "semantic_status": "FAIL",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 632,
+            "prompt_tokens": 10049
+          }
+        }
+      ],
+      "raw_record_retention": [
+        {
+          "call_index": 1,
+          "call_id": "b1332950-4283-4dc3-aa49-ef74f6b3025b",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "c5fce48030e91fcde30b2e447cc426fefae0eea0984187bd90807527fe93e778",
+          "raw_response_sha256": "be34ccdf2170ee77856198c61d994aae89fc872e1e23dd7fd797ced92cbd510d",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 277,
+            "prompt_tokens": 4220
+          }
+        },
+        {
+          "call_index": 2,
+          "call_id": "353a589f-0a48-4cc3-b132-abf6e6bbd50b",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "526001be34f91da742066b91b1057ab5bf38efb834d6553ec071942f262e1fde",
+          "raw_response_sha256": "9e4c36ae0f5c517a2910eca876ed234c4e67814cfd94230c5c32e25562e86983",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 187,
+            "prompt_tokens": 8285
+          }
+        },
+        {
+          "call_index": 3,
+          "call_id": "84919df1-8a7f-423e-a2a1-c05288e8a898",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "9a9ba99da0f7e83875bb822a82084aa7ca4d4bb5355f937d8b2f1ae25b6c0304",
+          "raw_response_sha256": "f550b3b35a24acd030914316c953233e7fb9b2b68dee2daa33635c341e18acc4",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 250,
+            "prompt_tokens": 8583
+          }
+        },
+        {
+          "call_index": 4,
+          "call_id": "2b96ed4e-2c2c-4611-a40f-aa6f9777d692",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "2316f083c9977cbf2d85e7457fe87652bfa0502c7007c26659e600be533825db",
+          "raw_response_sha256": "fb8022499a060b95e42d791ac834c36d312c52b50dbb4d777c456b3ee679d9fd",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 793,
+            "prompt_tokens": 9680
+          }
+        },
+        {
+          "call_index": 5,
+          "call_id": "c765295e-2341-43be-9047-d9610f327c50",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "39b93376676c9aee9d55cb53114d424fabaacde1da2456407b5b940fab129179",
+          "raw_response_sha256": "ab1a7a53e798344b9961a641aa51bd73675b788c5e23326af04453a4bbabaec9",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 748,
+            "prompt_tokens": 10105
+          }
+        },
+        {
+          "call_index": 6,
+          "call_id": "f62dde10-f72d-4445-9206-85216028d4bc",
+          "status": "COMPLETED",
+          "request_text_retained": true,
+          "request_text_matches_structured_request": true,
+          "raw_response_retained": true,
+          "raw_action_and_payload_equal_registered_proposal": true,
+          "raw_request_sha256": "e302c79443d3323edb08ceb7601ce2597177d0e12ada0007c522893a719a2469",
+          "raw_response_sha256": "1f9cdcb295ccdfc37c89d9346e74bda277886122dc2457d4033999559b299900",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 632,
+            "prompt_tokens": 10049
+          }
+        }
+      ],
+      "usage": {
+        "model_calls": 6,
+        "reads": 3,
+        "original_checks": 1,
+        "repair_calls": 2,
+        "prompt_tokens": 50922,
+        "output_tokens": 2887,
+        "total_tokens": 53809,
+        "repair_prompt_tokens": 20154,
+        "repair_output_tokens": 1380,
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_interpretation": "未记录供应商账单；不能解释为计算/电力成本为零。",
+        "budget": {
+          "model_calls": {
+            "limit": 6,
+            "used": 6
+          },
+          "reads": {
+            "limit": 3,
+            "used": 3
+          },
+          "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+          "check_repair": {
+            "reserved_within_total": 2,
+            "used": 2
+          },
+          "profile": "READ_ONLY_DISCOVERY",
+          "pools": {
+            "CODING": 0,
+            "DISCOVERY": 4,
+            "CHECK_REPAIR": 2,
+            "FINAL": 0,
+            "RECONCILIATION": "LOCAL_STATE_ONLY",
+            "CLEANUP": "NO_SUT_RESOURCES"
+          }
+        },
+        "duration_seconds": 334.538894
+      },
+      "semantic_result": {
+        "status": "FAIL",
+        "initial_score": 1,
+        "final_score": 1,
+        "max_score": 10,
+        "threshold": 8,
+        "discriminating_input_met": false,
+        "expected_relation_met": false,
+        "not_a_business_failure_verdict": true
+      },
+      "human_reference_check": {
+        "stage": "新的稳定事实比较单测；可另定义 initial → explicit reevaluate，不冒充现有补充消息场景已覆盖",
+        "setup": "固定原 claim.claimed_at；同一付款 paid_at 从原申请之前修正为之后，金额、币种、scope 和观察时间以外的字段保持相同。",
+        "control": "只变化 observed_at/correlation_id 时稳定事实仍相等；改变 amount_minor 时必须不同。",
+        "expected_relation": "仅 paid_at 真实变化时稳定事实必须不同；B=True/C=False 暴露候选误忽略。元数据对照 B=C=False，金额对照 B=C=True。若使用真实重新评估入口，应明确 reason,parent 与事实变化；普通重试仍复用原快照，不允许通过移动 claim 绕过窗口。",
+        "observations": [
+          "B/C commit",
+          "before/after 原始输入与规范化投影",
+          "stable_facts_changed 或 assessment_facts_digest 比较",
+          "集成扩展另观察 NO_NEW_FACTS/新 revision 与冻结快照"
+        ],
+        "qualification": "原始 claim 不可变不等于所有业务时点均可删除；只测 observed_at 去重不能发现这个回归。"
+      },
+      "acceptable_scenarios": [
+        "NOVEL_CHECK for business-time versus observation-metadata changes",
+        "v1_history.supplement extended with explicit relevant business-fact change"
+      ],
+      "repair_effect": {
+        "issue_counts": [
+          4,
+          3,
+          1
+        ],
+        "semantic_score_trajectory": [
+          1,
+          1,
+          1
+        ],
+        "check_spec_changed": [
+          true,
+          true
+        ],
+        "explanation": "缺项数量 4→3→1：把 R1 输入换为 baseline/candidate 标签后结构输入/对照问题消失，第二次移除了不可观察的业务规则行；但空期望始终未补，且没有业务时点或元数据实验。缺项减少不等于语义改善。"
+      }
+    }
+  ],
+  "aggregate": {
+    "cases": 2,
+    "semantic_passed": 0,
+    "semantic_failed": 2,
+    "runtime_planned": 0,
+    "runtime_stopped_at_repair_limit": 2,
+    "model_calls": 12,
+    "repair_calls": 4,
+    "prompt_tokens": 98996,
+    "output_tokens": 5318,
+    "total_tokens": 104314,
+    "repair_prompt_tokens": 39058,
+    "repair_output_tokens": 2586,
+    "cost": null,
+    "cost_basis": "LOCAL_NO_PROVIDER_BILL"
+  },
+  "conclusion": [
+    "运行层的具体缺项反馈、两次有界修正、原始记录留存和失败停止在两个新样本上可观察到。",
+    "当前冻结 Mistral/Prompt/Runtime 组合未产出合格的针对性测试计划：两案均 1/10，两次修正后仍不合格。",
+    "只证明这次组合在两份合成源码摘录上失败，不能估计总体准确率、比较模型能力或宣称企业生产验证已完成。",
+    "未执行真实客服、商业来源或计费实验，也未运行 Codex 修复；参考纯函数 B/C 资格检查不能替代完整 SUT 验证。",
+    "本集合已揭盲；未来据此改进后若重复运行，只能称回归检查，必须另准备未见变化评估泛化。"
+  ]
+}

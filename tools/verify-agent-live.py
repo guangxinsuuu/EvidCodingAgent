@@ -206,6 +206,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--model-endpoint", help="借用既有回环 Ollama；本工具不会停止它")
     parser.add_argument("--max-model-calls", type=int, default=6)
     parser.add_argument("--max-reads", type=int, default=4)
+    parser.add_argument("--max-plan-repairs", type=int, default=1,
+                        help="0–2 次 CHECK 修正调用，包含在模型总调用额度内；不得由 READ 重置")
     parser.add_argument("--model-timeout-seconds", type=int, default=180)
     parser.add_argument("--max-output-tokens", type=int, default=2000)
     return parser.parse_args(argv)
@@ -232,6 +234,7 @@ def main(argv: list[str] | None = None) -> int:
                 or args.database_url_file.stat().st_mode & 0o077):
             raise DriverError("PRIVATE_DATABASE_URL_FILE_REQUIRED")
         if (not 1 <= args.max_model_calls <= 12 or not 1 <= args.max_reads <= 8
+                or not 0 <= args.max_plan_repairs <= 2 or args.max_plan_repairs >= args.max_model_calls
                 or not 1 <= args.model_timeout_seconds <= 180 or not 128 <= args.max_output_tokens <= 3000):
             raise DriverError("INVALID_LOCAL_BUDGET")
         if not re.fullmatch(r"[A-Za-z0-9._:/-]{1,160}", args.model):
@@ -281,7 +284,8 @@ def main(argv: list[str] | None = None) -> int:
                             "timeoutMs": args.model_timeout_seconds * 1000, "maxOutputTokens": args.max_output_tokens},
                   "prompt_path": str(VERIFY_SERVICE / "planner-prompt.txt"),
                   "bundle_path": str(directory / "release-bundle.json"), "run_id": summary["run_id"],
-                  "planner_token": token, "limits": {"model_calls": args.max_model_calls, "reads": args.max_reads, "no_progress": 2},
+                  "planner_token": token, "limits": {"model_calls": args.max_model_calls, "reads": args.max_reads,
+                                                       "no_progress": 2, "plan_repairs": args.max_plan_repairs},
                   "port": 0, "ready_path": str(directory / "runtime-ready.json")}
         private_write(config_path, config)
         runtime = spawn([node, str(RUNTIME_PACKAGE / "dist/main.js"), "--config", str(config_path)],

@@ -154,7 +154,9 @@ def _catalog_projection(reader, requirement_refs: list[str], materials: list[dic
     return {
         "status": "DRAFT", "scope": "LOCAL_SYNTHETIC", "dispatch_authorized": False,
         "requirements": requirements, "capabilities": capabilities, "scenarios": scenarios,
-        "sources": [{key: row[key] for key in ("id", "kind", "maintainer_role", "authority_scope")}
+        # 仅提供已登记字段导航；不是运行结果，也不授予采集/任意网络权限。
+        "sources": [{**{key: row[key] for key in ("id", "kind", "maintainer_role", "authority_scope")},
+                     "allowed_fields": row.get("collection", {}).get("allowed_fields", [])}
                     for row in reader.assets("source") if row["kind"] != "HISTORICAL_EVIDENCE"],
         "roles": [{key: row[key] for key in ("id", "responsibility", "assignment_status")}
                   for row in reader.assets("role")],

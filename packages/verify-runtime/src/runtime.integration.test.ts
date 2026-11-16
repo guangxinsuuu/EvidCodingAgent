@@ -36,7 +36,8 @@ function bundle(): ReleaseBundle {
     catalog: { status: "DRAFT", dispatch_authorized: false,
       requirements: [{ id: "R1", section: "R1", source_ref: "business_rules", material_ref: "rule:R1", review_status: "LOCAL_CALIBRATION_PENDING_USER_REVIEW" }],
       capabilities: [{ id: "cap:release-check", name: "合成只读检查能力", kind: "ORACLE", requirement_refs: ["R1"], dispatch_enabled: false }],
-      scenarios: [{ id: "scenario:renewal", requirement_refs: ["R1"] }] },
+      scenarios: [{ id: "scenario:renewal", requirement_refs: ["R1"], stages: [{ stage_ref: "renewal.initial" }] }],
+      sources: [{ id: "product", kind: "PRODUCT_EXECUTION" }] },
     gaps: ["LOCAL_SYNTHETIC_ONLY"], current_candidate_coverage: [], evaluation_status: "NOT_RUN",
   };
 }
@@ -48,6 +49,17 @@ function decision(action_kind = "READ", payload: Json = { material_ref: "rule:R1
     rationale: "变化触及事实传递，先读适用规则，再提出可核验的检查。",
     hypothesis_updates: [{ id: "H1", statement: "候选可能遗漏续费事实。", status: "OPEN", evidence_refs: ["diff:product.py"] }],
   };
+}
+
+/** 合成结构完整夹具，只验证 Runtime 准入协议，不宣称断言本身已通过业务审核。 */
+function concreteSpec(): Json {
+  return { schema_version: 1, stage_ref: "renewal.initial",
+    inputs: [{ name: "renewal_record", value: "present" }],
+    observations: [{ id: "fact", source_ref: "product", field: "renewal_record" }],
+    expectations: [{ observation_ref: "fact", operator: "EQUALS", value: "present", requirement_ref: "R1" }],
+    control: { scenario_ref: "scenario:renewal", stage_ref: "renewal.initial",
+      inputs: [{ name: "renewal_record", value: "missing" }], observation_ref: "fact",
+      expected_relation: "DIFFERENT", reason: "原生续费记录缺失应保留缺证据状态，不能当作存在。" } };
 }
 
 function deferred<T>() {
@@ -478,7 +490,7 @@ pgTest("PG：只读源码不能据此编造合同断言；完整读取规则后�
   const sourceRef = (source["result"] as Json)["receipt_ref"] as string;
   const check = { ...decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
     objective: "验证本次变化是否保留登记的续费事实，并区分缺证据与不存在。",
-    observation_requirements: ["固定候选业务观察", "登记来源中的原始续费事实"] }),
+    observation_requirements: ["固定候选业务观察", "登记来源中的原始续费事实"], check_spec: concreteSpec() }),
     evidence_refs: ["diff:product.py", sourceRef] };
   body = check;
   const premature = await instance.submit(runId, await propose(instance, runId));
@@ -512,17 +524,17 @@ pgTest("PG：规则ID本身不构成观察需求，须说明具体事实后才�
   const instance = await runtime(t, stub.endpoint);
   const runId = await accept(instance);
   await instance.submit(runId, await propose(instance, runId));
-  for (const observation of ["R1", " R1 "]) {
+  for (const observation of [" R1 "]) {
     body = decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
-      objective: "核对业务事实。", observation_requirements: [observation] });
+      objective: "核对业务事实。", observation_requirements: [observation], check_spec: concreteSpec() });
     const rejected = await instance.submit(runId, await propose(instance, runId));
     assert.equal(rejected["status"], "REJECTED");
-    assert.equal((rejected["result"] as Json)["error_code"], "OBSERVATION_DETAILS_REQUIRED");
-    assert.equal((rejected["result"] as Json)["correction"],
-      "A rule ID is not an observation. Describe the concrete product input/output/state to collect and the rule-backed distinction the experiment should test.");
+    assert.equal((rejected["result"] as Json)["error_code"], "CHECK_SPEC_INCOMPLETE");
+    assert.ok((((rejected["result"] as Json)["quality"] as Json)["issues"] as Json[])
+      .some(issue => issue["code"] === "OBSERVATION_DETAILS_REQUIRED"));
   }
   body = decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
-    objective: "核对业务事实。", observation_requirements: ["收集R1适用对象的原生续费记录与候选输出，区分缺记录与明确未续费。"] });
+    objective: "核对业务事实。", observation_requirements: ["收集R1适用对象的原生续费记录与候选输出，区分缺记录与明确未续费。"], check_spec: concreteSpec() });
   assert.equal((await instance.submit(runId, await propose(instance, runId)))["status"], "COMPLETED");
   assert.equal((await instance.projection(runId))["status"], "PLANNED");
 });

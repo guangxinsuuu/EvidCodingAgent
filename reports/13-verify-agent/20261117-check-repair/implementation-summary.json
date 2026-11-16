@@ -1,0 +1,709 @@
+{
+  "schema_version": 1,
+  "reported_at": "2026-11-16T23:41:50.728734+00:00",
+  "implementation_freeze_sha256": "6b45be62653d4cf3781bf8656cf80de1f9ff870a8dbc38cce67089e085b299d9",
+  "frozen_file_count": 85,
+  "post_holdout_frozen_files_unchanged": true,
+  "model": {
+    "name": "mistral:latest",
+    "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+  },
+  "settings": {
+    "model_calls": 6,
+    "reads": 3,
+    "plan_repairs": 2,
+    "no_progress": 2,
+    "temperature": 0,
+    "seed": 19,
+    "num_ctx": 16384,
+    "max_output_tokens": 3000,
+    "timeout_ms": 180000
+  },
+  "tests": {
+    "typescript": 325,
+    "typescript_skipped": 0,
+    "verify_agent_python": 33,
+    "registry": 89,
+    "holdout_preparation": 5,
+    "shared_protocol_cases": 74
+  },
+  "runs": [
+    {
+      "role": "DEVELOPMENT_PRE_FREEZE_BUILD",
+      "run_id": "cf343303-0dae-4273-bf0b-9d215a844abe",
+      "state": "STOPPED",
+      "stop_reason": "CHECK_REPAIR_LIMIT",
+      "scope": "LOCAL_SYNTHETIC_PLANNING",
+      "business_verdict": "NOT_EVALUATED",
+      "ledger_path": "artifacts/verify-agent/20261117-repair-development-01/full-evidence.json",
+      "ledger_sha256": "0baa35c6eb474413d2c252d3b7763a8fa4ebcf704c56b68c1adb19764051218b",
+      "model_calls": 6,
+      "reads": 3,
+      "repair_attempts": 2,
+      "prompt_tokens": 51219,
+      "output_tokens": 3185,
+      "cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+      "all_requests_raw_responses_and_usage_retained": true,
+      "checks": [
+        {
+          "proposal_id": "6ae9da81-167d-43df-9083-e500aa721443",
+          "operation_id": "89bdb9f1-f9a6-4c20-8c9a-6a26924afff3",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 0,
+            "root_proposal_id": "6ae9da81-167d-43df-9083-e500aa721443",
+            "previous_proposal_id": null
+          },
+          "check_spec_sha256": "715153df6da6c03af3c27465b75b3693d6e637eb044cac8bc97d3f9066cea1c6"
+        },
+        {
+          "proposal_id": "f5f6f1c6-aa4a-4b10-9e17-aed5e47352e5",
+          "operation_id": "d3c70ce2-1804-421f-8977-bb3e22cd3b1c",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 1,
+            "root_proposal_id": "6ae9da81-167d-43df-9083-e500aa721443",
+            "previous_proposal_id": "6ae9da81-167d-43df-9083-e500aa721443"
+          },
+          "check_spec_sha256": "715153df6da6c03af3c27465b75b3693d6e637eb044cac8bc97d3f9066cea1c6"
+        },
+        {
+          "proposal_id": "731021f1-a339-4c17-94fb-e92521d66672",
+          "operation_id": "3080fd3f-f900-4faa-b10c-c346a57f42a6",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 2,
+            "root_proposal_id": "6ae9da81-167d-43df-9083-e500aa721443",
+            "previous_proposal_id": "f5f6f1c6-aa4a-4b10-9e17-aed5e47352e5"
+          },
+          "check_spec_sha256": "715153df6da6c03af3c27465b75b3693d6e637eb044cac8bc97d3f9066cea1c6"
+        }
+      ],
+      "calls": [
+        {
+          "model_call_id": "43c25473-93ba-4915-a8e3-90f3c7467259",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 236,
+            "prompt_tokens": 4152
+          }
+        },
+        {
+          "model_call_id": "f1455748-7a73-44d4-9e6b-7e998e31cbf7",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 224,
+            "prompt_tokens": 7536
+          }
+        },
+        {
+          "model_call_id": "df9513ae-f453-46b9-a5a7-10d29d3c63c7",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 205,
+            "prompt_tokens": 8173
+          }
+        },
+        {
+          "model_call_id": "652ea5db-5b7e-4e6b-bac4-de9a5765ae9d",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 840,
+            "prompt_tokens": 10017
+          }
+        },
+        {
+          "model_call_id": "9856b144-07e4-4dbb-8544-7bd3fb1e8705",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 840,
+            "prompt_tokens": 10655
+          }
+        },
+        {
+          "model_call_id": "3d62aed8-2aa4-46de-a138-1b694e449c6f",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 840,
+            "prompt_tokens": 10686
+          }
+        }
+      ],
+      "identities": {
+        "model_name": "mistral:latest",
+        "module_sha256": {
+          "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+          "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+          "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+          "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+          "context.js": "0dd74082786a5fe1e2c56716a017fe582657c10deb647115088d4c9a3bde4fa9",
+          "runtime.js": "b39cc4fd31926e65224a746d81e2c0b990204c7528546eb01228e33f8caa3054",
+          "check-quality.js": "325f51e845a42f33abe8e2861ae3a98434b301d203960e17ac085e36d181fcc1",
+          "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+        },
+        "action_schema_sha256": "e4e9e4d20619641592eeb9cd46c7a471102c130ba8a47f94c3bdaa918e30e5d0",
+        "runtime_build_sha256": "1fccdab9ab8ebb7d2ffb164e98638c18fa73cdacd9956fb4cb4c885655c866af",
+        "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+        "planner_prompt_sha256": "78ec9ecab06efe35597be2361379441c304c9818ed87101406347b3c7def590b"
+      },
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 71776,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 71775,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 71774,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "role": "HOLDOUT_A_FROZEN",
+      "run_id": "ecb9db01-930b-4d80-9daa-d0d64e7ca840",
+      "state": "STOPPED",
+      "stop_reason": "CHECK_REPAIR_LIMIT",
+      "scope": "LOCAL_SYNTHETIC_PLANNING",
+      "business_verdict": "NOT_EVALUATED",
+      "ledger_path": "artifacts/verify-agent/20261117-holdout-a-run-01/full-evidence.json",
+      "ledger_sha256": "3a294dcf25c2cec0b6b75fcec55f32921c436ed64e5918a7fc58ec757338a82f",
+      "model_calls": 6,
+      "reads": 3,
+      "repair_attempts": 2,
+      "prompt_tokens": 48074,
+      "output_tokens": 2431,
+      "cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+      "all_requests_raw_responses_and_usage_retained": true,
+      "checks": [
+        {
+          "proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b",
+          "operation_id": "a5f2306f-4a4b-4736-9021-dd5d57aef800",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "OBSERVATION_FIELD_REQUIRED",
+              "path": "/payload/check_spec/observations/0/field",
+              "message": "指定实际观察字段或字段路径，不能以规则编号、空值或占位词替代。"
+            },
+            {
+              "code": "EXPECTATION_REQUIREMENT_NOT_BOUND",
+              "path": "/payload/check_spec/expectations/0/requirement_ref",
+              "message": "期望必须引用发布包登记且列入本提案 requirement_refs 的要求。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 0,
+            "root_proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b",
+            "previous_proposal_id": null
+          },
+          "check_spec_sha256": "67c80b8f8ee15605f40fe0d7e314439d77042acf80d6f30a2e75f716df8e333f"
+        },
+        {
+          "proposal_id": "86df89d5-cd9b-4fc4-b695-2b6f9f096c33",
+          "operation_id": "87206edb-da49-4c8d-a602-95d900af41ce",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "OBSERVATION_FIELD_REQUIRED",
+              "path": "/payload/check_spec/observations/0/field",
+              "message": "指定实际观察字段或字段路径，不能以规则编号、空值或占位词替代。"
+            },
+            {
+              "code": "EXPECTATION_REQUIREMENT_NOT_BOUND",
+              "path": "/payload/check_spec/expectations/0/requirement_ref",
+              "message": "期望必须引用发布包登记且列入本提案 requirement_refs 的要求。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 1,
+            "root_proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b",
+            "previous_proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b"
+          },
+          "check_spec_sha256": "67c80b8f8ee15605f40fe0d7e314439d77042acf80d6f30a2e75f716df8e333f"
+        },
+        {
+          "proposal_id": "531804a7-9d55-4bcc-a01c-c7acad0c78f2",
+          "operation_id": "b1caf507-13c3-4c1c-b8dd-59bd92c1ec80",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "OBSERVATION_FIELD_REQUIRED",
+              "path": "/payload/check_spec/observations/0/field",
+              "message": "指定实际观察字段或字段路径，不能以规则编号、空值或占位词替代。"
+            },
+            {
+              "code": "EXPECTATION_REQUIREMENT_NOT_BOUND",
+              "path": "/payload/check_spec/expectations/0/requirement_ref",
+              "message": "期望必须引用发布包登记且列入本提案 requirement_refs 的要求。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 2,
+            "root_proposal_id": "3228e420-65d7-441f-99b0-be58f5d6041b",
+            "previous_proposal_id": "86df89d5-cd9b-4fc4-b695-2b6f9f096c33"
+          },
+          "check_spec_sha256": "67c80b8f8ee15605f40fe0d7e314439d77042acf80d6f30a2e75f716df8e333f"
+        }
+      ],
+      "calls": [
+        {
+          "model_call_id": "94d1ff6a-78b9-40ce-8eb1-fe30c28594c3",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 256,
+            "prompt_tokens": 4311
+          }
+        },
+        {
+          "model_call_id": "c96d6fb3-d5c3-4d8d-bef7-b1439391e3fe",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 163,
+            "prompt_tokens": 7685
+          }
+        },
+        {
+          "model_call_id": "652f18b2-2061-4997-ab79-513a00f99412",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 164,
+            "prompt_tokens": 8321
+          }
+        },
+        {
+          "model_call_id": "d6ecf79e-75aa-491c-8432-3fa75b290394",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 642,
+            "prompt_tokens": 8853
+          }
+        },
+        {
+          "model_call_id": "73ffd01e-79d1-4607-bb9c-dcee9c60ebdd",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 603,
+            "prompt_tokens": 9449
+          }
+        },
+        {
+          "model_call_id": "5e4b91df-a1cb-4e1e-a4ad-f003b8cd73b9",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 603,
+            "prompt_tokens": 9455
+          }
+        }
+      ],
+      "identities": {
+        "model_name": "mistral:latest",
+        "module_sha256": {
+          "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+          "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+          "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+          "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+          "context.js": "6c016aeb726a71b4062aef4fe2aa9082dd8ca727089cae074245b6a7e8f8ce92",
+          "runtime.js": "19e6f08348bf211780a9aaf88cd99a011f473978606c57f97cdf541a5f3f598f",
+          "check-quality.js": "325f51e845a42f33abe8e2861ae3a98434b301d203960e17ac085e36d181fcc1",
+          "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+        },
+        "action_schema_sha256": "e4e9e4d20619641592eeb9cd46c7a471102c130ba8a47f94c3bdaa918e30e5d0",
+        "runtime_build_sha256": "1e2b7d62d9bd41c8cb3e829f6ea964c7b85d4d4e7f760c64c5d305408495d872",
+        "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+        "planner_prompt_sha256": "78ec9ecab06efe35597be2361379441c304c9818ed87101406347b3c7def590b"
+      },
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 73912,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 73911,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 73910,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "role": "HOLDOUT_B_FROZEN",
+      "run_id": "8aab9e56-8ccd-4337-aa18-e7d202d8a09f",
+      "state": "STOPPED",
+      "stop_reason": "CHECK_REPAIR_LIMIT",
+      "scope": "LOCAL_SYNTHETIC_PLANNING",
+      "business_verdict": "NOT_EVALUATED",
+      "ledger_path": "artifacts/verify-agent/20261117-holdout-b-run-01/full-evidence.json",
+      "ledger_sha256": "a1da612b1cc5b7279398d73ddddb76f27f91af29b36abb219d1768c1a5bbbf72",
+      "model_calls": 6,
+      "reads": 3,
+      "repair_attempts": 2,
+      "prompt_tokens": 50922,
+      "output_tokens": 2887,
+      "cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+      "all_requests_raw_responses_and_usage_retained": true,
+      "checks": [
+        {
+          "proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a",
+          "operation_id": "dffcc40f-062e-49f0-bcd6-d291a2c6545e",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "INPUT_VALUE_REQUIRED",
+              "path": "/payload/check_spec/inputs/0/value",
+              "message": "输入取值必须具体，不能是空值、占位词或裸规则编号。"
+            },
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/1/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            },
+            {
+              "code": "CONTROL_NOT_DISTINGUISHABLE",
+              "path": "/payload/check_spec/control/inputs",
+              "message": "主实验与对照至少需要一个同名输入取不同值；只换场景名或重复相同输入不够。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 0,
+            "root_proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a",
+            "previous_proposal_id": null
+          },
+          "check_spec_sha256": "0a6c84a947d737f11db10e001eecc11fce8f2ddede4a2c9feb109999c37c0d1e"
+        },
+        {
+          "proposal_id": "a2a6f2c7-1977-421b-b197-d49c05dd0e12",
+          "operation_id": "cb2db3a6-39af-4a86-aa56-cbd526dd89fb",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "SOURCE_NOT_OBSERVABLE",
+              "path": "/payload/check_spec/observations/0/source_ref",
+              "message": "选择业务事实、身份决策、产品或模型执行来源；规则、参考文档、代码和历史结果不能代替当前观察。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            },
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/1/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 1,
+            "root_proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a",
+            "previous_proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a"
+          },
+          "check_spec_sha256": "d2bd5d5eb3f434878511e9b5b3ed81b491efdbf76360db237e9c3bce6b22fafe"
+        },
+        {
+          "proposal_id": "203e65d3-82e3-4f78-85a4-760417c2e55a",
+          "operation_id": "c8d66edc-7aa8-435a-89b1-25a6785c18dd",
+          "status": "REJECTED",
+          "quality_status": "NEEDS_REVISION",
+          "issues": [
+            {
+              "code": "EXPECTED_VALUE_REQUIRED",
+              "path": "/payload/check_spec/expectations/0/value",
+              "message": "给出具体预期值；裸规则编号或占位词不是可核对的业务结果。"
+            }
+          ],
+          "repair": {
+            "limit": 2,
+            "attempt": 2,
+            "root_proposal_id": "2bfcba87-f5b7-4e23-bdf4-3d34b26e7c7a",
+            "previous_proposal_id": "a2a6f2c7-1977-421b-b197-d49c05dd0e12"
+          },
+          "check_spec_sha256": "c85558eeeb6f1622f4c67f2a1a73777e4d447f581ef3b29d2d2cf4b2231b4adc"
+        }
+      ],
+      "calls": [
+        {
+          "model_call_id": "b1332950-4283-4dc3-aa49-ef74f6b3025b",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 277,
+            "prompt_tokens": 4220
+          }
+        },
+        {
+          "model_call_id": "353a589f-0a48-4cc3-b132-abf6e6bbd50b",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 187,
+            "prompt_tokens": 8285
+          }
+        },
+        {
+          "model_call_id": "84919df1-8a7f-423e-a2a1-c05288e8a898",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 250,
+            "prompt_tokens": 8583
+          }
+        },
+        {
+          "model_call_id": "2b96ed4e-2c2c-4611-a40f-aa6f9777d692",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 793,
+            "prompt_tokens": 9680
+          }
+        },
+        {
+          "model_call_id": "c765295e-2341-43be-9047-d9610f327c50",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 748,
+            "prompt_tokens": 10105
+          }
+        },
+        {
+          "model_call_id": "f62dde10-f72d-4445-9206-85216028d4bc",
+          "status": "COMPLETED",
+          "usage": {
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "output_tokens": 632,
+            "prompt_tokens": 10049
+          }
+        }
+      ],
+      "identities": {
+        "model_name": "mistral:latest",
+        "module_sha256": {
+          "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+          "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+          "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+          "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+          "context.js": "6c016aeb726a71b4062aef4fe2aa9082dd8ca727089cae074245b6a7e8f8ce92",
+          "runtime.js": "19e6f08348bf211780a9aaf88cd99a011f473978606c57f97cdf541a5f3f598f",
+          "check-quality.js": "325f51e845a42f33abe8e2861ae3a98434b301d203960e17ac085e36d181fcc1",
+          "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+        },
+        "action_schema_sha256": "e4e9e4d20619641592eeb9cd46c7a471102c130ba8a47f94c3bdaa918e30e5d0",
+        "runtime_build_sha256": "1e2b7d62d9bd41c8cb3e829f6ea964c7b85d4d4e7f760c64c5d305408495d872",
+        "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+        "planner_prompt_sha256": "78ec9ecab06efe35597be2361379441c304c9818ed87101406347b3c7def590b"
+      },
+      "cleanup": [
+        {
+          "name": "graph",
+          "pid": 74681,
+          "owned": true,
+          "returncode_before_cleanup": 0,
+          "status": "ALREADY_EXITED",
+          "returncode": 0
+        },
+        {
+          "name": "runtime",
+          "pid": 74680,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        },
+        {
+          "name": "ollama",
+          "pid": 74679,
+          "owned": true,
+          "returncode_before_cleanup": null,
+          "status": "STOPPED_OWNED_PROCESS",
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "model_calls": 18,
+    "reads": 9,
+    "repair_attempts": 6,
+    "prompt_tokens": 150215,
+    "output_tokens": 8503
+  },
+  "docs_readme_modified": false,
+  "business_execution_performed": false,
+  "final_eligible": false,
+  "limitations": [
+    "Local source-derived synthetic changes, not real product PRs.",
+    "Independent semantic scores are in holdout-evaluation.json.",
+    "Development run used the pre-freeze build before feedback deduplication and durable context-size blocking; holdouts used the exact final frozen build.",
+    "Local monetary cost is unknown, not zero. All observed tokens retained."
+  ],
+  "resource_cleanup": {
+    "recorded_at": "2026-11-16T23:42:30.353240+00:00",
+    "database_container_id": "d3262f06fb9ddc56f676769299bb2de1f18fa36c04718b295b9324afa540058e",
+    "database_container_name": "egap-verify-dev-20261112",
+    "initially_running": false,
+    "finally_running": false,
+    "database_and_raw_evidence_retained": true,
+    "other_business_containers_modified": false,
+    "model_runtime_graph_processes": "Each driver summary records exact owned PIDs and completed cleanup."
+  },
+  "independent_evaluation": {
+    "path": "reports/13-verify-agent/20261117-check-repair/holdout-evaluation.json",
+    "sha256": "612a2cc3c2238eaa5f70a19daf8f6c53ece82f9b3d16ce67b4542783b1a33d0f",
+    "semantically_qualified": 0,
+    "cases": 2,
+    "case_scores_out_of_10": {
+      "holdout_a": 1,
+      "holdout_b": 1
+    },
+    "runtime_structurally_complete_cases": 0
+  }
+}

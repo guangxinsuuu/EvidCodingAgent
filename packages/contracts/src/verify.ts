@@ -9,6 +9,40 @@ export interface HypothesisUpdate {
   readonly evidence_refs: readonly string[];
 }
 
+/** CHECK 的声明式输入；只是待审实验参数，不是可直接执行的命令或环境配置。 */
+export interface CheckInput { readonly name: string; readonly value: string }
+export interface CheckObservation {
+  readonly id: string; readonly source_ref: string; readonly field: string;
+}
+export interface CheckExpectation {
+  readonly observation_ref: string;
+  readonly operator: "EQUALS" | "NOT_EQUALS" | "CONTAINS" | "PRESENT" | "ABSENT" |
+    "UNCHANGED" | "GREATER_THAN" | "LESS_THAN";
+  /** PRESENT / ABSENT 使用空串；其余操作使用明确值，数值关系使用有限数字字符串。 */
+  readonly value: string;
+  readonly requirement_ref: string;
+}
+export interface CheckControl {
+  readonly scenario_ref: string; readonly stage_ref: string;
+  readonly inputs: readonly CheckInput[];
+  readonly observation_ref: string;
+  readonly expected_relation: "SAME" | "DIFFERENT";
+  readonly reason: string;
+}
+/**
+ * 外层解析器只保证结构；Runtime 的 assessCheckQuality 再检查完整性和登记引用。
+ * 除版本外的顶层字段可缺省，使模型一次收到全部缺项，而不是只收到首个 Schema 错误。
+ * 结构完整仍不证明业务断言正确，也不会授予实验执行或发布权限。
+ */
+export interface CheckSpec {
+  readonly schema_version: 1;
+  readonly stage_ref?: string;
+  readonly inputs?: readonly CheckInput[];
+  readonly observations?: readonly CheckObservation[];
+  readonly expectations?: readonly CheckExpectation[];
+  readonly control?: CheckControl;
+}
+
 interface DecisionBasis {
   readonly schema_version: 1;
   readonly proposal_id: string;
@@ -35,6 +69,7 @@ export type DecisionProposal = DecisionBasis & (
   | { readonly action_kind: "CHECK_INTENT"; readonly payload: {
       readonly capability_ref: string; readonly scenario_ref: string; readonly objective: string;
       readonly observation_requirements: readonly string[];
+      readonly check_spec?: CheckSpec;
     } }
   | { readonly action_kind: "NOVEL_CHECK"; readonly payload: {
       readonly objective: string; readonly capability_gap: string;

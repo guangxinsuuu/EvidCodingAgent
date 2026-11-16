@@ -90,6 +90,52 @@ class GraphTests(unittest.TestCase):
         self.assertEqual(len(runtime.decisions), 2)  # 一次崩溃前 READ + 一次新增材料后的 CHECK。
         self.assertEqual(len(runtime.submissions), 2)
 
+    def test_check_revision_feedback_uses_runtime_revision_and_preserves_repair_projection(self):
+        """图不自建修正次数；缺项、原提案身份及终态完全由 Runtime 投影恢复。"""
+        runtime = FakeRuntime()
+        original_submit = runtime.submit_proposal
+        rejected = []
+
+        def reject_first_check(run_id, submitted):
+            response = original_submit(run_id, submitted)
+            if submitted["action_kind"] == "CHECK_INTENT" and not rejected:
+                rejected.append(deepcopy(submitted))
+                runtime.projection["status"] = "ACTIVE"
+                runtime.projection["latest_feedback"] = {
+                    "status": "NEEDS_REVISION", "error_code": "CHECK_SPEC_INCOMPLETE",
+                    "quality": {"issues": [{"code": "STAGE_REQUIRED", "path": "payload.check_spec.stage_ref"}]},
+                }
+                runtime.projection["check_repair"] = {
+                    "status": "PENDING", "root_proposal_id": submitted["proposal_id"],
+                    "latest_proposal_id": submitted["proposal_id"], "attempts_used": 0, "attempts_limit": 1,
+                }
+                return {"status": "REJECTED", "operation_id": response["operation_id"],
+                        "result": deepcopy(runtime.projection["latest_feedback"])}
+            if submitted["action_kind"] == "CHECK_INTENT":
+                runtime.projection["check_repair"].update(status="SATISFIED", attempts_used=1,
+                                                        latest_proposal_id=submitted["proposal_id"])
+            return response
+
+        runtime.submit_proposal = reject_first_check
+        report = run_agent(runtime, RUN_ID)
+        self.assertEqual(report["outcome"], "PLANNED")
+        self.assertEqual([row["action_kind"] for row in runtime.submissions], ["READ", "CHECK_INTENT", "CHECK_INTENT"])
+        self.assertEqual(runtime.decisions[2][2]["error_code"], "CHECK_SPEC_INCOMPLETE")
+        self.assertEqual(report["projection"]["check_repair"]["root_proposal_id"], rejected[0]["proposal_id"])
+        self.assertEqual(report["projection"]["check_repair"]["attempts_used"], 1)
+        self.assertEqual(report["business_verdict"], "NOT_EVALUATED")
+
+    def test_exhausted_check_repair_stops_without_graph_retry(self):
+        runtime = FakeRuntime()
+        runtime.projection.update(status="STOPPED", check_repair={"status": "EXHAUSTED", "attempts_used": 1,
+                                                                 "attempts_limit": 1})
+        runtime.projection["latest_feedback"] = {"error_code": "CHECK_REPAIR_LIMIT"}
+        report = run_agent(runtime, RUN_ID)
+        self.assertEqual(report["outcome"], "STOPPED")
+        self.assertEqual(runtime.decisions, [])
+        self.assertEqual(runtime.submissions, [])
+        self.assertEqual(report["projection"]["check_repair"]["status"], "EXHAUSTED")
+
     def test_resume_after_admission_does_not_repeat_read(self):
         runtime = FakeRuntime()
         runtime.submit_proposal(RUN_ID, proposal())

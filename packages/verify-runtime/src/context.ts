@@ -3,6 +3,14 @@ import { digest, type Json, type ReleaseBundle, type RunState } from "./types.js
 
 /** 稳定材料只给目录；diff 有界投影，源码/规则必须通过 READ 才进入事实上下文。 */
 export function contextView(bundle: ReleaseBundle, state: RunState): Json {
+  // attempts_used 是调用预留记账，不是新的决策依据。否则预留本次调用便会
+  // 改变 context_ref，使返回的合法修正与 Graph 的调用前身份不一致。
+  // 剩余次数另由 execution_limits 提供；权威 projection 仍保留完整计数。
+  const repairView = state.check_repair ? {
+    status: state.check_repair.status, root_proposal_id: state.check_repair.root_proposal_id,
+    latest_proposal_id: state.check_repair.latest_proposal_id, latest_proposal: state.check_repair.latest_proposal,
+    quality: state.check_repair.quality, attempts_limit: state.check_repair.attempts_limit,
+  } : null;
   let remaining = 12_000;
   const changes = bundle.changes.map(change => {
     const material = bundle.materials.find(m => m.material_ref === change.diff_material_ref);
@@ -17,10 +25,17 @@ export function contextView(bundle: ReleaseBundle, state: RunState): Json {
       candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit },
     // 初次先给规则和材料导航。读到业务依据后再投影选测目录，减少无关工具干扰。
     // 完整冻结目录仍在权威 bundle，既不丢资产身份，也不让模型扩大 dispatch 权限。
-    latest_feedback: state.latest_feedback, changes, requirement_refs: bundle.requirement_refs,
+    // 同一缺项/上次规格仅回送一份；完整回执仍在数据库中，避免大提案重复挤占上下文。
+    latest_feedback: state.latest_feedback?.status === "NEEDS_REVISION" && repairView
+      ? { status: state.latest_feedback.status, error_code: state.latest_feedback.error_code,
+          correction: state.latest_feedback.correction, details_ref: "check_repair" }
+      : state.latest_feedback,
+    check_repair: repairView,
+    changes, requirement_refs: bundle.requirement_refs,
     catalog: state.read_receipts.length > 0 ? {
       status: bundle.catalog.status, dispatch_authorized: false, requirements: bundle.catalog.requirements,
       capabilities: bundle.catalog.capabilities, scenarios: bundle.catalog.scenarios,
+      sources: bundle.catalog.sources,
     } : { status: bundle.catalog.status, dispatch_authorized: false, requirements: bundle.catalog.requirements,
       capability_index_status: "AVAILABLE_AFTER_FIRST_READ" },
     material_index: bundle.materials.map(({ content, ...m }) => ({ material_ref: m.material_ref, title: m.title, kind: m.kind,
@@ -92,6 +107,15 @@ export function modelBodySchema(bundle?: ReleaseBundle, state?: RunState): Json 
     // 但无需猜行号/拼写工具 ID；服务端共享协议与语义校验仍独立执行。
     const observed = evidenceRefs(bundle, state);
     const reference = (schema.$defs as Json).reference as Json;
+    const definitions = schema.$defs as Json;
+    if (state.check_repair?.status === "PENDING") {
+      // 修正时生成器提示完整结构；最终仍由共享 Schema 和 quality 独立验证。
+      // 未修改接收协议，故外部模型返回部分规格仍能得到逐项缺陷，而非绕过账本。
+      const spec = definitions.checkSpec as Json;
+      spec.required = ["schema_version", "stage_ref", "inputs", "observations", "expectations", "control"];
+      const props = spec.properties as Json;
+      for (const key of ["inputs", "observations", "expectations"]) (props[key] as Json).minItems = 1;
+    }
     const arrays = (values: string[]): Json => values.length ? { type: "array", maxItems: Math.min(32, new Set(values).size), uniqueItems: true,
       items: { ...reference, enum: [...new Set(values)] } } : { type: "array", maxItems: 0, items: reference };
     const shownChanges = contextView(bundle, state).changes as Json[];
@@ -135,6 +159,10 @@ export function modelBodySchema(bundle?: ReleaseBundle, state?: RunState): Json 
           props.evidence_refs = { ...arrays(observed), minItems: 1 };
           payload.properties.capability_ref = { ...reference, enum: capabilities };
           payload.properties.scenario_ref = { ...reference, enum: scenarios };
+          if (state.check_repair?.status === "PENDING") {
+            const required = (props.payload as Json).required as string[];
+            (props.payload as Json).required = [...required, "check_spec"];
+          }
         }
       }
     }
