@@ -3042,6 +3042,261 @@
           }
         }
       }
+    },
+    {
+      "name": "valid_check_binding_relation",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "binding": {
+              "contract_ref": "commercial-decision.v1",
+              "fixture_ref": "commercial-standard-renewal-v1"
+            },
+            "change_relation": {
+              "diff_ref": "diff:product.py",
+              "changed_fields": [
+                "amount_minor"
+              ],
+              "input_refs": [
+                "commercial_source.payment.amount_minor"
+              ],
+              "output_refs": [
+                "payment"
+              ],
+              "requirement_ref": "R4",
+              "claim": "MAY_CHANGE",
+              "expected_baseline": "null",
+              "expected_candidate": "true",
+              "reason": "A falsifiable version relation, not observed evidence."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_binding_extra_authority",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "binding": {
+              "contract_ref": "commercial-decision.v1",
+              "fixture_ref": "commercial-standard-renewal-v1",
+              "execution_ready": true
+            },
+            "change_relation": {
+              "diff_ref": "diff:product.py",
+              "changed_fields": [
+                "amount_minor"
+              ],
+              "input_refs": [
+                "commercial_source.payment.amount_minor"
+              ],
+              "output_refs": [
+                "payment"
+              ],
+              "requirement_ref": "R4",
+              "claim": "MAY_CHANGE",
+              "expected_baseline": "null",
+              "expected_candidate": "true",
+              "reason": "A falsifiable version relation, not observed evidence."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_relation_invalid_claim",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "binding": {
+              "contract_ref": "commercial-decision.v1",
+              "fixture_ref": "commercial-standard-renewal-v1"
+            },
+            "change_relation": {
+              "diff_ref": "diff:product.py",
+              "changed_fields": [
+                "amount_minor"
+              ],
+              "input_refs": [
+                "commercial_source.payment.amount_minor"
+              ],
+              "output_refs": [
+                "payment"
+              ],
+              "requirement_ref": "R4",
+              "claim": "PASS",
+              "expected_baseline": "null",
+              "expected_candidate": "true",
+              "reason": "A falsifiable version relation, not observed evidence."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_relation_bad_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "cap:support-release-check",
+          "scenario_ref": "scenario:late_usage",
+          "objective": "检查重评后结构化理由与回复是否一致。",
+          "observation_requirements": [
+            "冻结当前候选",
+            "读取原始决定与最终备注"
+          ],
+          "check_spec": {
+            "schema_version": 1,
+            "binding": {
+              "contract_ref": "commercial-decision.v1",
+              "fixture_ref": "commercial-standard-renewal-v1"
+            },
+            "change_relation": {
+              "diff_ref": "diff:product.py",
+              "changed_fields": [
+                "amount_minor"
+              ],
+              "input_refs": "amount",
+              "output_refs": [
+                "payment"
+              ],
+              "requirement_ref": "R4",
+              "claim": "MAY_CHANGE",
+              "expected_baseline": "null",
+              "expected_candidate": "true",
+              "reason": "A falsifiable version relation, not observed evidence."
+            }
+          }
+        }
+      }
     }
   ]
 }

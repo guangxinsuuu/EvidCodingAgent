@@ -17,7 +17,8 @@ export interface CheckQualityAssessment {
 const OBSERVABLE_SOURCE_KINDS = new Set([
   "BUSINESS_FACT", "IDENTITY_AUTHORITY", "PRODUCT_EXECUTION", "MODEL_EXECUTION",
 ]);
-const PLACEHOLDER = /^(?:todo|tbd|fixme|unknown|n\/?a|null|undefined|待定|待补充|待填写|待确认|未知|占位|\.\.\.|…|\?+)$/i;
+// UNKNOWN/null 可以是真实输出枚举/空值；由能力字段类型判断，不能一概当作占位词。
+const PLACEHOLDER = /^(?:todo|tbd|fixme|undefined|待定|待补充|待填写|待确认|占位|\.\.\.|…|\?+)$/i;
 const NUMERIC_LITERAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 const ROOT = "/payload/check_spec";
 

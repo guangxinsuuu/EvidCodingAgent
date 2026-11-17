@@ -1,0 +1,2326 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-11-17T12:48:29.983210+00:00",
+  "evaluator": "independent_holdout_agent_using_pre_registered_manual_rubric_and_frozen_mechanical_evaluator",
+  "scope": "SOURCE_DERIVED_SYNTHETIC_PLAN_STABILITY_GATE",
+  "business_verdict": "NOT_EVALUATED",
+  "release_authorized": false,
+  "runtime_experiment_dispatch_authorized": false,
+  "integrity": {
+    "source_commit": "0f46c9b0602334db2b8955c018ed076c6c059c37",
+    "implementation_freeze_path": "artifacts/verify-agent/20261117-binding-validation/implementation-freeze.json",
+    "implementation_freeze_sha256": "846beec299714d93e1352470fa2765401ced07ed04de9ddbfcc41a3f92553af5",
+    "implementation_files": 104,
+    "implementation_file_mismatches": [],
+    "data_freeze_sha256": "117477e5cfc2573a132f4efa6f1aabd9dce76f78b22ac5690e700f09cf368a4f",
+    "data_file_mismatches": [],
+    "evaluator_freeze_sha256": "0d1fa45604f8576f2ffe701eedcdb785929a5607e460dd8cd857166bb2a21d99",
+    "evaluator_source_matches": true,
+    "evaluator_tests_match": true,
+    "data_prepared_at": "2026-11-17T12:22:49.916130+00:00",
+    "evaluator_frozen_at": "2026-11-17T12:24:16.555796+00:00",
+    "implementation_frozen_at": "2026-11-17T12:30:56.816080+00:00",
+    "retuned_or_retried_after_disclosure": false,
+    "all_six_registered_runs_included": true,
+    "actual_runtime_identities_identical": true,
+    "actual_prompt_matches_frozen_file": true,
+    "actual_model_matches_frozen": true,
+    "all_run_ids_unique": true,
+    "actual_seed_options_match_all_runs": true,
+    "all_request_response_proposals_retained": true,
+    "all_inputs_match_frozen_bundles": true,
+    "evaluation_marker_leaks": 0
+  },
+  "preregistered_threshold": {
+    "schema_version": 1,
+    "case_count": 3,
+    "runs_per_case": 2,
+    "planned_runs": 6,
+    "run_identity": "fresh Runtime/run state per attempt; all runs retained, no best-of selection",
+    "seeds": [
+      19,
+      31
+    ],
+    "settings_frozen_before_disclosure": true,
+    "bounded_runtime_repairs_allowed": true,
+    "all_originals_and_repairs_scored": true,
+    "gate": "6/6 final proposals BOUND_PLAN and manual >=8/10; discriminating_input and expected_relation each 2; sixth relation hard gate true; own compiled inputs concretely checked",
+    "any_failure": "DO_NOT_ENABLE_RUNTIME_EXPERIMENT_DISPATCH",
+    "sample_size_limitation": "Six runs over three changes are only this turn's conservative admission threshold, not proof of population reliability or production readiness.",
+    "after_tuning": "These cases become regression-only; fresh heldout changes are required."
+  },
+  "scoring_policy": {
+    "five_dimensions": [
+      "source_grounding",
+      "discriminating_input",
+      "expected_relation",
+      "observation_and_control",
+      "qualified_scope"
+    ],
+    "per_dimension": "0 absent/wrong; 1 partial; 2 concrete/correct",
+    "final_threshold": 8,
+    "discriminating_input_minimum": 2,
+    "expected_relation_minimum": 2,
+    "sixth_hard_gate": "correct broken/preserved relation plus concrete reviewed B/C witness using the model own accepted compiled contexts and matching predictions",
+    "structural_binding_scored_separately": true,
+    "no_check": "No CHECK proposal means no per-CHECK score; final delivered-plan score is 0/10 and gate FAIL. This does not label safe CLARIFY as unsafe.",
+    "unbound_plan": "NOT_RUN; do not construct a replacement using golden inputs."
+  },
+  "cases": [
+    {
+      "case_id": "binding_a",
+      "synthetic_intervention": "合同接受时间的上界从续费时点改成申请时点，错误容许续费后、申请前才接受合同。",
+      "relation_expected": "BROKEN",
+      "applicable_requirement": "R1",
+      "not_real_product_pr": true,
+      "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+      "candidate_sha": "3023387876abcf3fa3ff4dc18f6ecefbba995c1f",
+      "bundle_path": "artifacts/verify-agent/20261117-binding-holdout-prepared/model-input/binding_a-bundle.json",
+      "bundle_sha256": "c36c0b26cd168af86961f9b279d148467b2e00eb14cb59376673684548defd11",
+      "rubric_path": "artifacts/verify-agent/20261117-binding-holdout-prepared/evaluation-only/binding_a-rubric.json",
+      "rubric_sha256": "fc394a8ffe4a26cbe915d2e91e952310187ba7345d6030bc135454c356112ad8",
+      "pre_registered_business_relation": "合同接受不晚于续费时点；申请时点更晚不能追认此前的有效合同接受。",
+      "pre_registered_witness_rule": "主或对照中的 accepted_at 严格晚于固定续费且不晚于固定申请，B 必须缺 ACCEPTED_CONTRACT_SOURCE，C 错误放行；另一组在续费之前且 B/C 一致。",
+      "reference_check_for_evaluators_only": {
+        "capability_ref": "probe.commercial_decision",
+        "scenario_ref": "commercial_unit",
+        "stage_ref": "commercial_unit.evaluate",
+        "contract_ref": "commercial-decision.v1",
+        "fixture_ref": "commercial-standard-renewal-v1",
+        "primary_inputs": [
+          {
+            "name": "commercial_source.contracts.0.acceptance.accepted_at",
+            "value": "2026-11-14T00:00:00Z"
+          }
+        ],
+        "control_inputs": [
+          {
+            "name": "commercial_source.contracts.0.acceptance.accepted_at",
+            "value": "2026-11-01T00:00:00Z"
+          }
+        ],
+        "observations": [
+          "decision.eligibility",
+          "decision.missing_evidence"
+        ],
+        "primary_rule_expectation": "NEEDS_MORE_EVIDENCE and contains ACCEPTED_CONTRACT_SOURCE",
+        "primary_control_relation": "DIFFERENT",
+        "baseline_candidate_claim": "MAY_CHANGE",
+        "expected_baseline": "NEEDS_MORE_EVIDENCE",
+        "expected_candidate": "ELIGIBLE",
+        "preconditions": "仅改一个绑定字段；其余值严格来自同一可信 fixture；B/C、主/对照均使用新拷贝；无自动补齐相依事实。"
+      },
+      "runs": [
+        {
+          "seed": 19,
+          "run_id": "3bdca05c-7f0b-4bc2-a602-3d22e005c72d",
+          "paths": {
+            "ledger": "artifacts/verify-agent/20261117-binding-a-seed19/full-evidence.json",
+            "summary": "artifacts/verify-agent/20261117-binding-a-seed19/summary.json",
+            "agent_report": "artifacts/verify-agent/20261117-binding-a-seed19/agent-report.json"
+          },
+          "sha256": {
+            "ledger": "c095305c6d990f1bebe2ae887f6777651e7a1c7feea8b4d98f09127a755047d4",
+            "summary": "de03d6787aabdbd1b5a759cd925e7970b7be5e88de3827857b7cb53b8880279c"
+          },
+          "status": "STOPPED",
+          "stop_reason": "CHECK_REPAIR_LIMIT",
+          "actual_identity": {
+            "model_name": "mistral:latest",
+            "module_sha256": {
+              "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+              "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+              "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+              "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+              "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+              "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+              "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+              "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+              "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+              "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+            },
+            "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+            "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+            "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+            "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+            "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+          },
+          "input_integrity": {
+            "driver_bundle_equals_frozen": true,
+            "runtime_bundle_equals_frozen": true,
+            "actual_model_options_match": true,
+            "evaluation_only_markers_in_requests": [],
+            "evaluation_material_sent_to_model": false,
+            "initial_diff_truncated": false,
+            "provided_rule_and_interface_material_is_authorized_not_golden": true
+          },
+          "reads": [
+            {
+              "call_id": "63981391-ec21-4e16-9c52-e851c80637bb",
+              "material_ref": "rule:R2",
+              "start_line": 1,
+              "end_line": 9
+            }
+          ],
+          "non_check_actions": [
+            {
+              "call_id": "63981391-ec21-4e16-9c52-e851c80637bb",
+              "proposal": {
+                "payload": {
+                  "end_line": 9,
+                  "start_line": 1,
+                  "material_ref": "rule:R2"
+                },
+                "rationale": "Start by reading the applicable rule or changed source to identify the business relationship affected.",
+                "action_kind": "READ",
+                "proposal_id": "82c0acf6-af33-4d00-952c-481583696368",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [
+                  "H1"
+                ],
+                "context_view_ref": "context:a403b8e2570648508f380287b13cc04e2bf74445f6f22330efed94f3037fba53",
+                "requirement_refs": [
+                  "R2"
+                ],
+                "hypothesis_updates": [
+                  {
+                    "id": "H1",
+                    "status": "OPEN",
+                    "statement": "The changed code affects the business relationship between the contract acceptance and the renewal window.",
+                    "evidence_refs": [
+                      "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                    ]
+                  }
+                ],
+                "expected_information": "The relationship between the contract acceptance and the renewal window after the code change.",
+                "based_on_decision_revision": 1
+              }
+            }
+          ],
+          "check_attempts": [
+            {
+              "call_index": 2,
+              "call_id": "0790b199-59d1-4d1e-bc16-39f5d01862a5",
+              "proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+              "attempt_kind": "ORIGINAL",
+              "proposal": {
+                "payload": {
+                  "objective": "Check the relationship between the contract acceptance and the renewal window",
+                  "check_spec": {
+                    "inputs": [
+                      {
+                        "name": "billing.total_amount_cents",
+                        "value": "100"
+                      },
+                      {
+                        "name": "billing.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "billing.external_customer_id",
+                        "value": "c"
+                      },
+                      {
+                        "name": "subscription.external_subscription_id",
+                        "value": "s"
+                      },
+                      {
+                        "name": "commercial_source.scope.tenant_id",
+                        "value": "t"
+                      },
+                      {
+                        "name": "commercial_source.events.0.term_number",
+                        "value": "2"
+                      },
+                      {
+                        "name": "commercial_source.claim.claimed_at",
+                        "value": "2026-11-19T00:00:00+00:00"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.status",
+                        "value": "ACTIVE"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.effective_from",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.acceptance.accepted_at",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.terms.special_terms",
+                        "value": "false"
+                      },
+                      {
+                        "name": "commercial_source.coverage.status",
+                        "value": "SEALED"
+                      },
+                      {
+                        "name": "commercial_source.coverage.pending_count",
+                        "value": "0"
+                      },
+                      {
+                        "name": "commercial_source.coverage.reconciliation.matched",
+                        "value": "true"
+                      },
+                      {
+                        "name": "commercial_source.payment.status",
+                        "value": "PAID"
+                      },
+                      {
+                        "name": "commercial_source.payment.amount_minor",
+                        "value": "100"
+                      },
+                      {
+                        "name": "commercial_source.payment.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "commercial_source.payment.customer_id",
+                        "value": "c"
+                      },
+                      {
+                        "name": "commercial_source.payment.paid_at",
+                        "value": "2026-11-09T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.invoice_link.native_invoice_kind",
+                        "value": "INITIAL"
+                      }
+                    ],
+                    "binding": {
+                      "fixture_ref": "commercial-standard-renewal-v1",
+                      "contract_ref": "commercial-decision.v1"
+                    },
+                    "control": {
+                      "inputs": [],
+                      "reason": "The primary input should remain unchanged as we are checking the relationship between the contract acceptance and the renewal window.",
+                      "stage_ref": "commercial_unit.evaluate",
+                      "scenario_ref": "commercial_unit",
+                      "observation_ref": "obs1",
+                      "expected_relation": "SAME"
+                    },
+                    "stage_ref": "commercial_unit.evaluate",
+                    "expectations": [
+                      {
+                        "value": "true",
+                        "operator": "EQUALS",
+                        "observation_ref": "obs1",
+                        "requirement_ref": "R2"
+                      }
+                    ],
+                    "observations": [
+                      {
+                        "id": "obs1",
+                        "field": "decision.within_window",
+                        "source_ref": "sut_runtime"
+                      }
+                    ],
+                    "schema_version": 1,
+                    "change_relation": {
+                      "claim": "MAY_CHANGE",
+                      "reason": "The edited condition changes the renewal window, which affects the relationship between the contract acceptance and the renewal window.",
+                      "diff_ref": "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py",
+                      "input_refs": [
+                        "commercial_source.contracts.0.acceptance.accepted_at"
+                      ],
+                      "output_refs": [
+                        "decision.within_window"
+                      ],
+                      "changed_fields": [
+                        "acceptance.accepted_at"
+                      ],
+                      "requirement_ref": "R2",
+                      "expected_baseline": "2026-10-01T00:00:00Z",
+                      "expected_candidate": "2026-11-09T00:00:00Z"
+                    }
+                  },
+                  "scenario_ref": "commercial_unit",
+                  "capability_ref": "probe.commercial_decision",
+                  "observation_requirements": [
+                    "decision.within_window"
+                  ]
+                },
+                "rationale": "The changed code affects the business relationship between the contract acceptance and the renewal window as per the diff.",
+                "action_kind": "CHECK_INTENT",
+                "proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [],
+                "context_view_ref": "context:59945b134c1eeafbe3af4dff8515e9d7b618911e8cc66df2912d6327680bfd09",
+                "requirement_refs": [
+                  "R2"
+                ],
+                "hypothesis_updates": [],
+                "expected_information": "The relationship between the contract acceptance and the renewal window",
+                "based_on_decision_revision": 2
+              },
+              "operation_status": "REJECTED",
+              "quality_feedback": {
+                "issues": [
+                  {
+                    "code": "INPUTS_REQUIRED",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "列出具体输入参数和取值；只写实验目标不能形成可比较的实验。"
+                  },
+                  {
+                    "code": "CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少需要一个同名输入取不同值；只换场景名或重复相同输入不够。"
+                  },
+                  {
+                    "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少要对同一绑定字段提供不同的有效值。"
+                  },
+                  {
+                    "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                    "path": "/payload/check_spec/change_relation/changed_fields/0",
+                    "message": "所述字段或符号没有出现在实际新增/删除行；这只核对引用，不证明因果关系。"
+                  },
+                  {
+                    "code": "CHANGE_OUTPUT_NOT_BOUND",
+                    "path": "/payload/check_spec/change_relation/output_refs",
+                    "message": "变更关系必须引用唯一、已绑定的观察 id。"
+                  }
+                ],
+                "status": "NEEDS_REVISION",
+                "binding_status": "NEEDS_REVISION",
+                "policy_version": "check-binding-v2",
+                "dispatch_qualified": false,
+                "semantic_correctness": "NOT_ESTABLISHED"
+              },
+              "binding_status": "NEEDS_REVISION",
+              "original_feedback_received_in_repair": null,
+              "manual_scores": {
+                "source_grounding": {
+                  "score": 1,
+                  "reason": "从真实 diff 注意到 accepted_at/renewal，但误把合同接受截止点归为退款窗口 R2，未读取适用 R1。"
+                },
+                "discriminating_input": {
+                  "score": 0,
+                  "reason": "显式参数复制 fixture 默认值；accepted_at 仍为续费前的 2026-10-01。对照输入为空，缺少可区分 B/C 的业务条件。"
+                },
+                "expected_relation": {
+                  "score": 0,
+                  "reason": "观察 decision.within_window 布尔值却把日期写成 B/C 预测；没有资格或缺项的正确变化预期。"
+                },
+                "observation_and_control": {
+                  "score": 0,
+                  "reason": "输出字段真实存在但不承载这项变化；缺少合同接受结果观察与有效对照。"
+                },
+                "qualified_scope": {
+                  "score": 1,
+                  "reason": "capability/contract/fixture/scenario/stage 引用正确，体现部分接口理解；其余引用/对照错误使计划无法绑定。"
+                }
+              },
+              "total_score": 2,
+              "compiled_plan_evaluation": {
+                "status": "NOT_RUN",
+                "reason": "NO_BOUND_COMPILED_PLAN",
+                "relation_witness": false
+              },
+              "check_spec_sha256": "42a3ced72852e3c9d7f656c022d7bf4386cfcdcde52761e79b664081fe38c753"
+            },
+            {
+              "call_index": 3,
+              "call_id": "7414d40c-47c9-4456-8c25-b11a643d86dc",
+              "proposal_id": "bc4cae73-c595-40d6-bd91-7f98b031464a",
+              "attempt_kind": "REPAIR",
+              "proposal": {
+                "payload": {
+                  "objective": "Check the relationship between the contract acceptance and the renewal window",
+                  "check_spec": {
+                    "inputs": [
+                      {
+                        "name": "billing.total_amount_cents",
+                        "value": "100"
+                      },
+                      {
+                        "name": "billing.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "billing.external_customer_id",
+                        "value": "c"
+                      },
+                      {
+                        "name": "subscription.external_subscription_id",
+                        "value": "s"
+                      },
+                      {
+                        "name": "commercial_source.scope.tenant_id",
+                        "value": "t"
+                      },
+                      {
+                        "name": "commercial_source.events.0.term_number",
+                        "value": "2"
+                      },
+                      {
+                        "name": "commercial_source.claim.claimed_at",
+                        "value": "2026-11-19T00:00:00+00:00"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.status",
+                        "value": "ACTIVE"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.effective_from",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.acceptance.accepted_at",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.terms.special_terms",
+                        "value": "false"
+                      },
+                      {
+                        "name": "commercial_source.coverage.status",
+                        "value": "SEALED"
+                      },
+                      {
+                        "name": "commercial_source.coverage.pending_count",
+                        "value": "0"
+                      },
+                      {
+                        "name": "commercial_source.coverage.reconciliation.matched",
+                        "value": "true"
+                      },
+                      {
+                        "name": "commercial_source.payment.status",
+                        "value": "PAID"
+                      },
+                      {
+                        "name": "commercial_source.payment.amount_minor",
+                        "value": "100"
+                      },
+                      {
+                        "name": "commercial_source.payment.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "commercial_source.payment.customer_id",
+                        "value": "c"
+                      },
+                      {
+                        "name": "commercial_source.payment.paid_at",
+                        "value": "2026-11-09T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.invoice_link.native_invoice_kind",
+                        "value": "INITIAL"
+                      }
+                    ],
+                    "binding": {
+                      "fixture_ref": "commercial-standard-renewal-v1",
+                      "contract_ref": "commercial-decision.v1"
+                    },
+                    "control": {
+                      "inputs": [],
+                      "reason": "The primary input should remain unchanged as we are checking the relationship between the contract acceptance and the renewal window.",
+                      "stage_ref": "commercial_unit.evaluate",
+                      "scenario_ref": "commercial_unit",
+                      "observation_ref": "obs1",
+                      "expected_relation": "SAME"
+                    },
+                    "stage_ref": "commercial_unit.evaluate",
+                    "expectations": [
+                      {
+                        "value": "true",
+                        "operator": "EQUALS",
+                        "observation_ref": "obs1",
+                        "requirement_ref": "R2"
+                      }
+                    ],
+                    "observations": [
+                      {
+                        "id": "obs1",
+                        "field": "decision.within_window",
+                        "source_ref": "sut_runtime"
+                      }
+                    ],
+                    "schema_version": 1,
+                    "change_relation": {
+                      "claim": "MAY_CHANGE",
+                      "reason": "The edited condition changes the renewal window, which affects the relationship between the contract acceptance and the renewal window.",
+                      "diff_ref": "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py",
+                      "input_refs": [
+                        "commercial_source.contracts.0.acceptance.accepted_at"
+                      ],
+                      "output_refs": [
+                        "decision.within_window"
+                      ],
+                      "changed_fields": [
+                        "acceptance.accepted_at"
+                      ],
+                      "requirement_ref": "R2",
+                      "expected_baseline": "2026-10-01T00:00:00Z",
+                      "expected_candidate": "2026-11-09T00:00:00Z"
+                    }
+                  },
+                  "scenario_ref": "commercial_unit",
+                  "capability_ref": "probe.commercial_decision",
+                  "observation_requirements": [
+                    "decision.within_window"
+                  ]
+                },
+                "rationale": "The changed code affects the business relationship between the contract acceptance and the renewal window as per the diff.",
+                "action_kind": "CHECK_INTENT",
+                "proposal_id": "bc4cae73-c595-40d6-bd91-7f98b031464a",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [],
+                "context_view_ref": "context:02cdfda2cd95c5ab73c7bf1cdb8ad4386ed8ca44ba69cecf26106144dde50deb",
+                "requirement_refs": [
+                  "R2"
+                ],
+                "hypothesis_updates": [],
+                "expected_information": "The relationship between the contract acceptance and the renewal window",
+                "based_on_decision_revision": 3
+              },
+              "operation_status": "REJECTED",
+              "quality_feedback": {
+                "issues": [
+                  {
+                    "code": "INPUTS_REQUIRED",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "列出具体输入参数和取值；只写实验目标不能形成可比较的实验。"
+                  },
+                  {
+                    "code": "CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少需要一个同名输入取不同值；只换场景名或重复相同输入不够。"
+                  },
+                  {
+                    "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少要对同一绑定字段提供不同的有效值。"
+                  },
+                  {
+                    "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                    "path": "/payload/check_spec/change_relation/changed_fields/0",
+                    "message": "所述字段或符号没有出现在实际新增/删除行；这只核对引用，不证明因果关系。"
+                  },
+                  {
+                    "code": "CHANGE_OUTPUT_NOT_BOUND",
+                    "path": "/payload/check_spec/change_relation/output_refs",
+                    "message": "变更关系必须引用唯一、已绑定的观察 id。"
+                  }
+                ],
+                "status": "NEEDS_REVISION",
+                "binding_status": "NEEDS_REVISION",
+                "policy_version": "check-binding-v2",
+                "dispatch_qualified": false,
+                "semantic_correctness": "NOT_ESTABLISHED"
+              },
+              "binding_status": "NEEDS_REVISION",
+              "original_feedback_received_in_repair": true,
+              "manual_scores": {
+                "source_grounding": {
+                  "score": 1,
+                  "reason": "从真实 diff 注意到 accepted_at/renewal，但误把合同接受截止点归为退款窗口 R2，未读取适用 R1。"
+                },
+                "discriminating_input": {
+                  "score": 0,
+                  "reason": "显式参数复制 fixture 默认值；accepted_at 仍为续费前的 2026-10-01。对照输入为空，缺少可区分 B/C 的业务条件。"
+                },
+                "expected_relation": {
+                  "score": 0,
+                  "reason": "观察 decision.within_window 布尔值却把日期写成 B/C 预测；没有资格或缺项的正确变化预期。"
+                },
+                "observation_and_control": {
+                  "score": 0,
+                  "reason": "输出字段真实存在但不承载这项变化；缺少合同接受结果观察与有效对照。"
+                },
+                "qualified_scope": {
+                  "score": 1,
+                  "reason": "capability/contract/fixture/scenario/stage 引用正确，体现部分接口理解；其余引用/对照错误使计划无法绑定。"
+                }
+              },
+              "total_score": 2,
+              "compiled_plan_evaluation": {
+                "status": "NOT_RUN",
+                "reason": "NO_BOUND_COMPILED_PLAN",
+                "relation_witness": false
+              },
+              "check_spec_sha256": "42a3ced72852e3c9d7f656c022d7bf4386cfcdcde52761e79b664081fe38c753"
+            }
+          ],
+          "retention": [
+            {
+              "call_index": 1,
+              "call_id": "63981391-ec21-4e16-9c52-e851c80637bb",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 256,
+                "prompt_tokens": 6923
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "646ffaf323cac81dcc3bcb7a4fd18c3b2aa614d4a224bc480cc531906688fc81",
+              "response_sha256": "8881d5eca753536815b630502783e97997e294ce2de3190fe42dc5bf861368c2"
+            },
+            {
+              "call_index": 2,
+              "call_id": "0790b199-59d1-4d1e-bc16-39f5d01862a5",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 1472,
+                "prompt_tokens": 11045
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "0a663104c000bb650212e9d5a822c97cff1e2ae7f1a39da481c19569d5239367",
+              "response_sha256": "4d909ba107dec7092016205d9a20207c940ac7efd75599432aae818fefa5d866"
+            },
+            {
+              "call_index": 3,
+              "call_id": "7414d40c-47c9-4456-8c25-b11a643d86dc",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 1470,
+                "prompt_tokens": 12257
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "06051da846638968a71ffefe8fe1de9e00af57a14705b8a60ccb337e4e6afdf6",
+              "response_sha256": "0dd27f4b0dd0da44e264d49ab8cb4a5d18b54daa8c2e58d25c738f0848de560b"
+            }
+          ],
+          "final_plan_evaluation": {
+            "status": "NOT_RUN",
+            "reason": "NO_BOUND_COMPILED_PLAN",
+            "relation_witness": false
+          },
+          "runtime_binding_status": "NEEDS_REVISION",
+          "semantic_score": {
+            "final_delivered_plan_score": 2,
+            "max_score": 10,
+            "dimensions": {
+              "source_grounding": {
+                "score": 1,
+                "reason": "从真实 diff 注意到 accepted_at/renewal，但误把合同接受截止点归为退款窗口 R2，未读取适用 R1。"
+              },
+              "discriminating_input": {
+                "score": 0,
+                "reason": "显式参数复制 fixture 默认值；accepted_at 仍为续费前的 2026-10-01。对照输入为空，缺少可区分 B/C 的业务条件。"
+              },
+              "expected_relation": {
+                "score": 0,
+                "reason": "观察 decision.within_window 布尔值却把日期写成 B/C 预测；没有资格或缺项的正确变化预期。"
+              },
+              "observation_and_control": {
+                "score": 0,
+                "reason": "输出字段真实存在但不承载这项变化；缺少合同接受结果观察与有效对照。"
+              },
+              "qualified_scope": {
+                "score": 1,
+                "reason": "capability/contract/fixture/scenario/stage 引用正确，体现部分接口理解；其余引用/对照错误使计划无法绑定。"
+              }
+            },
+            "per_check_available": true
+          },
+          "sixth_relationship_gate": false,
+          "gate_status": "FAIL",
+          "business_execution_via_runtime": false,
+          "release_authorized": false,
+          "repair_effect": {
+            "issue_counts": [
+              5,
+              5
+            ],
+            "manual_score_trajectory": [
+              2,
+              2
+            ],
+            "core_check_spec_unchanged": true
+          },
+          "usage": {
+            "model_calls": 3,
+            "prompt_tokens": 30225,
+            "output_tokens": 3198,
+            "repair_calls": 1,
+            "repair_prompt_tokens": 12257,
+            "repair_output_tokens": 1470,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "cost_note": "无供应商账单记录不代表计算或电力成本为零。",
+            "budgets": {
+              "model_calls": {
+                "limit": 4,
+                "used": 3
+              },
+              "reads": {
+                "limit": 2,
+                "used": 1
+              },
+              "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+              "check_repair": {
+                "reserved_within_total": 1,
+                "used": 1
+              },
+              "profile": "READ_ONLY_DISCOVERY",
+              "pools": {
+                "CODING": 0,
+                "DISCOVERY": 3,
+                "CHECK_REPAIR": 1,
+                "FINAL": 0,
+                "RECONCILIATION": "LOCAL_STATE_ONLY",
+                "CLEANUP": "NO_SUT_RESOURCES"
+              }
+            }
+          },
+          "interpretation": "原案与修正都没有形成能区分合同接受时序回归的计划；接口名字正确不等于绑定成功。"
+        },
+        {
+          "seed": 31,
+          "run_id": "e66d967d-81d1-40b3-bf42-05b525aec016",
+          "paths": {
+            "ledger": "artifacts/verify-agent/20261117-binding-a-seed31/full-evidence.json",
+            "summary": "artifacts/verify-agent/20261117-binding-a-seed31/summary.json",
+            "agent_report": "artifacts/verify-agent/20261117-binding-a-seed31/agent-report.json"
+          },
+          "sha256": {
+            "ledger": "d7bafed0fdc16bead668a75a64a197e119cdc2751ae491a9d8d70dde07f7ccb9",
+            "summary": "73c8387d310ef18e522d5d675f2d0d41f4cd0d064ab548304c11b4e3a381be00"
+          },
+          "status": "STOPPED",
+          "stop_reason": "CHECK_REPAIR_LIMIT",
+          "actual_identity": {
+            "model_name": "mistral:latest",
+            "module_sha256": {
+              "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+              "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+              "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+              "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+              "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+              "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+              "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+              "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+              "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+              "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+            },
+            "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+            "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+            "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+            "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+            "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+          },
+          "input_integrity": {
+            "driver_bundle_equals_frozen": true,
+            "runtime_bundle_equals_frozen": true,
+            "actual_model_options_match": true,
+            "evaluation_only_markers_in_requests": [],
+            "evaluation_material_sent_to_model": false,
+            "initial_diff_truncated": false,
+            "provided_rule_and_interface_material_is_authorized_not_golden": true
+          },
+          "reads": [
+            {
+              "call_id": "b3388466-2b19-4618-a3f7-3c10213ee863",
+              "material_ref": "rule:R2",
+              "start_line": 1,
+              "end_line": 9
+            }
+          ],
+          "non_check_actions": [
+            {
+              "call_id": "b3388466-2b19-4618-a3f7-3c10213ee863",
+              "proposal": {
+                "payload": {
+                  "end_line": 9,
+                  "start_line": 1,
+                  "material_ref": "rule:R2"
+                },
+                "rationale": "Start by reading the applicable rule or changed source to identify the business relationship affected.",
+                "action_kind": "READ",
+                "proposal_id": "91ea5bd7-c1c1-4e26-a15d-430ac3e59969",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [
+                  "H1"
+                ],
+                "context_view_ref": "context:fa4a221095a91d421cdd56e752e6924922af8b04d4a494cec24ec4ed09b757d4",
+                "requirement_refs": [
+                  "R2"
+                ],
+                "hypothesis_updates": [
+                  {
+                    "id": "H1",
+                    "status": "OPEN",
+                    "statement": "The changed code affects the business relationship between the contract acceptance and the renewal window.",
+                    "evidence_refs": [
+                      "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                    ]
+                  }
+                ],
+                "expected_information": "The relationship between the contract acceptance and the renewal window after the code change.",
+                "based_on_decision_revision": 1
+              }
+            }
+          ],
+          "check_attempts": [
+            {
+              "call_index": 2,
+              "call_id": "febfbe50-ab67-4da9-b459-9d5ee47285d8",
+              "proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+              "attempt_kind": "ORIGINAL",
+              "proposal": {
+                "payload": {
+                  "objective": "Check the relationship between the contract acceptance and the renewal window",
+                  "check_spec": {
+                    "inputs": [
+                      {
+                        "name": "billing.total_amount_cents",
+                        "value": "100"
+                      },
+                      {
+                        "name": "billing.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "subscription.external_subscription_id",
+                        "value": "s"
+                      },
+                      {
+                        "name": "commercial_source.scope.tenant_id",
+                        "value": "t"
+                      },
+                      {
+                        "name": "commercial_source.events.0.term_number",
+                        "value": "2"
+                      },
+                      {
+                        "name": "commercial_source.claim.claimed_at",
+                        "value": "2026-11-19T00:00:00+00:00"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.status",
+                        "value": "ACTIVE"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.effective_from",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.acceptance.accepted_at",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.terms.special_terms",
+                        "value": "false"
+                      },
+                      {
+                        "name": "commercial_source.coverage.status",
+                        "value": "SEALED"
+                      },
+                      {
+                        "name": "commercial_source.coverage.pending_count",
+                        "value": "0"
+                      },
+                      {
+                        "name": "commercial_source.coverage.reconciliation.matched",
+                        "value": "true"
+                      },
+                      {
+                        "name": "commercial_source.payment.status",
+                        "value": "PAID"
+                      },
+                      {
+                        "name": "commercial_source.payment.amount_minor",
+                        "value": "100"
+                      },
+                      {
+                        "name": "commercial_source.payment.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "commercial_source.payment.customer_id",
+                        "value": "c"
+                      },
+                      {
+                        "name": "commercial_source.payment.paid_at",
+                        "value": "2026-11-09T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.invoice_link.native_invoice_kind",
+                        "value": "INITIAL"
+                      }
+                    ],
+                    "binding": {
+                      "fixture_ref": "commercial-standard-renewal-v1",
+                      "contract_ref": "commercial-decision.v1"
+                    },
+                    "control": {
+                      "inputs": [],
+                      "reason": "The primary input should remain unchanged to compare the relationship between the contract acceptance and the renewal window.",
+                      "stage_ref": "commercial_unit.evaluate",
+                      "scenario_ref": "commercial_unit",
+                      "observation_ref": "obs1",
+                      "expected_relation": "SAME"
+                    },
+                    "stage_ref": "commercial_unit.evaluate",
+                    "expectations": [
+                      {
+                        "value": "true",
+                        "operator": "EQUALS",
+                        "observation_ref": "obs1",
+                        "requirement_ref": "R2"
+                      }
+                    ],
+                    "observations": [
+                      {
+                        "id": "obs1",
+                        "field": "decision.within_window",
+                        "source_ref": "sut_runtime"
+                      }
+                    ],
+                    "schema_version": 1,
+                    "change_relation": {
+                      "claim": "MAY_CHANGE",
+                      "reason": "The edited condition changes the contract acceptance date, which may affect the relationship between the contract acceptance and the renewal window.",
+                      "diff_ref": "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py",
+                      "input_refs": [
+                        "commercial_source.contracts.0.acceptance.accepted_at"
+                      ],
+                      "output_refs": [
+                        "decision.within_window"
+                      ],
+                      "changed_fields": [
+                        "acceptance.accepted_at"
+                      ],
+                      "requirement_ref": "R2",
+                      "expected_baseline": "2026-10-01T00:00:00Z",
+                      "expected_candidate": "2026-11-09T00:00:00Z"
+                    }
+                  },
+                  "scenario_ref": "commercial_unit",
+                  "capability_ref": "probe.commercial_decision",
+                  "observation_requirements": [
+                    "decision.within_window"
+                  ]
+                },
+                "rationale": "The changed code affects the business relationship between the contract acceptance and the renewal window, as indicated by the diff.",
+                "action_kind": "CHECK_INTENT",
+                "proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [],
+                "context_view_ref": "context:63ebdb28bc00d1f431771393d3bb07662b954bc176a74a22e8e5ccae695dd25a",
+                "requirement_refs": [
+                  "R2"
+                ],
+                "hypothesis_updates": [],
+                "expected_information": "The relationship between the contract acceptance and the renewal window",
+                "based_on_decision_revision": 2
+              },
+              "operation_status": "REJECTED",
+              "quality_feedback": {
+                "issues": [
+                  {
+                    "code": "INPUTS_REQUIRED",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "列出具体输入参数和取值；只写实验目标不能形成可比较的实验。"
+                  },
+                  {
+                    "code": "CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少需要一个同名输入取不同值；只换场景名或重复相同输入不够。"
+                  },
+                  {
+                    "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少要对同一绑定字段提供不同的有效值。"
+                  },
+                  {
+                    "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                    "path": "/payload/check_spec/change_relation/changed_fields/0",
+                    "message": "所述字段或符号没有出现在实际新增/删除行；这只核对引用，不证明因果关系。"
+                  },
+                  {
+                    "code": "CHANGE_OUTPUT_NOT_BOUND",
+                    "path": "/payload/check_spec/change_relation/output_refs",
+                    "message": "变更关系必须引用唯一、已绑定的观察 id。"
+                  }
+                ],
+                "status": "NEEDS_REVISION",
+                "binding_status": "NEEDS_REVISION",
+                "policy_version": "check-binding-v2",
+                "dispatch_qualified": false,
+                "semantic_correctness": "NOT_ESTABLISHED"
+              },
+              "binding_status": "NEEDS_REVISION",
+              "original_feedback_received_in_repair": null,
+              "manual_scores": {
+                "source_grounding": {
+                  "score": 1,
+                  "reason": "从真实 diff 注意到 accepted_at/renewal，但误把合同接受截止点归为退款窗口 R2，未读取适用 R1。"
+                },
+                "discriminating_input": {
+                  "score": 0,
+                  "reason": "显式参数复制 fixture 默认值；accepted_at 仍为续费前的 2026-10-01。对照输入为空，缺少可区分 B/C 的业务条件。"
+                },
+                "expected_relation": {
+                  "score": 0,
+                  "reason": "观察 decision.within_window 布尔值却把日期写成 B/C 预测；没有资格或缺项的正确变化预期。"
+                },
+                "observation_and_control": {
+                  "score": 0,
+                  "reason": "输出字段真实存在但不承载这项变化；缺少合同接受结果观察与有效对照。"
+                },
+                "qualified_scope": {
+                  "score": 1,
+                  "reason": "capability/contract/fixture/scenario/stage 引用正确，体现部分接口理解；其余引用/对照错误使计划无法绑定。"
+                }
+              },
+              "total_score": 2,
+              "compiled_plan_evaluation": {
+                "status": "NOT_RUN",
+                "reason": "NO_BOUND_COMPILED_PLAN",
+                "relation_witness": false
+              },
+              "check_spec_sha256": "8cc1c66b49de4cb1cce9b7a61f2baff3b7ad67211a0cddf17485d4e37b53f9b6"
+            },
+            {
+              "call_index": 3,
+              "call_id": "3674afe9-5f2e-48e0-b214-10f1bff3debe",
+              "proposal_id": "e0a6b637-088d-4767-b6ea-9c3be9d4988b",
+              "attempt_kind": "REPAIR",
+              "proposal": {
+                "payload": {
+                  "objective": "Check the relationship between the contract acceptance and the renewal window",
+                  "check_spec": {
+                    "inputs": [
+                      {
+                        "name": "billing.total_amount_cents",
+                        "value": "100"
+                      },
+                      {
+                        "name": "billing.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "subscription.external_subscription_id",
+                        "value": "s"
+                      },
+                      {
+                        "name": "commercial_source.scope.tenant_id",
+                        "value": "t"
+                      },
+                      {
+                        "name": "commercial_source.events.0.term_number",
+                        "value": "2"
+                      },
+                      {
+                        "name": "commercial_source.claim.claimed_at",
+                        "value": "2026-11-19T00:00:00+00:00"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.status",
+                        "value": "ACTIVE"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.effective_from",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.acceptance.accepted_at",
+                        "value": "2026-10-01T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.contracts.0.terms.special_terms",
+                        "value": "false"
+                      },
+                      {
+                        "name": "commercial_source.coverage.status",
+                        "value": "SEALED"
+                      },
+                      {
+                        "name": "commercial_source.coverage.pending_count",
+                        "value": "0"
+                      },
+                      {
+                        "name": "commercial_source.coverage.reconciliation.matched",
+                        "value": "true"
+                      },
+                      {
+                        "name": "commercial_source.payment.status",
+                        "value": "PAID"
+                      },
+                      {
+                        "name": "commercial_source.payment.amount_minor",
+                        "value": "100"
+                      },
+                      {
+                        "name": "commercial_source.payment.currency",
+                        "value": "USD"
+                      },
+                      {
+                        "name": "commercial_source.payment.customer_id",
+                        "value": "c"
+                      },
+                      {
+                        "name": "commercial_source.payment.paid_at",
+                        "value": "2026-11-09T00:00:00Z"
+                      },
+                      {
+                        "name": "commercial_source.invoice_link.native_invoice_kind",
+                        "value": "INITIAL"
+                      }
+                    ],
+                    "binding": {
+                      "fixture_ref": "commercial-standard-renewal-v1",
+                      "contract_ref": "commercial-decision.v1"
+                    },
+                    "control": {
+                      "inputs": [],
+                      "reason": "The primary input should remain unchanged to compare the relationship between the contract acceptance and the renewal window.",
+                      "stage_ref": "commercial_unit.evaluate",
+                      "scenario_ref": "commercial_unit",
+                      "observation_ref": "obs1",
+                      "expected_relation": "SAME"
+                    },
+                    "stage_ref": "commercial_unit.evaluate",
+                    "expectations": [
+                      {
+                        "value": "true",
+                        "operator": "EQUALS",
+                        "observation_ref": "obs1",
+                        "requirement_ref": "R2"
+                      }
+                    ],
+                    "observations": [
+                      {
+                        "id": "obs1",
+                        "field": "decision.within_window",
+                        "source_ref": "sut_runtime"
+                      }
+                    ],
+                    "schema_version": 1,
+                    "change_relation": {
+                      "claim": "MAY_CHANGE",
+                      "reason": "The edited condition changes the contract acceptance date, which may affect the relationship between the contract acceptance and the renewal window.",
+                      "diff_ref": "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py",
+                      "input_refs": [
+                        "commercial_source.contracts.0.acceptance.accepted_at"
+                      ],
+                      "output_refs": [
+                        "decision.within_window"
+                      ],
+                      "changed_fields": [
+                        "acceptance.accepted_at"
+                      ],
+                      "requirement_ref": "R2",
+                      "expected_baseline": "2026-10-01T00:00:00Z",
+                      "expected_candidate": "2026-11-09T00:00:00Z"
+                    }
+                  },
+                  "scenario_ref": "commercial_unit",
+                  "capability_ref": "probe.commercial_decision",
+                  "observation_requirements": [
+                    "decision.within_window"
+                  ]
+                },
+                "rationale": "The changed code affects the business relationship between the contract acceptance and the renewal window, as indicated by the diff.",
+                "action_kind": "CHECK_INTENT",
+                "proposal_id": "e0a6b637-088d-4767-b6ea-9c3be9d4988b",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [],
+                "context_view_ref": "context:679bddb1bfb5ceabefdbf6c482ad3d02e1a8e5940199d51e3ea87e4f882c9394",
+                "requirement_refs": [
+                  "R2"
+                ],
+                "hypothesis_updates": [],
+                "expected_information": "The relationship between the contract acceptance and the renewal window",
+                "based_on_decision_revision": 3
+              },
+              "operation_status": "REJECTED",
+              "quality_feedback": {
+                "issues": [
+                  {
+                    "code": "INPUTS_REQUIRED",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "列出具体输入参数和取值；只写实验目标不能形成可比较的实验。"
+                  },
+                  {
+                    "code": "CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少需要一个同名输入取不同值；只换场景名或重复相同输入不够。"
+                  },
+                  {
+                    "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                    "path": "/payload/check_spec/control/inputs",
+                    "message": "主实验与对照至少要对同一绑定字段提供不同的有效值。"
+                  },
+                  {
+                    "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                    "path": "/payload/check_spec/change_relation/changed_fields/0",
+                    "message": "所述字段或符号没有出现在实际新增/删除行；这只核对引用，不证明因果关系。"
+                  },
+                  {
+                    "code": "CHANGE_OUTPUT_NOT_BOUND",
+                    "path": "/payload/check_spec/change_relation/output_refs",
+                    "message": "变更关系必须引用唯一、已绑定的观察 id。"
+                  }
+                ],
+                "status": "NEEDS_REVISION",
+                "binding_status": "NEEDS_REVISION",
+                "policy_version": "check-binding-v2",
+                "dispatch_qualified": false,
+                "semantic_correctness": "NOT_ESTABLISHED"
+              },
+              "binding_status": "NEEDS_REVISION",
+              "original_feedback_received_in_repair": true,
+              "manual_scores": {
+                "source_grounding": {
+                  "score": 1,
+                  "reason": "从真实 diff 注意到 accepted_at/renewal，但误把合同接受截止点归为退款窗口 R2，未读取适用 R1。"
+                },
+                "discriminating_input": {
+                  "score": 0,
+                  "reason": "显式参数复制 fixture 默认值；accepted_at 仍为续费前的 2026-10-01。对照输入为空，缺少可区分 B/C 的业务条件。"
+                },
+                "expected_relation": {
+                  "score": 0,
+                  "reason": "观察 decision.within_window 布尔值却把日期写成 B/C 预测；没有资格或缺项的正确变化预期。"
+                },
+                "observation_and_control": {
+                  "score": 0,
+                  "reason": "输出字段真实存在但不承载这项变化；缺少合同接受结果观察与有效对照。"
+                },
+                "qualified_scope": {
+                  "score": 1,
+                  "reason": "capability/contract/fixture/scenario/stage 引用正确，体现部分接口理解；其余引用/对照错误使计划无法绑定。"
+                }
+              },
+              "total_score": 2,
+              "compiled_plan_evaluation": {
+                "status": "NOT_RUN",
+                "reason": "NO_BOUND_COMPILED_PLAN",
+                "relation_witness": false
+              },
+              "check_spec_sha256": "8cc1c66b49de4cb1cce9b7a61f2baff3b7ad67211a0cddf17485d4e37b53f9b6"
+            }
+          ],
+          "retention": [
+            {
+              "call_index": 1,
+              "call_id": "b3388466-2b19-4618-a3f7-3c10213ee863",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 256,
+                "prompt_tokens": 6923
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "3e26f73f80a9f7ee362c06884995a5a5b1126d3df91895226a63f710bfd972c0",
+              "response_sha256": "0027ba15ae2b4a65b64846cfe518a3f196f56f8c5c5d7e405ae59530042ff8ec"
+            },
+            {
+              "call_index": 2,
+              "call_id": "febfbe50-ab67-4da9-b459-9d5ee47285d8",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 1448,
+                "prompt_tokens": 11051
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "130767fbda7d60a8aa06b847e13465a8415d057f282459874b537d327d1b5a34",
+              "response_sha256": "980dedfe08a2ec69e4c5975ebcac48d1991e0540279ab89bc4d4918968cb68b7"
+            },
+            {
+              "call_index": 3,
+              "call_id": "3674afe9-5f2e-48e0-b214-10f1bff3debe",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 1307,
+                "prompt_tokens": 12243
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "2640fcd8ca053cf16f0530f750ab3cdffd3a8e746b2e945f6582b2f003e0ae28",
+              "response_sha256": "848f7133bc36a9002bf90ad6cc31627ff0cad1a122d2de686bddf42dfa119c93"
+            }
+          ],
+          "final_plan_evaluation": {
+            "status": "NOT_RUN",
+            "reason": "NO_BOUND_COMPILED_PLAN",
+            "relation_witness": false
+          },
+          "runtime_binding_status": "NEEDS_REVISION",
+          "semantic_score": {
+            "final_delivered_plan_score": 2,
+            "max_score": 10,
+            "dimensions": {
+              "source_grounding": {
+                "score": 1,
+                "reason": "从真实 diff 注意到 accepted_at/renewal，但误把合同接受截止点归为退款窗口 R2，未读取适用 R1。"
+              },
+              "discriminating_input": {
+                "score": 0,
+                "reason": "显式参数复制 fixture 默认值；accepted_at 仍为续费前的 2026-10-01。对照输入为空，缺少可区分 B/C 的业务条件。"
+              },
+              "expected_relation": {
+                "score": 0,
+                "reason": "观察 decision.within_window 布尔值却把日期写成 B/C 预测；没有资格或缺项的正确变化预期。"
+              },
+              "observation_and_control": {
+                "score": 0,
+                "reason": "输出字段真实存在但不承载这项变化；缺少合同接受结果观察与有效对照。"
+              },
+              "qualified_scope": {
+                "score": 1,
+                "reason": "capability/contract/fixture/scenario/stage 引用正确，体现部分接口理解；其余引用/对照错误使计划无法绑定。"
+              }
+            },
+            "per_check_available": true
+          },
+          "sixth_relationship_gate": false,
+          "gate_status": "FAIL",
+          "business_execution_via_runtime": false,
+          "release_authorized": false,
+          "repair_effect": {
+            "issue_counts": [
+              5,
+              5
+            ],
+            "manual_score_trajectory": [
+              2,
+              2
+            ],
+            "core_check_spec_unchanged": true
+          },
+          "usage": {
+            "model_calls": 3,
+            "prompt_tokens": 30217,
+            "output_tokens": 3011,
+            "repair_calls": 1,
+            "repair_prompt_tokens": 12243,
+            "repair_output_tokens": 1307,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "cost_note": "无供应商账单记录不代表计算或电力成本为零。",
+            "budgets": {
+              "model_calls": {
+                "limit": 4,
+                "used": 3
+              },
+              "reads": {
+                "limit": 2,
+                "used": 1
+              },
+              "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+              "check_repair": {
+                "reserved_within_total": 1,
+                "used": 1
+              },
+              "profile": "READ_ONLY_DISCOVERY",
+              "pools": {
+                "CODING": 0,
+                "DISCOVERY": 3,
+                "CHECK_REPAIR": 1,
+                "FINAL": 0,
+                "RECONCILIATION": "LOCAL_STATE_ONLY",
+                "CLEANUP": "NO_SUT_RESOURCES"
+              }
+            }
+          },
+          "interpretation": "原案与修正都没有形成能区分合同接受时序回归的计划；接口名字正确不等于绑定成功。"
+        }
+      ]
+    },
+    {
+      "case_id": "binding_b",
+      "synthetic_intervention": "删除 coverage 待处理数量必须为零的条件，使 SEALED 标签掩盖仍有待处理事件。",
+      "relation_expected": "BROKEN",
+      "applicable_requirement": "R3",
+      "not_real_product_pr": true,
+      "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+      "candidate_sha": "4b2cbbe133469ea4df985e5e9529a1599dd54e41",
+      "bundle_path": "artifacts/verify-agent/20261117-binding-holdout-prepared/model-input/binding_b-bundle.json",
+      "bundle_sha256": "55a04d273a49ff11456b9b771e300eea4a612353ad72b74a028a3c7d785242ae",
+      "rubric_path": "artifacts/verify-agent/20261117-binding-holdout-prepared/evaluation-only/binding_b-rubric.json",
+      "rubric_sha256": "7b89fa8c818d7c77dc904f788e865e00ed5cbfb834c29ef579c072e1975639e1",
+      "pre_registered_business_relation": "完整性要求 SEALED 与 pending_count=0 同时成立；观察到零用量不能替代未完成事件的闭合证明。",
+      "pre_registered_witness_rule": "主或对照 pending_count>0 且其余固定前提保持，B 缺 USAGE_COMPLETENESS、C 错误放行；另一组 pending_count=0 且 B/C 一致。",
+      "reference_check_for_evaluators_only": {
+        "capability_ref": "probe.commercial_decision",
+        "scenario_ref": "commercial_unit",
+        "stage_ref": "commercial_unit.evaluate",
+        "contract_ref": "commercial-decision.v1",
+        "fixture_ref": "commercial-standard-renewal-v1",
+        "primary_inputs": [
+          {
+            "name": "commercial_source.coverage.pending_count",
+            "value": "1"
+          }
+        ],
+        "control_inputs": [
+          {
+            "name": "commercial_source.coverage.pending_count",
+            "value": "0"
+          }
+        ],
+        "observations": [
+          "decision.eligibility",
+          "decision.missing_evidence"
+        ],
+        "primary_rule_expectation": "NEEDS_MORE_EVIDENCE and contains USAGE_COMPLETENESS",
+        "primary_control_relation": "DIFFERENT",
+        "baseline_candidate_claim": "MAY_CHANGE",
+        "expected_baseline": "NEEDS_MORE_EVIDENCE",
+        "expected_candidate": "ELIGIBLE",
+        "preconditions": "仅改一个绑定字段；其余值严格来自同一可信 fixture；B/C、主/对照均使用新拷贝；无自动补齐相依事实。"
+      },
+      "runs": [
+        {
+          "seed": 19,
+          "run_id": "b6ccd2d1-6db4-43d1-abf5-db6067b20892",
+          "paths": {
+            "ledger": "artifacts/verify-agent/20261117-binding-b-seed19/full-evidence.json",
+            "summary": "artifacts/verify-agent/20261117-binding-b-seed19/summary.json",
+            "agent_report": "artifacts/verify-agent/20261117-binding-b-seed19/agent-report.json"
+          },
+          "sha256": {
+            "ledger": "284058add667d05027a10dcab4de123dc3914aa46a411d42a0648ccb92cfea10",
+            "summary": "9054a846186808bdf0bbc98b6bf8ff121829ea82fb44e558ff9883f53617cbd3"
+          },
+          "status": "BLOCKED",
+          "stop_reason": "CLARIFICATION_REQUIRED",
+          "actual_identity": {
+            "model_name": "mistral:latest",
+            "module_sha256": {
+              "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+              "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+              "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+              "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+              "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+              "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+              "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+              "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+              "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+              "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+            },
+            "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+            "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+            "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+            "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+            "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+          },
+          "input_integrity": {
+            "driver_bundle_equals_frozen": true,
+            "runtime_bundle_equals_frozen": true,
+            "actual_model_options_match": true,
+            "evaluation_only_markers_in_requests": [],
+            "evaluation_material_sent_to_model": false,
+            "initial_diff_truncated": false,
+            "provided_rule_and_interface_material_is_authorized_not_golden": true
+          },
+          "reads": [],
+          "non_check_actions": [
+            {
+              "call_id": "4e8e14fe-4184-4ee4-b18d-57ead72bda98",
+              "proposal": {
+                "payload": {
+                  "question": "What is the relationship between the contract terms and the decision eligibility under the changed code? (R1, R3, R5)"
+                },
+                "rationale": "The diff in the commercial integration code suggests a change in the contract terms handling, which may impact the decision eligibility according to R1, R3, and R5.",
+                "action_kind": "CLARIFY",
+                "proposal_id": "419d215e-2229-4c10-bb1f-f6d0fb15b1e6",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [
+                  "H1"
+                ],
+                "context_view_ref": "context:e6cdb3378966e2b3619d4a4d35f0c5f7182fb07a78aa531be75d281501c8af5c",
+                "requirement_refs": [
+                  "R1",
+                  "R3",
+                  "R5"
+                ],
+                "hypothesis_updates": [
+                  {
+                    "id": "H1",
+                    "status": "OPEN",
+                    "statement": "The changed code affects the business relationship between the contract terms and the decision eligibility.",
+                    "evidence_refs": [
+                      "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                    ]
+                  }
+                ],
+                "expected_information": "The relationship between the contract terms and the decision eligibility under the changed code.",
+                "based_on_decision_revision": 1
+              }
+            }
+          ],
+          "check_attempts": [],
+          "retention": [
+            {
+              "call_index": 1,
+              "call_id": "4e8e14fe-4184-4ee4-b18d-57ead72bda98",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 307,
+                "prompt_tokens": 6992
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "a20d10bfd60bbf42042a11ee88a9ea1253e760301bb3856fe352e25b501496ca",
+              "response_sha256": "f0fa30d1cde95fb02dc5844be2e6169fdd925ef9145aaecc62c34ffb160ef872"
+            }
+          ],
+          "final_plan_evaluation": {
+            "status": "NOT_RUN",
+            "reason": "NO_BOUND_COMPILED_PLAN",
+            "relation_witness": false
+          },
+          "runtime_binding_status": "NO_CHECK_PROPOSED",
+          "semantic_score": {
+            "final_delivered_plan_score": 0,
+            "max_score": 10,
+            "dimensions": {
+              "source_grounding": {
+                "score": 0,
+                "reason": "未 READ 已提供的规则或源码；把 pending_count 完整性变化泛称 contract terms，未建立具体关系。"
+              },
+              "discriminating_input": {
+                "score": 0,
+                "reason": "未提出 CHECK 主/对照输入。"
+              },
+              "expected_relation": {
+                "score": 0,
+                "reason": "没有 B/C 可判定输出预测。"
+              },
+              "observation_and_control": {
+                "score": 0,
+                "reason": "没有观察或对照。"
+              },
+              "qualified_scope": {
+                "score": 0,
+                "reason": "没有绑定计划；CLARIFY 后安全阻塞，不具备执行资格。"
+              }
+            },
+            "per_check_available": false
+          },
+          "sixth_relationship_gate": false,
+          "gate_status": "FAIL",
+          "business_execution_via_runtime": false,
+          "release_authorized": false,
+          "repair_effect": {
+            "issue_counts": [],
+            "manual_score_trajectory": [],
+            "core_check_spec_unchanged": false
+          },
+          "usage": {
+            "model_calls": 1,
+            "prompt_tokens": 6992,
+            "output_tokens": 307,
+            "repair_calls": 0,
+            "repair_prompt_tokens": 0,
+            "repair_output_tokens": 0,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "cost_note": "无供应商账单记录不代表计算或电力成本为零。",
+            "budgets": {
+              "model_calls": {
+                "limit": 4,
+                "used": 1
+              },
+              "reads": {
+                "limit": 2,
+                "used": 0
+              },
+              "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+              "check_repair": {
+                "reserved_within_total": 1,
+                "used": 0
+              },
+              "profile": "READ_ONLY_DISCOVERY",
+              "pools": {
+                "CODING": 0,
+                "DISCOVERY": 3,
+                "CHECK_REPAIR": 1,
+                "FINAL": 0,
+                "RECONCILIATION": "LOCAL_STATE_ONLY",
+                "CLEANUP": "NO_SUT_RESOURCES"
+              }
+            }
+          },
+          "interpretation": "没有 CHECK 可评；直接 CLARIFY 是安全停止，却没有交付本轮要求的自主验证计划。"
+        },
+        {
+          "seed": 31,
+          "run_id": "8926de0b-364e-4d03-b952-75ceb607a61b",
+          "paths": {
+            "ledger": "artifacts/verify-agent/20261117-binding-b-seed31/full-evidence.json",
+            "summary": "artifacts/verify-agent/20261117-binding-b-seed31/summary.json",
+            "agent_report": "artifacts/verify-agent/20261117-binding-b-seed31/agent-report.json"
+          },
+          "sha256": {
+            "ledger": "080e200bd00ecc38c364bea23b9b50947723792641622c48f54bab420b60243c",
+            "summary": "23b011be54df8d9028f3aed433d172398e8bad978180c1fb1d9b70983ed55e2c"
+          },
+          "status": "BLOCKED",
+          "stop_reason": "CLARIFICATION_REQUIRED",
+          "actual_identity": {
+            "model_name": "mistral:latest",
+            "module_sha256": {
+              "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+              "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+              "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+              "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+              "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+              "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+              "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+              "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+              "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+              "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+            },
+            "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+            "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+            "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+            "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+            "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+          },
+          "input_integrity": {
+            "driver_bundle_equals_frozen": true,
+            "runtime_bundle_equals_frozen": true,
+            "actual_model_options_match": true,
+            "evaluation_only_markers_in_requests": [],
+            "evaluation_material_sent_to_model": false,
+            "initial_diff_truncated": false,
+            "provided_rule_and_interface_material_is_authorized_not_golden": true
+          },
+          "reads": [],
+          "non_check_actions": [
+            {
+              "call_id": "d09e1a3d-419d-4063-bef7-033f4fdf2329",
+              "proposal": {
+                "payload": {
+                  "question": "What is the relationship between the contract terms and the decision eligibility under the changed code? (R1, R3, R5)"
+                },
+                "rationale": "The diff in the commercial integration code suggests a change in the contract terms handling, which may impact the decision eligibility according to R1, R3, and R5.",
+                "action_kind": "CLARIFY",
+                "proposal_id": "b73cc131-6401-43b7-a5ff-652da91acb3b",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [
+                  "H1"
+                ],
+                "context_view_ref": "context:dc9539965dd95d461d123ae863021306e0cf626fd7fce82bf7f702af9ee635b0",
+                "requirement_refs": [
+                  "R1",
+                  "R3",
+                  "R5"
+                ],
+                "hypothesis_updates": [
+                  {
+                    "id": "H1",
+                    "status": "OPEN",
+                    "statement": "The changed code affects the business relationship between the contract terms and the decision eligibility.",
+                    "evidence_refs": [
+                      "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                    ]
+                  }
+                ],
+                "expected_information": "The relationship between the contract terms and the decision eligibility under the changed code.",
+                "based_on_decision_revision": 1
+              }
+            }
+          ],
+          "check_attempts": [],
+          "retention": [
+            {
+              "call_index": 1,
+              "call_id": "d09e1a3d-419d-4063-bef7-033f4fdf2329",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 307,
+                "prompt_tokens": 6992
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "5cdf752344d060e09ef02d0c06432d57d3107e87860c296e236bc20ad2fabbde",
+              "response_sha256": "b06d6aa952a511c11993461075dc2963e66e6f7e80818639fc9bf25b77a8e90e"
+            }
+          ],
+          "final_plan_evaluation": {
+            "status": "NOT_RUN",
+            "reason": "NO_BOUND_COMPILED_PLAN",
+            "relation_witness": false
+          },
+          "runtime_binding_status": "NO_CHECK_PROPOSED",
+          "semantic_score": {
+            "final_delivered_plan_score": 0,
+            "max_score": 10,
+            "dimensions": {
+              "source_grounding": {
+                "score": 0,
+                "reason": "未 READ 已提供的规则或源码；把 pending_count 完整性变化泛称 contract terms，未建立具体关系。"
+              },
+              "discriminating_input": {
+                "score": 0,
+                "reason": "未提出 CHECK 主/对照输入。"
+              },
+              "expected_relation": {
+                "score": 0,
+                "reason": "没有 B/C 可判定输出预测。"
+              },
+              "observation_and_control": {
+                "score": 0,
+                "reason": "没有观察或对照。"
+              },
+              "qualified_scope": {
+                "score": 0,
+                "reason": "没有绑定计划；CLARIFY 后安全阻塞，不具备执行资格。"
+              }
+            },
+            "per_check_available": false
+          },
+          "sixth_relationship_gate": false,
+          "gate_status": "FAIL",
+          "business_execution_via_runtime": false,
+          "release_authorized": false,
+          "repair_effect": {
+            "issue_counts": [],
+            "manual_score_trajectory": [],
+            "core_check_spec_unchanged": false
+          },
+          "usage": {
+            "model_calls": 1,
+            "prompt_tokens": 6992,
+            "output_tokens": 307,
+            "repair_calls": 0,
+            "repair_prompt_tokens": 0,
+            "repair_output_tokens": 0,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "cost_note": "无供应商账单记录不代表计算或电力成本为零。",
+            "budgets": {
+              "model_calls": {
+                "limit": 4,
+                "used": 1
+              },
+              "reads": {
+                "limit": 2,
+                "used": 0
+              },
+              "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+              "check_repair": {
+                "reserved_within_total": 1,
+                "used": 0
+              },
+              "profile": "READ_ONLY_DISCOVERY",
+              "pools": {
+                "CODING": 0,
+                "DISCOVERY": 3,
+                "CHECK_REPAIR": 1,
+                "FINAL": 0,
+                "RECONCILIATION": "LOCAL_STATE_ONLY",
+                "CLEANUP": "NO_SUT_RESOURCES"
+              }
+            }
+          },
+          "interpretation": "没有 CHECK 可评；直接 CLARIFY 是安全停止，却没有交付本轮要求的自主验证计划。"
+        }
+      ]
+    },
+    {
+      "case_id": "binding_c",
+      "synthetic_intervention": "只交换两个已检查为整数的金额相等比较操作数，付款与发票金额必须一致的关系保持。",
+      "relation_expected": "PRESERVED",
+      "applicable_requirement": "R4",
+      "not_real_product_pr": true,
+      "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+      "candidate_sha": "44391bd7929dc2ecf1a88221232d137ec8388c91",
+      "bundle_path": "artifacts/verify-agent/20261117-binding-holdout-prepared/model-input/binding_c-bundle.json",
+      "bundle_sha256": "a19714ab328b92d0d9bbb14db596272e5ba7dececb5300e9f9e14f47148fd27a",
+      "rubric_path": "artifacts/verify-agent/20261117-binding-holdout-prepared/evaluation-only/binding_c-rubric.json",
+      "rubric_sha256": "11f263a63791cd466cdc12808742b861920bf61e05ce4583b405665ea8f85653",
+      "pre_registered_business_relation": "整数金额相等比较具有对称性；交换操作数不会允许多付或少付，不能把语法变化自动判成回归。",
+      "pre_registered_witness_rule": "两组必须分别包含金额匹配和不匹配；每组 B/C 输出一致，匹配组 ELIGIBLE，不匹配组缺 SIMULATED_PAYMENT_FACT；模型应主张保持而非凭空报错。",
+      "reference_check_for_evaluators_only": {
+        "capability_ref": "probe.commercial_decision",
+        "scenario_ref": "commercial_unit",
+        "stage_ref": "commercial_unit.evaluate",
+        "contract_ref": "commercial-decision.v1",
+        "fixture_ref": "commercial-standard-renewal-v1",
+        "primary_inputs": [
+          {
+            "name": "commercial_source.payment.amount_minor",
+            "value": "101"
+          }
+        ],
+        "control_inputs": [
+          {
+            "name": "commercial_source.payment.amount_minor",
+            "value": "100"
+          }
+        ],
+        "observations": [
+          "decision.eligibility",
+          "decision.missing_evidence"
+        ],
+        "primary_rule_expectation": "NEEDS_MORE_EVIDENCE and contains SIMULATED_PAYMENT_FACT",
+        "primary_control_relation": "DIFFERENT",
+        "baseline_candidate_claim": "SHOULD_PRESERVE",
+        "expected_baseline": "NEEDS_MORE_EVIDENCE",
+        "expected_candidate": "NEEDS_MORE_EVIDENCE",
+        "preconditions": "仅改一个绑定字段；其余值严格来自同一可信 fixture；B/C、主/对照均使用新拷贝；无自动补齐相依事实。"
+      },
+      "runs": [
+        {
+          "seed": 19,
+          "run_id": "12cef18e-49ba-438a-825c-ad5b91a45d4a",
+          "paths": {
+            "ledger": "artifacts/verify-agent/20261117-binding-c-seed19/full-evidence.json",
+            "summary": "artifacts/verify-agent/20261117-binding-c-seed19/summary.json",
+            "agent_report": "artifacts/verify-agent/20261117-binding-c-seed19/agent-report.json"
+          },
+          "sha256": {
+            "ledger": "97a884059836cd11202ea6480611041b7bff0c55c576b089dea6ccac0b9c2589",
+            "summary": "c2989c6c27501fb676244d5c5cda51a28493984837deb0555008ef91c324c727"
+          },
+          "status": "BLOCKED",
+          "stop_reason": "CLARIFICATION_REQUIRED",
+          "actual_identity": {
+            "model_name": "mistral:latest",
+            "module_sha256": {
+              "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+              "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+              "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+              "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+              "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+              "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+              "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+              "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+              "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+              "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+            },
+            "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+            "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+            "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+            "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+            "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+          },
+          "input_integrity": {
+            "driver_bundle_equals_frozen": true,
+            "runtime_bundle_equals_frozen": true,
+            "actual_model_options_match": true,
+            "evaluation_only_markers_in_requests": [],
+            "evaluation_material_sent_to_model": false,
+            "initial_diff_truncated": false,
+            "provided_rule_and_interface_material_is_authorized_not_golden": true
+          },
+          "reads": [],
+          "non_check_actions": [
+            {
+              "call_id": "bd5cc45d-b196-47f1-aaa6-e763e0f8c9ab",
+              "proposal": {
+                "payload": {
+                  "question": "What is the expected behavior of the payment amount minor and billing total amount cents relationship under the changed code? (diff:services/genai-support-sut/src/genai_support/integrations/commercial.py)"
+                },
+                "rationale": "The diff shows a change in the comparison operator between the payment amount minor and billing total amount cents, which may affect their business relationship.",
+                "action_kind": "CLARIFY",
+                "proposal_id": "8037091c-a8fb-46d6-aa4d-1e23e48836eb",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [
+                  "H1"
+                ],
+                "context_view_ref": "context:4443fa85b0f941b365cbcd14237b2f6327b6e6afdf0594a3d32492815014cd64",
+                "requirement_refs": [
+                  "R4"
+                ],
+                "hypothesis_updates": [
+                  {
+                    "id": "H1",
+                    "status": "OPEN",
+                    "statement": "The changed code affects the business relationship between the payment amount minor and the billing total amount cents.",
+                    "evidence_refs": [
+                      "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                    ]
+                  }
+                ],
+                "expected_information": "The expected behavior of the payment amount minor and billing total amount cents relationship under the changed code.",
+                "based_on_decision_revision": 1
+              }
+            }
+          ],
+          "check_attempts": [],
+          "retention": [
+            {
+              "call_index": 1,
+              "call_id": "bd5cc45d-b196-47f1-aaa6-e763e0f8c9ab",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 317,
+                "prompt_tokens": 7047
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "99210549755f3ed0bf933697ffab2ccab40f824d2314fc2685b9136c081961be",
+              "response_sha256": "3fae0c760af43448da6ca44df2cd8f971e5cde27009bb3de47dc554567b29dab"
+            }
+          ],
+          "final_plan_evaluation": {
+            "status": "NOT_RUN",
+            "reason": "NO_BOUND_COMPILED_PLAN",
+            "relation_witness": false
+          },
+          "runtime_binding_status": "NO_CHECK_PROPOSED",
+          "semantic_score": {
+            "final_delivered_plan_score": 0,
+            "max_score": 10,
+            "dimensions": {
+              "source_grounding": {
+                "score": 0,
+                "reason": "CLARIFY 指出了两个金额字段和 R4，但未读规则；把等号两侧交换误说成比较算子改变，没有关系保持分析。"
+              },
+              "discriminating_input": {
+                "score": 0,
+                "reason": "未提出 CHECK 或金额匹配/不匹配实验。"
+              },
+              "expected_relation": {
+                "score": 0,
+                "reason": "没有 B/C 预测或 SHOULD_PRESERVE 判断。"
+              },
+              "observation_and_control": {
+                "score": 0,
+                "reason": "没有观察或对照。"
+              },
+              "qualified_scope": {
+                "score": 0,
+                "reason": "没有绑定计划；CLARIFY 后安全阻塞。"
+              }
+            },
+            "per_check_available": false
+          },
+          "sixth_relationship_gate": false,
+          "gate_status": "FAIL",
+          "business_execution_via_runtime": false,
+          "release_authorized": false,
+          "repair_effect": {
+            "issue_counts": [],
+            "manual_score_trajectory": [],
+            "core_check_spec_unchanged": false
+          },
+          "usage": {
+            "model_calls": 1,
+            "prompt_tokens": 7047,
+            "output_tokens": 317,
+            "repair_calls": 0,
+            "repair_prompt_tokens": 0,
+            "repair_output_tokens": 0,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "cost_note": "无供应商账单记录不代表计算或电力成本为零。",
+            "budgets": {
+              "model_calls": {
+                "limit": 4,
+                "used": 1
+              },
+              "reads": {
+                "limit": 2,
+                "used": 0
+              },
+              "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+              "check_repair": {
+                "reserved_within_total": 1,
+                "used": 0
+              },
+              "profile": "READ_ONLY_DISCOVERY",
+              "pools": {
+                "CODING": 0,
+                "DISCOVERY": 3,
+                "CHECK_REPAIR": 1,
+                "FINAL": 0,
+                "RECONCILIATION": "LOCAL_STATE_ONLY",
+                "CLEANUP": "NO_SUT_RESOURCES"
+              }
+            }
+          },
+          "interpretation": "没有 CHECK 可评；直接 CLARIFY 是安全停止，却没有交付本轮要求的自主验证计划。 模型未正式宣告发现 Bug，因此不能把本结果报告成确定误报；能确认的是未识别良性关系保持并形成测试。"
+        },
+        {
+          "seed": 31,
+          "run_id": "2616ba23-fe41-4b1c-a0d5-c8cf3d8a020f",
+          "paths": {
+            "ledger": "artifacts/verify-agent/20261117-binding-c-seed31/full-evidence.json",
+            "summary": "artifacts/verify-agent/20261117-binding-c-seed31/summary.json",
+            "agent_report": "artifacts/verify-agent/20261117-binding-c-seed31/agent-report.json"
+          },
+          "sha256": {
+            "ledger": "900f0c6d0f6edf2ec8cc67138cf5c3f2d98a64aea2d2d70fd9f4b20877e4eea3",
+            "summary": "f7f1a2a61030580f24e58b3e9179d7ff76158793fd1a72ad82f4f4f359a385f5"
+          },
+          "status": "BLOCKED",
+          "stop_reason": "CLARIFICATION_REQUIRED",
+          "actual_identity": {
+            "model_name": "mistral:latest",
+            "module_sha256": {
+              "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+              "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+              "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+              "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+              "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+              "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+              "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+              "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+              "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+              "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+            },
+            "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+            "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+            "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+            "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+            "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+          },
+          "input_integrity": {
+            "driver_bundle_equals_frozen": true,
+            "runtime_bundle_equals_frozen": true,
+            "actual_model_options_match": true,
+            "evaluation_only_markers_in_requests": [],
+            "evaluation_material_sent_to_model": false,
+            "initial_diff_truncated": false,
+            "provided_rule_and_interface_material_is_authorized_not_golden": true
+          },
+          "reads": [],
+          "non_check_actions": [
+            {
+              "call_id": "17540c9d-982e-41c6-8940-a643246274c8",
+              "proposal": {
+                "payload": {
+                  "question": "What is the expected behavior of the payment amount minor and billing total amount cents relationship under the changed code? (diff:services/genai-support-sut/src/genai_support/integrations/commercial.py)"
+                },
+                "rationale": "The diff shows a change in the comparison operator between the payment amount minor and billing total amount cents, which may affect their business relationship.",
+                "action_kind": "CLARIFY",
+                "proposal_id": "ea33de3b-ea0f-4f59-b98b-14dc24fcf09e",
+                "evidence_refs": [
+                  "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                ],
+                "schema_version": 1,
+                "candidate_epoch": 1,
+                "hypothesis_refs": [
+                  "H1"
+                ],
+                "context_view_ref": "context:5de49192fc0a992be4cd186e6e22640d891e177db07f18ebf642465b3b593760",
+                "requirement_refs": [
+                  "R4"
+                ],
+                "hypothesis_updates": [
+                  {
+                    "id": "H1",
+                    "status": "OPEN",
+                    "statement": "The changed code affects the business relationship between the payment amount minor and the billing total amount cents.",
+                    "evidence_refs": [
+                      "diff:services/genai-support-sut/src/genai_support/integrations/commercial.py"
+                    ]
+                  }
+                ],
+                "expected_information": "The expected behavior of the payment amount minor and billing total amount cents relationship under the changed code.",
+                "based_on_decision_revision": 1
+              }
+            }
+          ],
+          "check_attempts": [],
+          "retention": [
+            {
+              "call_index": 1,
+              "call_id": "17540c9d-982e-41c6-8940-a643246274c8",
+              "status": "COMPLETED",
+              "usage": {
+                "cost": null,
+                "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+                "output_tokens": 317,
+                "prompt_tokens": 7047
+              },
+              "request_text_retained": true,
+              "request_text_matches_structured_request": true,
+              "raw_response_retained": true,
+              "raw_action_and_payload_equal_registered_proposal": true,
+              "request_sha256": "fb593cc7826f771864920769db7a2cd36402c3dd2c10651d385f48d627c31279",
+              "response_sha256": "7131c47c5ad750552b94e6cea54937d66ace8e61b5135e3dd15c1fb20d3185c8"
+            }
+          ],
+          "final_plan_evaluation": {
+            "status": "NOT_RUN",
+            "reason": "NO_BOUND_COMPILED_PLAN",
+            "relation_witness": false
+          },
+          "runtime_binding_status": "NO_CHECK_PROPOSED",
+          "semantic_score": {
+            "final_delivered_plan_score": 0,
+            "max_score": 10,
+            "dimensions": {
+              "source_grounding": {
+                "score": 0,
+                "reason": "CLARIFY 指出了两个金额字段和 R4，但未读规则；把等号两侧交换误说成比较算子改变，没有关系保持分析。"
+              },
+              "discriminating_input": {
+                "score": 0,
+                "reason": "未提出 CHECK 或金额匹配/不匹配实验。"
+              },
+              "expected_relation": {
+                "score": 0,
+                "reason": "没有 B/C 预测或 SHOULD_PRESERVE 判断。"
+              },
+              "observation_and_control": {
+                "score": 0,
+                "reason": "没有观察或对照。"
+              },
+              "qualified_scope": {
+                "score": 0,
+                "reason": "没有绑定计划；CLARIFY 后安全阻塞。"
+              }
+            },
+            "per_check_available": false
+          },
+          "sixth_relationship_gate": false,
+          "gate_status": "FAIL",
+          "business_execution_via_runtime": false,
+          "release_authorized": false,
+          "repair_effect": {
+            "issue_counts": [],
+            "manual_score_trajectory": [],
+            "core_check_spec_unchanged": false
+          },
+          "usage": {
+            "model_calls": 1,
+            "prompt_tokens": 7047,
+            "output_tokens": 317,
+            "repair_calls": 0,
+            "repair_prompt_tokens": 0,
+            "repair_output_tokens": 0,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "cost_note": "无供应商账单记录不代表计算或电力成本为零。",
+            "budgets": {
+              "model_calls": {
+                "limit": 4,
+                "used": 1
+              },
+              "reads": {
+                "limit": 2,
+                "used": 0
+              },
+              "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+              "check_repair": {
+                "reserved_within_total": 1,
+                "used": 0
+              },
+              "profile": "READ_ONLY_DISCOVERY",
+              "pools": {
+                "CODING": 0,
+                "DISCOVERY": 3,
+                "CHECK_REPAIR": 1,
+                "FINAL": 0,
+                "RECONCILIATION": "LOCAL_STATE_ONLY",
+                "CLEANUP": "NO_SUT_RESOURCES"
+              }
+            }
+          },
+          "interpretation": "没有 CHECK 可评；直接 CLARIFY 是安全停止，却没有交付本轮要求的自主验证计划。 模型未正式宣告发现 Bug，因此不能把本结果报告成确定误报；能确认的是未识别良性关系保持并形成测试。"
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "registered_runs": 6,
+    "finished_runs": 6,
+    "fresh_run_ids": 6,
+    "bound_plans": 0,
+    "gate_passed": 0,
+    "gate_failed": 6,
+    "check_proposals": 4,
+    "no_check_runs": 4,
+    "stopped_at_repair_limit": 2,
+    "clarification_blocked": 4,
+    "compiled_plan_evaluations_run": 0,
+    "model_calls": 10,
+    "prompt_tokens": 88520,
+    "output_tokens": 7457,
+    "repair_calls": 2,
+    "repair_prompt_tokens": 24500,
+    "repair_output_tokens": 2777,
+    "cost": null,
+    "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+    "runtime_experiment_admission": "DENIED_BY_PREREGISTERED_6_OF_6_GATE"
+  },
+  "conclusions": [
+    "6 个预登记运行全部纳入，0/6 达到绑定与业务关系门槛；不开放 Graph/Runtime 真实实验派发。",
+    "A 两轮每个 CHECK 为 2/10，修正没有消除缺项；B/C 四轮没有提出 CHECK，最终交付计划得分为 0/10。",
+    "所有模型计划离线评价均 NOT_RUN，因为没有成功绑定的 compiled_plan；未替模型补入参考值。准备时受审纯函数见证已封存，但它不是模型表现或 SUT 业务执行结果。",
+    "运行层成功保留了真实请求/响应、原案/修正与用量，并阻止无效计划通过。当前模型组合仍未证明可自主理解 diff、选择关键输入、提出有效对照并形成可判定预期。",
+    "六次运行只有三个源码变化，包含良性重构，不能估计总体稳定率、生产可靠性或跨公司业务泛化。现在已经揭盲；未来调优后这些材料只能作为回归样本。"
+  ]
+}

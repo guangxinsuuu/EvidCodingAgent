@@ -6,6 +6,8 @@ import { Store, type RunRow } from "./store.js";
 import { contextRef, contextView, evidenceRefs, finalEligibility, groundedRequirements, modelBodySchema, modelShapeHint } from "./context.js";
 import { invokeLocalModel, validateModelConfig } from "./model.js";
 import { assessCheckQuality } from "./check-quality.js";
+import { assessCheckBinding } from "./check-binding.js";
+import { capabilityContract, capabilityContractDigest, validatePlanningAuthority, verifyCapabilitySource } from "./capability-authority.js";
 import { canonical, digest, requireThat, RuntimeError, sha, validateBundle,
   type Json, type Limits, type ReleaseBundle, type RuntimeConfig, type RunState } from "./types.js";
 
@@ -26,11 +28,14 @@ export class Runtime {
   readonly identities: Json;
   constructor(readonly config: RuntimeConfig) {
     validateModelConfig(config.model);
+    verifyCapabilitySource();
+    requireThat(config.model.seed === undefined || Number.isSafeInteger(config.model.seed) && config.model.seed >= 0 && config.model.seed <= 2147483647, "INVALID_MODEL_SEED", 400);
     this.store = new Store(config.databaseUrl);
-    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "check-quality.js",
+    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "check-quality.js", "check-binding.js", "capability-authority.js",
       "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
     this.identities = { runtime_build_sha256: digest(modules), module_sha256: modules,
       planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema),
+      capability_contract_sha256: capabilityContractDigest,
       model_name: config.model.name, model_manifest_digest: config.model.digest };
     this.configDigest = digest({ identities: this.identities, model: config.model, prompt: config.plannerPrompt, schema: modelBodySchema(),
       wire_encoding: "PERSISTED_JSON_TEXT_V1_ACTION_BEFORE_PAYLOAD" });
@@ -39,6 +44,7 @@ export class Runtime {
   /** 仅本地 operator CLI 调用；HTTP 没有导入/扩大材料权限的入口。 */
   async acceptRun(input: unknown, token: string, limits: Limits = { model_calls: 6, reads: 4, no_progress: 2 }, id: string = randomUUID()): Promise<string> {
     const bundle = validateBundle(input);
+    validatePlanningAuthority(bundle.planning_contracts);
     requireThat(/^[0-9a-f-]{36}$/.test(id) && token.length >= 32, "INVALID_RUN_IDENTITY", 400);
     const bounds = { model_calls: 12, reads: 8, no_progress: 3 };
     for (const key of ["model_calls", "reads", "no_progress"] as const)
@@ -138,7 +144,7 @@ export class Runtime {
       s.model_calls_used += 1;
       const callId = randomUUID(); const ref = contextRef(row.bundle, s);
       const request = { model: this.config.model.name, stream: false, format: modelBodySchema(row.bundle, s),
-        options: { temperature: 0, seed: 19, num_ctx: 16384, num_predict: this.config.model.maxOutputTokens },
+        options: { temperature: 0, seed: this.config.model.seed ?? 19, num_ctx: 16384, num_predict: this.config.model.maxOutputTokens },
         keep_alive: "5m", messages: [
           { role: "system", content: this.config.plannerPrompt + "\n" + modelShapeHint() },
           { role: "user", content: JSON.stringify({ context_view: contextView(row.bundle, s),
@@ -272,6 +278,7 @@ export class Runtime {
       if (!m) return "MATERIAL_ACCESS_DENIED";
       if (p.payload.start_line > p.payload.end_line || p.payload.end_line - p.payload.start_line >= 200 || p.payload.end_line > m.content.split("\n").length) return "READ_RANGE_INVALID";
     }
+    if (p.action_kind === "NOVEL_CHECK" && s.read_receipts.length === 0) return "CAPABILITY_GAP_GROUNDING_REQUIRED";
     if (p.action_kind === "CHECK_INTENT") {
       if (s.read_receipts.length === 0 || p.requirement_refs.length === 0 || p.evidence_refs.length === 0) return "CHECK_GROUNDING_REQUIRED";
       if (p.requirement_refs.some(ref => !groundedRequirements(b, s).includes(ref))) return "APPLICABLE_RULE_READ_REQUIRED";
@@ -324,12 +331,17 @@ export class Runtime {
             !groundedRequirements(row.bundle, s).includes(String(r.id))).map(r => r.material_ref);
           result.correction = "Read the complete applicable rule excerpt before proposing assertions. A rule title or a baseline behavior is not the contract text.";
         }
+        if (error === "CAPABILITY_GAP_GROUNDING_REQUIRED") result.correction = "Read a relevant rule or implementation material before claiming a capability gap. Inspect the registered planning contract; an unexecuted prerequisite is not a missing interface.";
       }
       else if (p.action_kind === "READ") { status = "QUEUED"; result = null; s.reads_used += 1; }
       else if (p.action_kind === "CHECK_INTENT") {
         // 传输 Schema 允许旧的笼统 CHECK；业务规划完整性在此一次返回全部缺项。
         // Runtime 不替模型补预期答案，且结构完整与业务正确性/可派发性分别记账。
-        const quality = assessCheckQuality(row.bundle, p);
+        const structure = assessCheckQuality(row.bundle, p);
+        const binding = assessCheckBinding(row.bundle, p, capabilityContract);
+        const quality = { ...structure, policy_version: "check-binding-v2",
+          status: structure.issues.length || binding.issues.length ? "NEEDS_REVISION" : "STRUCTURALLY_COMPLETE",
+          issues: [...structure.issues, ...binding.issues], binding_status: binding.status };
         const previous = s.check_repair;
         const lineage = { root_proposal_id: previous?.root_proposal_id ?? p.proposal_id,
           previous_proposal_id: previous?.latest_proposal_id ?? null,
@@ -348,7 +360,7 @@ export class Runtime {
             previous.latest_proposal = structuredClone(p); previous.quality = { ...quality };
           }
           result = { status: "PROPOSED_ONLY", check_intent: p.payload, requirement_refs: p.requirement_refs,
-            quality, repair: lineage,
+            quality, binding, repair: lineage,
             gaps: ["CAPABILITY_NOT_DISPATCH_ENABLED", "NO_CURRENT_CANDIDATE_CHECK_RESULT"] };
           s.status = "PLANNED"; s.stop_reason = "PLANNING_SLICE_COMPLETE";
         }

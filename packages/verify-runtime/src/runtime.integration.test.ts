@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { capabilityContract } from "./capability-authority.js";
 import { randomUUID } from "node:crypto";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
@@ -29,15 +31,21 @@ function bundle(): ReleaseBundle {
     changes: [{ path: "product.py", status: "M", category: "SOURCE", analysis_status: "MATERIAL_AVAILABLE",
       candidate_material_ref: "candidate:product.py", diff_material_ref: "diff:product.py" }],
     materials: [
+      ...["BASELINE_SOURCE", "CANDIDATE_SOURCE"].map(kind => {
+        const path = (capabilityContract.entrypoint as {path:string}).path;
+        const content = readFileSync(new URL("../../../"+path, import.meta.url), "utf8");
+        return {material_ref: (kind === "BASELINE_SOURCE" ? "baseline:" : "candidate:")+path, kind, title:path, git_commit: (kind === "BASELINE_SOURCE" ? "a" : "b").repeat(40), path, sha256:sha(content), content};
+      }),
       { material_ref: "rule:R1", kind: "REGISTERED_RULE_EXCERPT", title: "本地校准R1", git_commit: "d".repeat(40), path: "rules.md", sha256: sha(rule), content: rule },
       { material_ref: "candidate:product.py", kind: "CANDIDATE_SOURCE", title: "候选源码", git_commit: "b".repeat(40), path: "product.py", sha256: sha(source), content: source },
       { material_ref: "diff:product.py", kind: "UNTRUSTED_DIFF", title: "git格式的合成差异", git_commit: "b".repeat(40), path: "product.py", sha256: sha(patch), content: patch },
     ],
+    planning_contracts: [structuredClone(capabilityContract)],
     catalog: { status: "DRAFT", dispatch_authorized: false,
       requirements: [{ id: "R1", section: "R1", source_ref: "business_rules", material_ref: "rule:R1", review_status: "LOCAL_CALIBRATION_PENDING_USER_REVIEW" }],
-      capabilities: [{ id: "cap:release-check", name: "合成只读检查能力", kind: "ORACLE", requirement_refs: ["R1"], dispatch_enabled: false }],
-      scenarios: [{ id: "scenario:renewal", requirement_refs: ["R1"], stages: [{ stage_ref: "renewal.initial" }] }],
-      sources: [{ id: "product", kind: "PRODUCT_EXECUTION" }] },
+      capabilities: [{ id: "probe.commercial_decision", name: "合成只读检查能力", kind: "ORACLE", requirement_refs: ["R1"], dispatch_enabled: false }],
+      scenarios: [{ id: "commercial_unit", requirement_refs: ["R1"], stages: [{ stage_ref: "commercial_unit.evaluate" }] }],
+      sources: [{ id: "sut_runtime", kind: "PRODUCT_EXECUTION" }] },
     gaps: ["LOCAL_SYNTHETIC_ONLY"], current_candidate_coverage: [], evaluation_status: "NOT_RUN",
   };
 }
@@ -53,13 +61,17 @@ function decision(action_kind = "READ", payload: Json = { material_ref: "rule:R1
 
 /** 合成结构完整夹具，只验证 Runtime 准入协议，不宣称断言本身已通过业务审核。 */
 function concreteSpec(): Json {
-  return { schema_version: 1, stage_ref: "renewal.initial",
-    inputs: [{ name: "renewal_record", value: "present" }],
-    observations: [{ id: "fact", source_ref: "product", field: "renewal_record" }],
-    expectations: [{ observation_ref: "fact", operator: "EQUALS", value: "present", requirement_ref: "R1" }],
-    control: { scenario_ref: "scenario:renewal", stage_ref: "renewal.initial",
-      inputs: [{ name: "renewal_record", value: "missing" }], observation_ref: "fact",
-      expected_relation: "DIFFERENT", reason: "原生续费记录缺失应保留缺证据状态，不能当作存在。" } };
+  const input = "commercial_source.payment.amount_minor";
+  return { schema_version: 1, stage_ref: "commercial_unit.evaluate",
+    binding: {contract_ref: capabilityContract.id, fixture_ref:(capabilityContract.fixture as Json).id},
+    inputs: [{ name: input, value: "99" }],
+    observations: [{ id: "fact", source_ref: "sut_runtime", field: "decision.billing_paid" }],
+    expectations: [{ observation_ref: "fact", operator: "EQUALS", value: "null", requirement_ref: "R1" }],
+    control: { scenario_ref: "commercial_unit", stage_ref: "commercial_unit.evaluate",
+      inputs: [{ name: input, value: "100" }], observation_ref: "fact",
+      expected_relation: "DIFFERENT", reason: "协议夹具，比较一个明确可绑定的输入；不是本测试的业务PASS声明。" },
+    change_relation: {diff_ref:"diff:product.py",changed_fields:["facts"],input_refs:[input],output_refs:["fact"],requirement_ref:"R1",
+      claim:"MAY_CHANGE",expected_baseline:"true",expected_candidate:"null",reason:"测试保留提案关系与真实字段类型，业务意义需另评估。"} };
 }
 
 function deferred<T>() {
@@ -228,7 +240,7 @@ pgTest("PG：未知材料、伪造证据、越界READ及未读取就CHECK均留�
     ["fabricated_evidence", { ...decision(), evidence_refs: ["receipt:never-observed"] }],
     ["unscoped_requirement", { ...decision(), requirement_refs: ["R999"] }],
     ["out_of_range", decision("READ", { material_ref: "rule:R1", start_line: 2, end_line: 500 })],
-    ["unread_check", decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
+    ["unread_check", decision("CHECK_INTENT", { capability_ref: "probe.commercial_decision", scenario_ref: "commercial_unit",
       objective: "检查续费事实。", observation_requirements: ["原生续费事件"] })],
   ];
   for (const [label, body] of cases) {
@@ -473,7 +485,7 @@ pgTest("PG：原始模型wire往返持久化后逐字节一致，动作选择字
   const sent = JSON.parse(stub.requestTexts[0]!) as Json;
   assert.deepEqual(sent, row.request, "查询投影与原始wire表达相同JSON值");
   const branches = ((sent["format"] as Json)["oneOf"] as Json[]);
-  assert.equal(branches.length, 6, "初始尚未读完适用规则，不提供CHECK生成分支");
+  assert.equal(branches.length, 5, "尚未读依据，不提供CHECK与NOVEL_CHECK生成分支");
   for (const branch of branches) {
     assert.equal(Object.keys(branch["properties"] as Json)[0], "action_kind",
       "Provider应先决定动作，再填写与该动作匹配的payload");
@@ -488,7 +500,7 @@ pgTest("PG：只读源码不能据此编造合同断言；完整读取规则后�
   const source = await instance.submit(runId, await propose(instance, runId));
   assert.equal(source["status"], "COMPLETED");
   const sourceRef = (source["result"] as Json)["receipt_ref"] as string;
-  const check = { ...decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
+  const check = { ...decision("CHECK_INTENT", { capability_ref: "probe.commercial_decision", scenario_ref: "commercial_unit",
     objective: "验证本次变化是否保留登记的续费事实，并区分缺证据与不存在。",
     observation_requirements: ["固定候选业务观察", "登记来源中的原始续费事实"], check_spec: concreteSpec() }),
     evidence_refs: ["diff:product.py", sourceRef] };
@@ -525,7 +537,7 @@ pgTest("PG：规则ID本身不构成观察需求，须说明具体事实后才�
   const runId = await accept(instance);
   await instance.submit(runId, await propose(instance, runId));
   for (const observation of [" R1 "]) {
-    body = decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
+    body = decision("CHECK_INTENT", { capability_ref: "probe.commercial_decision", scenario_ref: "commercial_unit",
       objective: "核对业务事实。", observation_requirements: [observation], check_spec: concreteSpec() });
     const rejected = await instance.submit(runId, await propose(instance, runId));
     assert.equal(rejected["status"], "REJECTED");
@@ -533,7 +545,7 @@ pgTest("PG：规则ID本身不构成观察需求，须说明具体事实后才�
     assert.ok((((rejected["result"] as Json)["quality"] as Json)["issues"] as Json[])
       .some(issue => issue["code"] === "OBSERVATION_DETAILS_REQUIRED"));
   }
-  body = decision("CHECK_INTENT", { capability_ref: "cap:release-check", scenario_ref: "scenario:renewal",
+  body = decision("CHECK_INTENT", { capability_ref: "probe.commercial_decision", scenario_ref: "commercial_unit",
     objective: "核对业务事实。", observation_requirements: ["收集R1适用对象的原生续费记录与候选输出，区分缺记录与明确未续费。"], check_spec: concreteSpec() });
   assert.equal((await instance.submit(runId, await propose(instance, runId)))["status"], "COMPLETED");
   assert.equal((await instance.projection(runId))["status"], "PLANNED");

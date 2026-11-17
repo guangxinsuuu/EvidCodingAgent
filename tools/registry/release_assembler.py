@@ -25,6 +25,7 @@ MAX_CHANGES = 64
 MAX_MATERIAL_BYTES = 96 * 1024
 MAX_BUNDLE_BYTES = 1024 * 1024
 RULES_PATH = "business-source-pack/v1/policies/rules.md"
+PLANNING_CONTRACT_PATH = Path(__file__).resolve().parents[2] / "protocols/verify-agent/capabilities/commercial-decision.v1.json"
 # 这是可信装配器的本地产品范围，不接受模型提交的新前缀或任意绝对路径。
 SOURCE_PREFIXES = (
     "services/genai-support-sut/src/", "services/genai-support-sut/migrations/",
@@ -166,6 +167,32 @@ def _catalog_projection(reader, requirement_refs: list[str], materials: list[dic
     }
 
 
+def _planning_contract_overlay(catalog: dict) -> list[dict]:
+    """受信装配器叠加纯fixture能力导航；不冒充旧目录commit中已登记的真实实验能力。
+
+    读取安装侧唯一文件，不从 candidate_root 或模型给的路径取合同；TS Runtime 仍以
+    自己安装的合同逐字数据核验。完整fixture只用于绑定，模型视图由Runtime另行限界。
+    """
+    _require(not PLANNING_CONTRACT_PATH.is_symlink(), "PLANNING_CONTRACT_SYMLINK")
+    contract = json.loads(PLANNING_CONTRACT_PATH.read_text(encoding="utf-8"))
+    _require(contract.get("id") == "commercial-decision.v1" and contract.get("execution_mode") == "PURE_FIXTURE"
+             and contract.get("dispatch_enabled") is False, "PLANNING_CONTRACT_IDENTITY_INVALID")
+    fixture = contract["fixture"]
+    raw = json.dumps(fixture["context"], sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    _require(fixture.get("hash_encoding") == "canonical-json-sort-keys-utf8-v1"
+             and hashlib.sha256(raw).hexdigest() == fixture.get("sha256"), "PLANNING_FIXTURE_DIGEST_MISMATCH")
+    origin = "LOCAL_TRUSTED_BINDING_CONTRACT_OVERLAY"
+    catalog["capabilities"].append({"id": contract["capability_ref"], "name": "商业判断纯fixture探针",
+        "kind": "PURE_FIXTURE_PROBE", "parent_capability_ref": contract["parent_capability_ref"],
+        "requirement_refs": contract["supported_requirements"], "dispatch_enabled": False,
+        "planning_contract_ref": contract["id"], "catalog_origin": origin})
+    catalog["scenarios"].append({"id": contract["scenario_ref"], "name": "隔离商业函数的合成输入比较",
+        "requirement_refs": contract["supported_requirements"], "execution_mode": "PURE_FIXTURE",
+        "stages": [{"stage_ref": contract["stage_ref"], "depends_on": [], "execution_mode": "PURE_FIXTURE"}],
+        "catalog_origin": origin, "live_stage_prerequisites_satisfied": False})
+    return [contract]
+
+
 def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: str,
                      requirement_refs: list[str] | None = None, *, candidate_root: Path | None = None,
                      catalog_commit: str = CATALOG_COMMIT,
@@ -196,6 +223,7 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
              "RELEASE_BASELINE_NOT_ANCESTOR")
     materials: list[dict] = []
     catalog = _catalog_projection(reader, refs, materials)
+    planning_contracts = _planning_contract_overlay(catalog)
     changes, gaps = [], []
     raw_changes = _changes(git, baseline_sha, candidate_sha)
     for status, path in raw_changes:
@@ -240,6 +268,23 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
                 continue
             raise
         materials.append(_material(ref, "CANDIDATE_SOURCE", path, candidate_sha, path, raw))
+    # 能力合同审查的是确切基线入口；入口未变化时也必须提供基线原件，不能只看候选。
+    # 摘录校准程序缺少完整入口时保留缺失事实，由绑定器明确 NOT_BOUND，不合成源码。
+    existing = {material["material_ref"] for material in materials}
+    for contract in planning_contracts:
+        path = contract["entrypoint"]["path"]
+        for label, commit in (("baseline", baseline_sha), ("candidate", candidate_sha)):
+            ref = label + ":" + path
+            if ref in existing:
+                continue
+            try:
+                raw = git.read(commit, path)
+            except MaterialError as error:
+                if error.code == "SOURCE_FILE_MISSING":
+                    continue
+                raise
+            materials.append(_material(ref, label.upper() + "_SOURCE", path, commit, path, raw))
+            existing.add(ref)
     if not changes:
         gaps.append({"code": "NO_VERSION_CHANGES", "detail": "版本对没有变化；尚未独立验证，不能据此签发 NO_CHANGE 或 PASS。"})
     gaps.extend([
@@ -252,7 +297,7 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
         "input_provenance": input_provenance, "goal": goal.strip(), "baseline_sha": baseline_sha,
         "candidate_sha": candidate_sha, "catalog_commit": reader.catalog_commit,
         "catalog_basis_commit": reader.catalog_basis_commit, "requirement_refs": list(refs),
-        "changes": changes, "materials": materials, "catalog": catalog, "gaps": gaps,
+        "changes": changes, "materials": materials, "catalog": catalog, "planning_contracts": planning_contracts, "gaps": gaps,
         "current_candidate_coverage": [], "evaluation_status": "NOT_RUN",
     }
     _require(len(json.dumps(bundle, ensure_ascii=False).encode("utf-8")) <= MAX_BUNDLE_BYTES,

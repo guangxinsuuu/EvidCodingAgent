@@ -287,6 +287,97 @@
         },
         "control": {
           "$ref": "#/$defs/checkControl"
+        },
+        "binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract_ref",
+            "fixture_ref"
+          ],
+          "properties": {
+            "contract_ref": {
+              "$ref": "#/$defs/reference"
+            },
+            "fixture_ref": {
+              "$ref": "#/$defs/reference"
+            }
+          }
+        },
+        "change_relation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "diff_ref",
+            "changed_fields",
+            "input_refs",
+            "output_refs",
+            "requirement_ref",
+            "claim",
+            "expected_baseline",
+            "expected_candidate",
+            "reason"
+          ],
+          "properties": {
+            "diff_ref": {
+              "$ref": "#/$defs/reference"
+            },
+            "changed_fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true
+            },
+            "input_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true
+            },
+            "output_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true
+            },
+            "requirement_ref": {
+              "$ref": "#/$defs/reference"
+            },
+            "claim": {
+              "enum": [
+                "MAY_CHANGE",
+                "SHOULD_PRESERVE"
+              ]
+            },
+            "expected_baseline": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "expected_candidate": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          }
         }
       },
       "$comment": "合法的部分提案由Runtime收集全部缺项；类型、嵌套字段与上界仍严格校验。结构完整不代表业务正确或允许执行。"

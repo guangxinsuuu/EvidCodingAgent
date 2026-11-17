@@ -1,0 +1,2437 @@
+{
+  "schema_version": 1,
+  "report_kind": "SANITIZED_IMPLEMENTATION_AND_MODEL_LEDGER_SUMMARY",
+  "generated_at": "2026-11-17T12:46:29.440401+00:00",
+  "scope": "仅记录 8 次真实模型—Runtime 运行的身份、原动作、预算、修正与绑定结果；不读取留出评分材料，也不自行进行语义评分。",
+  "limitations": [
+    "BOUND_PLAN 或 STRUCTURALLY_COMPLETE 仅表示接口和引用约束完成，不能视作业务正确或发布批准。",
+    "本轮没有开启 Runtime 的真实被测业务实验派发；实验执行、可信观察、独立业务 Oracle 和发布门禁仍需独立满足。",
+    "dev01/dev02 是冻结前公开开发运行；六次 a/b/c 运行是冻结后的账本，仅按原结果完整登记，不挑选或补跑覆盖。",
+    "本地模型成本为 null，账本没有供应商账单，不能用 token 数推算或填写零成本。",
+    "完整证据包含原模型请求和回复，需按本地受限证据管理；本摘要不复制这些内容或请求头。"
+  ],
+  "freeze": {
+    "path": "artifacts/verify-agent/20261117-binding-validation/implementation-freeze.json",
+    "sha256": "846beec299714d93e1352470fa2765401ced07ed04de9ddbfcc41a3f92553af5",
+    "bytes": 13337,
+    "schema_version": 1,
+    "frozen_at": "2026-11-17T12:30:56.816080+00:00",
+    "source_head": "0f46c9b0602334db2b8955c018ed076c6c059c37",
+    "dirty_sources_captured_by_file_hash": true,
+    "data_freeze_sha256": "117477e5cfc2573a132f4efa6f1aabd9dce76f78b22ac5690e700f09cf368a4f",
+    "evaluator_freeze_sha256": "0d1fa45604f8576f2ffe701eedcdb785929a5607e460dd8cd857166bb2a21d99",
+    "manifest_file_count": 104,
+    "model": {
+      "name": "mistral:latest",
+      "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+    },
+    "settings": {
+      "model_calls": 4,
+      "reads": 2,
+      "plan_repairs": 1,
+      "max_output_tokens": 3000,
+      "timeout_seconds": 180,
+      "temperature": 0,
+      "num_ctx": 16384,
+      "seeds": [
+        19,
+        31
+      ]
+    }
+  },
+  "validation_facts": {
+    "basis": "主线程冻结前完成的验证结果；本收集脚本没有重跑测试。",
+    "typescript": {
+      "passed": 350,
+      "skipped": 0,
+      "includes_real_postgresql": true
+    },
+    "agent_python": {
+      "passed": 33
+    },
+    "registry_python": {
+      "passed": 89
+    },
+    "capability_adapter_python": {
+      "passed": 12
+    },
+    "holdout_preparation_python": {
+      "passed": 9
+    },
+    "shared_protocol_corpus": {
+      "cases": 78
+    }
+  },
+  "semantic_evaluation": {
+    "status": "NOT_PERFORMED_BY_THIS_REPORT",
+    "evaluation_only_materials_read": false,
+    "independent_evaluator_owned_elsewhere": true
+  },
+  "runs": [
+    {
+      "label": "dev01",
+      "role": "PUBLIC_DEVELOPMENT",
+      "run_id": "070255d1-defe-469e-973a-2da7642f0c91",
+      "timestamps": {
+        "started_at": "2026-11-17T12:24:23.754219+00:00",
+        "finished_at": "2026-11-17T12:25:12.265573+00:00",
+        "ledger_exported_at": "2026-11-17T12:25:12.249Z"
+      },
+      "identity": {
+        "bundle_digest": "1af15c749d07d7aaad14b198805b73af7ed601f856cba2367135209540813e7a",
+        "config_digest": "8ba7d03fec42e835a5ed202d6e7b312e4c3ed981fea7283b745a4ebc3bb82d4b",
+        "task": {
+          "baseline_sha": "f150a98da26ad6e1efb818a122a48ef12f782898",
+          "candidate_sha": "c84c1fb58587f2d73e9a2507e1b3254442a0d205",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "be38acb45432449500d066f884f7ddbf18b3233c26f8d51a7a2ae8fb0196f2ad",
+            "runtime.js": "7384b8788e6875dd4547afc909b5367fc8c51a45a1d164e2b128a1f72c788f7f",
+            "check-binding.js": "375130ec0d3de62a5f644713c7f8a19fa567428de21832da1cba4d8f4d71b44e",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "b0f108aa17eb21ff109ab88fdd5075db787beac4bcacbc7657831894d81cf449",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "6ad4bd383efc6e40b7b042ee2b8005d900df8250b8303c3ab63f60d559eadfac",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "BLOCKED",
+        "stop_reason": "CAPABILITY_GAP",
+        "agent_outcome": "BLOCKED",
+        "agent_exit_code": 2,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 1
+        },
+        "reads": {
+          "limit": 2,
+          "used": 0
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 0
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 1,
+        "reads_used": 0,
+        "no_progress": 1,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 2,
+        "event_seq": 4
+      },
+      "check_repair": null,
+      "model_calls": [
+        {
+          "id": "c94b6c97-c6ec-411e-8fa1-afeb200851c4",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:faeeef8f633a0fec3bc60f3b742c492845f94a56f8ed9cb307047e3dc2389ae0",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:24:24.479Z",
+          "usage": {
+            "prompt_tokens": 6959,
+            "output_tokens": 420,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "baabdb46-e094-4ba5-987e-f2749837de58",
+            "action_kind": "NOVEL_CHECK",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:faeeef8f633a0fec3bc60f3b742c492845f94a56f8ed9cb307047e3dc2389ae0",
+            "based_on_decision_revision": 1
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "f3ff26c0-05aa-4941-88bc-72971e4a12a5",
+          "proposal_id": "baabdb46-e094-4ba5-987e-f2749837de58",
+          "operation_key": "07a94fb04080232c86fcfde19e4517ad32052d2774f764af6642e0ff29c0bfe7",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:25:11.937Z",
+          "action_kind": "NOVEL_CHECK",
+          "result": {
+            "status": "PROPOSED_ONLY",
+            "trusted_finding": false,
+            "experiment_executed": false,
+            "external_message_sent": false
+          }
+        }
+      ],
+      "events": {
+        "record_count": 4,
+        "kind_counts": {
+          "MODEL_RESERVED": 1,
+          "MODEL_DISPATCHED": 1,
+          "MODEL_RECEIPT": 1,
+          "PROPOSAL_REGISTERED": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-01/summary.json",
+            "sha256": "5bb7c04a9b1c29df9a8e815cb682da75f8cf0f4662e90f58e9c54a693b47416f",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-01/full-evidence.json",
+            "sha256": "27e18466a96a8b63798e11444204a3fed8a169c9724ca19e74b39d21389dab4e",
+            "bytes": 255121
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-01/final-projection.json",
+            "sha256": "1d4fb6d8e9eecdc348ccbe4a826d01dcf0ae9707b487f87a1c266f0e403a0cfa",
+            "bytes": 6076
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-01/agent-report.json",
+            "sha256": "086ffcdc6c93cd050a69b45cb26116025c2ac0891782aaf12652c8c547b2613f",
+            "bytes": 5325
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-01/release-bundle.json",
+            "sha256": "efddfe69595465879743d929e5f98f4ee6c089bfaeb29e205125fda145b1b010",
+            "bytes": 106095
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 1,
+        "operation_records": 1,
+        "call_status_counts": {
+          "COMPLETED": 1
+        },
+        "proposal_action_counts": {
+          "NOVEL_CHECK": 1
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 6959,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 6959
+        },
+        "output_tokens": {
+          "known_subtotal": 420,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 420
+        },
+        "total_tokens": 7379,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "dev02",
+      "role": "PUBLIC_DEVELOPMENT",
+      "run_id": "ef3567ef-9638-4de7-bba3-8098964bab77",
+      "timestamps": {
+        "started_at": "2026-11-17T12:27:34.677942+00:00",
+        "finished_at": "2026-11-17T12:28:46.547797+00:00",
+        "ledger_exported_at": "2026-11-17T12:28:46.533Z"
+      },
+      "identity": {
+        "bundle_digest": "1af15c749d07d7aaad14b198805b73af7ed601f856cba2367135209540813e7a",
+        "config_digest": "04fd2ab9d03d95235de1bcaac3489d3610b600c9b455ecb6d31917639fcc8f07",
+        "task": {
+          "baseline_sha": "f150a98da26ad6e1efb818a122a48ef12f782898",
+          "candidate_sha": "c84c1fb58587f2d73e9a2507e1b3254442a0d205",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "BLOCKED",
+        "stop_reason": "CLARIFICATION_REQUIRED",
+        "agent_outcome": "BLOCKED",
+        "agent_exit_code": 2,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 2
+        },
+        "reads": {
+          "limit": 2,
+          "used": 0
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 0
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 2,
+        "reads_used": 0,
+        "no_progress": 2,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 3,
+        "event_seq": 8
+      },
+      "check_repair": null,
+      "model_calls": [
+        {
+          "id": "d69eec8e-4634-4be5-bbc6-a61e75bff9ba",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:a3542960a3eb86912a235080cb65d82bfe16d14d901624198cc6bccb8ec917e2",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:27:35.578Z",
+          "usage": {
+            "prompt_tokens": 6981,
+            "output_tokens": 204,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "e0af549d-fc75-40b1-b1f2-e324a84d11bc",
+            "action_kind": "REQUEST_FINAL",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:a3542960a3eb86912a235080cb65d82bfe16d14d901624198cc6bccb8ec917e2",
+            "based_on_decision_revision": 1
+          }
+        },
+        {
+          "id": "694bafdc-bca2-4a11-8f35-0686691de4ca",
+          "command_id": "decision:2:1",
+          "basis": 2,
+          "status": "COMPLETED",
+          "context_ref": "context:35fd49f59977622b118afb82998c5c0878137a14feadfcd11673a373346cb3e2",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:28:10.218Z",
+          "usage": {
+            "prompt_tokens": 7047,
+            "output_tokens": 324,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "b3d1b3f5-05f6-406d-b9e0-6aa85e822657",
+            "action_kind": "CLARIFY",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:35fd49f59977622b118afb82998c5c0878137a14feadfcd11673a373346cb3e2",
+            "based_on_decision_revision": 2
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "3f83ebd8-783b-40be-8f34-07f419d5b9db",
+          "proposal_id": "e0af549d-fc75-40b1-b1f2-e324a84d11bc",
+          "operation_key": "903d95d69e096be3123bdc51d65ae88e66889972ff8395e64c7e5f17f9f229f7",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:28:10.187Z",
+          "action_kind": "REQUEST_FINAL",
+          "result": {
+            "status": "NOT_ELIGIBLE",
+            "eligible": false,
+            "evaluation_status": "NOT_RUN"
+          }
+        },
+        {
+          "id": "a9e15c16-47df-47fc-a42f-c1eaaa8bb5ef",
+          "proposal_id": "b3d1b3f5-05f6-406d-b9e0-6aa85e822657",
+          "operation_key": "3a93409aaeb24639211bee7b587ffc9cbebaadfffc525fa58658ec8162a75d24",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:28:46.231Z",
+          "action_kind": "CLARIFY",
+          "result": {
+            "status": "PROPOSED_ONLY",
+            "trusted_finding": false,
+            "experiment_executed": false,
+            "external_message_sent": false
+          }
+        }
+      ],
+      "events": {
+        "record_count": 8,
+        "kind_counts": {
+          "MODEL_RESERVED": 2,
+          "MODEL_DISPATCHED": 2,
+          "MODEL_RECEIPT": 2,
+          "PROPOSAL_REGISTERED": 2
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-02/summary.json",
+            "sha256": "511e93b0a26136c85a630edaf07233d9d12d55faa8a0f13d68b99166b32a4f1e",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-02/full-evidence.json",
+            "sha256": "0a988e2c724a546e22275a1f4bf70a148fe9799e616f5bd9572b10864de34202",
+            "bytes": 374406
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-02/final-projection.json",
+            "sha256": "8992bb981d82206a4fb9e3bddb43d5064120a6b001b08cb77837f9bf1de90b83",
+            "bytes": 5205
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-02/agent-report.json",
+            "sha256": "1f2c6cc01231f144b75a73407369d27fb5cd32d245ba9ea946dcb1ccdc57262e",
+            "bytes": 5016
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-development-run-02/release-bundle.json",
+            "sha256": "efddfe69595465879743d929e5f98f4ee6c089bfaeb29e205125fda145b1b010",
+            "bytes": 106095
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 2,
+        "operation_records": 2,
+        "call_status_counts": {
+          "COMPLETED": 2
+        },
+        "proposal_action_counts": {
+          "REQUEST_FINAL": 1,
+          "CLARIFY": 1
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 14028,
+          "known_call_count": 2,
+          "missing_call_ids": [],
+          "exact_total": 14028
+        },
+        "output_tokens": {
+          "known_subtotal": 528,
+          "known_call_count": 2,
+          "missing_call_ids": [],
+          "exact_total": 528
+        },
+        "total_tokens": 14556,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "a-seed19",
+      "role": "HELD_OUT_LEDGER_ONLY",
+      "run_id": "3bdca05c-7f0b-4bc2-a602-3d22e005c72d",
+      "timestamps": {
+        "started_at": "2026-11-17T12:31:52.314585+00:00",
+        "finished_at": "2026-11-17T12:37:18.038442+00:00",
+        "ledger_exported_at": "2026-11-17T12:37:18.020Z"
+      },
+      "identity": {
+        "bundle_digest": "f45f1d3e08c53cdd1f7b746f6f34c2a2f8e9a312657f43b06113350c4ca32333",
+        "config_digest": "6f4db571c4e8776a0157adfd62562f92acf7469c4e6c4fe1375603e6a0611745",
+        "task": {
+          "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+          "candidate_sha": "3023387876abcf3fa3ff4dc18f6ecefbba995c1f",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "STOPPED",
+        "stop_reason": "CHECK_REPAIR_LIMIT",
+        "agent_outcome": "STOPPED",
+        "agent_exit_code": 0,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 3
+        },
+        "reads": {
+          "limit": 2,
+          "used": 1
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 1
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 3,
+        "reads_used": 1,
+        "no_progress": 2,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 4,
+        "event_seq": 13
+      },
+      "check_repair": {
+        "status": "EXHAUSTED",
+        "attempts_used": 1,
+        "attempts_limit": 1,
+        "root_proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+        "latest_proposal_id": "bc4cae73-c595-40d6-bd91-7f98b031464a",
+        "latest_quality": {
+          "status": "NEEDS_REVISION",
+          "binding_status": "NEEDS_REVISION",
+          "policy_version": "check-binding-v2",
+          "dispatch_qualified": false,
+          "semantic_correctness": "NOT_ESTABLISHED",
+          "issue_count": 5,
+          "issues": [
+            {
+              "code": "INPUTS_REQUIRED",
+              "path": "/payload/check_spec/control/inputs"
+            },
+            {
+              "code": "CONTROL_NOT_DISTINGUISHABLE",
+              "path": "/payload/check_spec/control/inputs"
+            },
+            {
+              "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+              "path": "/payload/check_spec/control/inputs"
+            },
+            {
+              "code": "CHANGED_FIELD_NOT_IN_DIFF",
+              "path": "/payload/check_spec/change_relation/changed_fields/0"
+            },
+            {
+              "code": "CHANGE_OUTPUT_NOT_BOUND",
+              "path": "/payload/check_spec/change_relation/output_refs"
+            }
+          ]
+        }
+      },
+      "model_calls": [
+        {
+          "id": "63981391-ec21-4e16-9c52-e851c80637bb",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:a403b8e2570648508f380287b13cc04e2bf74445f6f22330efed94f3037fba53",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:31:53.117Z",
+          "usage": {
+            "prompt_tokens": 6923,
+            "output_tokens": 256,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "82c0acf6-af33-4d00-952c-481583696368",
+            "action_kind": "READ",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:a403b8e2570648508f380287b13cc04e2bf74445f6f22330efed94f3037fba53",
+            "based_on_decision_revision": 1
+          }
+        },
+        {
+          "id": "0790b199-59d1-4d1e-bc16-39f5d01862a5",
+          "command_id": "decision:2:1",
+          "basis": 2,
+          "status": "COMPLETED",
+          "context_ref": "context:59945b134c1eeafbe3af4dff8515e9d7b618911e8cc66df2912d6327680bfd09",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:32:30.530Z",
+          "usage": {
+            "prompt_tokens": 11045,
+            "output_tokens": 1472,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+            "action_kind": "CHECK_INTENT",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:59945b134c1eeafbe3af4dff8515e9d7b618911e8cc66df2912d6327680bfd09",
+            "based_on_decision_revision": 2
+          }
+        },
+        {
+          "id": "7414d40c-47c9-4456-8c25-b11a643d86dc",
+          "command_id": "decision:3:2",
+          "basis": 3,
+          "status": "COMPLETED",
+          "context_ref": "context:02cdfda2cd95c5ab73c7bf1cdb8ad4386ed8ca44ba69cecf26106144dde50deb",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:34:49.400Z",
+          "usage": {
+            "prompt_tokens": 12257,
+            "output_tokens": 1470,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "bc4cae73-c595-40d6-bd91-7f98b031464a",
+            "action_kind": "CHECK_INTENT",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:02cdfda2cd95c5ab73c7bf1cdb8ad4386ed8ca44ba69cecf26106144dde50deb",
+            "based_on_decision_revision": 3
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "8b2a797c-8881-48fe-90bf-fc805497dc48",
+          "proposal_id": "82c0acf6-af33-4d00-952c-481583696368",
+          "operation_key": "4279c60063f697e5cfa34d87b0d07334ada1f11fc50309843d35454bd8172130",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:32:30.502Z",
+          "action_kind": "READ",
+          "result": {
+            "status": "COMPLETED",
+            "proves_current_business_behavior": false
+          }
+        },
+        {
+          "id": "5fb6946e-11d0-40f5-8dd9-36f45673cd3f",
+          "proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+          "operation_key": "58f0f91bec2a290d53a397f493eae453a00e8ddabfda9d1cb12fdcef852e7373",
+          "status": "REJECTED",
+          "created_at": "2026-11-17T12:34:49.333Z",
+          "action_kind": "CHECK_INTENT",
+          "result": {
+            "status": "NEEDS_REVISION",
+            "error_code": "CHECK_SPEC_INCOMPLETE",
+            "quality": {
+              "status": "NEEDS_REVISION",
+              "binding_status": "NEEDS_REVISION",
+              "policy_version": "check-binding-v2",
+              "dispatch_qualified": false,
+              "semantic_correctness": "NOT_ESTABLISHED",
+              "issue_count": 5,
+              "issues": [
+                {
+                  "code": "INPUTS_REQUIRED",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                  "path": "/payload/check_spec/change_relation/changed_fields/0"
+                },
+                {
+                  "code": "CHANGE_OUTPUT_NOT_BOUND",
+                  "path": "/payload/check_spec/change_relation/output_refs"
+                }
+              ]
+            },
+            "repair": {
+              "limit": 1,
+              "attempt": 0,
+              "root_proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+              "previous_proposal_id": null
+            }
+          }
+        },
+        {
+          "id": "51267c2c-f8f0-4529-b3b7-356ea439c88f",
+          "proposal_id": "bc4cae73-c595-40d6-bd91-7f98b031464a",
+          "operation_key": "7faf7c4447d3ed037bba96e0d0f854cc355ddb25402d2e00159d9dfc3fb9e739",
+          "status": "REJECTED",
+          "created_at": "2026-11-17T12:37:17.666Z",
+          "action_kind": "CHECK_INTENT",
+          "result": {
+            "status": "NEEDS_REVISION",
+            "error_code": "CHECK_SPEC_INCOMPLETE",
+            "quality": {
+              "status": "NEEDS_REVISION",
+              "binding_status": "NEEDS_REVISION",
+              "policy_version": "check-binding-v2",
+              "dispatch_qualified": false,
+              "semantic_correctness": "NOT_ESTABLISHED",
+              "issue_count": 5,
+              "issues": [
+                {
+                  "code": "INPUTS_REQUIRED",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                  "path": "/payload/check_spec/change_relation/changed_fields/0"
+                },
+                {
+                  "code": "CHANGE_OUTPUT_NOT_BOUND",
+                  "path": "/payload/check_spec/change_relation/output_refs"
+                }
+              ]
+            },
+            "repair": {
+              "limit": 1,
+              "attempt": 1,
+              "root_proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c",
+              "previous_proposal_id": "5dbd1d56-4c06-4492-991d-cf3252cd7e3c"
+            }
+          }
+        }
+      ],
+      "events": {
+        "record_count": 13,
+        "kind_counts": {
+          "MODEL_RESERVED": 3,
+          "MODEL_DISPATCHED": 3,
+          "MODEL_RECEIPT": 3,
+          "PROPOSAL_REGISTERED": 3,
+          "READ_RECEIPT": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed19/summary.json",
+            "sha256": "de03d6787aabdbd1b5a759cd925e7970b7be5e88de3827857b7cb53b8880279c",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed19/full-evidence.json",
+            "sha256": "c095305c6d990f1bebe2ae887f6777651e7a1c7feea8b4d98f09127a755047d4",
+            "bytes": 656000
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed19/final-projection.json",
+            "sha256": "763d8720766550c7c6dcc2737c588d0bc8224a7d8943e09c9d0df0e7ff2975c3",
+            "bytes": 35989
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed19/agent-report.json",
+            "sha256": "6d9e454c97720901f8ce45b858117a7eba3f8d3779176ea6a57cfc820bcb044c",
+            "bytes": 37843
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed19/release-bundle.json",
+            "sha256": "c36c0b26cd168af86961f9b279d148467b2e00eb14cb59376673684548defd11",
+            "bytes": 105946
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 3,
+        "operation_records": 3,
+        "call_status_counts": {
+          "COMPLETED": 3
+        },
+        "proposal_action_counts": {
+          "READ": 1,
+          "CHECK_INTENT": 2
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 30225,
+          "known_call_count": 3,
+          "missing_call_ids": [],
+          "exact_total": 30225
+        },
+        "output_tokens": {
+          "known_subtotal": 3198,
+          "known_call_count": 3,
+          "missing_call_ids": [],
+          "exact_total": 3198
+        },
+        "total_tokens": 33423,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "a-seed31",
+      "role": "HELD_OUT_LEDGER_ONLY",
+      "run_id": "e66d967d-81d1-40b3-bf42-05b525aec016",
+      "timestamps": {
+        "started_at": "2026-11-17T12:37:18.123523+00:00",
+        "finished_at": "2026-11-17T12:42:27.088219+00:00",
+        "ledger_exported_at": "2026-11-17T12:42:27.073Z"
+      },
+      "identity": {
+        "bundle_digest": "f45f1d3e08c53cdd1f7b746f6f34c2a2f8e9a312657f43b06113350c4ca32333",
+        "config_digest": "6e2a28acbb5a21de7c1440dac451a448b8a86a71bc18f74e5574dfbaf7e3edb4",
+        "task": {
+          "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+          "candidate_sha": "3023387876abcf3fa3ff4dc18f6ecefbba995c1f",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "STOPPED",
+        "stop_reason": "CHECK_REPAIR_LIMIT",
+        "agent_outcome": "STOPPED",
+        "agent_exit_code": 0,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 3
+        },
+        "reads": {
+          "limit": 2,
+          "used": 1
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 1
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 3,
+        "reads_used": 1,
+        "no_progress": 2,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 4,
+        "event_seq": 13
+      },
+      "check_repair": {
+        "status": "EXHAUSTED",
+        "attempts_used": 1,
+        "attempts_limit": 1,
+        "root_proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+        "latest_proposal_id": "e0a6b637-088d-4767-b6ea-9c3be9d4988b",
+        "latest_quality": {
+          "status": "NEEDS_REVISION",
+          "binding_status": "NEEDS_REVISION",
+          "policy_version": "check-binding-v2",
+          "dispatch_qualified": false,
+          "semantic_correctness": "NOT_ESTABLISHED",
+          "issue_count": 5,
+          "issues": [
+            {
+              "code": "INPUTS_REQUIRED",
+              "path": "/payload/check_spec/control/inputs"
+            },
+            {
+              "code": "CONTROL_NOT_DISTINGUISHABLE",
+              "path": "/payload/check_spec/control/inputs"
+            },
+            {
+              "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+              "path": "/payload/check_spec/control/inputs"
+            },
+            {
+              "code": "CHANGED_FIELD_NOT_IN_DIFF",
+              "path": "/payload/check_spec/change_relation/changed_fields/0"
+            },
+            {
+              "code": "CHANGE_OUTPUT_NOT_BOUND",
+              "path": "/payload/check_spec/change_relation/output_refs"
+            }
+          ]
+        }
+      },
+      "model_calls": [
+        {
+          "id": "b3388466-2b19-4618-a3f7-3c10213ee863",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:fa4a221095a91d421cdd56e752e6924922af8b04d4a494cec24ec4ed09b757d4",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:37:19.098Z",
+          "usage": {
+            "prompt_tokens": 6923,
+            "output_tokens": 256,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 31,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "91ea5bd7-c1c1-4e26-a15d-430ac3e59969",
+            "action_kind": "READ",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:fa4a221095a91d421cdd56e752e6924922af8b04d4a494cec24ec4ed09b757d4",
+            "based_on_decision_revision": 1
+          }
+        },
+        {
+          "id": "febfbe50-ab67-4da9-b459-9d5ee47285d8",
+          "command_id": "decision:2:1",
+          "basis": 2,
+          "status": "COMPLETED",
+          "context_ref": "context:63ebdb28bc00d1f431771393d3bb07662b954bc176a74a22e8e5ccae695dd25a",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:37:55.711Z",
+          "usage": {
+            "prompt_tokens": 11051,
+            "output_tokens": 1448,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 31,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+            "action_kind": "CHECK_INTENT",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:63ebdb28bc00d1f431771393d3bb07662b954bc176a74a22e8e5ccae695dd25a",
+            "based_on_decision_revision": 2
+          }
+        },
+        {
+          "id": "3674afe9-5f2e-48e0-b214-10f1bff3debe",
+          "command_id": "decision:3:2",
+          "basis": 3,
+          "status": "COMPLETED",
+          "context_ref": "context:679bddb1bfb5ceabefdbf6c482ad3d02e1a8e5940199d51e3ea87e4f882c9394",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:40:10.714Z",
+          "usage": {
+            "prompt_tokens": 12243,
+            "output_tokens": 1307,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 31,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "e0a6b637-088d-4767-b6ea-9c3be9d4988b",
+            "action_kind": "CHECK_INTENT",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:679bddb1bfb5ceabefdbf6c482ad3d02e1a8e5940199d51e3ea87e4f882c9394",
+            "based_on_decision_revision": 3
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "3a537784-c56a-4129-b457-6bc03808aa69",
+          "proposal_id": "91ea5bd7-c1c1-4e26-a15d-430ac3e59969",
+          "operation_key": "4279c60063f697e5cfa34d87b0d07334ada1f11fc50309843d35454bd8172130",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:37:55.679Z",
+          "action_kind": "READ",
+          "result": {
+            "status": "COMPLETED",
+            "proves_current_business_behavior": false
+          }
+        },
+        {
+          "id": "f3ed932e-4edf-46e0-b5a5-d6ea49595834",
+          "proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+          "operation_key": "8063bc00f7fc31a098783f8cbf17125de5be1364b5117c7bb996b142fb719e92",
+          "status": "REJECTED",
+          "created_at": "2026-11-17T12:40:10.681Z",
+          "action_kind": "CHECK_INTENT",
+          "result": {
+            "status": "NEEDS_REVISION",
+            "error_code": "CHECK_SPEC_INCOMPLETE",
+            "quality": {
+              "status": "NEEDS_REVISION",
+              "binding_status": "NEEDS_REVISION",
+              "policy_version": "check-binding-v2",
+              "dispatch_qualified": false,
+              "semantic_correctness": "NOT_ESTABLISHED",
+              "issue_count": 5,
+              "issues": [
+                {
+                  "code": "INPUTS_REQUIRED",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                  "path": "/payload/check_spec/change_relation/changed_fields/0"
+                },
+                {
+                  "code": "CHANGE_OUTPUT_NOT_BOUND",
+                  "path": "/payload/check_spec/change_relation/output_refs"
+                }
+              ]
+            },
+            "repair": {
+              "limit": 1,
+              "attempt": 0,
+              "root_proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+              "previous_proposal_id": null
+            }
+          }
+        },
+        {
+          "id": "4101f363-643c-4535-a15a-2a3fe674f57a",
+          "proposal_id": "e0a6b637-088d-4767-b6ea-9c3be9d4988b",
+          "operation_key": "ff62f7d1cdde524117a3f34b5878314b2b892043f084778c1345f87431db048a",
+          "status": "REJECTED",
+          "created_at": "2026-11-17T12:42:26.749Z",
+          "action_kind": "CHECK_INTENT",
+          "result": {
+            "status": "NEEDS_REVISION",
+            "error_code": "CHECK_SPEC_INCOMPLETE",
+            "quality": {
+              "status": "NEEDS_REVISION",
+              "binding_status": "NEEDS_REVISION",
+              "policy_version": "check-binding-v2",
+              "dispatch_qualified": false,
+              "semantic_correctness": "NOT_ESTABLISHED",
+              "issue_count": 5,
+              "issues": [
+                {
+                  "code": "INPUTS_REQUIRED",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "BOUND_CONTROL_NOT_DISTINGUISHABLE",
+                  "path": "/payload/check_spec/control/inputs"
+                },
+                {
+                  "code": "CHANGED_FIELD_NOT_IN_DIFF",
+                  "path": "/payload/check_spec/change_relation/changed_fields/0"
+                },
+                {
+                  "code": "CHANGE_OUTPUT_NOT_BOUND",
+                  "path": "/payload/check_spec/change_relation/output_refs"
+                }
+              ]
+            },
+            "repair": {
+              "limit": 1,
+              "attempt": 1,
+              "root_proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca",
+              "previous_proposal_id": "31190ed9-64c3-481d-8d78-db35c4645cca"
+            }
+          }
+        }
+      ],
+      "events": {
+        "record_count": 13,
+        "kind_counts": {
+          "MODEL_RESERVED": 3,
+          "MODEL_DISPATCHED": 3,
+          "MODEL_RECEIPT": 3,
+          "PROPOSAL_REGISTERED": 3,
+          "READ_RECEIPT": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed31/summary.json",
+            "sha256": "73c8387d310ef18e522d5d675f2d0d41f4cd0d064ab548304c11b4e3a381be00",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed31/full-evidence.json",
+            "sha256": "d7bafed0fdc16bead668a75a64a197e119cdc2751ae491a9d8d70dde07f7ccb9",
+            "bytes": 654040
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed31/final-projection.json",
+            "sha256": "5b9620be5f17662d11f1369113abde1c1bc6aebede5678a2b79d61036b3df11f",
+            "bytes": 35547
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed31/agent-report.json",
+            "sha256": "b0ba38b3b158535532fae7d76e5835933fedc1fd6406ee658d0a40b8e44201d1",
+            "bytes": 37369
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-a-seed31/release-bundle.json",
+            "sha256": "c36c0b26cd168af86961f9b279d148467b2e00eb14cb59376673684548defd11",
+            "bytes": 105946
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 3,
+        "operation_records": 3,
+        "call_status_counts": {
+          "COMPLETED": 3
+        },
+        "proposal_action_counts": {
+          "READ": 1,
+          "CHECK_INTENT": 2
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 30217,
+          "known_call_count": 3,
+          "missing_call_ids": [],
+          "exact_total": 30217
+        },
+        "output_tokens": {
+          "known_subtotal": 3011,
+          "known_call_count": 3,
+          "missing_call_ids": [],
+          "exact_total": 3011
+        },
+        "total_tokens": 33228,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "b-seed19",
+      "role": "HELD_OUT_LEDGER_ONLY",
+      "run_id": "b6ccd2d1-6db4-43d1-abf5-db6067b20892",
+      "timestamps": {
+        "started_at": "2026-11-17T12:42:27.189369+00:00",
+        "finished_at": "2026-11-17T12:43:08.393539+00:00",
+        "ledger_exported_at": "2026-11-17T12:43:08.378Z"
+      },
+      "identity": {
+        "bundle_digest": "bf4e1ee11361ad41bd7df4b083cf8075c5756cf38165c72b449fbc0002674293",
+        "config_digest": "c1477d99f41c651a34a658d3fd28543280e4cd121a665ce807e66c4fd4483204",
+        "task": {
+          "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+          "candidate_sha": "4b2cbbe133469ea4df985e5e9529a1599dd54e41",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "BLOCKED",
+        "stop_reason": "CLARIFICATION_REQUIRED",
+        "agent_outcome": "BLOCKED",
+        "agent_exit_code": 2,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 1
+        },
+        "reads": {
+          "limit": 2,
+          "used": 0
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 0
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 1,
+        "reads_used": 0,
+        "no_progress": 1,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 2,
+        "event_seq": 4
+      },
+      "check_repair": null,
+      "model_calls": [
+        {
+          "id": "4e8e14fe-4184-4ee4-b18d-57ead72bda98",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:e6cdb3378966e2b3619d4a4d35f0c5f7182fb07a78aa531be75d281501c8af5c",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:42:28.134Z",
+          "usage": {
+            "prompt_tokens": 6992,
+            "output_tokens": 307,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "419d215e-2229-4c10-bb1f-f6d0fb15b1e6",
+            "action_kind": "CLARIFY",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:e6cdb3378966e2b3619d4a4d35f0c5f7182fb07a78aa531be75d281501c8af5c",
+            "based_on_decision_revision": 1
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "4e195a1e-a9ba-46e9-85d3-9e75d6fb693a",
+          "proposal_id": "419d215e-2229-4c10-bb1f-f6d0fb15b1e6",
+          "operation_key": "58fd4e208702db405d2eaf3c4c161c2af63ac8054dd2fb95786bc8f853ec8f67",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:43:08.089Z",
+          "action_kind": "CLARIFY",
+          "result": {
+            "status": "PROPOSED_ONLY",
+            "trusted_finding": false,
+            "experiment_executed": false,
+            "external_message_sent": false
+          }
+        }
+      ],
+      "events": {
+        "record_count": 4,
+        "kind_counts": {
+          "MODEL_RESERVED": 1,
+          "MODEL_DISPATCHED": 1,
+          "MODEL_RECEIPT": 1,
+          "PROPOSAL_REGISTERED": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed19/summary.json",
+            "sha256": "9054a846186808bdf0bbc98b6bf8ff121829ea82fb44e558ff9883f53617cbd3",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed19/full-evidence.json",
+            "sha256": "284058add667d05027a10dcab4de123dc3914aa46a411d42a0648ccb92cfea10",
+            "bytes": 246315
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed19/final-projection.json",
+            "sha256": "39a117abecff1206a060173e897283e8cbd18195799018fc27db83c4357d705a",
+            "bytes": 4627
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed19/agent-report.json",
+            "sha256": "a62c103dc1da25264e3e13ad64447318352f7c077a21de5d577b3d8d54283c7c",
+            "bytes": 3874
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed19/release-bundle.json",
+            "sha256": "55a04d273a49ff11456b9b771e300eea4a612353ad72b74a028a3c7d785242ae",
+            "bytes": 106100
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 1,
+        "operation_records": 1,
+        "call_status_counts": {
+          "COMPLETED": 1
+        },
+        "proposal_action_counts": {
+          "CLARIFY": 1
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 6992,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 6992
+        },
+        "output_tokens": {
+          "known_subtotal": 307,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 307
+        },
+        "total_tokens": 7299,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "b-seed31",
+      "role": "HELD_OUT_LEDGER_ONLY",
+      "run_id": "8926de0b-364e-4d03-b952-75ceb607a61b",
+      "timestamps": {
+        "started_at": "2026-11-17T12:43:08.477584+00:00",
+        "finished_at": "2026-11-17T12:43:50.199422+00:00",
+        "ledger_exported_at": "2026-11-17T12:43:50.184Z"
+      },
+      "identity": {
+        "bundle_digest": "bf4e1ee11361ad41bd7df4b083cf8075c5756cf38165c72b449fbc0002674293",
+        "config_digest": "de23f8f143314b136a371d820b26ab148e32edb02cd9b1172e3c0d4d75c7676f",
+        "task": {
+          "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+          "candidate_sha": "4b2cbbe133469ea4df985e5e9529a1599dd54e41",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "BLOCKED",
+        "stop_reason": "CLARIFICATION_REQUIRED",
+        "agent_outcome": "BLOCKED",
+        "agent_exit_code": 2,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 1
+        },
+        "reads": {
+          "limit": 2,
+          "used": 0
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 0
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 1,
+        "reads_used": 0,
+        "no_progress": 1,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 2,
+        "event_seq": 4
+      },
+      "check_repair": null,
+      "model_calls": [
+        {
+          "id": "d09e1a3d-419d-4063-bef7-033f4fdf2329",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:dc9539965dd95d461d123ae863021306e0cf626fd7fce82bf7f702af9ee635b0",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:43:09.403Z",
+          "usage": {
+            "prompt_tokens": 6992,
+            "output_tokens": 307,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 31,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "b73cc131-6401-43b7-a5ff-652da91acb3b",
+            "action_kind": "CLARIFY",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:dc9539965dd95d461d123ae863021306e0cf626fd7fce82bf7f702af9ee635b0",
+            "based_on_decision_revision": 1
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "75a8f4a2-7bd8-4d6d-ae18-c4070641418a",
+          "proposal_id": "b73cc131-6401-43b7-a5ff-652da91acb3b",
+          "operation_key": "b12ce714736db56441744a42726e3d643261a5bd7cca92ad5a795af93ffcbbbb",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:43:49.876Z",
+          "action_kind": "CLARIFY",
+          "result": {
+            "status": "PROPOSED_ONLY",
+            "trusted_finding": false,
+            "experiment_executed": false,
+            "external_message_sent": false
+          }
+        }
+      ],
+      "events": {
+        "record_count": 4,
+        "kind_counts": {
+          "MODEL_RESERVED": 1,
+          "MODEL_DISPATCHED": 1,
+          "MODEL_RECEIPT": 1,
+          "PROPOSAL_REGISTERED": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed31/summary.json",
+            "sha256": "23b011be54df8d9028f3aed433d172398e8bad978180c1fb1d9b70983ed55e2c",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed31/full-evidence.json",
+            "sha256": "080e200bd00ecc38c364bea23b9b50947723792641622c48f54bab420b60243c",
+            "bytes": 246315
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed31/final-projection.json",
+            "sha256": "227d26f707c81ec7d6d9518a5311eee1c4df3d008d0afaacb175989ea606e7ae",
+            "bytes": 4627
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed31/agent-report.json",
+            "sha256": "6781266b082c8355471fc28c94f54a0fc001f2d7fb221a445bc7ab50c2fe0cda",
+            "bytes": 3874
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-b-seed31/release-bundle.json",
+            "sha256": "55a04d273a49ff11456b9b771e300eea4a612353ad72b74a028a3c7d785242ae",
+            "bytes": 106100
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 1,
+        "operation_records": 1,
+        "call_status_counts": {
+          "COMPLETED": 1
+        },
+        "proposal_action_counts": {
+          "CLARIFY": 1
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 6992,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 6992
+        },
+        "output_tokens": {
+          "known_subtotal": 307,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 307
+        },
+        "total_tokens": 7299,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "c-seed19",
+      "role": "HELD_OUT_LEDGER_ONLY",
+      "run_id": "12cef18e-49ba-438a-825c-ad5b91a45d4a",
+      "timestamps": {
+        "started_at": "2026-11-17T12:43:50.283523+00:00",
+        "finished_at": "2026-11-17T12:44:33.466532+00:00",
+        "ledger_exported_at": "2026-11-17T12:44:33.451Z"
+      },
+      "identity": {
+        "bundle_digest": "e4502b6ea5108931cafcdd3406d282fe50ac04c06c402c67bbd62bb1975655d8",
+        "config_digest": "019d14d209e21d2377a41a06217862ae4c82c50536c44a100d44b5602b16e465",
+        "task": {
+          "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+          "candidate_sha": "44391bd7929dc2ecf1a88221232d137ec8388c91",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "BLOCKED",
+        "stop_reason": "CLARIFICATION_REQUIRED",
+        "agent_outcome": "BLOCKED",
+        "agent_exit_code": 2,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 1
+        },
+        "reads": {
+          "limit": 2,
+          "used": 0
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 0
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 1,
+        "reads_used": 0,
+        "no_progress": 1,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 2,
+        "event_seq": 4
+      },
+      "check_repair": null,
+      "model_calls": [
+        {
+          "id": "bd5cc45d-b196-47f1-aaa6-e763e0f8c9ab",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:4443fa85b0f941b365cbcd14237b2f6327b6e6afdf0594a3d32492815014cd64",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:43:51.230Z",
+          "usage": {
+            "prompt_tokens": 7047,
+            "output_tokens": 317,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 19,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "8037091c-a8fb-46d6-aa4d-1e23e48836eb",
+            "action_kind": "CLARIFY",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:4443fa85b0f941b365cbcd14237b2f6327b6e6afdf0594a3d32492815014cd64",
+            "based_on_decision_revision": 1
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "c3fdd567-e92f-4d4b-ba01-16251c05c8b7",
+          "proposal_id": "8037091c-a8fb-46d6-aa4d-1e23e48836eb",
+          "operation_key": "29711c22f9e8b0166c31f14fc9703290e80954727a5ff547ec0dc87ced18a4d6",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:44:33.104Z",
+          "action_kind": "CLARIFY",
+          "result": {
+            "status": "PROPOSED_ONLY",
+            "trusted_finding": false,
+            "experiment_executed": false,
+            "external_message_sent": false
+          }
+        }
+      ],
+      "events": {
+        "record_count": 4,
+        "kind_counts": {
+          "MODEL_RESERVED": 1,
+          "MODEL_DISPATCHED": 1,
+          "MODEL_RECEIPT": 1,
+          "PROPOSAL_REGISTERED": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed19/summary.json",
+            "sha256": "c2989c6c27501fb676244d5c5cda51a28493984837deb0555008ef91c324c727",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed19/full-evidence.json",
+            "sha256": "97a884059836cd11202ea6480611041b7bff0c55c576b089dea6ccac0b9c2589",
+            "bytes": 247271
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed19/final-projection.json",
+            "sha256": "d85a8420130e011e992a7e87eb6b6231d878d35d0b77fca33bd6d20ecc29842f",
+            "bytes": 4813
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed19/agent-report.json",
+            "sha256": "b32b18a4369aaaebae5aae40a6cf0cac00a4185c701484ce04312d52d0d62e15",
+            "bytes": 4060
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed19/release-bundle.json",
+            "sha256": "a19714ab328b92d0d9bbb14db596272e5ba7dececb5300e9f9e14f47148fd27a",
+            "bytes": 106285
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 1,
+        "operation_records": 1,
+        "call_status_counts": {
+          "COMPLETED": 1
+        },
+        "proposal_action_counts": {
+          "CLARIFY": 1
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 7047,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 7047
+        },
+        "output_tokens": {
+          "known_subtotal": 317,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 317
+        },
+        "total_tokens": 7364,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    },
+    {
+      "label": "c-seed31",
+      "role": "HELD_OUT_LEDGER_ONLY",
+      "run_id": "2616ba23-fe41-4b1c-a0d5-c8cf3d8a020f",
+      "timestamps": {
+        "started_at": "2026-11-17T12:44:33.545652+00:00",
+        "finished_at": "2026-11-17T12:45:16.752725+00:00",
+        "ledger_exported_at": "2026-11-17T12:45:16.735Z"
+      },
+      "identity": {
+        "bundle_digest": "e4502b6ea5108931cafcdd3406d282fe50ac04c06c402c67bbd62bb1975655d8",
+        "config_digest": "5a7d2a1866fc74e27157620ed30a0c519b27fbbc918bfb93dc77df356da049d5",
+        "task": {
+          "baseline_sha": "6535585621e87df8a97956109452ad8c5a12f620",
+          "candidate_sha": "44391bd7929dc2ecf1a88221232d137ec8388c91",
+          "catalog_commit": "6b1d4815b4178c070f4442edfc2b5606069a3f11",
+          "scope": "LOCAL_SYNTHETIC_PLANNING",
+          "input_provenance": "CALIBRATION_SYNTHETIC"
+        },
+        "runtime": {
+          "model_name": "mistral:latest",
+          "module_sha256": {
+            "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+            "store.js": "d3f3d06039c078b322ee1fdd5103d84bba5757e79576304c53f0192013168ada",
+            "types.js": "904bf9defc4bf249e593841afb74380f695ae8089a033c8cc3e118e0377d10b4",
+            "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+            "context.js": "a1c2cde95d020683a13d86aecc6b71c8ac1c3edb36ad7a016a627d69574777cc",
+            "runtime.js": "71633fdb8c95c304358ce85b8a58713f867435291b147bc0764c45fd03667318",
+            "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+            "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+            "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+            "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+          },
+          "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+          "runtime_build_sha256": "830ab6497f26f8b2ed510375cd4ff2dd1825f7b5f775f39abcb9e1ef06bd51e9",
+          "model_manifest_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "planner_prompt_sha256": "a44f48314b4b49d45fa55eb8a0527a686a95d9eafa45e62e53a6db43e2da2b79",
+          "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54"
+        },
+        "model": {
+          "name": "mistral:latest",
+          "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+          "owned_server": true
+        }
+      },
+      "terminal": {
+        "launcher_status": "INCOMPLETE",
+        "runtime_status": "BLOCKED",
+        "stop_reason": "CLARIFICATION_REQUIRED",
+        "agent_outcome": "BLOCKED",
+        "agent_exit_code": 2,
+        "exit_code": 2,
+        "scope": "LOCAL_SYNTHETIC_PLANNING",
+        "business_verdict": "NOT_EVALUATED",
+        "final_eligibility": {
+          "eligible": false,
+          "evaluation_status": "NOT_RUN",
+          "gaps": [
+            "BUSINESS_EXECUTION_NOT_ENABLED",
+            "MANDATORY_COVERAGE_MISSING",
+            "FINAL_EVALUATOR_NOT_CONNECTED"
+          ]
+        }
+      },
+      "budget_accounting": {
+        "model_calls": {
+          "limit": 4,
+          "used": 1
+        },
+        "reads": {
+          "limit": 2,
+          "used": 0
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 1,
+          "used": 0
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 3,
+          "CHECK_REPAIR": 1,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "state_counters": {
+        "model_calls_used": 1,
+        "reads_used": 0,
+        "no_progress": 1,
+        "candidate_epoch": 1,
+        "decision_basis_revision": 2,
+        "event_seq": 4
+      },
+      "check_repair": null,
+      "model_calls": [
+        {
+          "id": "17540c9d-982e-41c6-8940-a643246274c8",
+          "command_id": "decision:1:0",
+          "basis": 1,
+          "status": "COMPLETED",
+          "context_ref": "context:5de49192fc0a992be4cd186e6e22640d891e177db07f18ebf642465b3b593760",
+          "error_code": null,
+          "applied": true,
+          "created_at": "2026-11-17T12:44:34.512Z",
+          "usage": {
+            "prompt_tokens": 7047,
+            "output_tokens": 317,
+            "cost": null,
+            "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+            "missing_fields": [],
+            "usage_record_present": true
+          },
+          "model_request_settings": {
+            "model": "mistral:latest",
+            "stream": false,
+            "keep_alive": "5m",
+            "options": {
+              "seed": 31,
+              "num_ctx": 16384,
+              "num_predict": 3000,
+              "temperature": 0
+            }
+          },
+          "proposal_present": true,
+          "proposal": {
+            "proposal_id": "ea33de3b-ea0f-4f59-b98b-14dc24fcf09e",
+            "action_kind": "CLARIFY",
+            "schema_version": 1,
+            "candidate_epoch": 1,
+            "context_view_ref": "context:5de49192fc0a992be4cd186e6e22640d891e177db07f18ebf642465b3b593760",
+            "based_on_decision_revision": 1
+          }
+        }
+      ],
+      "operations": [
+        {
+          "id": "57814f8d-9d50-417f-babc-a5d69340366f",
+          "proposal_id": "ea33de3b-ea0f-4f59-b98b-14dc24fcf09e",
+          "operation_key": "86c78b9ce6df575b15afc58dc4366e425a13cb95fa3d08745fb3c56ca1757b56",
+          "status": "COMPLETED",
+          "created_at": "2026-11-17T12:45:16.445Z",
+          "action_kind": "CLARIFY",
+          "result": {
+            "status": "PROPOSED_ONLY",
+            "trusted_finding": false,
+            "experiment_executed": false,
+            "external_message_sent": false
+          }
+        }
+      ],
+      "events": {
+        "record_count": 4,
+        "kind_counts": {
+          "MODEL_RESERVED": 1,
+          "MODEL_DISPATCHED": 1,
+          "MODEL_RECEIPT": 1,
+          "PROPOSAL_REGISTERED": 1
+        }
+      },
+      "evidence": {
+        "ledger_export_status": "EXPORTED_FULL_LOCAL_RUN",
+        "files": [
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed31/summary.json",
+            "sha256": "f7f1a2a61030580f24e58b3e9179d7ff76158793fd1a72ad82f4f4f359a385f5",
+            "bytes": 2536
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed31/full-evidence.json",
+            "sha256": "900f0c6d0f6edf2ec8cc67138cf5c3f2d98a64aea2d2d70fd9f4b20877e4eea3",
+            "bytes": 247271
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed31/final-projection.json",
+            "sha256": "f2e190bd122ca5cb95a715607a52140926117101906dbd45ed3943300d908c9f",
+            "bytes": 4813
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed31/agent-report.json",
+            "sha256": "080a220b6b40faeb302a964e9e310b804e46454d1abd29c1380d3c93a47b6103",
+            "bytes": 4060
+          },
+          {
+            "path": "artifacts/verify-agent/20261117-binding-c-seed31/release-bundle.json",
+            "sha256": "a19714ab328b92d0d9bbb14db596272e5ba7dececb5300e9f9e14f47148fd27a",
+            "bytes": 106285
+          }
+        ],
+        "original_proposals_and_raw_responses_retained_in_full_evidence": true,
+        "raw_model_inputs_outputs_in_this_report": false
+      },
+      "usage_totals": {
+        "run_count": 1,
+        "model_call_records": 1,
+        "operation_records": 1,
+        "call_status_counts": {
+          "COMPLETED": 1
+        },
+        "proposal_action_counts": {
+          "CLARIFY": 1
+        },
+        "calls_with_unknown_usage": [],
+        "cost": null,
+        "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+        "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+        "prompt_tokens": {
+          "known_subtotal": 7047,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 7047
+        },
+        "output_tokens": {
+          "known_subtotal": 317,
+          "known_call_count": 1,
+          "missing_call_ids": [],
+          "exact_total": 317
+        },
+        "total_tokens": 7364,
+        "token_usage_complete": true
+      },
+      "model_matches_frozen_name_and_digest": true
+    }
+  ],
+  "totals": {
+    "run_count": 8,
+    "model_call_records": 13,
+    "operation_records": 13,
+    "call_status_counts": {
+      "COMPLETED": 13
+    },
+    "proposal_action_counts": {
+      "NOVEL_CHECK": 1,
+      "REQUEST_FINAL": 1,
+      "CLARIFY": 5,
+      "READ": 2,
+      "CHECK_INTENT": 4
+    },
+    "calls_with_unknown_usage": [],
+    "cost": null,
+    "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+    "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+    "prompt_tokens": {
+      "known_subtotal": 109507,
+      "known_call_count": 13,
+      "missing_call_ids": [],
+      "exact_total": 109507
+    },
+    "output_tokens": {
+      "known_subtotal": 8405,
+      "known_call_count": 13,
+      "missing_call_ids": [],
+      "exact_total": 8405
+    },
+    "total_tokens": 117912,
+    "token_usage_complete": true
+  },
+  "group_totals": {
+    "PUBLIC_DEVELOPMENT": {
+      "run_count": 2,
+      "model_call_records": 3,
+      "operation_records": 3,
+      "call_status_counts": {
+        "COMPLETED": 3
+      },
+      "proposal_action_counts": {
+        "NOVEL_CHECK": 1,
+        "REQUEST_FINAL": 1,
+        "CLARIFY": 1
+      },
+      "calls_with_unknown_usage": [],
+      "cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+      "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+      "prompt_tokens": {
+        "known_subtotal": 20987,
+        "known_call_count": 3,
+        "missing_call_ids": [],
+        "exact_total": 20987
+      },
+      "output_tokens": {
+        "known_subtotal": 948,
+        "known_call_count": 3,
+        "missing_call_ids": [],
+        "exact_total": 948
+      },
+      "total_tokens": 21935,
+      "token_usage_complete": true
+    },
+    "HELD_OUT_LEDGER_ONLY": {
+      "run_count": 6,
+      "model_call_records": 10,
+      "operation_records": 10,
+      "call_status_counts": {
+        "COMPLETED": 10
+      },
+      "proposal_action_counts": {
+        "READ": 2,
+        "CHECK_INTENT": 4,
+        "CLARIFY": 4
+      },
+      "calls_with_unknown_usage": [],
+      "cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+      "cost_note": "本地模型账本没有供应商计费，实际金额未知；null 不能解释为零成本。",
+      "prompt_tokens": {
+        "known_subtotal": 88520,
+        "known_call_count": 10,
+        "missing_call_ids": [],
+        "exact_total": 88520
+      },
+      "output_tokens": {
+        "known_subtotal": 7457,
+        "known_call_count": 10,
+        "missing_call_ids": [],
+        "exact_total": 7457
+      },
+      "total_tokens": 95977,
+      "token_usage_complete": true
+    }
+  }
+}

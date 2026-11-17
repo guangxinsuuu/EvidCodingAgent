@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "finished_at": "2026-11-17T12:46:49.116786+00:00",
+  "postgres": {
+    "container_id": "d3262f06fb9ddc56f676769299bb2de1f18fa36c04718b295b9324afa540058e",
+    "name": "egap-verify-dev-20261112",
+    "owner_label": "verify-v01-validation",
+    "before_this_task": "stopped",
+    "after_validation": "exited",
+    "action": "STOP_OWNED_VALIDATION_CONTAINER",
+    "database_preserved": true
+  },
+  "model_runtime_graph_processes": "ALL_EIGHT_RUNS_DRIVER_OWNED_PROCESSES_CLEANED_SEE_SUMMARIES",
+  "other_business_resources_changed": false,
+  "implementation_integrity": {
+    "freeze_path": "artifacts/verify-agent/20261117-binding-validation/implementation-freeze.json",
+    "freeze_sha256": "846beec299714d93e1352470fa2765401ced07ed04de9ddbfcc41a3f92553af5",
+    "files_checked": 104,
+    "mismatches": []
+  },
+  "docs_readme_yaml_sut_changes": false
+}

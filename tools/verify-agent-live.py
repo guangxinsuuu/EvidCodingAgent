@@ -210,6 +210,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="0–2 次 CHECK 修正调用，包含在模型总调用额度内；不得由 READ 重置")
     parser.add_argument("--model-timeout-seconds", type=int, default=180)
     parser.add_argument("--max-output-tokens", type=int, default=2000)
+    parser.add_argument("--seed", type=int, default=19, help="冻结的本地生成seed；不在失败后换seed重试")
     return parser.parse_args(argv)
 
 
@@ -235,7 +236,7 @@ def main(argv: list[str] | None = None) -> int:
             raise DriverError("PRIVATE_DATABASE_URL_FILE_REQUIRED")
         if (not 1 <= args.max_model_calls <= 12 or not 1 <= args.max_reads <= 8
                 or not 0 <= args.max_plan_repairs <= 2 or args.max_plan_repairs >= args.max_model_calls
-                or not 1 <= args.model_timeout_seconds <= 180 or not 128 <= args.max_output_tokens <= 3000):
+                or not 0 <= args.seed <= 2147483647 or not 1 <= args.model_timeout_seconds <= 180 or not 128 <= args.max_output_tokens <= 3000):
             raise DriverError("INVALID_LOCAL_BUDGET")
         if not re.fullmatch(r"[A-Za-z0-9._:/-]{1,160}", args.model):
             raise DriverError("INVALID_MODEL_NAME")
@@ -281,7 +282,7 @@ def main(argv: list[str] | None = None) -> int:
         private_write(directory / "planner-token", token + "\n", text=True)
         config = {"database_url": database_url,
                   "model": {"endpoint": endpoint, "name": args.model, "digest": selected["digest"],
-                            "timeoutMs": args.model_timeout_seconds * 1000, "maxOutputTokens": args.max_output_tokens},
+                            "timeoutMs": args.model_timeout_seconds * 1000, "maxOutputTokens": args.max_output_tokens, "seed": args.seed},
                   "prompt_path": str(VERIFY_SERVICE / "planner-prompt.txt"),
                   "bundle_path": str(directory / "release-bundle.json"), "run_id": summary["run_id"],
                   "planner_token": token, "limits": {"model_calls": args.max_model_calls, "reads": args.max_reads,

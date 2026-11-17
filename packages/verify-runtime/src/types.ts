@@ -12,10 +12,11 @@ export interface ReleaseBundle {
   catalog_commit: string; catalog_basis_commit: string; requirement_refs: string[];
   changes: Json[]; materials: Material[]; catalog: Json; gaps: unknown[];
   current_candidate_coverage: never[]; evaluation_status: "NOT_RUN";
+  planning_contracts?: Json[];
 }
 export interface RuntimeConfig {
   databaseUrl: string;
-  model: { endpoint: string; name: string; digest: string; timeoutMs: number; maxOutputTokens: number };
+  model: { endpoint: string; name: string; digest: string; timeoutMs: number; maxOutputTokens: number; seed?: number };
   plannerPrompt: string;
 }
 /** plan_repairs 从 model_calls 总额内预留，不能作为额外、未计费调用。 */

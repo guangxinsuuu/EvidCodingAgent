@@ -41,6 +41,15 @@ export interface CheckSpec {
   readonly observations?: readonly CheckObservation[];
   readonly expectations?: readonly CheckExpectation[];
   readonly control?: CheckControl;
+  /** 精确匹配受保护的能力接口与fixture身份；名称不是执行授权。 */
+  readonly binding?: { readonly contract_ref: string; readonly fixture_ref: string };
+  /** B/C 值是待证伪的版本行为预测；expectations 才表达合同要求的行为。 */
+  readonly change_relation?: {
+    readonly diff_ref: string; readonly changed_fields: readonly string[];
+    readonly input_refs: readonly string[]; readonly output_refs: readonly string[];
+    readonly requirement_ref: string; readonly claim: "MAY_CHANGE" | "SHOULD_PRESERVE";
+    readonly expected_baseline: string; readonly expected_candidate: string; readonly reason: string;
+  };
 }
 
 interface DecisionBasis {

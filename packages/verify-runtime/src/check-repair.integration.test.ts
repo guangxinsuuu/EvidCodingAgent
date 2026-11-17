@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { test, type TestContext } from "node:test";
 import { Runtime } from "./runtime.js";
+import { capabilityContract } from "./capability-authority.js";
 import { sha, type Json, type Limits, type ReleaseBundle } from "./types.js";
 
 const databaseUrl = process.env["EGAP_VERIFY_TEST_DATABASE_URL"];
@@ -14,26 +16,30 @@ const pgTest = (name: string, fn: (t: TestContext) => Promise<void>): void => {
 /** 协议夹具与真实 PG；本文件的 Provider 是 stub，不能当成真模型规划质量证据。 */
 function bundle(): ReleaseBundle {
   const rule = "R1: renewal facts must retain the upstream renewal count. Missing facts do not mean zero.";
-  const candidate = "def project(facts):\n    return facts['renewal_count']";
-  const diff = "--- a/product.py\n+++ b/product.py\n-return 0\n+return facts['renewal_count']";
+  const path = (capabilityContract["entrypoint"] as { path: string }).path;
+  const baseline = readFileSync(new URL("../../../" + path, import.meta.url), "utf8");
+  // 候选只追加注释，明确这是绑定/恢复协议夹具，不能当成有业务行为变化的发布实验。
+  const candidate = baseline + "\n# renewal_count: protocol fixture only\n";
+  const diff = `--- a/${path}\n+++ b/${path}\n+# renewal_count: protocol fixture only`;
   return {
     schema_version: 1, task_mode: "RELEASE_VERIFICATION", scope: "LOCAL_SYNTHETIC_PLANNING",
     input_provenance: "CALIBRATION_SYNTHETIC", goal: "Evaluate the changed fact projection.",
     baseline_sha: "a".repeat(40), candidate_sha: "b".repeat(40), catalog_commit: "c".repeat(40),
     catalog_basis_commit: "d".repeat(40), requirement_refs: ["R1"],
-    changes: [{ path: "product.py", diff_material_ref: "diff:product.py", candidate_material_ref: "candidate:product.py" }],
+    changes: [{ path, diff_material_ref: "diff:product.py", candidate_material_ref: "candidate:product.py" }],
     materials: [
       { material_ref: "rule:R1", kind: "REGISTERED_RULE_EXCERPT", title: "R1", git_commit: "d".repeat(40), path: "rules.md", sha256: sha(rule), content: rule },
-      { material_ref: "candidate:product.py", kind: "CANDIDATE_SOURCE", title: "candidate", git_commit: "b".repeat(40), path: "product.py", sha256: sha(candidate), content: candidate },
-      { material_ref: "diff:product.py", kind: "UNTRUSTED_DIFF", title: "diff", git_commit: "b".repeat(40), path: "product.py", sha256: sha(diff), content: diff },
+      { material_ref: "candidate:product.py", kind: "CANDIDATE_SOURCE", title: "candidate", git_commit: "b".repeat(40), path, sha256: sha(candidate), content: candidate },
+      { material_ref: "baseline:product.py", kind: "BASELINE_SOURCE", title: "baseline", git_commit: "a".repeat(40), path, sha256: sha(baseline), content: baseline },
+      { material_ref: "diff:product.py", kind: "UNTRUSTED_DIFF", title: "diff", git_commit: "b".repeat(40), path, sha256: sha(diff), content: diff },
     ],
     catalog: { status: "DRAFT", dispatch_authorized: false,
       requirements: [{ id: "R1", material_ref: "rule:R1", source_ref: "rules" }],
-      capabilities: [{ id: "check.facts", kind: "ORACLE", requirement_refs: ["R1"], dispatch_enabled: false }],
-      scenarios: [{ id: "renewal", requirement_refs: ["R1"], stages: [{ stage_ref: "renewal.initial", depends_on: [] }] }],
-      sources: [{ id: "product", kind: "PRODUCT_EXECUTION", authority_scope: ["projection"] },
+      capabilities: [{ id: "probe.commercial_decision", kind: "ORACLE", requirement_refs: ["R1"], dispatch_enabled: false }],
+      scenarios: [{ id: "commercial_unit", requirement_refs: ["R1"], stages: [{ stage_ref: "commercial_unit.evaluate", depends_on: [] }] }],
+      sources: [{ id: "sut_runtime", kind: "PRODUCT_EXECUTION", authority_scope: ["commercial_decision"] },
         { id: "rules", kind: "BUSINESS_RULE", authority_scope: ["R1"] }] },
-    gaps: [], current_candidate_coverage: [], evaluation_status: "NOT_RUN",
+    planning_contracts: [capabilityContract], gaps: [], current_candidate_coverage: [], evaluation_status: "NOT_RUN",
   };
 }
 
@@ -45,17 +51,22 @@ function decision(action_kind: string, payload: Json): Json {
       status: "OPEN", evidence_refs: ["diff:product.py"] }] };
 }
 const readRule = () => decision("READ", { material_ref: "rule:R1", start_line: 1, end_line: 1 });
-const vagueCheck = () => decision("CHECK_INTENT", { capability_ref: "check.facts", scenario_ref: "renewal",
+const vagueCheck = () => decision("CHECK_INTENT", { capability_ref: "probe.commercial_decision", scenario_ref: "commercial_unit",
   objective: "Check that the renewal facts are correct.", observation_requirements: ["Collect the projected renewal facts."] });
 function completeCheck(): Json {
   const original = vagueCheck();
   (original["payload"] as Json)["check_spec"] = {
-    schema_version: 1, stage_ref: "renewal.initial", inputs: [{ name: "renewal_count", value: "1" }],
-    observations: [{ id: "O1", source_ref: "product", field: "projection.renewal_count" }],
-    expectations: [{ observation_ref: "O1", operator: "EQUALS", value: "1", requirement_ref: "R1" }],
-    control: { scenario_ref: "renewal", stage_ref: "renewal.initial", inputs: [{ name: "renewal_count", value: "0" }],
+    schema_version: 1, stage_ref: "commercial_unit.evaluate",
+    binding: { contract_ref: capabilityContract["id"], fixture_ref: (capabilityContract["fixture"] as Json)["id"] },
+    inputs: [{ name: "commercial_source.payment.status", value: "UNPAID" }],
+    observations: [{ id: "O1", source_ref: "sut_runtime", field: "decision.eligibility" }],
+    expectations: [{ observation_ref: "O1", operator: "EQUALS", value: "NEEDS_MORE_EVIDENCE", requirement_ref: "R1" }],
+    control: { scenario_ref: "commercial_unit", stage_ref: "commercial_unit.evaluate", inputs: [{ name: "commercial_source.payment.status", value: "PAID" }],
       observation_ref: "O1", expected_relation: "DIFFERENT",
-      reason: "Changing only the upstream renewal count from one to zero must change the projected count." },
+      reason: "Only payment status is overridden; other inputs come from the same trusted fixture." },
+    change_relation: { diff_ref: "diff:product.py", changed_fields: ["renewal_count"], input_refs: ["commercial_source.payment.status"],
+      output_refs: ["O1"], requirement_ref: "R1", claim: "SHOULD_PRESERVE", expected_baseline: "NEEDS_MORE_EVIDENCE",
+      expected_candidate: "NEEDS_MORE_EVIDENCE", reason: "This comment-only protocol fixture predicts preservation, not an established business result." },
   };
   return original;
 }
@@ -109,14 +120,15 @@ async function harness(t: TestContext, responses: (Json | Promise<Json>)[], limi
   const config = { databaseUrl: databaseUrl!, plannerPrompt: "Propose a bounded evidence-grounded check.",
     model: { endpoint, name: "repair-test-model", digest: "e".repeat(64), timeoutMs: 3000, maxOutputTokens: 1500 } };
   const opened = new Set<Runtime>();
-  const open = async () => { const instance = new Runtime(config); await instance.store.migrate(); opened.add(instance); return instance; };
+  const open = async () => { const instance = new Runtime(config); opened.add(instance); await instance.store.migrate(); return instance; };
   const close = async (instance: Runtime) => { if (opened.delete(instance)) await instance.close(); };
-  const runtime = await open();
   t.after(async () => {
     for (const instance of opened) await close(instance);
     server.closeAllConnections();
     await new Promise<void>(resolve => server.close(() => resolve()));
   });
+  // migrate/accept 失败也应释放自有 Provider socket，不能把一次环境失败变成悬挂测试。
+  const runtime = await open();
   const runId = await runtime.acceptRun(bundle(), randomUUID() + randomUUID(), limits);
   return { runtime, runId, requests, received, open, close };
 }
@@ -323,8 +335,16 @@ pgTest("CHECK修正：数百条缺项只投影一次，完整原提案与反馈�
   await step(h.runtime, h.runId);
   const request = h.requests[2]!;
   const context = JSON.parse(((request["messages"] as Json[])[1]!["content"] as string))["context_view"] as Json;
-  assert.deepEqual(((context["check_repair"] as Json)["quality"] as Json)["issues"], issues,
-    "模型仍收到全部具体缺项，去除的是重复投影而非删掉困难问题");
+  const qualityView = ((context["check_repair"] as Json)["quality"] as Json);
+  const messages = qualityView["issue_messages"] as Json;
+  assert.deepEqual(qualityView["issue_columns"], ["code", "path", "message_ref"]);
+  const expanded = (qualityView["issues"] as string[][]).map(([code, path, messageRef]) => ({ code, path,
+    message: messages[messageRef!] }));
+  assert.equal(qualityView["issue_encoding"], "CODE_PATH_WITH_SHARED_MESSAGES");
+  assert.deepEqual(expanded, issues,
+    "消息字典展开后每项code/path/message都与原始账本相同，不能截断或覆盖不同说明");
+  assert.deepEqual((context["check_repair"] as Json)["latest_proposal"], rejected.call["proposal"],
+    "压缩重复说明不能改写原始模型提案");
   assert.equal((context["latest_feedback"] as Json)["quality"], undefined);
   assert.equal((context["latest_feedback"] as Json)["rejected_action"], undefined);
   assert.equal((await h.runtime.projection(h.runId))["status"], "PLANNED");

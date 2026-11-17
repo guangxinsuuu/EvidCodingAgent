@@ -164,13 +164,15 @@ test("Scoped：合法动作仍满足共享权威协议，新增enum只缩小引�
   const { bundle, state } = scopedFixture();
   const scoped = ajv.compile(modelBodySchema(bundle, state));
   const bodies = [scopedRead(), scopedRead("candidate:product.py", 1, 200), scopedRead("candidate:product.py", 201, 245),
-    ...corpus.cases.filter((sample) => sample.valid && ["valid_novel_check", "valid_clarify", "valid_finding", "valid_request_final", "valid_stop"].includes(sample.name))
+    ...corpus.cases.filter((sample) => sample.valid && ["valid_clarify", "valid_finding", "valid_request_final", "valid_stop"].includes(sample.name))
       .map((sample) => ({ ...(bodyOf(sample.value) as Json), requirement_refs: ["R1"], evidence_refs: ["diff:product.py"], hypothesis_refs: [], hypothesis_updates: [] }))];
   for (const body of bodies) {
     assert.equal(scoped(body), true, JSON.stringify(scoped.errors));
     assert.equal(authorityAcceptsBody(body), true);
   }
   recordCompleteRule(state);
+  const novel = { ...scopedRead(), action_kind: "NOVEL_CHECK", payload: {objective: "检查未覆盖的新关系",capability_gap: "现有能力缺少此种观察"} };
+  assert.equal(ajv.compile(modelBodySchema(bundle, state))(novel), true);
   assert.equal(ajv.compile(modelBodySchema(bundle, state))(scopedCheck()), true);
   assert.equal(authorityAcceptsBody(scopedCheck()), true);
 });

@@ -79,8 +79,10 @@ class ReleaseAssemblerTests(unittest.TestCase):
         self.assertEqual(bundle["evaluation_status"], "NOT_RUN")
         self.assertFalse(bundle["catalog"]["dispatch_authorized"])
         self.assertTrue(all(not row["dispatch_enabled"] for row in bundle["catalog"]["capabilities"]))
-        self.assertEqual(len(bundle["catalog"]["capabilities"]), 19)
-        self.assertEqual(len(bundle["catalog"]["scenarios"]), 12)
+        self.assertEqual(len(bundle["catalog"]["capabilities"]), 20)
+        self.assertEqual(bundle["planning_contracts"][0]["capability_ref"], "probe.commercial_decision")
+        self.assertEqual(bundle["planning_contracts"][0]["execution_mode"], "PURE_FIXTURE")
+        self.assertEqual(len(bundle["catalog"]["scenarios"]), 13)
         self.assertTrue(bundle["catalog"]["roles"])
         self.assertTrue(bundle["catalog"]["flows"])
 

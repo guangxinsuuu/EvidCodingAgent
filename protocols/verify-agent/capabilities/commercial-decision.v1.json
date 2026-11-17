@@ -1,0 +1,774 @@
+{
+  "schema_version": 1,
+  "id": "commercial-decision.v1",
+  "capability_ref": "probe.commercial_decision",
+  "parent_capability_ref": "unit.sut_decision",
+  "scenario_ref": "commercial_unit",
+  "stage_ref": "commercial_unit.evaluate",
+  "execution_mode": "PURE_FIXTURE",
+  "dispatch_enabled": false,
+  "source_ref": "sut_runtime",
+  "supported_requirements": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5"
+  ],
+  "fixture": {
+    "id": "commercial-standard-renewal-v1",
+    "sha256": "c10aa513aef11f1e3619876e4d61efd61e5494b2759b49431808f086b4682d49",
+    "hash_encoding": "canonical-json-sort-keys-utf8-v1",
+    "context": {
+      "ticket": {
+        "tenant_id": "t",
+        "received_at": "2026-11-19T00:00:00+00:00"
+      },
+      "billing": {
+        "billing_record_id": "lago-invoice:i",
+        "invoice_id": "i",
+        "external_customer_id": "c",
+        "currency": "USD",
+        "total_amount_cents": 100
+      },
+      "subscription": {
+        "subscription_id": "lago-sub:s",
+        "external_subscription_id": "s"
+      },
+      "usage": {
+        "from_datetime": "2026-11-09T00:00:00Z",
+        "to_datetime": "2026-12-09T00:00:00+00:00",
+        "lago_invoice_id": "i",
+        "charges_usage": [
+          {
+            "billable_metric": {
+              "code": "requests"
+            },
+            "units": "0"
+          },
+          {
+            "billable_metric": {
+              "code": "unrelated"
+            },
+            "units": "100000"
+          }
+        ]
+      },
+      "invoice_period": {
+        "from_datetime": "2026-11-09T00:00:00Z",
+        "to_datetime": "2026-12-09T00:00:00+00:00"
+      },
+      "observed_usage_period": {
+        "from_datetime": "2026-11-09T00:00:00Z",
+        "to_datetime": "2026-12-09T00:00:00+00:00"
+      },
+      "lago_query_scope": {
+        "customer_id": "c",
+        "subscription_id": "s",
+        "invoice_id": "i"
+      },
+      "customer_message_refs": [
+        {
+          "id": 7,
+          "created_at": 1790000000,
+          "content": "请审核退款资格"
+        }
+      ],
+      "commercial_source": {
+        "source_kind": "SYNTHETIC_BUSINESS_SOURCE",
+        "authority_scope": "LOCAL_LAB",
+        "source_revision": 1,
+        "scope": {
+          "tenant_id": "t",
+          "customer_id": "c",
+          "subscription_id": "s",
+          "invoice_id": "i",
+          "account_id": 1,
+          "conversation_id": 2
+        },
+        "policies": [
+          {
+            "schema_version": 1,
+            "policy_id": "refund-standard",
+            "authority_scope": "LOCAL_LAB",
+            "content_origin": "SYNTHETIC",
+            "review_status": "LOCAL_CALIBRATION",
+            "human_review_status": "PENDING_USER_REVIEW",
+            "terms": {
+              "selection": "RENEWAL_EFFECTIVE_AT",
+              "window_endpoint": "INCLUSIVE",
+              "usage_scope": "RENEWAL_TO_CLAIM",
+              "metric_code": "requests",
+              "unit": "units",
+              "maximum_usage_units": "0",
+              "require_payment": true,
+              "allowed_payment_source": "SIMULATED_PAYMENT",
+              "output_scope": "LOCAL_LAB_ADVISORY_ONLY",
+              "window_seconds": 1209600
+            },
+            "source_document": {
+              "reference": "business-source-pack/v1/policies/rules.md",
+              "sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c",
+              "origin": "SYNTHETIC",
+              "text": "# Business Source Pack v1：本地实验商业规则\n\n本包是用户要求实现的合成商业上游，不是任何公司的正式退款政策、已签合同或付款证明。\n执行资格为 `LOCAL_CALIBRATION`，人工政策审阅状态为 `PENDING_USER_REVIEW`。本轮实现授权\n不能被写成法务、财务或真实客户批准。生产接入必须提供自己的权威来源。\n\n## R1 适用对象与政策选择\n\n只处理来源服务状态机产生、`term_number >= 2` 的 `SUBSCRIPTION_RENEWAL_EFFECTIVE`。\n首次开通、取消和终止结算都不是续期。标准实验合同须在续期和申请两个时点有效、存在\n明确的 `SIMULATED_ACCEPTANCE`，并引用本包的退款补充条款。特殊条款首期转人工补证。\n默认按续期生效时点选择政策：生效区间左闭右开，不能按申请日期或最新版本选择。\n本包 v1 为 2026-10-01 至 2026-11-10 UTC，v2 从 2026-11-10 UTC 起。\n\n## R2 窗口与申请时点\n\nv1 窗口为 14 × 86400 秒，v2 为 7 × 86400 秒；比较 UTC 经过时长，0 和窗口末端均包含。\n不是自然日，也不依赖宿主机时区。申请是商业来源服务接受的不可变 RefundClaim；\nclaimed_at 取该订阅的实验业务时钟，原生 Chatwoot 消息 ID、真实 created_at 和正文摘要另存。\n二者不是同一种时间。补充消息只能追加修订，不得移动原申请时点。模拟器只推进自己的\n业务时钟，不改变操作系统、Keycloak、数据库或 Worker 租约时间。\n\n## R3 用量规则与证明边界\n\n统计所选指标 `metric_code` 的 `units`，不跨指标相加；要求从续期生效至申请时点的闭区间\n用量不超过 0。期望事件是测试生成器预先登记的有限集合；每个事件须记录发送、接收及\n原生聚合核对。缺事件、待处理、指标歧义或聚合不一致均不允许封存覆盖记录。\n完整性范围固定为 `LOCAL_CONTROLLED_GENERATOR_ONLY`，不能表示公司的全部事件到齐。\n原生聚合期间必须与已绑定发票的计量期间一致；区间用量只能由已核对的事件明细计算，\n不能拿整期聚合冒充任意子区间。\n\n## R4 合同、发票与付款\n\n发票须属于同一客户、唯一订阅，费用期间与模拟续期事件期间严格一致。可以使用原生\nINITIAL 发票作为明确标注的实验账单，但不能因此宣称 Lago 自然续费已验证。\n现有终止关闭账单不能作为续期正例。付款须另有与发票、币种、金额一致的\n`SIMULATED_PAYMENT` 记录；不得修改 Lago 的付款状态或把开票成功等同付款成功。\n\n## R5 输出和失败语义\n\n事实充分时给出 ELIGIBLE 或 INELIGIBLE 的本地实验资格建议；缺失、不适用、歧义或\n未校准资产返回 NEEDS_MORE_EVIDENCE。文案必须标明实验范围，付款依据为模拟记录。\n始终只写正确会话的私有内部备注，不退款、不对客发送、不关单。\n上游服务不可用是执行失败，不伪造空资产继续，也不回退旧 fixture。\n\n## R6 重试与重新评估\n\n重试同操作保留原快照与 Job。新增事实必须通过显式 reevaluate 入口，记录父 Job、原因\n与稳定事实摘要；新事实产生新评估，旧快照不可覆盖。只有采集时间变化不算新事实。\n\n"
+            },
+            "version": "lab-v1",
+            "effective_from": "2026-10-01T00:00:00Z",
+            "effective_to": "2026-11-10T00:00:00Z",
+            "structured_source_sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c"
+          },
+          {
+            "schema_version": 1,
+            "policy_id": "refund-standard",
+            "authority_scope": "LOCAL_LAB",
+            "content_origin": "SYNTHETIC",
+            "review_status": "LOCAL_CALIBRATION",
+            "human_review_status": "PENDING_USER_REVIEW",
+            "terms": {
+              "selection": "RENEWAL_EFFECTIVE_AT",
+              "window_endpoint": "INCLUSIVE",
+              "usage_scope": "RENEWAL_TO_CLAIM",
+              "metric_code": "requests",
+              "unit": "units",
+              "maximum_usage_units": "0",
+              "require_payment": true,
+              "allowed_payment_source": "SIMULATED_PAYMENT",
+              "output_scope": "LOCAL_LAB_ADVISORY_ONLY",
+              "window_seconds": 604800
+            },
+            "source_document": {
+              "reference": "business-source-pack/v1/policies/rules.md",
+              "sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c",
+              "origin": "SYNTHETIC",
+              "text": "# Business Source Pack v1：本地实验商业规则\n\n本包是用户要求实现的合成商业上游，不是任何公司的正式退款政策、已签合同或付款证明。\n执行资格为 `LOCAL_CALIBRATION`，人工政策审阅状态为 `PENDING_USER_REVIEW`。本轮实现授权\n不能被写成法务、财务或真实客户批准。生产接入必须提供自己的权威来源。\n\n## R1 适用对象与政策选择\n\n只处理来源服务状态机产生、`term_number >= 2` 的 `SUBSCRIPTION_RENEWAL_EFFECTIVE`。\n首次开通、取消和终止结算都不是续期。标准实验合同须在续期和申请两个时点有效、存在\n明确的 `SIMULATED_ACCEPTANCE`，并引用本包的退款补充条款。特殊条款首期转人工补证。\n默认按续期生效时点选择政策：生效区间左闭右开，不能按申请日期或最新版本选择。\n本包 v1 为 2026-10-01 至 2026-11-10 UTC，v2 从 2026-11-10 UTC 起。\n\n## R2 窗口与申请时点\n\nv1 窗口为 14 × 86400 秒，v2 为 7 × 86400 秒；比较 UTC 经过时长，0 和窗口末端均包含。\n不是自然日，也不依赖宿主机时区。申请是商业来源服务接受的不可变 RefundClaim；\nclaimed_at 取该订阅的实验业务时钟，原生 Chatwoot 消息 ID、真实 created_at 和正文摘要另存。\n二者不是同一种时间。补充消息只能追加修订，不得移动原申请时点。模拟器只推进自己的\n业务时钟，不改变操作系统、Keycloak、数据库或 Worker 租约时间。\n\n## R3 用量规则与证明边界\n\n统计所选指标 `metric_code` 的 `units`，不跨指标相加；要求从续期生效至申请时点的闭区间\n用量不超过 0。期望事件是测试生成器预先登记的有限集合；每个事件须记录发送、接收及\n原生聚合核对。缺事件、待处理、指标歧义或聚合不一致均不允许封存覆盖记录。\n完整性范围固定为 `LOCAL_CONTROLLED_GENERATOR_ONLY`，不能表示公司的全部事件到齐。\n原生聚合期间必须与已绑定发票的计量期间一致；区间用量只能由已核对的事件明细计算，\n不能拿整期聚合冒充任意子区间。\n\n## R4 合同、发票与付款\n\n发票须属于同一客户、唯一订阅，费用期间与模拟续期事件期间严格一致。可以使用原生\nINITIAL 发票作为明确标注的实验账单，但不能因此宣称 Lago 自然续费已验证。\n现有终止关闭账单不能作为续期正例。付款须另有与发票、币种、金额一致的\n`SIMULATED_PAYMENT` 记录；不得修改 Lago 的付款状态或把开票成功等同付款成功。\n\n## R5 输出和失败语义\n\n事实充分时给出 ELIGIBLE 或 INELIGIBLE 的本地实验资格建议；缺失、不适用、歧义或\n未校准资产返回 NEEDS_MORE_EVIDENCE。文案必须标明实验范围，付款依据为模拟记录。\n始终只写正确会话的私有内部备注，不退款、不对客发送、不关单。\n上游服务不可用是执行失败，不伪造空资产继续，也不回退旧 fixture。\n\n## R6 重试与重新评估\n\n重试同操作保留原快照与 Job。新增事实必须通过显式 reevaluate 入口，记录父 Job、原因\n与稳定事实摘要；新事实产生新评估，旧快照不可覆盖。只有采集时间变化不算新事实。\n\n"
+            },
+            "version": "lab-v2",
+            "effective_from": "2026-11-10T00:00:00Z",
+            "effective_to": null,
+            "structured_source_sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c"
+          }
+        ],
+        "contracts": [
+          {
+            "review_status": "LOCAL_CALIBRATION",
+            "source_document": {
+              "reference": "business-source-pack/v1/contracts/standard.md#contract",
+              "text": "# 合成客户订单表与实验退款补充条款\n\n实例：contract / v1。客户：c。订阅：s。\n有效起点：2026-10-01T00:00:00Z。有效终点：open。合同状态：ACTIVE。\n接受方式仅为实验准备器记录的 SIMULATED_ACCEPTANCE，不是真实客户签名。\n\n## 固定底稿\n\n引用 Common Paper Cloud Service Agreement Standard Terms 2.1：\nhttps://commonpaper.com/standards/cloud-service-agreement/2.1/\n版权作者 Common Paper；开放许可 CC BY 4.0：https://creativecommons.org/licenses/by/4.0/。\n下文为本项目新增的实验订单表和补充条款，未修改所引用标准条款原文。\n\n## EGAP-LAB-REFUND-1：仅本地校准的退款例外\n\n明确修改上述标准条款4.1的默认不可退款安排：仅针对本订单表客户和订阅，允许依\nrefund-standard 政策在续期生效时对应的版本生成资格建议。2026-11-10T00:00:00Z之前\n的适用续期使用 lab-v1 的14天窗口；该时刻起使用 lab-v2 的7天窗口。采用UTC经过秒数，\n端点包含，不按申请时最新版本选择。\n\n要求已发生第二期或后续的有效续期，合同在续期和申请时均有效；指标为该实验套餐唯一\n指定的 units 指标。续期至原始申请的闭区间用量须为0，有完整受控生成器覆盖与实际Lago\n聚合校准，以及同发票、币种、金额的模拟付款记录。缺失资料只允许补证建议。\n\n这些例外仅用于模拟客户的本地实验。系统不会执行实际退款或代表真实客户取得权利。\n只能形成内部待审核草稿，不能发送客户消息或自动关单。本补充条款优先于底稿4.1的\n默认安排；不改变其他标准条款，也不提供本实验以外的法律判断。\n",
+              "origin": "SYNTHETIC",
+              "sha256": "f268c1b31561d91b31377b83883ffb14d0492452e363c9dfbdb7494434ab25cc"
+            },
+            "structured_source_sha256": "f268c1b31561d91b31377b83883ffb14d0492452e363c9dfbdb7494434ab25cc",
+            "contract_id": "contract",
+            "version": "v1",
+            "customer_id": "c",
+            "subscription_id": "s",
+            "effective_from": "2026-10-01T00:00:00Z",
+            "effective_to": null,
+            "status": "ACTIVE",
+            "policy_ref": {
+              "policy_id": "refund-standard",
+              "version": null
+            },
+            "terms": {
+              "refund_addendum": "EGAP-LAB-REFUND-1",
+              "special_terms": false,
+              "policy_selection": "RENEWAL_EFFECTIVE_AT"
+            },
+            "acceptance": {
+              "kind": "SIMULATED_ACCEPTANCE",
+              "accepted_at": "2026-10-01T00:00:00Z"
+            }
+          }
+        ],
+        "events": [
+          {
+            "event_id": "renewal-2",
+            "event_type": "SUBSCRIPTION_RENEWAL_EFFECTIVE",
+            "customer_id": "c",
+            "subscription_id": "s",
+            "term_number": 2,
+            "contract_ref": {
+              "contract_id": "contract",
+              "version": "v1"
+            },
+            "effective_at": "2026-11-09T00:00:00Z",
+            "period_start": "2026-11-09T00:00:00Z",
+            "period_end": "2026-12-09T00:00:00+00:00",
+            "invoice_refs": [
+              "i"
+            ]
+          }
+        ],
+        "claim": {
+          "claim_id": "claim",
+          "customer_id": "c",
+          "subscription_id": "s",
+          "invoice_id": "i",
+          "claimed_at": "2026-11-19T00:00:00+00:00",
+          "account_id": 1,
+          "conversation_id": 2,
+          "original_message": {
+            "message_id": 7,
+            "created_at": "2026-09-21T14:13:20+00:00",
+            "content_sha256": "bd65a58f322f4a92888a583be998ce67acf51adfaf2ba408b4011b39a97bac07"
+          }
+        },
+        "invoice_link": {
+          "business_period_start": "2026-11-09T00:00:00Z",
+          "business_period_end": "2026-12-09T00:00:00+00:00",
+          "native_period_start": "2026-11-09T00:00:00Z",
+          "native_period_end": "2026-12-09T00:00:00+00:00",
+          "native_invoice_kind": "INITIAL",
+          "mapping_kind": "EXACT_PERIOD_LOCAL_BUSINESS_MAPPING"
+        },
+        "coverage": {
+          "coverage_id": "coverage",
+          "revision": 1,
+          "status": "SEALED",
+          "completeness_scope": "LOCAL_CONTROLLED_GENERATOR_ONLY",
+          "customer_id": "c",
+          "subscription_id": "s",
+          "invoice_id": "i",
+          "metric_code": "requests",
+          "unit": "units",
+          "period_start": "2026-11-09T00:00:00Z",
+          "period_end": "2026-11-19T00:00:00+00:00",
+          "interval": "CLOSED",
+          "expected_events": [],
+          "sent_event_ids": [],
+          "received_event_ids": [],
+          "pending_count": 0,
+          "units": "0",
+          "native_expected_units": "0",
+          "sealed_at": "2026-11-19T00:00:00+00:00",
+          "reconciliation": {
+            "matched": true,
+            "lago_units": "0",
+            "raw_response_sha256": "912758f779245a8349dfe5d91e26935eb07eb181a9891917b085a5a506ac5fd5",
+            "raw_response": {
+              "from_datetime": "2026-11-09T00:00:00Z",
+              "to_datetime": "2026-12-09T00:00:00+00:00",
+              "lago_invoice_id": "i",
+              "charges_usage": [
+                {
+                  "billable_metric": {
+                    "code": "requests"
+                  },
+                  "units": "0"
+                },
+                {
+                  "billable_metric": {
+                    "code": "unrelated"
+                  },
+                  "units": "100000"
+                }
+              ]
+            },
+            "receipt": {
+              "service": "lago",
+              "method": "GET",
+              "path": "/past_usage",
+              "status": 200,
+              "observed_at": "2026-11-19T00:00:00+00:00"
+            },
+            "native_period_start": "2026-11-09T00:00:00Z",
+            "native_period_end": "2026-12-09T00:00:00+00:00"
+          }
+        },
+        "payment": {
+          "payment_id": "pay",
+          "customer_id": "c",
+          "subscription_id": "s",
+          "invoice_id": "i",
+          "source_kind": "SIMULATED_PAYMENT",
+          "authority_scope": "LOCAL_LAB",
+          "status": "PAID",
+          "amount_minor": 100,
+          "currency": "USD",
+          "paid_at": "2026-11-09T00:00:00Z",
+          "receipt_ref": "simulated-payment-1"
+        }
+      },
+      "missing_evidence": []
+    }
+  },
+  "inputs": [
+    {
+      "name": "billing.total_amount_cents",
+      "type": "integer",
+      "required": false,
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    {
+      "name": "billing.currency",
+      "type": "string",
+      "required": false,
+      "enum": [
+        "USD",
+        "EUR",
+        "GBP"
+      ]
+    },
+    {
+      "name": "billing.external_customer_id",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "subscription.external_subscription_id",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "commercial_source.scope.tenant_id",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "commercial_source.events.0.term_number",
+      "type": "integer",
+      "required": false,
+      "minimum": 1,
+      "maximum": 100
+    },
+    {
+      "name": "commercial_source.claim.claimed_at",
+      "type": "string",
+      "required": false,
+      "format": "date-time"
+    },
+    {
+      "name": "commercial_source.contracts.0.status",
+      "type": "string",
+      "required": false,
+      "enum": [
+        "ACTIVE",
+        "DRAFT"
+      ]
+    },
+    {
+      "name": "commercial_source.contracts.0.effective_from",
+      "type": "string",
+      "required": false,
+      "format": "date-time"
+    },
+    {
+      "name": "commercial_source.contracts.0.acceptance.accepted_at",
+      "type": "string",
+      "required": false,
+      "format": "date-time"
+    },
+    {
+      "name": "commercial_source.contracts.0.terms.special_terms",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "name": "commercial_source.coverage.status",
+      "type": "string",
+      "required": false,
+      "enum": [
+        "OPEN",
+        "SEALED"
+      ]
+    },
+    {
+      "name": "commercial_source.coverage.pending_count",
+      "type": "integer",
+      "required": false,
+      "minimum": 0,
+      "maximum": 1000
+    },
+    {
+      "name": "commercial_source.coverage.reconciliation.matched",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "name": "commercial_source.payment.status",
+      "type": "string",
+      "required": false,
+      "enum": [
+        "PAID",
+        "UNPAID"
+      ]
+    },
+    {
+      "name": "commercial_source.payment.amount_minor",
+      "type": "integer",
+      "required": false,
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    {
+      "name": "commercial_source.payment.currency",
+      "type": "string",
+      "required": false,
+      "enum": [
+        "USD",
+        "EUR",
+        "GBP"
+      ]
+    },
+    {
+      "name": "commercial_source.payment.customer_id",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "commercial_source.payment.paid_at",
+      "type": "string",
+      "required": false,
+      "format": "date-time"
+    },
+    {
+      "name": "commercial_source.invoice_link.native_invoice_kind",
+      "type": "string",
+      "required": false,
+      "enum": [
+        "INITIAL",
+        "RENEWAL",
+        "TERMINATION"
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "field": "decision.workflow_revision",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.policy_ref",
+      "type": "string",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.billing_record_ref",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.elapsed_seconds",
+      "type": "number",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT",
+        "GREATER_THAN",
+        "LESS_THAN"
+      ]
+    },
+    {
+      "field": "decision.window_seconds",
+      "type": "number",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT",
+        "GREATER_THAN",
+        "LESS_THAN"
+      ]
+    },
+    {
+      "field": "decision.within_window",
+      "type": "boolean",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT"
+      ]
+    },
+    {
+      "field": "decision.usage_units",
+      "type": "string",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.maximum_usage_units",
+      "type": "string",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.usage_within_limit",
+      "type": "boolean",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT"
+      ]
+    },
+    {
+      "field": "decision.contract_terms_match",
+      "type": "boolean",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT"
+      ]
+    },
+    {
+      "field": "decision.billing_paid",
+      "type": "boolean",
+      "nullable": true,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "PRESENT",
+        "ABSENT"
+      ]
+    },
+    {
+      "field": "decision.missing_evidence",
+      "type": "string[]",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.eligibility",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ],
+      "enum": [
+        "ELIGIBLE",
+        "INELIGIBLE",
+        "NEEDS_MORE_EVIDENCE"
+      ]
+    },
+    {
+      "field": "decision.proposed_action",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ],
+      "enum": [
+        "REQUEST_INFORMATION",
+        "HUMAN_REVIEW",
+        "NO_ACTION"
+      ]
+    },
+    {
+      "field": "decision.reason_codes",
+      "type": "string[]",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.evidence_refs",
+      "type": "string[]",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ]
+    },
+    {
+      "field": "decision.authority_scope",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ],
+      "enum": [
+        "LOCAL_LAB"
+      ]
+    },
+    {
+      "field": "decision.assessment_scope",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ],
+      "enum": [
+        "LAB_SCOPED"
+      ]
+    },
+    {
+      "field": "decision.review_status",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ],
+      "enum": [
+        "LOCAL_CALIBRATION"
+      ]
+    },
+    {
+      "field": "decision.payment_simulated",
+      "type": "boolean",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED"
+      ]
+    },
+    {
+      "field": "decision.usage_completeness_scope",
+      "type": "string",
+      "nullable": false,
+      "operators": [
+        "EQUALS",
+        "NOT_EQUALS",
+        "UNCHANGED",
+        "CONTAINS"
+      ],
+      "enum": [
+        "LOCAL_CONTROLLED_GENERATOR_ONLY"
+      ]
+    }
+  ],
+  "stage_prerequisites": [
+    {
+      "id": "FROZEN_CANDIDATE_SOURCE",
+      "status": "REQUIRED_AT_EXECUTION"
+    },
+    {
+      "id": "TRUSTED_FIXTURE_AND_CONTRACT_DIGEST",
+      "status": "REQUIRED_AT_EXECUTION"
+    },
+    {
+      "id": "ISOLATED_NO_NETWORK_RUNNER",
+      "status": "REQUIRED_AT_EXECUTION"
+    },
+    {
+      "id": "FRESH_PRIMARY_CONTROL_COPIES",
+      "status": "REQUIRED_AT_EXECUTION"
+    },
+    {
+      "id": "PLAN_STABILITY_GATE",
+      "status": "REQUIRED_AT_EXECUTION"
+    }
+  ],
+  "entrypoint": {
+    "path": "services/genai-support-sut/src/genai_support/integrations/commercial.py",
+    "symbol": "commercial_decision"
+  },
+  "source_sha256": "48a1b5a123beda68c6eb26a7d02a7e04d3ba0f9caf9471fda89bd7219308d28d",
+  "fixture_provenance": {
+    "authority_scope": "LOCAL_SYNTHETIC_UNIT_INPUT",
+    "source_commit": "0f46c9b0602334db2b8955c018ed076c6c059c37",
+    "source_files": [
+      {
+        "path": "services/genai-support-sut/tests/test_commercial_decision.py",
+        "sha256": "1d9211d48f664e9830570382f730b04e1405aa194e71f2af8657694527d68478"
+      },
+      {
+        "path": "services/genai-support-sut/src/genai_support/integrations/commercial.py",
+        "sha256": "48a1b5a123beda68c6eb26a7d02a7e04d3ba0f9caf9471fda89bd7219308d28d"
+      },
+      {
+        "path": "business-source-pack/v1/policies/rules.md",
+        "sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c"
+      },
+      {
+        "path": "business-source-pack/v1/policies/lab-v1.json",
+        "sha256": "bd2729f3fdeba4ba501915256376cf04a9ed619b85e2e052c36fb0fdd0d89c36"
+      },
+      {
+        "path": "business-source-pack/v1/policies/lab-v2.json",
+        "sha256": "3dff50b71d9a42d566eaca8823a4a1d462f5347d00be3979b4e1101e63ac3f95"
+      },
+      {
+        "path": "business-source-pack/v1/contracts/standard.md",
+        "sha256": "a41400a4b4c460e651c740824283d60873314c85430c3cbe640060960464aa11"
+      }
+    ],
+    "transform": [
+      "Copied only source_asset/example_context pure fixture construction; never called commercial_decision to produce expected results.",
+      "Set renewal to 2026-11-09T00:00:00Z, elapsed_days=10, designated usage=0.",
+      "Replace miniature November-01 policies with frozen business-source-pack/v1 lab-v1/lab-v2 policies (November-10 boundary); resolve metric_code=requests.",
+      "Render frozen standard contract template for synthetic c/s identity, update document digests and policy_ref to refund-standard."
+    ],
+    "limitations": [
+      "No native API was queried; usage/receipt-shaped objects are synthetic fixture data.",
+      "This fixture stage does not satisfy live scenario stage prerequisites or provide cross-system coverage.",
+      "Overrides are literal permitted scalar writes; no automatic repair of dependent facts or expectation generation."
+    ]
+  }
+}
