@@ -22,6 +22,11 @@
     {
       "path": "./tools/environment-host"
     },
-    { "path": "./packages/verify-runtime" }
+    {
+      "path": "./packages/verify-runtime"
+    },
+    {
+      "path": "./apps/review-workbench"
+    }
   ]
 }

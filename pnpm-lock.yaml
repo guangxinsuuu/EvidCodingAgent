@@ -24,6 +24,19 @@ importers:
         specifier: 5.12.7
         version: 5.12.7
 
+  apps/review-workbench:
+    dependencies:
+      fastify:
+        specifier: 5.12.7
+        version: 5.12.7
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+    devDependencies:
+      '@types/pg':
+        specifier: 8.15.6
+        version: 8.15.6
+
   packages/artifacts: {}
 
   packages/contracts:
