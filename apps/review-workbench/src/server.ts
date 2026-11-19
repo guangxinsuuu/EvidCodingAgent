@@ -3,8 +3,10 @@ import { readFile } from "node:fs/promises";
 import { LocalSessions, sessionCookie, type LocalIdentity } from "./auth.js";
 import { registerReviewRoutes } from "./routes.js";
 import type { ReviewStore } from "./store.js";
+import type { WorkflowStore } from "./workflow-store.js";
+import { registerWorkflowRoutes } from "./workflow-routes.js";
 
-export interface WebOptions { origin: string; identities: LocalIdentity[]; assets?: URL }
+export interface WebOptions { origin: string; identities: LocalIdentity[]; assets?: URL; workflow?: WorkflowStore }
 
 /**
  * main → createReviewServer → 认证/CSRF → registerReviewRoutes → ReviewStore。
@@ -71,6 +73,7 @@ export function createReviewServer(store: ReviewStore, options: WebOptions): Fas
     app.get(path!, async (_request, reply) => reply.type(type!).send(await readFile(new URL(file!, assets))));
   }
   registerReviewRoutes(app, store);
+  if (options.workflow) registerWorkflowRoutes(app, options.workflow);
   app.setErrorHandler((error, _request, reply) => {
     const status = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : 500;
     void reply.code(status >= 400 && status < 500 ? status : 500).send({ error_code: status < 500 ? "INVALID_REQUEST" : "INTERNAL_ERROR" });

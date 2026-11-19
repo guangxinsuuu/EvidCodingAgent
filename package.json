@@ -41,6 +41,7 @@
     "review:setup": "pnpm build && node apps/review-workbench/dist/setup.js",
     "review:start": "pnpm build && node apps/review-workbench/dist/main.js",
     "review:cli": "node apps/review-workbench/dist/cli.js",
+    "review:worker": "pnpm build && node apps/review-workbench/dist/evidence-worker.js",
     "test:review": "pnpm build && node --test apps/review-workbench/dist/*.test.js"
   },
   "devDependencies": {

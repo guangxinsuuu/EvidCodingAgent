@@ -9,3 +9,6 @@ export { supportRequestSchema, supportSubmissionSchema, supportJobSchema,
 export type { SupportRequest, SupportSubmission, SupportJob, ResolutionDraft } from "./support.js";
 export { decisionProposalSchema, parseDecisionProposal, DecisionProposalError } from "./verify.js";
 export type { DecisionProposal, HypothesisUpdate, CheckSpec } from "./verify.js";
+export { parseEvidenceReviewInput, parseEvidenceDecisionProposal, evidenceReviewDigest, evidenceDecisionProposalSchema } from "./evidence-review.js";
+export type { EvidenceReviewInput, EvidenceRequestItem, EvidenceTarget, EvidenceMaterial, EvidenceDecisionProposal,
+  EvidenceResponse, EvidenceResponseItem, ValidatedEvidenceResponseItem, EvidenceDisposition, EvidenceUnavailableReason, EvidenceLocation } from "./evidence-review.js";

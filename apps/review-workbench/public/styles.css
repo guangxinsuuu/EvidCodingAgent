@@ -1401,3 +1401,104 @@ code,.mono {
     transition:none!important;
   }
 }
+
+/* v2 工作流沿用现有排版；三种状态分列，避免“已接受”视觉上遮蔽缺口。 */
+.workflow-page>*,.workflow-page .panel {
+  min-width:0;
+}
+.workflow-page>.panel,.workflow-page>.notice,.workflow-page>.workflow-task-summary,.workflow-page>.workflow-recovery {
+  margin-bottom:22px;
+}
+.workflow-task-summary {
+  border:1px solid var(--line,#dbe5e8);
+  border-left:3px solid var(--teal);
+  border-radius:8px;
+  padding:24px;
+  background:#fff;
+}
+.workflow-task-summary>.badges {
+  margin-bottom:18px;
+}
+.workflow-task-summary>.form-actions {
+  align-items:end;
+  margin-top:18px;
+}
+.inline-field.form-field {
+  margin:0;
+  min-width:220px;
+}
+.workflow-state-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:16px 0;
+}
+.workflow-state-grid>div {
+  border:1px solid #e2ebed;
+  background:#f8fbfb;
+  border-radius:6px;
+  padding:12px;
+}
+.workflow-state-grid .section-label {
+  display:block;
+  margin-bottom:9px;
+}
+.workflow-request+.workflow-request {
+  border-top:2px solid #e2ebed;
+  margin-top:28px;
+  padding-top:24px;
+}
+.workflow-request h3,.workflow-request h4 {
+  margin:0;
+  overflow-wrap:anywhere;
+}
+.workflow-request h3 { font-size:14px; }
+.workflow-request h4 { font-size:13px; }
+.request-goal { font-size:13px; line-height:1.8; }
+.response-item {
+  margin:16px 0;
+  border:1px solid #e1e9ec;
+  border-radius:6px;
+  padding:18px;
+  background:#fff;
+}
+.response-item>.facts { margin:14px 0; }
+.technical-details {
+  margin:13px 0;
+  padding:10px 12px;
+  border:1px solid #e2e9eb;
+  border-radius:5px;
+  background:#fafcfc;
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+.technical-details>summary {
+  cursor:pointer;
+  color:#365e67;
+  line-height:1.7;
+}
+.technical-details[open]>summary { margin-bottom:12px; }
+.technical-details .raw-content {
+  max-height:420px;
+  overflow:auto;
+  white-space:pre-wrap;
+}
+.compact-list { margin:0; padding-left:17px; line-height:1.7; }
+.item-criteria { display:block; margin-top:5px; color:var(--muted); font-size:10px; line-height:1.6; }
+.workflow-recovery { border:1px solid #e4cfa8; background:#fff9ee; padding:18px; border-radius:6px; }
+.workflow-recovery[hidden] { display:none; }
+.workflow-recovery .form-status { margin:0 0 12px; }
+.acceptance-form { margin-top:20px; border-top:1px solid #dce6e8; padding-top:16px; }
+.acceptance-form>.button { margin-top:14px; }
+.receipt-record+.receipt-record { border-top:1px solid #dce6e8; padding-top:14px; margin-top:14px; }
+.material-preview .raw-content { margin-top:14px; }
+@media(max-width:760px) {
+  .sidebar nav { flex-wrap:wrap; }
+  .sidebar .nav-link { flex-basis:40%; }
+  .workflow-task-summary { padding:17px; }
+  .workflow-state-grid { grid-template-columns:1fr; gap:7px; }
+  .workflow-state-grid>div { display:flex; align-items:center; justify-content:space-between; gap:9px; }
+  .workflow-state-grid .section-label { margin:0; }
+  .response-item { padding:13px; }
+  .inline-field.form-field { min-width:0; width:100%; }
+}

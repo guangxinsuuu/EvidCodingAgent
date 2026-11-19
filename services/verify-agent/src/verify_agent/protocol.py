@@ -29,17 +29,21 @@ def parse_json(raw: str | bytes) -> Any:
         raise ProtocolError("INVALID_JSON") from error
 
 
-@lru_cache(maxsize=1)
-def proposal_validator() -> Draft202012Validator:
+@lru_cache(maxsize=2)
+def proposal_validator(version: int = 1) -> Draft202012Validator:
     # 根目录按源码位置定位，不能通过模型传来的 schema URL 触发外部读取。
-    schema = parse_json(SCHEMA_PATH.read_bytes())
+    if version not in (1, 2):
+        raise ProtocolError("UNSUPPORTED_PROPOSAL_VERSION")
+    path = SCHEMA_PATH if version == 1 else ROOT / "protocols/verify-agent/v2/evidence-decision-proposal.schema.json"
+    schema = parse_json(path.read_bytes())
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
 
 
 def validate_proposal(proposal: object) -> dict:
     """只做传输结构校验；引用存在性、权限、预算和候选资格由 Runtime 决定。"""
-    if not proposal_validator().is_valid(proposal):
+    version = proposal.get("schema_version") if isinstance(proposal, dict) else None
+    if version not in (1, 2) or not proposal_validator(version).is_valid(proposal):
         raise ProtocolError("INVALID_DECISION_PROPOSAL")
     # 复制避免调用方后续修改已校验对象；不自行生成跨语言摘要。
     return parse_json(json.dumps(proposal, allow_nan=False))

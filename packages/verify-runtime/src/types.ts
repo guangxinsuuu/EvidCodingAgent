@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { DecisionProposal, HypothesisUpdate } from "@egap/contracts";
+import type { DecisionProposal, HypothesisUpdate, EvidenceReviewInput, EvidenceDecisionProposal } from "@egap/contracts";
 
 export type Json = Record<string, unknown>;
 export interface Material {
@@ -14,10 +14,19 @@ export interface ReleaseBundle {
   current_candidate_coverage: never[]; evaluation_status: "NOT_RUN";
   planning_contracts?: Json[];
 }
+export type RuntimeBundle = ReleaseBundle | EvidenceReviewInput;
+export type RuntimeProposal = DecisionProposal | EvidenceDecisionProposal;
+/** 仅冻结档案的有界读接口；MCP adapter 不获得数据库事务或写入工作台的权限。 */
+export interface EvidenceReadPort {
+  read(request: { run_id: string; operation_id: string; material_ref: string; sha256: string; start_line: number; end_line: number }): Promise<{ material_ref: string; sha256: string; start_line: number; end_line: number; content: string; segment_sha256: string }>;
+}
 export interface RuntimeConfig {
   databaseUrl: string;
   model: { endpoint: string; name: string; digest: string; timeoutMs: number; maxOutputTokens: number; seed?: number };
   plannerPrompt: string;
+  evidenceReadPort?: EvidenceReadPort;
+  /** Workbench 撤回/租约 fence 检查；在数据库事务外调用，失败不释放已预留额度。 */
+  assertEvidenceDispatchAllowed?: (runId: string) => Promise<void>;
 }
 /** plan_repairs 从 model_calls 总额内预留，不能作为额外、未计费调用。 */
 export interface Limits { model_calls: number; reads: number; no_progress: number; plan_repairs?: number }

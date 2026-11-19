@@ -22,11 +22,16 @@ export async function loadConfig(path = DEFAULT_CONFIG): Promise<ReviewConfig> {
   const data = JSON.parse(await privateText(path)) as ReviewConfig;
   assertLocalDatabase(data.database_url);
   if (!Number.isInteger(data.port) || data.port < 1024 || data.port > 65535) throw new Error("INVALID_PORT");
-  if (!Array.isArray(data.identities) || data.identities.length !== 3) throw new Error("THREE_IDENTITIES_REQUIRED");
+  // 同一 QA 可以持有多项任务，也允许多名 QA 转派。角色齐全与身份唯一是不同约束。
+  if (!Array.isArray(data.identities) || data.identities.length < 3 || data.identities.length > 100) throw new Error("REVIEW_IDENTITIES_REQUIRED");
+  for (const identity of data.identities) {
+    if (!REVIEW_ROLES.includes(identity.actor?.role) || !identity.actor.id || !identity.actor.display_name ||
+      !identity.actor.tenant_id || !/^[a-f0-9]{64}$/.test(identity.code_hash)) throw new Error("INVALID_IDENTITY");
+  }
   for (const role of REVIEW_ROLES) {
     const ids = data.identities.filter(i => i.actor?.role === role);
-    if (ids.length !== 1 || !ids[0]!.actor.id || !ids[0]!.actor.display_name || !ids[0]!.actor.tenant_id || !/^[a-f0-9]{64}$/.test(ids[0]!.code_hash)) throw new Error("INVALID_IDENTITY");
+    if (ids.length < 1) throw new Error("INVALID_IDENTITY");
   }
-  if (new Set(data.identities.map(i => i.actor.id)).size !== 3 || new Set(data.identities.map(i => i.code_hash)).size !== 3) throw new Error("DUPLICATE_IDENTITY");
+  if (new Set(data.identities.map(i => i.actor.id)).size !== data.identities.length || new Set(data.identities.map(i => i.code_hash)).size !== data.identities.length) throw new Error("DUPLICATE_IDENTITY");
   return data;
 }

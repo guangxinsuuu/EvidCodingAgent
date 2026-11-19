@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "scope": "LOCAL_ARCHIVED_EVIDENCE_INTEGRATION",
+  "date": "2026-11-19",
+  "model": {
+    "name": "mistral:latest",
+    "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+  },
+  "initial_debug": {
+    "id": "evidence-live-1b86224c-3124-405c-ba0a-a4fb50fecf40",
+    "status": "MODEL_OR_PROTOCOL_GAP",
+    "mode": "LOCAL_REAL_MODEL_INTEGRATION_KNOWN_ARCHIVE",
+    "user_qa_approval": false,
+    "protected_final": false,
+    "release_authorized": false,
+    "scenarios": [
+      {
+        "scenario": "ORIGINALS",
+        "request_id": "9602dd0b-c257-4ad9-b3c2-7d34cf67d793",
+        "execution_state": "BLOCKED",
+        "fulfillment_state": "UNASSESSED",
+        "response_id": null,
+        "dispositions": [],
+        "read_receipts": 0,
+        "accepted": false,
+        "model_calls": 2,
+        "read_calls": 0,
+        "later_model_saw_read_receipts": false
+      },
+      {
+        "scenario": "RAW_PROVIDER_MISSING",
+        "request_id": "6931ff9e-6739-4006-8eaf-8361a80787a3",
+        "execution_state": "BLOCKED",
+        "fulfillment_state": "UNASSESSED",
+        "response_id": null,
+        "dispositions": [],
+        "read_receipts": 0,
+        "accepted": false,
+        "model_calls": 4,
+        "read_calls": 2,
+        "later_model_saw_read_receipts": false
+      }
+    ]
+  },
+  "corrected_debug": {
+    "id": "evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35",
+    "status": "COMPLETED",
+    "mode": "LOCAL_REAL_MODEL_INTEGRATION_KNOWN_ARCHIVE",
+    "user_qa_approval": false,
+    "protected_final": false,
+    "release_authorized": false,
+    "scenarios": [
+      {
+        "scenario": "ORIGINALS",
+        "request_id": "1c6af765-2c15-4140-acad-82f6cd09d3c1",
+        "execution_state": "FINISHED",
+        "fulfillment_state": "COMPLETE",
+        "response_id": "01cb08d7-e846-4397-9ef1-c3abc3c62e02",
+        "dispositions": [
+          {
+            "item_id": "E1",
+            "disposition": "PROVIDED",
+            "unavailable_reason": null
+          },
+          {
+            "item_id": "E2",
+            "disposition": "PROVIDED",
+            "unavailable_reason": null
+          },
+          {
+            "item_id": "E3",
+            "disposition": "PROVIDED",
+            "unavailable_reason": null
+          }
+        ],
+        "read_receipts": 3,
+        "accepted": true,
+        "obligation_status": "WAITING_EVIDENCE",
+        "model_calls": 4,
+        "read_calls": 3,
+        "later_model_saw_read_receipts": true
+      },
+      {
+        "scenario": "RAW_PROVIDER_MISSING",
+        "request_id": "fbd889e6-c88e-4f35-a7d1-8fa21f1e194c",
+        "execution_state": "FINISHED",
+        "fulfillment_state": "UNAVAILABLE",
+        "response_id": "229587f7-8516-48c9-8964-82ea12714713",
+        "dispositions": [
+          {
+            "item_id": "E1",
+            "disposition": "UNAVAILABLE",
+            "unavailable_reason": "NOT_CAPTURED_IN_PINNED_ARCHIVE"
+          }
+        ],
+        "read_receipts": 0,
+        "accepted": true,
+        "obligation_status": "WAITING_EVIDENCE",
+        "model_calls": 1,
+        "read_calls": 0,
+        "later_model_saw_read_receipts": false
+      }
+    ]
+  },
+  "metrics": {
+    "corrected_model_calls": 5,
+    "corrected_reads": 3,
+    "corrected_input_tokens": 25725,
+    "corrected_output_tokens": 2020,
+    "total_model_calls_including_failures": 11,
+    "total_reads_including_failures": 5,
+    "total_input_tokens": 70504,
+    "total_output_tokens": 4886,
+    "provider_cost": null,
+    "cost_basis": "LOCAL_NO_PROVIDER_BILL"
+  },
+  "verification": {
+    "typescript_tests_passed": 347,
+    "typescript_tests_skipped": 0,
+    "python_tests_passed": 36,
+    "browser_click_acceptance": "BLOCKED_BY_BROWSER_TOOL",
+    "unseen_evaluation": false
+  },
+  "limitations": [
+    "KNOWN_ARCHIVE_DEBUG_NOT_GENERAL_AGENT_BENCHMARK",
+    "SIMULATED_QA_ACCEPTANCE_NOT_USER_APPROVAL",
+    "BUSINESS_SEMANTICS_NOT_ACCEPTED",
+    "NO_CODE_REPAIR_OR_RELEASE_AUTHORITY"
+  ]
+}

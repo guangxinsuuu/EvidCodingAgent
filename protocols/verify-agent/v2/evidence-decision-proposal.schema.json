@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:egap:verify-agent:evidence-decision-proposal:2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 2,
+      "maximum": 9007199254740991
+    },
+    "proposal_id": {
+      "type": "string",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "based_on_decision_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "candidate_epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "context_view_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "action_kind": {
+      "enum": [
+        "READ",
+        "CLARIFY",
+        "PROPOSE_EVIDENCE_RESPONSE",
+        "STOP"
+      ]
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1500
+      },
+      "maxItems": 12,
+      "uniqueItems": true
+    },
+    "expected_information": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "based_on_decision_revision",
+    "candidate_epoch",
+    "context_view_ref",
+    "action_kind",
+    "unresolved_questions",
+    "expected_information",
+    "rationale",
+    "payload"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "READ"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "material_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "start_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "material_ref",
+              "start_line",
+              "end_line"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "CLARIFY"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "question": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "question"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "PROPOSE_EVIDENCE_RESPONSE"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "item_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 300
+                    },
+                    "proposed_disposition": {
+                      "enum": [
+                        "PROVIDED",
+                        "PARTIAL",
+                        "UNAVAILABLE",
+                        "CONFLICTING"
+                      ]
+                    },
+                    "evidence_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "maxItems": 32,
+                      "uniqueItems": true
+                    },
+                    "read_receipt_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "maxItems": 32,
+                      "uniqueItems": true
+                    },
+                    "supporting_locations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "material_ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 300
+                          },
+                          "receipt_ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 300
+                          },
+                          "start_line": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          },
+                          "end_line": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "material_ref",
+                          "receipt_ref",
+                          "start_line",
+                          "end_line"
+                        ]
+                      },
+                      "maxItems": 32,
+                      "uniqueItems": true
+                    },
+                    "remaining_gaps": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "maxItems": 32,
+                      "uniqueItems": true
+                    },
+                    "unavailable_reason": {
+                      "enum": [
+                        null,
+                        "NOT_CAPTURED_IN_PINNED_ARCHIVE",
+                        "NOT_FOUND_IN_AUTHORIZED_SOURCES",
+                        "ACCESS_DENIED",
+                        "SOURCE_UNREACHABLE"
+                      ]
+                    },
+                    "explanation": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "item_id",
+                    "proposed_disposition",
+                    "evidence_refs",
+                    "read_receipt_refs",
+                    "supporting_locations",
+                    "remaining_gaps",
+                    "unavailable_reason",
+                    "explanation"
+                  ]
+                },
+                "maxItems": 20,
+                "uniqueItems": true,
+                "minItems": 1
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 3000
+              }
+            },
+            "required": [
+              "items",
+              "summary"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "STOP"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            },
+            "required": [
+              "reason"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

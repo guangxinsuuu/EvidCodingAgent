@@ -26,6 +26,12 @@ importers:
 
   apps/review-workbench:
     dependencies:
+      '@egap/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@egap/verify-runtime':
+        specifier: workspace:*
+        version: link:../../packages/verify-runtime
       fastify:
         specifier: 5.12.7
         version: 5.12.7

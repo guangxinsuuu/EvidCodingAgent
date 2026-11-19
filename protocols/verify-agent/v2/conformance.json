@@ -1,0 +1,391 @@
+{
+  "schema_version": 2,
+  "cases": [
+    {
+      "name": "valid_read",
+      "valid": true,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "valid_clarify",
+      "valid": true,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "CLARIFY",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "question": "需要哪个阶段？"
+        }
+      }
+    },
+    {
+      "name": "valid_stop",
+      "valid": true,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "STOP",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "reason": "无法确定指定对象。"
+        }
+      }
+    },
+    {
+      "name": "valid_propose_evidence_response",
+      "valid": true,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "PROPOSE_EVIDENCE_RESPONSE",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "summary": "原件未采集。",
+          "items": [
+            {
+              "item_id": "E1",
+              "proposed_disposition": "UNAVAILABLE",
+              "evidence_refs": [],
+              "read_receipt_refs": [],
+              "supporting_locations": [],
+              "remaining_gaps": [
+                "固定档案未采集。"
+              ],
+              "unavailable_reason": "NOT_CAPTURED_IN_PINNED_ARCHIVE",
+              "explanation": "不证明事件未发生。"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_wrong_version",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_unsafe_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 9007199254740992,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_string_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": "1",
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_zero_epoch",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 0,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_uuid_noncanonical",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-0b74-084d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_cannot_pass",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "PASS",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_cannot_check",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "CHECK_INTENT",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_extra_authority",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        },
+        "qa_accepted": true
+      }
+    },
+    {
+      "name": "invalid_no_forced_release_hypotheses",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": 1,
+          "end_line": 2
+        },
+        "hypothesis_updates": []
+      }
+    },
+    {
+      "name": "invalid_read_string_line",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "READ",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "material_ref": "archive:test",
+          "start_line": "1",
+          "end_line": 2
+        }
+      }
+    },
+    {
+      "name": "invalid_duplicate_refs",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "PROPOSE_EVIDENCE_RESPONSE",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "summary": "原件未采集。",
+          "items": [
+            {
+              "item_id": "E1",
+              "proposed_disposition": "UNAVAILABLE",
+              "evidence_refs": [
+                "same",
+                "same"
+              ],
+              "read_receipt_refs": [],
+              "supporting_locations": [],
+              "remaining_gaps": [
+                "固定档案未采集。"
+              ],
+              "unavailable_reason": "NOT_CAPTURED_IN_PINNED_ARCHIVE",
+              "explanation": "不证明事件未发生。"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_omitted_gaps",
+      "valid": false,
+      "value": {
+        "schema_version": 2,
+        "proposal_id": "c5adfd90-895a-4b74-a84d-000000000001",
+        "based_on_decision_revision": 1,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:1",
+        "action_kind": "PROPOSE_EVIDENCE_RESPONSE",
+        "unresolved_questions": [
+          "指定原件是否采集？"
+        ],
+        "expected_information": "读取确切来源。",
+        "rationale": "标题不足以证明存在。",
+        "payload": {
+          "summary": "原件未采集。",
+          "items": [
+            {
+              "item_id": "E1",
+              "proposed_disposition": "UNAVAILABLE",
+              "evidence_refs": [],
+              "read_receipt_refs": [],
+              "supporting_locations": [],
+              "unavailable_reason": "NOT_CAPTURED_IN_PINNED_ARCHIVE",
+              "explanation": "不证明事件未发生。"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

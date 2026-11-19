@@ -71,6 +71,50 @@ class FakeRuntime:
 
 
 class GraphTests(unittest.TestCase):
+    def test_same_graph_consumes_evidence_v2_then_returns_qa_proposal_only(self):
+        """只变任务 profile/协议，保留同一 ReAct 控制图与权威 Runtime 端口。"""
+        runtime = FakeRuntime()
+        runtime.projection.update(decision_basis_revision=1, context_view_ref="context:1", next_command_id="decision:1:0",
+                                  task_identity={"task_mode": "EVIDENCE_REVIEW"})
+        original_submit = runtime.submit_proposal
+
+        def decide(run_id, command_id, basis):
+            runtime.decisions.append((command_id, basis, deepcopy(runtime.projection.get("latest_feedback"))))
+            action = "READ" if basis == 1 else "PROPOSE_EVIDENCE_RESPONSE"
+            payload = ({"material_ref": "archive:test", "start_line": 1, "end_line": 2} if basis == 1 else {
+                "summary": "模型原件未采集", "items": [{"item_id": "E4", "proposed_disposition": "UNAVAILABLE",
+                "evidence_refs": [], "read_receipt_refs": [], "supporting_locations": [], "remaining_gaps": ["固定档案未采集"],
+                "unavailable_reason": "NOT_CAPTURED_IN_PINNED_ARCHIVE", "explanation": "不证明未发生"}]})
+            p = {"schema_version": 2, "proposal_id": "c5adfd90-895a-4b74-a84d-" + f"{basis:012x}",
+                 "based_on_decision_revision": basis, "candidate_epoch": 1, "context_view_ref": "context:" + str(basis),
+                 "action_kind": action, "unresolved_questions": ["仍有原件缺口"], "expected_information": "区分已读与未采集",
+                 "rationale": "不能以草稿替代原始模型响应", "payload": payload}
+            response = {"status": "COMPLETED", "model_call_id": "model:" + str(basis), "proposal": p}
+            runtime.projection["pending_decision"] = response
+            return deepcopy(response)
+
+        def submit(run_id, p):
+            result = original_submit(run_id, p)
+            if p["action_kind"] == "PROPOSE_EVIDENCE_RESPONSE":
+                runtime.projection["stop_reason"] = "EVIDENCE_RESPONSE_PROPOSED"
+            return result
+
+        runtime.decide, runtime.submit_proposal = decide, submit
+        report = run_agent(runtime, RUN_ID)
+        self.assertEqual([p["action_kind"] for p in runtime.submissions], ["READ", "PROPOSE_EVIDENCE_RESPONSE"])
+        self.assertIsNotNone(runtime.decisions[1][2])
+        self.assertTrue(report["evidence_response_proposed"])
+        self.assertEqual(report["business_verdict"], "NOT_EVALUATED")
+        self.assertEqual(report["projection"]["current_candidate_coverage"], [])
+
+    def test_in_flight_archive_read_waits_without_another_model_decision(self):
+        runtime = FakeRuntime()
+        runtime.projection["pending_operation"] = {"operation_id": "read:active", "action_kind": "READ", "status": "DISPATCHED"}
+        report = run_agent(runtime, RUN_ID)
+        self.assertEqual(report["outcome"], "WAITING_RUNTIME")
+        self.assertEqual(runtime.decisions, [])
+        self.assertEqual(runtime.submissions, [])
+
     def test_new_read_feedback_reaches_second_decision_without_inventing_coverage(self):
         runtime = FakeRuntime()
         report = run_agent(runtime, RUN_ID)

@@ -1,7 +1,8 @@
+import { buildEvidenceResponse, evidenceProposalError, evidenceProfilePrompt, evidenceShapeHint } from "./evidence-profile.js";
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { PoolClient } from "pg";
-import { DecisionProposalError, decisionProposalSchema, parseDecisionProposal, type DecisionProposal } from "@egap/contracts";
+import { DecisionProposalError, decisionProposalSchema, parseDecisionProposal, type DecisionProposal, parseEvidenceReviewInput, parseEvidenceDecisionProposal, evidenceDecisionProposalSchema } from "@egap/contracts";
 import { Store, type RunRow } from "./store.js";
 import { contextRef, contextView, evidenceRefs, finalEligibility, groundedRequirements, modelBodySchema, modelShapeHint } from "./context.js";
 import { invokeLocalModel, validateModelConfig } from "./model.js";
@@ -9,13 +10,13 @@ import { assessCheckQuality } from "./check-quality.js";
 import { assessCheckBinding } from "./check-binding.js";
 import { capabilityContract, capabilityContractDigest, validatePlanningAuthority, verifyCapabilitySource } from "./capability-authority.js";
 import { canonical, digest, requireThat, RuntimeError, sha, validateBundle,
-  type Json, type Limits, type ReleaseBundle, type RuntimeConfig, type RunState } from "./types.js";
+  type Json, type Limits, type ReleaseBundle, type RuntimeConfig, type RunState, type RuntimeProposal } from "./types.js";
 
 interface CallRow {
   id: string; run_id: string; command_id: string; basis: number; status: string; context_ref: string;
-  request: Json; request_text: string | null; proposal: DecisionProposal | null; applied: boolean; deadline: Date | null;
+  request: Json; request_text: string | null; proposal: RuntimeProposal | null; applied: boolean; deadline: Date | null;
 }
-interface OperationRow { id: string; proposal: DecisionProposal; status: string; result: Json | null }
+interface OperationRow { id: string; proposal: RuntimeProposal; status: string; result: Json | null }
 
 /**
  * Python LangGraph → HTTP RuntimePort → 本服务 → Store/PostgreSQL → 本地 ModelPort。
@@ -32,24 +33,26 @@ export class Runtime {
     requireThat(config.model.seed === undefined || Number.isSafeInteger(config.model.seed) && config.model.seed >= 0 && config.model.seed <= 2147483647, "INVALID_MODEL_SEED", 400);
     this.store = new Store(config.databaseUrl);
     const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "check-quality.js", "check-binding.js", "capability-authority.js",
-      "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
+      "evidence-profile.js", "../../contracts/dist/evidence-review.js", "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
     this.identities = { runtime_build_sha256: digest(modules), module_sha256: modules,
-      planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema),
+      planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema), evidence_action_schema_sha256: digest(evidenceDecisionProposalSchema),
+      evidence_prompt_sha256: sha(evidenceProfilePrompt), evidence_read_transport: config.evidenceReadPort ? "MCP_ARCHIVE" : "PINNED_MEMORY",
+      evidence_dispatch_fence: Boolean(config.assertEvidenceDispatchAllowed),
       capability_contract_sha256: capabilityContractDigest,
       model_name: config.model.name, model_manifest_digest: config.model.digest };
     this.configDigest = digest({ identities: this.identities, model: config.model, prompt: config.plannerPrompt, schema: modelBodySchema(),
       wire_encoding: "PERSISTED_JSON_TEXT_V1_ACTION_BEFORE_PAYLOAD" });
   }
   async close(): Promise<void> { await this.store.close(); }
-  /** 仅本地 operator CLI 调用；HTTP 没有导入/扩大材料权限的入口。 */
+  /** 可信 operator / Workbench Worker 调用；HTTP 没有导入或扩大材料权限的入口。 */
   async acceptRun(input: unknown, token: string, limits: Limits = { model_calls: 6, reads: 4, no_progress: 2 }, id: string = randomUUID()): Promise<string> {
-    const bundle = validateBundle(input);
-    validatePlanningAuthority(bundle.planning_contracts);
+    const bundle = (input as {task_mode?:string})?.task_mode === "EVIDENCE_REVIEW" ? parseEvidenceReviewInput(input) : validateBundle(input);
+    if (bundle.task_mode === "RELEASE_VERIFICATION") validatePlanningAuthority(bundle.planning_contracts);
     requireThat(/^[0-9a-f-]{36}$/.test(id) && token.length >= 32, "INVALID_RUN_IDENTITY", 400);
     const bounds = { model_calls: 12, reads: 8, no_progress: 3 };
     for (const key of ["model_calls", "reads", "no_progress"] as const)
       requireThat(Number.isInteger(limits[key]) && limits[key] >= 1 && limits[key] <= bounds[key], "INVALID_BUDGET", 400);
-    const repairs = limits.plan_repairs ?? Math.min(1, limits.model_calls - 1);
+    const repairs = bundle.task_mode === "EVIDENCE_REVIEW" ? 0 : limits.plan_repairs ?? Math.min(1, limits.model_calls - 1);
     requireThat(Number.isInteger(repairs) && repairs >= 0 && repairs <= 2 && repairs < limits.model_calls, "INVALID_BUDGET", 400);
     limits = { ...limits, plan_repairs: repairs };
     const state: RunState = { run_id: id, status: "ACTIVE", candidate_epoch: 1, decision_basis_revision: 1,
@@ -76,9 +79,9 @@ export class Runtime {
   }
   private nextCommand(state: RunState): string { return `decision:${state.decision_basis_revision}:${state.model_calls_used}`; }
   /** UNKNOWN 无自动补发。只恢复还未派发的 READ；GET 查询不产生新模型调用。 */
-  async projection(id: string): Promise<Json> {
+  async projection(id: string, options: { dispatchReads?: boolean } = {}): Promise<Json> {
     await this.reconcile(id);
-    await this.drainReads(id);
+    if (options.dispatchReads !== false) await this.drainReads(id);
     return this.store.transaction(async c => {
       const { bundle, state } = await this.store.lock(c, id);
       const calls = await c.query<CallRow>("SELECT * FROM verify_runtime.calls WHERE run_id=$1 ORDER BY created_at,id", [id]);
@@ -89,12 +92,13 @@ export class Runtime {
         next_command_id: inFlight?.command_id ?? this.nextCommand(state),
         pending_decision: pending ? { model_call_id: pending.id, status: "COMPLETED", proposal: pending.proposal } : null,
         pending_model_call: inFlight ? { model_call_id: inFlight.id, status: inFlight.status } : null,
-        task_identity: { baseline_sha: bundle.baseline_sha, candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit,
+        pending_operation: ops.rows.filter(op => ["QUEUED", "DISPATCHED"].includes(op.status)).map(op => ({ operation_id: op.id, status: op.status, action_kind: op.proposal.action_kind }))[0] ?? null,
+        task_identity: bundle.task_mode === "EVIDENCE_REVIEW" ? { task_mode: bundle.task_mode, scope: bundle.scope, candidate_sha: bundle.candidate_sha, historical_run_id: bundle.historical_run_id, request_id: bundle.request_id, request_spec_revision: bundle.request_spec_revision } : { baseline_sha: bundle.baseline_sha, candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit,
           scope: bundle.scope, input_provenance: bundle.input_provenance },
         budgets: { model_calls: { limit: state.limits.model_calls, used: state.model_calls_used }, reads: { limit: state.limits.reads, used: state.reads_used },
           accounting_basis: "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
           check_repair: { reserved_within_total: state.limits.plan_repairs ?? 0, used: state.check_repair?.attempts_used ?? 0 },
-          profile: "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls - (state.limits.plan_repairs ?? 0),
+          profile: bundle.task_mode === "EVIDENCE_REVIEW" ? "EVIDENCE_REVIEW" : "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls - (state.limits.plan_repairs ?? 0),
             CHECK_REPAIR: state.limits.plan_repairs ?? 0, FINAL: 0, RECONCILIATION: "LOCAL_STATE_ONLY", CLEANUP: "NO_SUT_RESOURCES" } },
         model_calls: calls.rows.map(call => ({ model_call_id: call.id, status: call.status, basis: call.basis, applied: call.applied })),
         operations: ops.rows.map(op => ({ operation_id: op.id, status: op.status, action_kind: op.proposal.action_kind, result: op.result })),
@@ -102,6 +106,8 @@ export class Runtime {
       };
     });
   }
+  /** Worker 对 UNKNOWN/待入库结果只对账，不触发任何新模型或 MCP 调用。 */
+  async reconcileProjection(id: string): Promise<Json> { return this.projection(id, { dispatchReads: false }); }
   private callProjection(call: CallRow): Json {
     return { status: call.status, model_call_id: call.id, ...(call.proposal ? { proposal: call.proposal } : {}) };
   }
@@ -122,7 +128,7 @@ export class Runtime {
       }
       this.active(row);
       requireThat(command.based_on_decision_revision === s.decision_basis_revision && command.command_id === this.nextCommand(s), "STALE_DECISION");
-      const pending = await c.query("SELECT id FROM verify_runtime.calls WHERE run_id=$1 AND (status IN ('RESERVED','DISPATCHED') OR (status='COMPLETED' AND applied=false)) UNION ALL SELECT id FROM verify_runtime.operations WHERE run_id=$1 AND status='QUEUED'", [id]);
+      const pending = await c.query("SELECT id FROM verify_runtime.calls WHERE run_id=$1 AND (status IN ('RESERVED','DISPATCHED') OR (status='COMPLETED' AND applied=false)) UNION ALL SELECT id FROM verify_runtime.operations WHERE run_id=$1 AND status IN ('QUEUED','DISPATCHED')", [id]);
       requireThat(pending.rowCount === 0, "DECISION_ALREADY_PENDING");
       if (s.model_calls_used >= s.limits.model_calls) {
         s.status = "STOPPED"; s.stop_reason = "DISCOVERY_BUDGET_EXHAUSTED";
@@ -146,7 +152,7 @@ export class Runtime {
       const request = { model: this.config.model.name, stream: false, format: modelBodySchema(row.bundle, s),
         options: { temperature: 0, seed: this.config.model.seed ?? 19, num_ctx: 16384, num_predict: this.config.model.maxOutputTokens },
         keep_alive: "5m", messages: [
-          { role: "system", content: this.config.plannerPrompt + "\n" + modelShapeHint() },
+          { role: "system", content: (row.bundle.task_mode === "EVIDENCE_REVIEW" ? evidenceProfilePrompt + "\n" + evidenceShapeHint() : this.config.plannerPrompt + "\n" + modelShapeHint()) },
           { role: "user", content: JSON.stringify({ context_view: contextView(row.bundle, s),
             execution_limits: { model_calls_remaining_after_this: s.limits.model_calls - s.model_calls_used,
               discovery_calls_remaining_after_this: pendingRepair ? 0 : Math.max(0, discoveryLimit - s.model_calls_used),
@@ -193,15 +199,23 @@ export class Runtime {
       await this.store.event(c, row.state, "MODEL_DISPATCHED", { model_call_id: call.id }); await this.store.save(c, row.state); return true;
     });
     if (!dispatch) return this.getCall(registered.id);
+    // 工作台属于另一个数据库；授权检查在事务外进行，不能把跨库读伪装成同一原子事务。
+    // 撤回与派发之间仍有真实竞态，返回端和工作台 inbox 会再次检查授权。
+    if (!(await this.evidenceAuthorizationValid(id))) {
+      await this.cancelEvidenceDispatch(id, registered.id); return this.getCall(registered.id);
+    }
     let raw: string;
     try {
       requireThat(registered.request_text !== null, "MODEL_REQUEST_BYTES_UNAVAILABLE");
       raw = await invokeLocalModel(this.config.model, registered.request_text);
     }
     catch { await this.markUnknown(id, registered.id, "MODEL_EXECUTION_UNCERTAIN"); return this.getCall(registered.id); }
+    if (!(await this.evidenceAuthorizationValid(id))) {
+      await this.cancelEvidenceDispatch(id, registered.id, raw); return this.getCall(registered.id);
+    }
     await this.store.transaction(async c => {
       const row = await this.store.lock(c, id); const s = row.state;
-      let proposal: DecisionProposal | null = null; let usage: Json | null = null;
+      let proposal: RuntimeProposal | null = null; let usage: Json | null = null;
       let validationIssues: readonly { keyword: string; path: string }[] = [];
       let status = "INVALID";
       try {
@@ -211,7 +225,8 @@ export class Runtime {
           output_tokens: Number.isSafeInteger(response.eval_count) ? response.eval_count : null, cost: null, cost_basis: "LOCAL_NO_PROVIDER_BILL" };
         const body = JSON.parse((response.message as { content: string }).content) as Json;
         requireThat(!["schema_version", "proposal_id", "based_on_decision_revision", "candidate_epoch", "context_view_ref"].some(k => k in body), "MODEL_IDENTITY_OVERRIDE");
-        proposal = parseDecisionProposal({ ...body, schema_version: 1, proposal_id: randomUUID(),
+        const evidenceMode = row.bundle.task_mode === "EVIDENCE_REVIEW";
+        proposal = (evidenceMode ? parseEvidenceDecisionProposal : parseDecisionProposal)({ ...body, schema_version: evidenceMode ? 2 : 1, proposal_id: randomUUID(),
           based_on_decision_revision: registered.basis, candidate_epoch: s.candidate_epoch, context_view_ref: registered.context_ref });
         status = "COMPLETED";
       } catch (error) {
@@ -231,6 +246,24 @@ export class Runtime {
       await this.store.save(c, s);
     });
     return this.getCall(registered.id);
+  }
+  private async evidenceAuthorizationValid(id: string): Promise<boolean> {
+    if (!this.config.assertEvidenceDispatchAllowed) return true;
+    const row = (await this.store.pool.query<{mode:string}>("SELECT bundle->>'task_mode' AS mode FROM verify_runtime.runs WHERE id=$1",[id])).rows[0];
+    if (row?.mode !== "EVIDENCE_REVIEW") return true;
+    try { await this.config.assertEvidenceDispatchAllowed(id); return true; } catch { return false; }
+  }
+  private async cancelEvidenceDispatch(id: string, callId: string, raw?: string): Promise<void> {
+    await this.store.transaction(async c => {
+      const {state} = await this.store.lock(c,id);
+      // 已取得但失去授权的响应仍留在私有账本；不能因撤回擦掉真实文本和消耗。
+      let usage: Json | null = null;
+      if (raw) {try {const receipt=JSON.parse(raw) as Json; usage={prompt_tokens:receipt.prompt_eval_count??null,output_tokens:receipt.eval_count??null,cost:null,cost_basis:"LOCAL_NO_PROVIDER_BILL"};} catch { /* 原字节仍保留供对账。 */ }}
+      await c.query("UPDATE verify_runtime.calls SET status='CANCELLED',error_code='EVIDENCE_AUTHORIZATION_REVOKED',raw_response=COALESCE($2,raw_response),usage=COALESCE($3,usage) WHERE id=$1 AND status='DISPATCHED'",[callId,raw??null,usage]);
+      await c.query("UPDATE verify_runtime.outbox SET status='CANCELLED' WHERE id=$1",[callId]);
+      if (state.status === "ACTIVE") {state.status="CANCELLED";state.stop_reason="EVIDENCE_AUTHORIZATION_REVOKED";state.decision_basis_revision+=1;}
+      await this.store.event(c,state,"EVIDENCE_DISPATCH_CANCELLED",{model_call_id:callId}); await this.store.save(c,state);
+    });
   }
   private async getCall(id: string): Promise<Json> {
     const row = (await this.store.pool.query<CallRow>("SELECT * FROM verify_runtime.calls WHERE id=$1", [id])).rows[0]!;
@@ -264,9 +297,26 @@ export class Runtime {
   private async reconcile(id: string): Promise<void> {
     const expired = await this.store.pool.query<{ id: string }>("SELECT id FROM verify_runtime.calls WHERE run_id=$1 AND status='DISPATCHED' AND deadline<now()", [id]);
     for (const call of expired.rows) await this.markUnknown(id, call.id, "MODEL_RECONCILIATION_UNAVAILABLE");
+    await this.store.transaction(async c => {
+      const {state} = await this.store.lock(c,id);
+      const stale = await c.query<{id:string}>("UPDATE verify_runtime.operations SET status='UNKNOWN',result=$2 WHERE run_id=$1 AND status='DISPATCHED' AND deadline<now() RETURNING id",[id,{status:"UNKNOWN",error_code:"READ_RECONCILIATION_UNAVAILABLE"}]);
+      for (const op of stale.rows) {
+        await c.query("UPDATE verify_runtime.outbox SET status='UNKNOWN' WHERE id=$1",[op.id]);
+        if (state.status === "ACTIVE") {state.status="BLOCKED";state.stop_reason="READ_RECONCILIATION_UNAVAILABLE";}
+        await this.store.event(c,state,"READ_UNKNOWN",{operation_id:op.id});
+      }
+      if (stale.rowCount) await this.store.save(c,state);
+    });
   }
-  private semanticError(row: RunRow, p: DecisionProposal): string | null {
-    const b = row.bundle, s = row.state;
+  private semanticError(row: RunRow, p: RuntimeProposal): string | null {
+    const s = row.state;
+    if (row.bundle.task_mode === "EVIDENCE_REVIEW") {
+      if (p.schema_version !== 2) return "PROFILE_PROPOSAL_MISMATCH";
+      if (p.candidate_epoch !== s.candidate_epoch || p.based_on_decision_revision !== s.decision_basis_revision || p.context_view_ref !== contextRef(row.bundle, s)) return "STALE_DECISION";
+      return evidenceProposalError(row.bundle, s, p);
+    }
+    if (p.schema_version !== 1) return "PROFILE_PROPOSAL_MISMATCH";
+    const b = row.bundle;
     if (p.candidate_epoch !== s.candidate_epoch || p.based_on_decision_revision !== s.decision_basis_revision || p.context_view_ref !== contextRef(b, s)) return "STALE_DECISION";
     const evidence = new Set(evidenceRefs(b, s));
     if (p.requirement_refs.some(ref => !b.requirement_refs.includes(ref))) return "REQUIREMENT_OUT_OF_SCOPE";
@@ -289,7 +339,7 @@ export class Runtime {
   }
   /** 模型提案、假设更新、预算与 READ outbox 原子登记；假设只能保留为模型判断。 */
   async submit(id: string, input: unknown): Promise<Json> {
-    const p = parseDecisionProposal(input);
+    const p = (input as {schema_version?:number})?.schema_version === 2 ? parseEvidenceDecisionProposal(input) : parseDecisionProposal(input);
     const admitted = await this.store.transaction(async c => {
       const row = await this.store.lock(c, id); const s = row.state;
       const old = (await c.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND proposal_id=$2", [id, p.proposal_id])).rows[0];
@@ -299,11 +349,12 @@ export class Runtime {
       requireThat(call && canonical(call.proposal) === canonical(p), "PROPOSAL_NOT_FROM_REGISTERED_CALL");
       let error = this.semanticError(row, p);
       const opId = randomUUID();
-      const key = p.action_kind === "READ" ? digest({ epoch: s.candidate_epoch, action: p.action_kind, payload: p.payload }) : digest({ proposal_id: p.proposal_id });
+      const key = p.action_kind === "READ" ? digest({ epoch: s.candidate_epoch, action: p.action_kind, payload: p.payload,
+        ...(row.bundle.task_mode === "EVIDENCE_REVIEW" ? { material_sha256: row.bundle.materials.find(m => m.material_ref === p.payload.material_ref)?.sha256 ?? null, manifest_sha256: row.bundle.authorized_manifest.sha256 } : {}) }) : digest({ proposal_id: p.proposal_id });
       const cached = (await c.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND operation_key=$2 AND status IN ('COMPLETED','REJECTED')", [id, key])).rows[0];
       if (cached && !error) {
         const updated = [...s.hypotheses];
-        for (const h of p.hypothesis_updates) {
+        for (const h of (p.schema_version === 1 ? p.hypothesis_updates : [])) {
           const index = updated.findIndex(old => old.id === h.id);
           if (index >= 0) updated[index] = structuredClone(h); else updated.push(structuredClone(h));
         }
@@ -326,15 +377,20 @@ export class Runtime {
           result.allowed_range = { start_line: 1, end_line: lines, max_span: 200 };
           result.correction = "READ counts lines in the selected material itself. Diff @@ hunk numbers are source coordinates, not READ coordinates. Choose a range inside allowed_range or a different material.";
         }
-        if (error === "APPLICABLE_RULE_READ_REQUIRED") {
-          result.missing_rule_reads = (row.bundle.catalog.requirements as Json[]).filter(r => p.requirement_refs.includes(String(r.id)) &&
-            !groundedRequirements(row.bundle, s).includes(String(r.id))).map(r => r.material_ref);
+        if (error === "APPLICABLE_RULE_READ_REQUIRED" && row.bundle.task_mode === "RELEASE_VERIFICATION" && p.schema_version === 1) {
+          const releaseBundle = row.bundle;
+          result.missing_rule_reads = (releaseBundle.catalog.requirements as Json[]).filter(r => p.requirement_refs.includes(String(r.id)) &&
+            !groundedRequirements(releaseBundle, s).includes(String(r.id))).map(r => r.material_ref);
           result.correction = "Read the complete applicable rule excerpt before proposing assertions. A rule title or a baseline behavior is not the contract text.";
         }
         if (error === "CAPABILITY_GAP_GROUNDING_REQUIRED") result.correction = "Read a relevant rule or implementation material before claiming a capability gap. Inspect the registered planning contract; an unexecuted prerequisite is not a missing interface.";
       }
       else if (p.action_kind === "READ") { status = "QUEUED"; result = null; s.reads_used += 1; }
-      else if (p.action_kind === "CHECK_INTENT") {
+      else if (p.action_kind === "PROPOSE_EVIDENCE_RESPONSE" && row.bundle.task_mode === "EVIDENCE_REVIEW") {
+        result = { status: "PROPOSED", evidence_response: buildEvidenceResponse(row.bundle, s, p, opId), trusted_finding: false };
+        s.status = "PLANNED"; s.stop_reason = "EVIDENCE_RESPONSE_PROPOSED";
+      }
+      else if (p.action_kind === "CHECK_INTENT" && row.bundle.task_mode === "RELEASE_VERIFICATION") {
         // 传输 Schema 允许旧的笼统 CHECK；业务规划完整性在此一次返回全部缺项。
         // Runtime 不替模型补预期答案，且结构完整与业务正确性/可派发性分别记账。
         const structure = assessCheckQuality(row.bundle, p);
@@ -372,49 +428,93 @@ export class Runtime {
         if (p.action_kind === "CLARIFY" || p.action_kind === "NOVEL_CHECK") { s.status = "BLOCKED"; s.stop_reason = p.action_kind === "CLARIFY" ? "CLARIFICATION_REQUIRED" : "CAPABILITY_GAP"; }
       }
       // 错误动作不接受其假设更新；成功动作的更新仍标为 proposal，不能升级业务事实。
-      if (!error) for (const h of p.hypothesis_updates) { s.hypotheses = [...s.hypotheses.filter(old => old.id !== h.id), structuredClone(h)]; }
+      if (!error) for (const h of (p.schema_version === 1 ? p.hypothesis_updates : [])) { s.hypotheses = [...s.hypotheses.filter(old => old.id !== h.id), structuredClone(h)]; }
       requireThat(s.hypotheses.length <= 32, "HYPOTHESIS_LIMIT");
       await c.query("INSERT INTO verify_runtime.operations(id,run_id,proposal_id,operation_key,proposal,status,result) VALUES($1,$2,$3,$4,$5,$6,$7)",
         [opId, id, p.proposal_id, error ? digest({ rejected: p.proposal_id }) : key, p, status, result]);
       await c.query("UPDATE verify_runtime.calls SET applied=true WHERE id=$1", [call.id]);
       if (status === "QUEUED") await c.query("INSERT INTO verify_runtime.outbox(id,run_id,kind,status) VALUES($1,$2,'READ','PENDING')", [opId, id]);
-      else this.feedback(s, result!, !error && p.action_kind === "CHECK_INTENT");
+      else this.feedback(s, result!, !error && ["CHECK_INTENT", "PROPOSE_EVIDENCE_RESPONSE"].includes(p.action_kind));
       await this.store.event(c, s, "PROPOSAL_REGISTERED", { proposal_id: p.proposal_id, operation_id: opId, status });
       await this.store.save(c, s); return opId;
     });
     await this.drainReads(id);
     return this.operation(id, admitted);
   }
+  /**
+   * READ 准入/预留已在 submit 的短事务完成。此处再以短事务领取，网络 MCP 在事务外执行，
+   * 最后短事务重检撤销并登记回执。并发 projection 不会重复派发同一 operation。
+   * 进程在派发后崩溃时保留 UNKNOWN 和预算，不把未知副作用当失败重试。
+   */
   private async drainReads(id: string): Promise<void> {
-    await this.store.transaction(async c => {
-      const row = await this.store.lock(c, id); const s = row.state;
+    const reserved = await this.store.transaction(async c => {
+      const row = await this.store.lock(c, id);
       const queued = await c.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND status='QUEUED' ORDER BY created_at", [id]);
+      const work: { op: OperationRow; bundle: RunRow["bundle"]; epoch: number }[] = [];
       for (const op of queued.rows) {
-        const p = op.proposal;
-        if (p.action_kind !== "READ") continue;
-        let status = "COMPLETED", result: Json;
-        // 撤销在消费提案后仍能阻止未派发动作；每个后续步骤都以当前状态重检。
-        if (s.status !== "ACTIVE" || p.candidate_epoch !== s.candidate_epoch || s.config_digest !== this.configDigest) {
-          status = "CANCELLED"; result = { status, error_code: "AUTHORIZATION_REVOKED" };
-        } else {
-          const m = row.bundle.materials.find(m => m.material_ref === p.payload.material_ref)!;
-          const content = m.content.split("\n").slice(p.payload.start_line - 1, p.payload.end_line).join("\n");
-          if (Buffer.byteLength(content) > 16_384) { status = "REJECTED"; result = { status, error_code: "FRAGMENT_TOO_LARGE" }; }
-          else {
-            result = { status, receipt_ref: "read:" + op.id, material_ref: m.material_ref, git_commit: m.git_commit,
-              candidate_epoch: s.candidate_epoch, source_sha256: m.sha256, fragment_sha256: sha(content),
-              start_line: p.payload.start_line, end_line: p.payload.end_line, content,
-              evidence_kind: "PINNED_MATERIAL_EXCERPT", proves_current_business_behavior: false };
-            s.read_receipts.push(result);
-          }
+        if (op.proposal.action_kind !== "READ") continue;
+        if (row.state.status !== "ACTIVE" || op.proposal.candidate_epoch !== row.state.candidate_epoch || row.state.config_digest !== this.configDigest) {
+          await c.query("UPDATE verify_runtime.operations SET status='CANCELLED',result=$2 WHERE id=$1", [op.id, {status:"CANCELLED",error_code:"AUTHORIZATION_REVOKED"}]);
+          await c.query("UPDATE verify_runtime.outbox SET status='CANCELLED' WHERE id=$1", [op.id]);
+          continue;
         }
-        await c.query("UPDATE verify_runtime.operations SET status=$2,result=$3 WHERE id=$1", [op.id, status, result]);
-        await c.query("UPDATE verify_runtime.outbox SET status='DONE' WHERE id=$1", [op.id]);
-        this.feedback(s, result, status === "COMPLETED");
-        await this.store.event(c, s, "READ_RECEIPT", { operation_id: op.id, status });
+        await c.query("UPDATE verify_runtime.operations SET status='DISPATCHED',deadline=now()+interval '30 seconds' WHERE id=$1", [op.id]);
+        await c.query("UPDATE verify_runtime.outbox SET status='DISPATCHED' WHERE id=$1", [op.id]);
+        await this.store.event(c, row.state, "READ_DISPATCHED", {operation_id:op.id});
+        work.push({ op, bundle: row.bundle, epoch: row.state.candidate_epoch });
       }
-      await this.store.save(c, s);
+      await this.store.save(c, row.state); return work;
     });
+    for (const {op,bundle,epoch} of reserved) {
+      const p = op.proposal;
+      if (p.action_kind !== "READ") continue;
+      const m = bundle.materials.find(m => m.material_ref === p.payload.material_ref)!;
+      let status = "COMPLETED";
+      let result: Json;
+      try {
+        requireThat(await this.evidenceAuthorizationValid(id), "EVIDENCE_AUTHORIZATION_REVOKED");
+        const content = m.content.split("\n").slice(p.payload.start_line - 1, p.payload.end_line).join("\n");
+        requireThat(Buffer.byteLength(content) <= 16_384, "FRAGMENT_TOO_LARGE");
+        if (bundle.task_mode === "EVIDENCE_REVIEW" && this.config.evidenceReadPort) {
+          let timeout: ReturnType<typeof setTimeout> | undefined;
+          // Adapter 也可设更短超时；Runtime 自己仍给外部 Promise 加上硬上界。
+          // 超时不说明远端没收到请求，因此保留 UNKNOWN，绝不自动补发。
+          const receipt = await Promise.race([
+            this.config.evidenceReadPort.read({run_id:id,operation_id:op.id,
+              material_ref:m.material_ref,sha256:m.sha256,start_line:p.payload.start_line,end_line:p.payload.end_line}),
+            new Promise<never>((_resolve,reject)=>{timeout=setTimeout(()=>reject(new Error("MCP_READ_TIMEOUT")),25_000);}),
+          ]).finally(()=>{if(timeout) clearTimeout(timeout);});
+          requireThat(receipt.material_ref === m.material_ref && receipt.sha256 === m.sha256 && receipt.start_line === p.payload.start_line &&
+            receipt.end_line === p.payload.end_line && receipt.content === content && receipt.segment_sha256 === sha(content), "MCP_READ_BINDING_INVALID");
+        }
+        result = {status,receipt_ref:"read:"+op.id,material_ref:m.material_ref,candidate_epoch:epoch,
+          source_sha256:m.sha256,fragment_sha256:sha(content),start_line:p.payload.start_line,end_line:p.payload.end_line,content,
+          evidence_kind:bundle.task_mode === "EVIDENCE_REVIEW" ? "PINNED_ARCHIVED_EVIDENCE" : "PINNED_MATERIAL_EXCERPT",
+          transport:bundle.task_mode === "EVIDENCE_REVIEW" && this.config.evidenceReadPort ? "MCP_ARCHIVE" : "PINNED_MEMORY",
+          ...( "provenance" in m ? {provenance:m.provenance} : {git_commit:m.git_commit}),proves_current_business_behavior:false};
+        if (!(await this.evidenceAuthorizationValid(id))) {
+          status="CANCELLED";result={status,error_code:"EVIDENCE_AUTHORIZATION_REVOKED",discarded_receipt:result};
+        }
+      } catch (error) {
+        status = error instanceof RuntimeError ? (error.code === "EVIDENCE_AUTHORIZATION_REVOKED" ? "CANCELLED" : "REJECTED") : "UNKNOWN";
+        result = {status,error_code:error instanceof RuntimeError ? error.code : "MCP_READ_UNCERTAIN"};
+      }
+      await this.store.transaction(async c => {
+        const {state} = await this.store.lock(c,id);
+        const current = (await c.query<{status:string}>("SELECT status FROM verify_runtime.operations WHERE id=$1",[op.id])).rows[0];
+        // 已对账为 UNKNOWN 的迟到回执只保留审计事件，不重新激活已终止的 run。
+        if (current?.status !== "DISPATCHED") { await this.store.event(c,state,"LATE_READ_RECEIPT",{operation_id:op.id,status,discarded_receipt:result}); await this.store.save(c,state); return; }
+        if (state.status !== "ACTIVE" || state.candidate_epoch !== epoch || state.config_digest !== this.configDigest) {
+          status = "CANCELLED"; result = {status,error_code:"AUTHORIZATION_REVOKED_AFTER_DISPATCH",discarded_receipt:result};
+        } else if (status === "COMPLETED") state.read_receipts.push(result);
+        else if (status === "CANCELLED") {state.status="CANCELLED";state.stop_reason="EVIDENCE_AUTHORIZATION_REVOKED";}
+        else if (status === "UNKNOWN") {state.status="BLOCKED";state.stop_reason="MCP_READ_UNCERTAIN";}
+        await c.query("UPDATE verify_runtime.operations SET status=$2,result=$3 WHERE id=$1",[op.id,status,result]);
+        await c.query("UPDATE verify_runtime.outbox SET status=$2 WHERE id=$1",[op.id,status === "UNKNOWN" ? "UNKNOWN" : "DONE"]);
+        this.feedback(state,result,status === "COMPLETED");
+        await this.store.event(c,state,"READ_RECEIPT",{operation_id:op.id,status}); await this.store.save(c,state);
+      });
+    }
   }
   async operation(runId: string, id: string): Promise<Json> {
     const op = (await this.store.pool.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND id=$2", [runId, id])).rows[0];
@@ -430,3 +530,5 @@ export class Runtime {
     return this.projection(id);
   }
 }
+
+export type { RuntimeConfig, EvidenceReadPort, Limits } from "./types.js";

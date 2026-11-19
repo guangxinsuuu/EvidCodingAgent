@@ -141,6 +141,9 @@ max_iterations 只是进程保护，不增加模型/读取预算，也不把暂�
             if projection["pending_decision"].get("proposal", {}).get("proposal_id") == state.get("last_submitted_id"):
                 return "finish"
             return "register_action"
+        # 远程READ已派发时等待Runtime回执，不新调用LLM轮询或重复派发相同工具。
+        if projection.get("pending_operation") is not None:
+            return "finish"
         if state.get("iterations", 0) >= max_iterations:
             return "finish"
         # 未知/在途请求，或服务投影尚未推进，不以 LLM 重复轮询等待。
@@ -198,9 +201,12 @@ def run_agent(runtime: RuntimePort, run_id: str, *, max_iterations: int = 32) ->
     projection = state.get("projection", {})
     safe_keys = ("status", "decision_basis_revision", "candidate_epoch", "context_view_ref",
                  "task_identity", "budgets", "model_calls", "operations", "hypotheses",
-                 "read_receipts", "current_candidate_coverage", "final_eligibility", "latest_feedback", "check_repair")
+                 "read_receipts", "pending_operation", "current_candidate_coverage", "final_eligibility", "latest_feedback", "check_repair")
     return {"schema_version": 1, "run_id": run_id, "agent_version": "0.1.0",
             "outcome": state["outcome"], "iterations_this_process": state["iterations"],
             "authority": "TS_POSTGRESQL_RUNTIME", "checkpoint_mode": "REBUILD_FROM_RUNTIME_PROJECTION",
-            "business_verdict": "NOT_EVALUATED", "trace": state["trace"],
+            "business_verdict": "NOT_EVALUATED",
+            # 同一图的 evidence profile 以 PLANNED 交付草稿；不是 QA 接受或发布 PASS。
+            "task_identity": projection.get("task_identity"),
+            "evidence_response_proposed": projection.get("stop_reason") == "EVIDENCE_RESPONSE_PROPOSED", "trace": state["trace"],
             "projection": {key: projection[key] for key in safe_keys if key in projection}}
