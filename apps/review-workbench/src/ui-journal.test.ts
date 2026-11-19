@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { webcrypto } from "node:crypto";
 import { createContext, runInContext } from "node:vm";
+import { ITEM_TEMPLATES } from "./workflow-store.js";
 
 /**
  * 运行真实 public/app.js，只替换 DOM、会话存储与网络边界。
@@ -15,6 +16,8 @@ class ElementStub {
   events: Record<string, (...args: unknown[]) => unknown> = {};
   attributes: Record<string, string> = {};
   disabled = false;
+  checked = false;
+  value: string | number = "";
   append(...children: unknown[]): void { this.children.push(...children); }
   replaceChildren(...children: unknown[]): void { this.children = children; }
   setAttribute(key: string, value: string): void { this.attributes[key] = value; }
@@ -48,6 +51,56 @@ function browserHarness() {
   return { storage, run };
 }
 const settle = () => new Promise<void>(resolve => setImmediate(resolve));
+
+/** 用真正的服务端模板绘制表单，防止测试与前端一起沿用已经失效的旧枚举。 */
+function requestFormHarness(templates = ITEM_TEMPLATES) {
+  const harness = browserHarness();
+  harness.run(`globalThis.formData={task,allowed_targets:[{tenant_id:'tenant-b',historical_run_id:'archive-a',job_id:'job-a',ticket_id:'ticket-a',ticket_revision:2,phase:'after'}],item_templates:${JSON.stringify(templates)}};
+    globalThis.submissions=[]; globalThis.formCommand={submit:(...args)=>submissions.push(args)};
+    globalThis.walk=node=>[node,...(node.children||[]).flatMap(walk)];
+    globalThis.redraw=()=>{globalThis.formPanel=workflowRequestForm(formData,formCommand);globalThis.form=walk(formPanel).find(node=>node.tag==='form');globalThis.boxes=walk(form).filter(node=>node.tag==='input');};
+    redraw();`);
+  return harness;
+}
+
+test("request form defaults to the three real core kinds, labels them, and leaves provider raw output opt-in", () => {
+  const { run } = requestFormHarness();
+  assert.equal(run("JSON.stringify(boxes.filter(box=>box.checked).map(box=>box.value))"),
+    JSON.stringify(["SAVED_PRODUCT_DRAFT", "DELIVERED_PRIVATE_NOTE", "DELIVERY_RECEIPT"]));
+  assert.equal(run("boxes.find(box=>box.value==='RAW_PROVIDER_RESPONSE').checked"), false);
+  for (const template of ITEM_TEMPLATES) assert.equal(run(`label(${JSON.stringify(template.kind)})`), template.title);
+});
+
+test("request form only defaults registered kinds even when templates are reordered or a core kind is absent", () => {
+  const { run } = requestFormHarness([ITEM_TEMPLATES[3]!, ITEM_TEMPLATES[2]!, ITEM_TEMPLATES[0]!]);
+  assert.equal(run("JSON.stringify(boxes.filter(box=>box.checked).map(box=>box.value))"),
+    JSON.stringify(["DELIVERY_RECEIPT", "SAVED_PRODUCT_DRAFT"]));
+});
+
+test("request form preserves manual deselection and provider opt-in through redraw, including an empty selection", () => {
+  const { run } = requestFormHarness();
+  run("for(const box of boxes)box.events.change({target:{checked:false}}); redraw();");
+  assert.equal(run("boxes.filter(box=>box.checked).length"), 0);
+  run("boxes.find(box=>box.value==='RAW_PROVIDER_RESPONSE').events.change({target:{checked:true}}); redraw();");
+  assert.equal(run("JSON.stringify(boxes.filter(box=>box.checked).map(box=>box.value))"), JSON.stringify(["RAW_PROVIDER_RESPONSE"]));
+});
+
+test("request form submits exact server kinds, criteria and target, and does not dispatch an empty selection", () => {
+  const { run } = requestFormHarness();
+  run("walk(form).find(node=>node.tag==='textarea').value='核对指定阶段的原件'; form.events.submit({preventDefault(){}});");
+  assert.equal(run("submissions.length"), 1);
+  assert.equal(run("submissions[0][0]"), "request-evidence");
+  assert.equal(run("submissions[0][1]"), "/review-tasks/task-a/evidence-requests");
+  const submitted = JSON.parse(String(run("JSON.stringify(submissions[0][2])"))) as {
+    items: { item_id: string; kind: string; target: object; required: boolean; acceptance_criteria: string[] }[];
+  };
+  assert.deepEqual(submitted.items.map(item => ({ kind: item.kind, acceptance_criteria: item.acceptance_criteria })),
+    ITEM_TEMPLATES.slice(0, 3).map(({ kind, acceptance_criteria }) => ({ kind, acceptance_criteria })));
+  assert.deepEqual(submitted.items.map(item => item.item_id), ["E1", "E2", "E3"]);
+  assert.ok(submitted.items.every(item => item.required && JSON.stringify(item.target) === String(run("JSON.stringify(formData.allowed_targets[0])"))));
+  run("for(const box of boxes)box.events.change({target:{checked:false}}); form.events.submit({preventDefault(){}});");
+  assert.equal(run("submissions.length"), 1);
+});
 
 test("UI journal recovers exact command, isolates actor and action, and excludes session credentials", () => {
   const { storage, run } = browserHarness();
@@ -120,4 +173,53 @@ test("UI acceptance submits the displayed request, response and policy rather th
   assert.equal(run("selected[0]"), "accept:request-a");
   assert.equal(run("selected[1]"), "/evidence-requests/request-a/accept");
   assert.equal(run("JSON.stringify(selected[2])"), JSON.stringify({ request_spec_revision: 3, response_id: "response-a", response_digest: "d".repeat(64), review_policy_version: "policy-display-v2" }));
+});
+
+/** 展示层只允许人员显式撤回；覆盖回退和历史不可覆盖由 WorkflowStore 的事务负责。 */
+function acceptedRequestHarness() {
+  const harness = browserHarness();
+  harness.run(`globalThis.submissions=[]; globalThis.canWork=true;
+    globalThis.request={id:'request-a',request_spec_revision:3,review_state:'ACCEPTED',execution_state:'FINISHED',fulfillment_state:'PARTIAL',withdrawn:false,input:{request_items:[{item_id:'E4',kind:'RAW_PROVIDER_RESPONSE'}],materials:[],source_bundle_id:'old-bundle',source_bundle_sha256:'a'.repeat(64)},current_response:{id:'response-a',digest:'d'.repeat(64),bundle_id:'bundle-a',bundle_digest:'b'.repeat(64),body:{items:[{item_id:'E4',validated_disposition:'UNAVAILABLE',remaining_gaps:['未归档供应商原始响应']}]}}};
+    globalThis.walk=node=>[node,...(node.children||[]).flatMap(walk)];
+    globalThis.textOf=node=>walk(node).filter(entry=>typeof entry.text==='string').map(entry=>entry.text).join(' ');
+    globalThis.redraw=()=>{globalThis.panelNode=workflowRequestPanel({task,case:{review_policy_version:'policy-display-v2'}},request,{submit:(...args)=>submissions.push(args)},canWork);globalThis.withdrawForm=walk(panelNode).find(node=>node.tag==='form'&&textOf(node).includes('撤回原因'));};
+    redraw();`);
+  return harness;
+}
+
+test("UI can explicitly withdraw an accepted unavailable response without rewriting historical acceptance", () => {
+  const { run } = acceptedRequestHarness();
+  assert.equal(run("Boolean(withdrawForm)"), true);
+  assert.equal(run("textOf(panelNode).includes('相关义务仍需补证。')"), true);
+  assert.equal(run("textOf(withdrawForm).includes('保留原响应、审查与成本记录；从当前有效请求范围撤回会重新计算任务覆盖。')"), true);
+  run("withdrawForm.events.submit({preventDefault(){}});");
+  assert.equal(run("submissions.length"), 0, "a reason is required for explicit withdrawal");
+  run("walk(withdrawForm).find(node=>node.tag==='textarea').value='  原始模型响应未归档，退出本次有效补证范围  '; withdrawForm.events.submit({preventDefault(){}});");
+  assert.equal(run("JSON.stringify(submissions[0])"), JSON.stringify(["withdraw:request-a", "/evidence-requests/request-a/withdraw", { reason: "原始模型响应未归档，退出本次有效补证范围" }]));
+  assert.equal(run("request.review_state"), "ACCEPTED");
+  assert.equal(run("request.withdrawn"), false, "render and submit must wait for persisted server state");
+});
+
+test("UI withdrawn accepted unavailable response retains its gap but does not claim the completed task still needs it", () => {
+  const { run } = acceptedRequestHarness();
+  run("request.withdrawn=true; task.status='COMPLETED'; redraw();");
+  assert.equal(run("textOf(panelNode).includes('缺口及原接受记录保留；此请求已退出当前有效请求范围，不计入本任务完成条件。')"), true);
+  assert.equal(run("textOf(panelNode).includes('未归档供应商原始响应')"), true);
+  assert.equal(run("textOf(panelNode).includes('相关义务仍需补证。')"), false);
+  assert.equal(run("textOf(panelNode).includes('撤回此请求')"), false);
+  assert.equal(run("withdrawForm"), undefined);
+  assert.equal(run("request.review_state"), "ACCEPTED");
+});
+
+test("UI accepted complete requests remain withdrawable, while superseded, withdrawn or read-only requests cannot withdraw", () => {
+  const { run } = acceptedRequestHarness();
+  run("request.fulfillment_state='COMPLETE'; redraw();");
+  assert.equal(run("Boolean(withdrawForm)"), true, "withdrawing accepted core materials must be possible and server coverage will be recomputed");
+  run("request.review_state='SUPERSEDED'; redraw();");
+  assert.equal(run("withdrawForm"), undefined);
+  run("request.review_state='ACCEPTED'; request.withdrawn=true; redraw();");
+  assert.equal(run("withdrawForm"), undefined);
+  assert.equal(run("textOf(panelNode).includes('整体任务尚未完成。')"), false);
+  run("request.withdrawn=false; canWork=false; redraw();");
+  assert.equal(run("withdrawForm"), undefined);
 });

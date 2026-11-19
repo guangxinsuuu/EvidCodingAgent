@@ -7,6 +7,14 @@ const app = document.querySelector('#app');
 const announcer = document.querySelector('#announcer');
 const state = { session: null, routeVersion: 0, currentCase: null, currentTask: null, drafts: new Map(), flash: null, journalBlocked: null };
 const roles = { BUSINESS: '业务负责人', SOURCE: '数据源负责人', QA: 'QA 审查员' };
+// 这里只配置已知材料种类的展示与初始选择；可提交种类、目标和验收标准仍来自服务端模板。
+// provider 原始响应不是默认必取原件，不能为了勾满列表把未归档材料混进核心三项。
+const evidenceMaterialKinds = {
+  SAVED_PRODUCT_DRAFT: { label: '已保存客服草稿', defaultSelected: true },
+  DELIVERED_PRIVATE_NOTE: { label: '实际最终私有备注', defaultSelected: true },
+  DELIVERY_RECEIPT: { label: '草稿与最终交付关联', defaultSelected: true },
+  RAW_PROVIDER_RESPONSE: { label: '模型供应商原始响应', defaultSelected: false },
+};
 const statusLabels = {
   REQUIRED: '待审查', WAITING_EVIDENCE: '等待补充证据', HISTORICAL_IMPORT: '历史材料已导入',
   PASS_SCOPED_DETERMINISTIC_CHECKS: '限定范围内的确定性检查通过',
@@ -24,8 +32,8 @@ const statusLabels = {
   UNASSESSED: '尚未评定', COMPLETE: '要求已完整满足', PARTIAL: '部分满足', UNAVAILABLE: '材料无法取得',
   CONFLICTING: '材料存在冲突', PROVIDED: '已提供', SATISFIED: '义务已满足', UNSATISFIED: '义务仍有缺口',
   EVIDENCE_LINKAGE: '证据关联核对', BUSINESS_SEMANTICS: '业务语义判断',
-  SEMANTIC_REVIEW: '业务语义判断', SAVED_DRAFT: '已保存客服草稿', FINAL_PRIVATE_NOTE: '实际最终私有备注',
-  DELIVERY_LINK: '草稿与最终交付关联', MODEL_RAW_RESPONSE: '模型供应商原始响应',
+  SEMANTIC_REVIEW: '业务语义判断',
+  ...Object.fromEntries(Object.entries(evidenceMaterialKinds).map(([kind, settings]) => [kind, settings.label])),
   TASK_CLAIMED: '任务已接手', TASK_REASSIGNED: '任务已转派', EVIDENCE_REQUESTED: '逐项补证已请求',
   EVIDENCE_RESPONSE_ACCEPTED: '响应已限定接受', EVIDENCE_REQUEST_WITHDRAWN: '补证已撤回', EVIDENCE_CLARIFIED: '澄清已生成后继规格',
 };
@@ -505,7 +513,8 @@ function workflowRequestForm(data, command) {
   const task = data.task; const draft = state.drafts.get(`task:${task.id}`) || { target: 0, goal: '', kinds: null };
   state.drafts.set(`task:${task.id}`, draft);
   const targets = data.allowed_targets || []; const templates = data.item_templates || [];
-  if (!draft.kinds) draft.kinds = templates.filter(item => ['SAVED_DRAFT', 'FINAL_PRIVATE_NOTE', 'DELIVERY_LINK'].includes(item.kind)).map(item => item.kind);
+  // 只在首次创建草稿时设默认值；用户全部取消后留下的 [] 也必须在重绘时保留。
+  if (draft.kinds === null) draft.kinds = templates.filter(item => evidenceMaterialKinds[item.kind]?.defaultSelected === true).map(item => item.kind);
   const target = el('select', { id: 'request-target', required: true, onChange: event => { draft.target = Number(event.target.value); } }, targets.map((item, index) => el('option', { value: index }, targetSummary(item))));
   target.value = String(draft.target < targets.length ? draft.target : 0);
   const goal = el('textarea', { id: 'request-goal', rows: '3', maxLength: 2000, required: true, placeholder: '例如：核对该 Job 的草稿、最终私有备注与交付关联是否属于同一对象。', onInput: event => { draft.goal = event.target.value; } }, draft.goal);
@@ -557,8 +566,8 @@ function workflowRequestPanel(data, request, command, canWork) {
     response?.body?.summary && el('p', { class: 'small' }, response.body.summary),
     response && factList([['提出请求的材料包', `${request.input.source_bundle_id} · ${short(request.input.source_bundle_sha256)}`], ['响应生成后的材料包', `${response.bundle_id} · ${short(response.bundle_digest)}`], ['此次人员审查材料包', `${data.task.bound_bundle_id} · ${short(data.task.bound_bundle_digest)}`]]),
     request.clarification && notice(`Agent 需要澄清：${request.clarification}`, 'warn'),
-    request.review_state === 'ACCEPTED' && request.fulfillment_state !== 'COMPLETE' && notice('响应已接受，但请求仍未完整满足。缺失、不可取得或冲突的材料不会因点击接受而变成已取得，相关义务仍需补证。', 'warn'),
-    request.review_state === 'ACCEPTED' && request.fulfillment_state === 'COMPLETE' && data.task.status !== 'COMPLETED' && notice('这项请求已完整响应并被接受；整体任务尚未完成。其他 Job / 阶段的覆盖与业务语义审查仍按各自条件处理。', 'warn'),
+    request.review_state === 'ACCEPTED' && request.fulfillment_state !== 'COMPLETE' && notice(request.withdrawn ? '缺口及原接受记录保留；此请求已退出当前有效请求范围，不计入本任务完成条件。' : '响应已接受，但请求仍未完整满足。缺失、不可取得或冲突的材料不会因点击接受而变成已取得，相关义务仍需补证。', 'warn'),
+    request.review_state === 'ACCEPTED' && !request.withdrawn && request.fulfillment_state === 'COMPLETE' && data.task.status !== 'COMPLETED' && notice('这项请求已完整响应并被接受；整体任务尚未完成。其他 Job / 阶段的覆盖与业务语义审查仍按各自条件处理。', 'warn'),
     response ? el('div', { class: 'response-items' }, responseItems.map(item => {
       const asked = inputItems.find(entry => entry.item_id === item.item_id);
       return el('section', { class: 'response-item' }, el('div', { class: 'evidence-top' }, el('h4', {}, `${item.item_id} · ${label(asked?.kind || '请求项')}`), workflowBadge(item.validated_disposition || item.proposed_disposition)), asked?.target && el('p', { class: 'small muted' }, targetSummary(asked.target)),
@@ -581,7 +590,8 @@ function workflowRequestPanel(data, request, command, canWork) {
   }
   if (canWork && !request.withdrawn) {
     if (request.execution_state === 'BLOCKED') body.append(workflowTextAction('补充澄清并创建后继规格', '回答需要补充的事实；旧 Run 与累计预算保留。', `clarify:${request.id}`, `/evidence-requests/${encodeURIComponent(request.id)}/clarify`, 'answer', command));
-    if (!['ACCEPTED','SUPERSEDED'].includes(request.review_state)) body.append(workflowTextAction('撤回此请求', '撤回不会抹除已消耗预算或在途记录；迟到结果仅归档。', `withdraw:${request.id}`, `/evidence-requests/${encodeURIComponent(request.id)}/withdraw`, 'reason', command));
+    // 接受记录与当前有效请求范围是两件事：允许撤回已接受请求，由服务端重算覆盖，历史接受仍保留。
+    if (request.review_state !== 'SUPERSEDED') body.append(workflowTextAction('撤回此请求', '保留原响应、审查与成本记录；从当前有效请求范围撤回会重新计算任务覆盖。在途的迟到结果仅归档。', `withdraw:${request.id}`, `/evidence-requests/${encodeURIComponent(request.id)}/withdraw`, 'reason', command));
   }
   return body;
 }

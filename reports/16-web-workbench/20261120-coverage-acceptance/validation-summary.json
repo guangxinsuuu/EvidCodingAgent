@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "scope": "KNOWN_ARCHIVE_INTEGRATION",
+  "transport": "HTTP_NOT_BROWSER",
+  "case_id": "evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35",
+  "candidate_sha": "45a0378585b8970fb2860897c9e49792e15a9df0",
+  "historical_run_id": "egaplate20261119a",
+  "source_sha256": "e04eccfdf8f25852aa8b98c297e12bccda115f44f9c24bcb7762d167851ab843",
+  "model": {
+    "name": "mistral:latest",
+    "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+  },
+  "status": "CORE_LINKAGE_COMPLETED_BROWSER_ACCEPTANCE_BLOCKED",
+  "core_coverage": {
+    "provided": 12,
+    "required": 12
+  },
+  "tasks": [
+    {
+      "obligation_id": "EVIDENCE_LINKAGE",
+      "status": "COMPLETED",
+      "claimed": true,
+      "task_revision": 22
+    },
+    {
+      "obligation_id": "SEMANTIC_REVIEW",
+      "status": "ASSIGNED",
+      "claimed": false,
+      "task_revision": 5
+    }
+  ],
+  "transitions": {
+    "before_withdraw": {
+      "status": "WAITING_EVIDENCE",
+      "coverage": {
+        "provided": 12,
+        "required": 12
+      }
+    },
+    "after_withdraw": {
+      "status": "COMPLETED",
+      "coverage": {
+        "provided": 12,
+        "required": 12
+      },
+      "request_id": "fbd889e6-c88e-4f35-a7d1-8fa21f1e194c",
+      "reason": "隔离验收仅闭合四个冻结目标的十二项核心材料关联；明确撤回非必需的 provider 原始响应扩展调查。原归档未采集该原件的事实、缺口响应和历史接受记录保留，不声称原始响应已取得。"
+    }
+  },
+  "metrics": {
+    "this_round": {
+      "model_calls": 12,
+      "read_calls": 9,
+      "input_tokens": 71547,
+      "output_tokens": 5342,
+      "provider_cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL"
+    },
+    "this_case_cumulative": {
+      "model_calls": 17,
+      "read_calls": 12,
+      "input_tokens": 97272,
+      "output_tokens": 7362,
+      "provider_cost": null,
+      "cost_basis": "LOCAL_NO_PROVIDER_BILL"
+    },
+    "budget_cap": {
+      "read_calls": 48,
+      "model_calls": 24
+    },
+    "reserved": {
+      "read_calls": 0,
+      "model_calls": 0
+    },
+    "replay_added_model_calls": 0,
+    "replay_added_read_calls": 0
+  },
+  "runs": [
+    {
+      "request_id": "1c6af765-2c15-4140-acad-82f6cd09d3c1",
+      "run_id": "983a62e5-c7a1-46fd-8899-e15406defde2",
+      "response_id": "01cb08d7-e846-4397-9ef1-c3abc3c62e02",
+      "response_digest": "c0fd0fd13eef36e37d302b89cf59ad7bbdc4d6320e1e16684a97cb09f3089de0",
+      "new_this_round": false,
+      "target": {
+        "phase": "late_usage.before",
+        "job_id": "425d8254463041e589a3c103623b1613",
+        "tenant_id": "tenant-b",
+        "ticket_id": "cw:1:23",
+        "ticket_revision": 1,
+        "historical_run_id": "egaplate20261119a"
+      },
+      "execution_state": "FINISHED",
+      "review_state": "ACCEPTED",
+      "fulfillment_state": "COMPLETE",
+      "withdrawn": false,
+      "items": [
+        {
+          "item_id": "E1",
+          "kind": "SAVED_PRODUCT_DRAFT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E2",
+          "kind": "DELIVERED_PRIVATE_NOTE",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E3",
+          "kind": "DELIVERY_RECEIPT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        }
+      ],
+      "model_calls": 4,
+      "read_calls": 3,
+      "read_receipts": 3,
+      "later_model_saw_read_receipts": true,
+      "input_tokens": 23654,
+      "output_tokens": 1657,
+      "settlement": "SETTLED"
+    },
+    {
+      "request_id": "fbd889e6-c88e-4f35-a7d1-8fa21f1e194c",
+      "run_id": "0805790d-06c0-4cc9-bb68-c85e61ade79c",
+      "response_id": "229587f7-8516-48c9-8964-82ea12714713",
+      "response_digest": "7918f882fa2238e67e8d89c3f0e59efe30f6f821b69136dd2c6309a1c37bc01d",
+      "new_this_round": false,
+      "target": {
+        "phase": "late_usage.before",
+        "job_id": "425d8254463041e589a3c103623b1613",
+        "tenant_id": "tenant-b",
+        "ticket_id": "cw:1:23",
+        "ticket_revision": 1,
+        "historical_run_id": "egaplate20261119a"
+      },
+      "execution_state": "CANCELLED",
+      "review_state": "ACCEPTED",
+      "fulfillment_state": "UNAVAILABLE",
+      "withdrawn": true,
+      "items": [
+        {
+          "item_id": "E1",
+          "kind": "RAW_PROVIDER_RESPONSE",
+          "disposition": "UNAVAILABLE",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": "NOT_CAPTURED_IN_PINNED_ARCHIVE"
+        }
+      ],
+      "model_calls": 1,
+      "read_calls": 0,
+      "read_receipts": 0,
+      "later_model_saw_read_receipts": false,
+      "input_tokens": 2071,
+      "output_tokens": 363,
+      "settlement": "SETTLED"
+    },
+    {
+      "request_id": "462e93b2-f6f7-4293-ad3f-a6daab92e9d7",
+      "run_id": "d595340e-b04b-49c5-b686-2dffbf304fec",
+      "response_id": "8c1531a5-dd39-4098-b122-e1b78757351f",
+      "response_digest": "970ced00644eee72021f40248c3949fc32a1a476cca6352fa894ebb96670e3ed",
+      "new_this_round": true,
+      "target": {
+        "phase": "late_usage.after",
+        "job_id": "34a4a0cb8e7c4d84bfbd568868f88a03",
+        "tenant_id": "tenant-b",
+        "ticket_id": "cw:1:23",
+        "ticket_revision": 2,
+        "historical_run_id": "egaplate20261119a"
+      },
+      "execution_state": "FINISHED",
+      "review_state": "ACCEPTED",
+      "fulfillment_state": "COMPLETE",
+      "withdrawn": false,
+      "items": [
+        {
+          "item_id": "E1",
+          "kind": "SAVED_PRODUCT_DRAFT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E2",
+          "kind": "DELIVERED_PRIVATE_NOTE",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E3",
+          "kind": "DELIVERY_RECEIPT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        }
+      ],
+      "model_calls": 4,
+      "read_calls": 3,
+      "read_receipts": 3,
+      "later_model_saw_read_receipts": true,
+      "input_tokens": 23664,
+      "output_tokens": 1739,
+      "settlement": "SETTLED"
+    },
+    {
+      "request_id": "d9c5bf39-04e4-4ad8-9cd6-84bf35b6fc00",
+      "run_id": "0a13800e-7578-4f6e-8f5b-074f8fc2ac1e",
+      "response_id": "1ee7787b-0aca-433b-b9e7-ebb7e0000b74",
+      "response_digest": "14eaca8be2181dc763c0adc0266715bd8a15cae6dc282f29755d67f17468cdb3",
+      "new_this_round": true,
+      "target": {
+        "phase": "post_claim_usage.before",
+        "job_id": "b47633b4199e4582b3e17a9f10f8f5af",
+        "tenant_id": "tenant-b",
+        "ticket_id": "cw:1:24",
+        "ticket_revision": 1,
+        "historical_run_id": "egaplate20261119a"
+      },
+      "execution_state": "FINISHED",
+      "review_state": "ACCEPTED",
+      "fulfillment_state": "COMPLETE",
+      "withdrawn": false,
+      "items": [
+        {
+          "item_id": "E1",
+          "kind": "SAVED_PRODUCT_DRAFT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E2",
+          "kind": "DELIVERED_PRIVATE_NOTE",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E3",
+          "kind": "DELIVERY_RECEIPT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        }
+      ],
+      "model_calls": 4,
+      "read_calls": 3,
+      "read_receipts": 3,
+      "later_model_saw_read_receipts": true,
+      "input_tokens": 24135,
+      "output_tokens": 1781,
+      "settlement": "SETTLED"
+    },
+    {
+      "request_id": "fa20e713-41e3-48bb-aaf6-bc2aec0e15e2",
+      "run_id": "51dd1c4a-10f2-433d-b676-108333bd3bca",
+      "response_id": "54d58883-8d1a-42ff-97b8-11ebed51ed3f",
+      "response_digest": "97dbfce2cab42fd1c205878d024f7e1aef4dcf0860d4b3802837d2e3fe392e52",
+      "new_this_round": true,
+      "target": {
+        "phase": "post_claim_usage.after",
+        "job_id": "6f295f3135154eccb3f9b4114f610499",
+        "tenant_id": "tenant-b",
+        "ticket_id": "cw:1:24",
+        "ticket_revision": 2,
+        "historical_run_id": "egaplate20261119a"
+      },
+      "execution_state": "FINISHED",
+      "review_state": "ACCEPTED",
+      "fulfillment_state": "COMPLETE",
+      "withdrawn": false,
+      "items": [
+        {
+          "item_id": "E1",
+          "kind": "SAVED_PRODUCT_DRAFT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E2",
+          "kind": "DELIVERED_PRIVATE_NOTE",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        },
+        {
+          "item_id": "E3",
+          "kind": "DELIVERY_RECEIPT",
+          "disposition": "PROVIDED",
+          "semantic_acceptance": "NOT_EVALUATED",
+          "unavailable_reason": null
+        }
+      ],
+      "model_calls": 4,
+      "read_calls": 3,
+      "read_receipts": 3,
+      "later_model_saw_read_receipts": true,
+      "input_tokens": 23748,
+      "output_tokens": 1822,
+      "settlement": "SETTLED"
+    }
+  ],
+  "verification": {
+    "build": "PASSED",
+    "typecheck": "PASSED",
+    "review_suite": {
+      "passed": 54,
+      "skipped": 0
+    },
+    "final_ui_suite": {
+      "passed": 14,
+      "skipped": 0,
+      "overlap_with_review_suite": 11
+    },
+    "distinct_tests_passed": 57,
+    "exact_binding_recheck": "PASSED",
+    "browser_click_acceptance": "BLOCKED_BY_BROWSER_TOOL",
+    "browser_errors": [
+      "cgWindowNotFound",
+      "timeoutMs",
+      "selector deadline exceeded"
+    ]
+  },
+  "user_qa_approval": false,
+  "protected_final": false,
+  "release_authorized": false,
+  "unseen_evaluation": false,
+  "business_semantics_accepted": false,
+  "docs_modified": false,
+  "limitations": [
+    "KNOWN_ARCHIVE_NOT_UNSEEN_EVALUATION",
+    "SYNTHETIC_QA_NOT_USER_APPROVAL",
+    "RAW_PROVIDER_RESPONSE_REMAINS_UNAVAILABLE",
+    "BROWSER_CLICK_ACCEPTANCE_INCOMPLETE",
+    "NO_NEW_CANDIDATE_BUSINESS_EXECUTION",
+    "NO_CODEX_REPAIR_OR_RELEASE_AUTHORITY"
+  ]
+}

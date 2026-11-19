@@ -11,13 +11,13 @@ const pgTest = (name: string, fn: (t: TestContext) => Promise<void>): void => { 
 const errorCode = (code: string) => (e: unknown) => e instanceof ReviewError && e.code === code;
 
 /** 协议反例专用隔离对象；从不把这里的合成材料作为真实历史实验报告。 */
-async function setup(t: TestContext) {
+async function setup(t: TestContext, phases = ["before", "after"]) {
   const legacy = new ReviewStore(url!); const store = new WorkflowStore(legacy.pool); await store.migrate();
   const id = `v2-test-${randomUUID()}`, tenant = id;
   const actor = (id: string, role: Actor["role"]): Actor => ({ id, role, tenant_id: tenant, display_name: id });
   const qa = actor("local-qa", "QA"), peer = actor("local-qa-peer", "QA"), owner = actor("local-business", "BUSINESS");
   const input: ImportCase = { id, tenant_id: tenant, title: "v2 事务协议验收", candidate_sha: "a".repeat(40), baseline_sha: null, execution_mode: "TEST_ONLY", source_ref: "fixture", source_sha256: "b".repeat(64), machine_result: {}, limitations: ["TEST_ONLY"], evidence: [], obligations: [] };
-  const targets: EvidenceTarget[] = ["before", "after"].map((phase, index) => ({ tenant_id: tenant, historical_run_id: `${id}:history`, job_id: `${id}:job${index}`, ticket_id: "ticket:1", ticket_revision: index + 1, phase }));
+  const targets: EvidenceTarget[] = phases.map((phase, index) => ({ tenant_id: tenant, historical_run_id: `${id}:history`, job_id: `${id}:job${index}`, ticket_id: "ticket:1", ticket_revision: index + 1, phase }));
   const materials: EvidenceMaterial[] = targets.flatMap((target, index) => ITEM_TEMPLATES.slice(0, 3).map(template => {
     const content = JSON.stringify({ ...target, kind: template.kind, text: "隔离测试原件" });
     return { material_ref: `${id}:${index}:${template.kind}`, kind: template.kind, title: template.title, content, sha256: digest(content), provenance: { ...target, candidate_sha: input.candidate_sha, source_ref: `fixture:${index}:${template.kind}`, source_sha256: digest(content) } };
@@ -123,6 +123,64 @@ pgTest("v2 PG：并发补入材料合并当前包且全部目标完成后才闭�
   await x.store.acceptResponse(first, x.qa, accept(await x.basis(), ra));
   const final = await x.store.acceptResponse(second, x.qa, accept(await x.basis(), rb)); assert.equal(final.status, "COMPLETED");
   assert.equal((await x.store.getTask(x.semanticTask, x.qa)).task && (await x.store.listTasks(x.qa)).tasks.find(r => r.obligation_id === "SEMANTIC_REVIEW")!.status, "ASSIGNED");
+});
+pgTest("v2 PG：12项齐全仍保留扩展缺口阻塞，撤回扩展和核心请求都即时重算覆盖", async t => {
+  const x = await setup(t, ["late.before", "late.after", "post.before", "post.after"]);
+  // 先保留一项独立的原始响应缺口；12项核心原件完成不能把它偷偷算成已满足。
+  const rawId = await x.request(x.evidenceTask, x.items(x.targets[0], true).slice(3));
+  const rawWork = await x.work(rawId); const raw = result(rawWork.snapshot, rawWork.mapping);
+  await x.store.applyRuntimeResult(randomUUID(), raw);
+  assert.equal((await x.store.acceptResponse(rawId, x.qa, accept(await x.basis(), raw))).fulfillment_state, "UNAVAILABLE");
+  const coreIds: string[] = [];
+  for (const [index, target] of x.targets.entries()) {
+    const req = await x.request(x.evidenceTask, x.items(target)); coreIds.push(req);
+    const work = await x.work(req); const response = result(work.snapshot, work.mapping);
+    await x.store.applyRuntimeResult(randomUUID(), response);
+    const accepted = await x.store.acceptResponse(req, x.qa, accept(await x.basis(), response));
+    assert.deepEqual(accepted.obligation_coverage, { provided: (index + 1) * 3, required: 12 });
+    assert.equal(accepted.status, "WAITING_EVIDENCE");
+  }
+  const before = await x.store.getTask(x.evidenceTask, x.qa);
+  const withdrawRaw = { ...await x.basis(), reason: "仅撤回扩展调查请求；原始响应未归档的事实和审查记录继续保留" };
+  const completed = await x.store.withdraw(rawId, x.qa, withdrawRaw);
+  assert.equal(completed.status, "CANCELLED"); // 兼容旧撤回命令的执行状态。
+  assert.equal(completed.task_status, "COMPLETED");
+  assert.deepEqual(completed.obligation_coverage, { provided: 12, required: 12 });
+  const after = await x.store.getTask(x.evidenceTask, x.qa);
+  assert.equal((after.task as Record<string, unknown>).status, "COMPLETED");
+  const withdrawnRaw = (after.requests as Record<string, unknown>[]).find(r => r.id === rawId)!;
+  assert.equal(withdrawnRaw.withdrawn, true); assert.equal(withdrawnRaw.fulfillment_state, "UNAVAILABLE");
+  assert.equal(withdrawnRaw.review_state, "ACCEPTED"); assert.equal(withdrawnRaw.current_response_id, raw.response!.response_id);
+  assert.equal((withdrawnRaw.current_response as Record<string, unknown>).digest, raw.response!.response_sha256);
+  assert.deepEqual(after.bundle, before.bundle);
+  assert.deepEqual((after.case as Record<string, unknown>).budget_consumed, (before.case as Record<string, unknown>).budget_consumed);
+  assert.deepEqual(await x.store.withdraw(rawId, x.qa, withdrawRaw), completed);
+  assert.deepEqual((await x.store.getTask(x.evidenceTask, x.qa)).task, after.task);
+  const event = (after.events as Record<string, unknown>[]).find(e => e.kind === "EVIDENCE_REQUEST_WITHDRAWN")!;
+  assert.equal((event.payload as Record<string, unknown>).reason, withdrawRaw.reason);
+  // 相反方向同样重要：撤回已接受的核心请求后，不能把历史 COMPLETED 当成永久成立。
+  const removedCore = await x.store.withdraw(coreIds[0]!, x.qa, { ...await x.basis(), reason: "撤回第一个目标的核心证据请求，要求重新取证" });
+  assert.equal(removedCore.task_status, "WAITING_EVIDENCE");
+  assert.deepEqual(removedCore.obligation_coverage, { provided: 9, required: 12 });
+  const reopened = await x.store.getTask(x.evidenceTask, x.qa);
+  assert.equal((reopened.task as Record<string, unknown>).status, "WAITING_EVIDENCE");
+  assert.deepEqual(reopened.bundle, after.bundle);
+  assert.equal((await x.store.getTask(x.semanticTask, x.qa)).task && (await x.store.listTasks(x.qa)).tasks.find(r => r.id === x.semanticTask)!.status, "ASSIGNED");
+});
+pgTest("v2 PG：业务语义任务即使原件齐全且扩展缺口撤回也不能自动完成", async t => {
+  const x = await setup(t);
+  for (const target of x.targets) {
+    const req = await x.request(x.semanticTask, x.items(target)); const work = await x.work(req); const response = result(work.snapshot, work.mapping);
+    await x.store.applyRuntimeResult(randomUUID(), response);
+    assert.equal((await x.store.acceptResponse(req, x.qa, accept(await x.basis(x.semanticTask), response))).status, "PENDING_REVIEW");
+  }
+  const rawId = await x.request(x.semanticTask, x.items(x.targets[0], true).slice(3));
+  const work = await x.work(rawId); const response = result(work.snapshot, work.mapping);
+  await x.store.applyRuntimeResult(randomUUID(), response);
+  await x.store.acceptResponse(rawId, x.qa, accept(await x.basis(x.semanticTask), response));
+  const withdrawn = await x.store.withdraw(rawId, x.qa, { ...await x.basis(x.semanticTask), reason: "撤回扩展原始响应请求，业务语义仍需独立裁决" });
+  assert.deepEqual(withdrawn.obligation_coverage, { provided: 6, required: 6 });
+  assert.equal(withdrawn.task_status, "PENDING_REVIEW");
 });
 pgTest("v2 PG：撤回后迟到结果只归档，UNKNOWN预算保留且后继规格不能重置预算", async t => {
   const x = await setup(t); const req = await x.request(); const a = await x.work(req, { model_calls: 20, read_calls: 8 });

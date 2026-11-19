@@ -209,9 +209,13 @@ export class WorkflowStore {
   private async requestTask(id: string): Promise<string> { const r = (await this.pool.query<{ task_id: string }>("SELECT task_id FROM egap_review_v2.requests WHERE id=$1", [id])).rows[0]; if (!r) fail("NOT_FOUND", 404); return r.task_id; }
   async withdraw(id: string, actor: Actor, value: unknown): Promise<Record<string, unknown>> {
     const body = parseBasis(value, ["reason"]); if (!str(body.reason)) fail("INVALID_REQUEST", 400);
-    return this.human(await this.requestTask(id), actor, "EVIDENCE_REQUEST_WITHDRAWN", body, async (c) => {
+    return this.human(await this.requestTask(id), actor, "EVIDENCE_REQUEST_WITHDRAWN", body, async (c, task, row) => {
       await c.query("UPDATE egap_review_v2.requests SET withdrawn=true,execution_state='CANCELLED' WHERE id=$1", [id]);
-      return { request_id: id, status: "CANCELLED", reason: body.reason };
+      // 撤回只改变请求有效性，不删除已接受的缺口说明或原件；任务覆盖必须在同一事务重新计算。
+      // 撤回扩展缺口可能解除阻塞，撤回核心证据则可能把 COMPLETED 降回 WAITING_EVIDENCE。
+      const completion = await this.refreshObligationStatus(c, task, row);
+      return { request_id: id, status: "CANCELLED", reason: body.reason,
+        task_status: completion.status, obligation_coverage: completion.obligation_coverage };
     });
   }
   /** CLARIFY 不是重置 Run；保留旧规格和成本，后继 Run 使用新冻结输入。 */
@@ -248,20 +252,38 @@ export class WorkflowStore {
       // reviewed bundle 是当前任务实际打开的包；可包含本响应之后合法合入的其他材料。
       await c.query("UPDATE egap_review_v2.responses SET review_state='ACCEPTED' WHERE id=$1", [body.response_id]);
       await c.query("UPDATE egap_review_v2.requests SET review_state='ACCEPTED' WHERE id=$1", [id]);
-      const unfulfilled = await c.query("SELECT 1 FROM egap_review_v2.requests WHERE task_id=$1 AND withdrawn=false AND (review_state<>'ACCEPTED' OR fulfillment_state<>'COMPLETE') LIMIT 1", [task.id]);
-      const acceptedRows = (await c.query<{ input: EvidenceReviewInput; body: Record<string, unknown> }>(`SELECT r.input,p.body FROM egap_review_v2.requests r JOIN egap_review_v2.responses p ON p.id=r.current_response_id
-        WHERE r.task_id=$1 AND r.withdrawn=false AND r.review_state='ACCEPTED' AND p.archived=false`, [task.id])).rows;
-      const coverage = new Set<string>();
-      for (const accepted of acceptedRows) for (const item of accepted.body.items as { item_id: string; validated_disposition: string }[]) {
-        const requested = accepted.input.request_items.find(i => i.item_id === item.item_id);
-        if (requested && item.validated_disposition === "PROVIDED") coverage.add(canonical({ kind: requested.kind, target: requested.target }));
-      }
-      // 公司业务语义尚未定义；这里只闭合本案冻结的 3 种原件 × 全部目标关联义务。
-      const fullCoverage = row.archive.targets.every(target => ITEM_TEMPLATES.slice(0, 3).every(template => coverage.has(canonical({ kind: template.kind, target }))));
-      const status = task.obligation_id === "EVIDENCE_LINKAGE" && !unfulfilled.rowCount && fullCoverage ? "COMPLETED" : task.obligation_id === "SEMANTIC_REVIEW" ? "PENDING_REVIEW" : "WAITING_EVIDENCE";
-      await c.query("UPDATE egap_review_v2.tasks SET status=$2 WHERE id=$1", [task.id, status]);
-      return { request_id: id, response_id: body.response_id, review_state: "ACCEPTED", fulfillment_state: request.fulfillment_state, obligation_coverage: { provided: coverage.size, required: row.archive.targets.length * 3 }, status };
+      const completion = await this.refreshObligationStatus(c, task, row);
+      return { request_id: id, response_id: body.response_id, review_state: "ACCEPTED",
+        fulfillment_state: request.fulfillment_state, ...completion };
     });
+  }
+  /**
+   * acceptResponse / withdraw → 当前有效请求聚合 → 本任务状态；调用者已持有 Case 和 Task 行锁。
+   * 核心原件齐全与额外请求已满足是两个条件：12/12 不能掩盖仍有效的 UNAVAILABLE 请求。
+   * 撤回请求不会抹去历史响应、成本、Bundle 或事件，也不会使业务语义义务自动通过。
+   */
+  private async refreshObligationStatus(c: PoolClient, task: TaskRow, row: CaseRow): Promise<{
+    status: string; obligation_coverage: { provided: number; required: number };
+  }> {
+    const unfulfilled = await c.query("SELECT 1 FROM egap_review_v2.requests WHERE task_id=$1 AND withdrawn=false AND (review_state<>'ACCEPTED' OR fulfillment_state<>'COMPLETE') LIMIT 1", [task.id]);
+    const acceptedRows = (await c.query<{ input: EvidenceReviewInput; body: Record<string, unknown> }>(`SELECT r.input,p.body FROM egap_review_v2.requests r JOIN egap_review_v2.responses p ON p.id=r.current_response_id
+      WHERE r.task_id=$1 AND r.withdrawn=false AND r.review_state='ACCEPTED' AND p.archived=false`, [task.id])).rows;
+    const required = new Set(row.archive.targets.flatMap(target => ITEM_TEMPLATES.slice(0, 3)
+      .map(template => canonical({ kind: template.kind, target }))));
+    const coverage = new Set<string>();
+    for (const accepted of acceptedRows) for (const item of accepted.body.items as { item_id: string; validated_disposition: string }[]) {
+      const requested = accepted.input.request_items.find(i => i.item_id === item.item_id);
+      if (requested && item.validated_disposition === "PROVIDED") {
+        const key = canonical({ kind: requested.kind, target: requested.target });
+        // 非核心扩展原件不计入 12 项核心覆盖，避免出现 13/12 或以扩展项填补缺失核心项。
+        if (required.has(key)) coverage.add(key);
+      }
+    }
+    const fullCoverage = required.size > 0 && coverage.size === required.size;
+    const status = task.obligation_id === "EVIDENCE_LINKAGE" && !unfulfilled.rowCount && fullCoverage ? "COMPLETED"
+      : task.obligation_id === "SEMANTIC_REVIEW" ? "PENDING_REVIEW" : "WAITING_EVIDENCE";
+    await c.query("UPDATE egap_review_v2.tasks SET status=$2 WHERE id=$1", [task.id, status]);
+    return { status, obligation_coverage: { provided: coverage.size, required: required.size } };
   }
   async loadRequest(id: string, specRevision?: number): Promise<RequestSnapshot> {
     return this.tx(async c => {
