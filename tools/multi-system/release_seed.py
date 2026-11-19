@@ -16,10 +16,11 @@ import json
 from pathlib import Path
 import re
 from string import Template
+import time
 from urllib.parse import urlencode
 
 from business_source import BusinessPack, dt, message_ref
-from seed import ROOT, Seed, SeedError, load_runtime, save_private, sha, usage_units
+from seed import Api, ROOT, Seed, SeedError, load_runtime, save_private, sha, usage_units
 
 
 DAY = 86400
@@ -45,8 +46,8 @@ SCENARIOS = [
 def scenario_specs(specs=None) -> list[dict]:
     """固定事实清单、严格拒绝额外字段；调用者不能借场景配置把答案传到来源。
 
-    本批原生订阅日期有意固定在政策切换两侧。Lago若不接受该日期或期间不能严格
-    对齐，准备失败，绝不重写policy/原生回执以适配测试。
+    旧整批默认日期固定在政策切换两侧；新实验可显式给定开始日并绑定为本轮身份。
+    Lago若不接受该日期或期间不能严格对齐，准备失败，绝不重写policy/原生回执。
     """
     defaults = {"period_start": "2026-11-10T00:00:00Z", "claim_offset_seconds": DAY,
                 "contract_kind": "standard", "lifecycle": "renewal", "usage_events": [],
@@ -96,6 +97,18 @@ def scenario_specs(specs=None) -> list[dict]:
     if len({row["label"] for row in result}) != len(result):
         raise SeedError("RELEASE_SCENARIO_LABEL_DUPLICATE")
     return result
+
+
+def fresh_usage_specs(period_start: str) -> list[dict]:
+    """由可信操作者指定本轮真实 UTC 开始日，建立业务等价的迟到/申请后对照。
+
+    此入口不移动政策边界，也不修改原生回执。NativeObjects._subscription 仍须
+    独立读回真实发票和用量期间并精确匹配；日期不能开出该期间时准备直接失败。
+    两个主指标事件均只预登记，后续发送必须显式调用 dispatch_usage；另一个指标
+    预置 9 units，供独立观察核对指标隔离，不能混入主指标的零聚合初态。
+    """
+    return scenario_specs([{**deepcopy(spec), "period_start": period_start, "send_during_prepare": False, "distractor_units": 9}
+                           for spec in SCENARIOS if spec["label"] in {"late_usage", "post_claim_usage"}])
 
 
 class NativeObjects(Seed):
@@ -288,7 +301,7 @@ class NativeObjects(Seed):
             return frozen
         metrics, inbox = self._setup()
         customers, bindings, cases = [], [], []
-        for tenant in ("tenant-a", "tenant-b"):
+        for tenant in sorted({spec["tenant_id"] for spec in self.specs}):
             customer, binding = self._customer(tenant, inbox)
             for spec in self.specs:
                 if spec["tenant_id"] != tenant:
@@ -424,28 +437,37 @@ class SourceObjects(BusinessPack):
             "amount_minor": invoice["total_amount_cents"] + difference, "currency": spec["payment_currency"] or invoice["currency"],
             "paid_at": p["start"], "receipt_ref": "local-simulated-payment:" + p["invoice_id"]})
 
-    def send_usage(self, label: str) -> dict:
-        """真实晚到路径：预登记OPEN集合→Lago POST→聚合读回→接收核对→SEALED。
-
-        业务发生时刻与预登记的原生事件时间显式分列；HTTP观察记录另存实际发送时间。
-        不修改宿主时钟。Lago POST的未知回执
-        由NativeObjects.write_once阻断，不能因为source支持幂等就重发原生未知写。
-        """
+    def _usage_plan(self, label: str) -> dict:
+        """所有用量写阶段共用预登记边界；没有已确认 OPEN 命令不能发事件。"""
         p = self.state["plans"][label]
-        events = p["expected_events"]
-        if not events:
+        if not p["expected_events"]:
             raise SeedError("RELEASE_EXPECTED_EVENT_SET_EMPTY")
-        if label + ":coverage" not in self.state["commands"] or self.state["commands"][label + ":coverage"]["state"] != "COMPLETE":
+        if self.state["commands"].get(label + ":coverage", {}).get("state") != "COMPLETE":
             raise SeedError("RELEASE_USAGE_NOT_PREDECLARED")
+        return p
+
+    def dispatch_usage(self, label: str) -> dict:
+        """只发送预登记事件并记录发送回执，不读聚合、不登记接收、不封存。
+
+        分步执行器 → 本方法 → NativeObjects.write_once → Lago POST。transaction_id
+        来自冻结计划，未知原生写由既有账本阻断，重启不会生成新 ID 或自动重发。
+        来源登记使用同一事务 operation_key；失败恢复不更换原始发送回执。
+        """
+        p = self._usage_plan(label)
         writer = NativeObjects(self.runtime, self.directory / "native/seed.json", specs=self.native["scenario_specs"])
-        for event in events:
+        dispatches = self.state.setdefault("usage_dispatches", {}).setdefault(label, {})
+        for event in p["expected_events"]:
             request = {"event": {"transaction_id": event["event_id"], "external_subscription_id": p["subscription_id"],
                 "code": self.native["metric_code"], "timestamp": int(dt(event["native_occurred_at"]).timestamp()), "properties": {"units": event["units"]}}}
             response = writer.write_once("release-usage:" + event["event_id"], writer.lago, "POST", "/api/v1/events", request)
             actual = response.get("event") or {}
-            if actual.get("transaction_id") != event["event_id"] or actual.get("external_subscription_id") != p["subscription_id"] \
-                    or actual.get("code") != self.native["metric_code"] or Decimal(str((actual.get("properties") or {}).get("units"))) != Decimal(event["units"]) \
-                    or dt(actual["timestamp"]) != dt(event["native_occurred_at"]):
+            try:
+                matched = actual.get("transaction_id") == event["event_id"] and actual.get("external_subscription_id") == p["subscription_id"] \
+                    and actual.get("code") == self.native["metric_code"] and Decimal(str((actual.get("properties") or {}).get("units"))) == Decimal(event["units"]) \
+                    and dt(actual["timestamp"]) == dt(event["native_occurred_at"])
+            except (KeyError, TypeError, ValueError, InvalidOperation, AttributeError):
+                matched = False
+            if not matched:
                 raise SeedError("RELEASE_NATIVE_EVENT_RECEIPT_MISMATCH")
             sent = next((r for r in reversed(writer.state["receipts"]) if r.get("service") == "lago" and r.get("method") == "POST"
                 and r.get("path") == "/api/v1/events" and r.get("request_sha256") == sha(request) and r.get("status") in {200, 201, 202}), None)
@@ -454,28 +476,189 @@ class SourceObjects(BusinessPack):
             receipt = {"service": "lago", "method": "POST", "path": "/api/v1/events", "response_sha256": sha(response),
                        "observed_at": sent["observed_at"], "status": sent["status"], "request_sha256": sent["request_sha256"],
                        "transaction_id": event["event_id"], "external_subscription_id": p["subscription_id"], "native_event": actual}
+            if event["event_id"] in dispatches and dispatches[event["event_id"]] != receipt:
+                raise SeedError("RELEASE_NATIVE_EVENT_RECEIPT_CHANGED")
+            dispatches[event["event_id"]] = deepcopy(receipt)
+            self.save()
             self.command(label + ":sent:" + event["event_id"], "record_usage_sent", {"tenant_id": p["tenant_id"],
                 "coverage_id": p["coverage_id"], "event_id": event["event_id"], "receipt": receipt})
-        completion = self.state.setdefault("usage_completions", {}).get(label)
-        if completion is None:
-            query = {"external_subscription_id": p["subscription_id"]}
-            path = "/api/v1/customers/" + p["customer_id"] + "/current_usage"
-            total = sum((Decimal(e["units"]) for e in events), Decimal(0))
-            body = writer.poll(lambda: writer.lago.request("GET", path + "?" + urlencode(query)),
-                               lambda value: usage_units(value["customer_usage"], self.native["metric_code"]) == total, label=label + "_actual_event")
+        return {"status": "SENT", "label": label, "events": deepcopy(list(dispatches.values()))}
+
+    @staticmethod
+    def _observation_id(observations: dict, observation_id: str | None) -> str:
+        """显式 ID 冻结一次读回；省略 ID 则建立新观察，不复用旧零聚合。"""
+        value = observation_id
+        if value is None:
+            sequence = len(observations) + 1
+            while "observation-" + str(sequence) in observations:
+                sequence += 1
+            value = "observation-" + str(sequence)
+        if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,119}", value):
+            raise SeedError("RELEASE_OBSERVATION_ID_INVALID")
+        return value
+
+    def observe_usage(self, label: str, *, observation_id: str | None = None) -> dict:
+        """一次只读 Lago GET，返回 PENDING 或 AGGREGATE_VISIBLE；调用方决定是否重读。
+
+        不调用 poll，也不触发发送或商业写。相同 observation_id 返回同一不可变观察，
+        新 ID 允许重新观察异步聚合；失败 GET 的传输证据也落盘，不能把异常当成零。
+        """
+        p = self._usage_plan(label)
+        observations = self.state.setdefault("usage_observations", {}).setdefault(label, {})
+        key = self._observation_id(observations, observation_id)
+        if key in observations:
+            return deepcopy(observations[key])
+        query = {"external_subscription_id": p["subscription_id"]}
+        path = "/api/v1/customers/" + p["customer_id"] + "/current_usage"
+        try:
+            before = len(self.state["receipts"])
+            body = self.lago.request("GET", path + "?" + urlencode(query))
+            transport = self.state["receipts"][-1] if len(self.state["receipts"]) > before else {}
+            if transport.get("service") != "lago" or transport.get("method") != "GET" \
+                    or transport.get("path") != path + "?" + urlencode(query) or transport.get("status") != 200 \
+                    or transport.get("response_sha256") != sha(body):
+                raise SeedError("RELEASE_NATIVE_USAGE_TRANSPORT_RECEIPT_MISSING")
             raw = body["customer_usage"]
             if (dt(raw["from_datetime"]), dt(raw["to_datetime"])) != (dt(p["start"]), dt(p["end"])):
                 raise SeedError("RELEASE_NATIVE_PERIOD_NOT_ALIGNED")
-            completion = {"raw": raw, "receipt": {**writer.state["receipts"][-1], "path": path, "query": query,
-                "scope_kind": "SUBSCRIPTION_CURRENT_PERIOD"}, "completed_at": datetime.now(timezone.utc).isoformat()}
-            self.state["usage_completions"][label] = completion
+            observed = usage_units(raw, self.native["metric_code"])
+            total = sum((Decimal(e["units"]) for e in p["expected_events"]), Decimal(0))
+            receipt = {**transport, "path": path, "query": query,
+                       "scope_kind": "SUBSCRIPTION_CURRENT_PERIOD"}
+            value = {"observation_id": key, "status": "AGGREGATE_VISIBLE" if observed == total else "PENDING",
+                     "label": label, "raw": deepcopy(raw), "receipt": receipt, "observed_units": str(observed),
+                     "expected_units": str(total), "completed_at": receipt["observed_at"]}
+            observations[key] = value
+            return deepcopy(value)
+        finally:
             self.save()
-        for event in events:
-            self.command(label + ":received:" + event["event_id"], "record_usage_received", {"tenant_id": p["tenant_id"],
+
+    def _visible_observation(self, label: str, observation_id: str) -> dict:
+        value = self.state.get("usage_observations", {}).get(label, {}).get(observation_id)
+        if value is None:
+            raise SeedError("RELEASE_USAGE_OBSERVATION_MISSING")
+        if value["status"] != "AGGREGATE_VISIBLE":
+            raise SeedError("RELEASE_USAGE_AGGREGATE_NOT_VISIBLE")
+        return value
+
+    def record_usage_received(self, label: str, *, observation_id: str) -> dict:
+        """把持久化的可见聚合登记为有界事件集合接收依据，不隐式 reconcile/seal。
+
+        首次登记前冻结观察选择，防止来源写成功而本地中断后换一张回执重试。
+        只接受本对象的观察 ID，不能由调用方直接提供或改写原生聚合响应。
+        """
+        p = self._usage_plan(label)
+        observation = self._visible_observation(label, observation_id)
+        if any(self.state["commands"].get(label + ":sent:" + event["event_id"], {}).get("state") != "COMPLETE"
+               for event in p["expected_events"]):
+            raise SeedError("RELEASE_USAGE_SEND_NOT_RECORDED")
+        completions = self.state.setdefault("usage_completions", {})
+        completion = completions.get(label)
+        if completion is not None and (completion["raw"] != observation["raw"] or completion["receipt"] != observation["receipt"]):
+            raise SeedError("RELEASE_USAGE_COMPLETION_CHANGED")
+        if completion is None:
+            completions[label] = deepcopy(observation)
+            self.save()
+        results = []
+        for event in p["expected_events"]:
+            results.append(self.command(label + ":received:" + event["event_id"], "record_usage_received", {"tenant_id": p["tenant_id"],
                 "coverage_id": p["coverage_id"], "event_id": event["event_id"],
-                "receipt": {**completion["receipt"], "transaction_id": event["event_id"], "bounded_event_set": [e["event_id"] for e in events]}})
-        self._reconcile_and_seal(label, p, completion["raw"], completion["receipt"], "after-events")
-        return completion
+                "receipt": {**observation["receipt"], "transaction_id": event["event_id"],
+                            "bounded_event_set": [e["event_id"] for e in p["expected_events"]]}}))
+        return {"status": "RECEIVED", "observation_id": observation_id, "results": results}
+
+    def reconcile_usage(self, label: str, *, observation_id: str) -> dict:
+        """仅提交独立来源核对；已登记接收和当前选定观察一致是前置条件。"""
+        p = self._usage_plan(label)
+        observation = self._visible_observation(label, observation_id)
+        completion = self.state.get("usage_completions", {}).get(label)
+        if completion is None or any(self.state["commands"].get(label + ":received:" + event["event_id"], {}).get("state") != "COMPLETE"
+                                     for event in p["expected_events"]):
+            raise SeedError("RELEASE_USAGE_RECEIVE_NOT_RECORDED")
+        if completion["raw"] != observation["raw"] or completion["receipt"] != observation["receipt"]:
+            raise SeedError("RELEASE_USAGE_COMPLETION_CHANGED")
+        return self.command(label + ":reconcile:after-events", "reconcile_coverage", {"tenant_id": p["tenant_id"],
+            "coverage_id": p["coverage_id"], "raw_response": observation["raw"], "receipt": observation["receipt"]})
+
+    def seal_usage(self, label: str) -> dict:
+        """仅封存已经完成接收和核对的 coverage；不补做任何缺失前置阶段。"""
+        p = self._usage_plan(label)
+        if any(self.state["commands"].get(label + ":received:" + event["event_id"], {}).get("state") != "COMPLETE"
+               for event in p["expected_events"]):
+            raise SeedError("RELEASE_USAGE_RECEIVE_NOT_RECORDED")
+        if self.state["commands"].get(label + ":reconcile:after-events", {}).get("state") != "COMPLETE":
+            raise SeedError("RELEASE_USAGE_NOT_RECONCILED")
+        return self.command(label + ":seal:after-events", "seal_coverage", {"tenant_id": p["tenant_id"], "coverage_id": p["coverage_id"]})
+
+    def observe_initial_state(self, label: str, *, observation_id: str | None = None) -> dict:
+        """独立读回本轮初态，保留 OPEN、待处理事件、零聚合和固定申请的依据。
+
+        入口由准备编排器调用，只读取 Lago 与 Commercial Source，不修正任何业务状态。
+        此处 READY 仅表示技术初态满足分步实验前提，不是退款资格或候选验证结论。
+        """
+        p = self._usage_plan(label)
+        observations = self.state.setdefault("initial_state_observations", {}).setdefault(label, {})
+        key = self._observation_id(observations, observation_id)
+        if key in observations:
+            return deepcopy(observations[key])
+        # 若后一个 source GET 失败，整次初态尚未成立；恢复时重新观察两边，避免
+        # 把上次的旧零聚合与本次来源快照拼成一个新的 READY。
+        usage = self.observe_usage(label)
+        reader = Api(self.ready["base_url"], {"Authorization": "Bearer " + self.private["read_token"]},
+                     service="commercial-observer", receipts=self.state["receipts"])
+        query = {k: p[k] for k in ("tenant_id", "customer_id", "subscription_id", "invoice_id", "account_id", "conversation_id")}
+        try:
+            source = reader.request("GET", "/v1/context?" + urlencode(query))
+            coverage, claim = source.get("coverage") or {}, source.get("claim") or {}
+            # 原生发送账本也须为空；来源未登记不代表 Lago 一定没有未知结果的 POST。
+            native_state_path = self.directory / "native/seed-state.json"
+            native_state = load_runtime(native_state_path) if native_state_path.exists() else {"operations": {}}
+            events = p["expected_events"]
+            checks = {"native_zero": Decimal(usage["observed_units"]) == 0,
+                "coverage_open": coverage.get("status") == "OPEN" and coverage.get("coverage_id") == p["coverage_id"],
+                "events_predeclared": coverage.get("expected_events") == events,
+                "events_pending": coverage.get("pending_count") == len(events),
+                "events_unsent": coverage.get("sent_event_ids") == [] and coverage.get("received_event_ids") == [],
+                "coverage_unreconciled": coverage.get("reconciliation") is None and coverage.get("sealed_at") is None,
+                "claim_fixed": claim.get("claim_id") == p["claim_id"] and claim.get("claimed_at") == p["claimed_at"]
+                    and claim.get("original_message") == p["original_message"],
+                "no_native_dispatch": native_state.get("run_id") == self.native["run_id"]
+                    and all("release-usage:" + e["event_id"] not in native_state.get("operations", {}) for e in events)
+                    and not self.state.get("usage_dispatches", {}).get(label),
+                "fresh_native_objects": self.native.get("history_reuse") is None}
+            value = {"observation_id": key, "label": label, "status": "READY" if all(checks.values()) else "NOT_READY",
+                     "checks": checks, "source_context": source, "usage_observation": usage,
+                     "receipts": [usage["receipt"], deepcopy(self.state["receipts"][-1])]}
+            observations[key] = value
+            return deepcopy(value)
+        finally:
+            self.save()
+
+    def send_usage(self, label: str, *, timeout: float = 120) -> dict:
+        """兼容旧批处理：显式组合发送 → 有界只读观察 → 登记 → 核对 → 封存。
+
+        新分步执行器直接调用上面五个端口；仅这个兼容入口等待聚合并完成全链。
+        """
+        self.dispatch_usage(label)
+        completion = self.state.get("usage_completions", {}).get(label)
+        if completion is None:
+            deadline = time.monotonic() + timeout
+            while True:
+                completion = self.observe_usage(label)
+                if completion["status"] == "AGGREGATE_VISIBLE":
+                    break
+                if time.monotonic() >= deadline:
+                    raise SeedError("ASYNC_PRODUCT_NOT_READY_" + label.upper() + "_ACTUAL_EVENT")
+                time.sleep(2)
+        elif "observation_id" not in completion:
+            # 老批处理已有的完成回执仍按原样复用，只添加本地索引，不重新读回或改回执。
+            completion = {**deepcopy(completion), "observation_id": "legacy-completion", "status": "AGGREGATE_VISIBLE"}
+            self.state.setdefault("usage_observations", {}).setdefault(label, {})["legacy-completion"] = completion
+            self.save()
+        self.record_usage_received(label, observation_id=completion["observation_id"])
+        self.reconcile_usage(label, observation_id=completion["observation_id"])
+        self.seal_usage(label)
+        return deepcopy(self.state["usage_completions"][label])
 
     def supplement(self, label: str, text: str = "补充说明：请保留原申请时间，核对我补充的资料。") -> dict:
         """追加真实incoming与来源引用，不覆盖原claim；供显式refresh链路调用。"""

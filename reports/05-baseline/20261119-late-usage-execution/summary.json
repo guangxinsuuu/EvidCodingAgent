@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-19",
+  "scope": "MANUAL_FIXED_PLAN_INTEGRATION_ONLY",
+  "experiment_id": "egaplate20261119a",
+  "candidate_sha": "45a0378585b8970fb2860897c9e49792e15a9df0",
+  "product_sha256": "9871f6f896cfb27dd7fb79367642f7593814d21ad2c82b0a0edc993f49045378",
+  "product_files": 31,
+  "environment_id": "environment_f0284266-e2d6-4913-aa9b-201b4d5f2ec5",
+  "scoped_result": "PASS_SCOPED_DETERMINISTIC_CHECKS",
+  "business_assertions": {
+    "PASS": 183
+  },
+  "checks_by_case": [
+    {
+      "label": "late_usage",
+      "initial_verdict": 38,
+      "final_verdict": 46,
+      "transition": 7
+    },
+    {
+      "label": "post_claim_usage",
+      "initial_verdict": 38,
+      "final_verdict": 47,
+      "transition": 7
+    }
+  ],
+  "initial_qualification_cases": {
+    "late_usage": "READY",
+    "post_claim_usage": "READY"
+  },
+  "operations": {
+    "total": 27,
+    "states": {
+      "COMPLETED": 27
+    },
+    "maximum_dispatch_count": 1,
+    "verified_evidence_refs": 151
+  },
+  "model": {
+    "name": "qwen2:7b",
+    "execution_mode": "LIVE_MODEL",
+    "calls": 4,
+    "states": {
+      "COMPLETE": 4
+    },
+    "budget_calls": 8,
+    "usage_observed": {
+      "prompt_tokens": 11365,
+      "completion_tokens": 191,
+      "total_tokens": 11556
+    },
+    "external_paid_provider_used": false
+  },
+  "recovery": {
+    "interruption": {
+      "experiment_id": "egaplate20261119a",
+      "operation_key": "late_usage.dispatch",
+      "at": "2026-11-19T00:47:29.140223+00:00",
+      "pid": 69533,
+      "exit_code": 75,
+      "boundary": "AFTER_COMMITTED_EVENT_SEND_BEFORE_AGGREGATE_OBSERVATION"
+    },
+    "at_interruption": {
+      "jobs": 1,
+      "model_calls": 1
+    },
+    "resumed_original_operations": [
+      "late_usage.submit",
+      "late_usage.observe.j1.1",
+      "late_usage.dispatch"
+    ],
+    "completed_replay_count": 22,
+    "jobs_calls_budgets_identical_after_replay": true,
+    "dispatch_counts_unchanged": true
+  },
+  "cases": [
+    {
+      "label": "late_usage",
+      "tenant_id": "tenant-b",
+      "customer_id": "egaplate20261119a_customer_b",
+      "subscription_id": "egaplate20261119a_late_usage",
+      "invoice_id": "dbfaa736-953c-4ff7-b117-80cfbc23c57f",
+      "account_id": 1,
+      "conversation_id": 23,
+      "contract_id": "egaplate20261119a-contract-late_usage",
+      "claim_id": "egaplate20261119a-claim-late_usage",
+      "coverage_id": "egaplate20261119a-coverage-late_usage",
+      "claimed_at": "2026-11-21T00:00:00+00:00",
+      "event": {
+        "event_id": "egaplate20261119a_late_usage_delayed",
+        "units": "1",
+        "occurred_at": "2026-11-20T00:00:00+00:00",
+        "native_occurred_at": "2026-11-19T00:43:10+00:00"
+      },
+      "metric_code": "egaplate20261119a_units",
+      "original_message_id": 50,
+      "native_period": {
+        "start": "2026-11-19T00:00:00+00:00",
+        "end": "2026-12-18T23:59:59+00:00"
+      },
+      "scope": "LOCAL_CONTROLLED_GENERATOR_ONLY",
+      "before": {
+        "job_id": "425d8254463041e589a3c103623b1613",
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "proposed_action": "REQUEST_INFORMATION",
+        "coverage_status": "OPEN",
+        "coverage_revision": 1,
+        "pending_count": 1,
+        "claim_interval_units": "1",
+        "snapshot_sha256": "61862ce23a3ce2e55f9b875d09bf0a24291da5aacf478923aae02679f783b2a9",
+        "facts_sha256": "5f5579940a1a13217676a95bf2043d58fe99089f33cdd78890ee2cd61be0e7ca",
+        "source_revision": 18,
+        "private_note_id": 52,
+        "missing_evidence": [
+          "USAGE_COMPLETENESS"
+        ],
+        "window_seconds": 604800,
+        "gaps": [
+          "DETERMINISTIC_DECISION_NOT_CAPTURED",
+          "ACTUAL_MODEL_REQUEST_NOT_CAPTURED",
+          "RAW_MODEL_OUTPUT_NOT_CAPTURED"
+        ],
+        "raw_draft_semantics": "NOT_FULLY_EVALUATED",
+        "native_metric_units": [
+          {
+            "code": "egaplate20261119a_units",
+            "units": "0.0",
+            "events_count": 0
+          },
+          {
+            "code": "egaplate20261119a_unrelated",
+            "units": "9.0",
+            "events_count": 1
+          }
+        ]
+      },
+      "after": {
+        "job_id": "34a4a0cb8e7c4d84bfbd568868f88a03",
+        "eligibility": "INELIGIBLE",
+        "proposed_action": "NO_ACTION",
+        "coverage_status": "SEALED",
+        "coverage_revision": 5,
+        "pending_count": 0,
+        "claim_interval_units": "1",
+        "snapshot_sha256": "2d2bb0f67b1de1caa5322fa804bbcaa75f670ff579e42fcd215a4f62f937d300",
+        "facts_sha256": "1ed44e36ab864a38c950a8c0c5c6d4cf131111e7b8c6390de7acdfcef5ef364e",
+        "source_revision": 22,
+        "private_note_id": 53,
+        "missing_evidence": [],
+        "window_seconds": 604800,
+        "gaps": [
+          "DETERMINISTIC_DECISION_NOT_CAPTURED",
+          "ACTUAL_MODEL_REQUEST_NOT_CAPTURED",
+          "RAW_MODEL_OUTPUT_NOT_CAPTURED"
+        ],
+        "raw_draft_semantics": "NOT_FULLY_EVALUATED",
+        "native_metric_units": [
+          {
+            "code": "egaplate20261119a_units",
+            "units": "1.0",
+            "events_count": 1
+          },
+          {
+            "code": "egaplate20261119a_unrelated",
+            "units": "9.0",
+            "events_count": 1
+          }
+        ]
+      },
+      "parent_job_id": "425d8254463041e589a3c103623b1613",
+      "ordinary_retry": {
+        "job_id": "425d8254463041e589a3c103623b1613",
+        "reused": true
+      },
+      "old_snapshot_unchanged": true,
+      "original_claim_unchanged": true,
+      "event_dispatch_count": 1,
+      "checks_by_stage": {
+        "initial_verdict": 38,
+        "final_verdict": 46,
+        "transition": 7
+      }
+    },
+    {
+      "label": "post_claim_usage",
+      "tenant_id": "tenant-b",
+      "customer_id": "egaplate20261119a_customer_b",
+      "subscription_id": "egaplate20261119a_post_claim_usage",
+      "invoice_id": "9f021fff-34c1-4dd7-afc1-1b171d13ea75",
+      "account_id": 1,
+      "conversation_id": 24,
+      "contract_id": "egaplate20261119a-contract-post_claim_usage",
+      "claim_id": "egaplate20261119a-claim-post_claim_usage",
+      "coverage_id": "egaplate20261119a-coverage-post_claim_usage",
+      "claimed_at": "2026-11-21T00:00:00+00:00",
+      "event": {
+        "event_id": "egaplate20261119a_post_claim_usage_after_claim",
+        "units": "1",
+        "occurred_at": "2026-11-22T00:00:00+00:00",
+        "native_occurred_at": "2026-11-19T00:43:10+00:00"
+      },
+      "metric_code": "egaplate20261119a_units",
+      "original_message_id": 51,
+      "native_period": {
+        "start": "2026-11-19T00:00:00+00:00",
+        "end": "2026-12-18T23:59:59+00:00"
+      },
+      "scope": "LOCAL_CONTROLLED_GENERATOR_ONLY",
+      "before": {
+        "job_id": "b47633b4199e4582b3e17a9f10f8f5af",
+        "eligibility": "NEEDS_MORE_EVIDENCE",
+        "proposed_action": "REQUEST_INFORMATION",
+        "coverage_status": "OPEN",
+        "coverage_revision": 1,
+        "pending_count": 1,
+        "claim_interval_units": "0",
+        "snapshot_sha256": "516ca1cea83b247de9855b50d5e1f9ab7efc9f78be914dc93f4a4c196d2265f4",
+        "facts_sha256": "d25b9786bcaaf1c3e9e5adff7bc0c342bc4b31fbe0bff169f0b21e2381a9f834",
+        "source_revision": 22,
+        "private_note_id": 54,
+        "missing_evidence": [
+          "USAGE_COMPLETENESS"
+        ],
+        "window_seconds": 604800,
+        "gaps": [
+          "DETERMINISTIC_DECISION_NOT_CAPTURED",
+          "ACTUAL_MODEL_REQUEST_NOT_CAPTURED",
+          "RAW_MODEL_OUTPUT_NOT_CAPTURED"
+        ],
+        "raw_draft_semantics": "NOT_FULLY_EVALUATED",
+        "native_metric_units": [
+          {
+            "code": "egaplate20261119a_units",
+            "units": "0.0",
+            "events_count": 0
+          },
+          {
+            "code": "egaplate20261119a_unrelated",
+            "units": "9.0",
+            "events_count": 1
+          }
+        ]
+      },
+      "after": {
+        "job_id": "6f295f3135154eccb3f9b4114f610499",
+        "eligibility": "ELIGIBLE",
+        "proposed_action": "HUMAN_REVIEW",
+        "coverage_status": "SEALED",
+        "coverage_revision": 5,
+        "pending_count": 0,
+        "claim_interval_units": "0",
+        "snapshot_sha256": "06ba5b600cb0e76f967fcc0e5ca0c24196f8ed56216efe1a27a6f7fdaec1f20c",
+        "facts_sha256": "ea1fe54d92b089cdd0b870e0e4d0b2cb11ca51fa1fc20c65aa51c03ba4603144",
+        "source_revision": 26,
+        "private_note_id": 55,
+        "missing_evidence": [],
+        "window_seconds": 604800,
+        "gaps": [
+          "DETERMINISTIC_DECISION_NOT_CAPTURED",
+          "ACTUAL_MODEL_REQUEST_NOT_CAPTURED",
+          "RAW_MODEL_OUTPUT_NOT_CAPTURED"
+        ],
+        "raw_draft_semantics": "NOT_FULLY_EVALUATED",
+        "native_metric_units": [
+          {
+            "code": "egaplate20261119a_units",
+            "units": "1.0",
+            "events_count": 1
+          },
+          {
+            "code": "egaplate20261119a_unrelated",
+            "units": "9.0",
+            "events_count": 1
+          }
+        ]
+      },
+      "parent_job_id": "b47633b4199e4582b3e17a9f10f8f5af",
+      "ordinary_retry": {
+        "job_id": "b47633b4199e4582b3e17a9f10f8f5af",
+        "reused": true
+      },
+      "old_snapshot_unchanged": true,
+      "original_claim_unchanged": true,
+      "event_dispatch_count": 1,
+      "checks_by_stage": {
+        "initial_verdict": 38,
+        "final_verdict": 47,
+        "transition": 7
+      }
+    }
+  ],
+  "review_required_probes": [
+    {
+      "label": "post_claim_usage",
+      "stage": "initial",
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "job_id": "b47633b4199e4582b3e17a9f10f8f5af",
+      "draft_sha256": "3cd0d8a95969af26b17f6c2a512782c1c7a7e123e25e5ab58d7d9b01a4e18632"
+    },
+    {
+      "label": "post_claim_usage",
+      "stage": "initial",
+      "code": "ELIGIBILITY_HINT_WITH_MISSING_EVIDENCE",
+      "status": "REVIEW_REQUIRED",
+      "basis": "缺证结果与文案中的资格暗示需要独立人工语义复核",
+      "job_id": "b47633b4199e4582b3e17a9f10f8f5af",
+      "draft_sha256": "3cd0d8a95969af26b17f6c2a512782c1c7a7e123e25e5ab58d7d9b01a4e18632"
+    },
+    {
+      "label": "post_claim_usage",
+      "stage": "after_seal",
+      "code": "RAW_DRAFT_LAB_SCOPE_NOT_EXPLICIT",
+      "status": "REVIEW_REQUIRED",
+      "basis": "原始模型文案未命中实验/模拟范围词；私有备注包装需另行核验",
+      "job_id": "6f295f3135154eccb3f9b4114f610499",
+      "draft_sha256": "b5d2b593a79429daabfb50594577209e363ab10607fd1270e9c65eafb1c3aa0b"
+    }
+  ],
+  "manual_review_observation": {
+    "status": "REVIEW_REQUIRED",
+    "phases": [
+      "late_usage.initial",
+      "post_claim_usage.initial"
+    ],
+    "excerpt": "使用情况似乎超出政策限制",
+    "basis": "coverage OPEN、补证状态中的超限暗示；不等于确定性资格断言失败，须进一步语义评审"
+  },
+  "prior_false_window_reason": {
+    "observed_this_run": false,
+    "fixed": false,
+    "reason": "产品未修改、无C0到C1比较，单次生成未见不能证明修复"
+  },
+  "limitations": [
+    "MANUAL_FIXED_PLAN_NO_AUTONOMOUS_AGENT_DISPATCH",
+    "SYNTHETIC_CONTRACT_PAYMENT_CLAIM_CLOCK",
+    "LOCAL_CONTROLLED_EVENT_SET_ONLY",
+    "DETERMINISTIC_DECISION_NOT_CAPTURED",
+    "ACTUAL_MODEL_REQUEST_NOT_CAPTURED",
+    "RAW_MODEL_OUTPUT_NOT_CAPTURED",
+    "WORDING_NOT_FULLY_EVALUATED",
+    "REVIEWED_LOCAL_PRODUCT_NOT_UNTRUSTED_CODE_SANDBOX",
+    "ONE_PRODUCT_CANDIDATE_NO_BASELINE_CANDIDATE_COMPARISON",
+    "NO_CODEX_REPAIR_NO_PROTECTED_FINAL_NO_RELEASE"
+  ],
+  "authorization": {
+    "agent_dispatch": false,
+    "agent_autonomous_success": false,
+    "protected_final": false,
+    "release": false
+  },
+  "tests": {
+    "tools_multi_system": 107,
+    "execution_observer_binding": 49,
+    "total_passed": 156,
+    "skipped": 0,
+    "postgres_tests_included": 13
+  },
+  "cleanup": {
+    "status": "STOPPED_AND_PRIOR_STATES_RESTORED",
+    "sut_processes_stopped": true,
+    "commercial_source_stopped": true,
+    "all_volumes_retained": true,
+    "old_active_pointer_preserved": true,
+    "initially_running_native_apps_untouched": true
+  },
+  "private_evidence_root": "artifacts/business-source/20261119-late-usage",
+  "private_evidence_sha256": {
+    "object-inventory.private.json": "1e6402c1c2cbcfa1db709921286afdc04edc842a5dbd4e46bd2a6ee43cb14179",
+    "execution-manifest.private.json": "9147c9b5ed750653d6b5e0d72bd5610b802bd15c6b3fb9a132c3c1dad174a8cb",
+    "preparation-tool-identity.json": "28704d2e174c19796aa9b33650ed54f082413a532751d1c69ffdb95556ee3e7e",
+    "interruption.private.json": "31a93a8dd9d76a7089197ab201cd80f4b149a10ccedd6006aea2e7641b7a33ee",
+    "interrupted-ledger.private.json": "26aa8f2e62de0634d312be2b431f103891aaf40190c42b876b4133ed1c8d54a4",
+    "interruption-audit.private.json": "b32cfb39dce5ca7ddd7f1a7664ea28d72fa949ed2c61f5d57b548cd89a6d7f9b",
+    "first-completed-result.private.json": "6c19e4138b304f9c50fb6c265fad5c82e13f66e586c5dd077b2c3f24d0c4057c",
+    "completed-audit.private.json": "ca0b4224c322b6d08d29c69883190bb7ee300f7ce26e3a47247d3b6e32ca5f85",
+    "execution-result.private.json": "e04eccfdf8f25852aa8b98c297e12bccda115f44f9c24bcb7762d167851ab843",
+    "replayed-audit.private.json": "ca0b4224c322b6d08d29c69883190bb7ee300f7ce26e3a47247d3b6e32ca5f85",
+    "cleanup.private.json": "c847b032096d3ccc8f53226b2efabd5a1cf87383527454b7accc4dc1b53006c4"
+  }
+}

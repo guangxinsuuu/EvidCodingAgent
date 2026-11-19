@@ -16,7 +16,7 @@ from unittest.mock import Mock, patch
 
 import business_source
 import release_seed
-from release_seed import DAY, NativeObjects, SourceObjects, scenario_specs
+from release_seed import DAY, NativeObjects, SourceObjects, fresh_usage_specs, scenario_specs
 from seed import SeedError, save_private, sha
 
 
@@ -35,7 +35,7 @@ class ReleaseObjectsTests(unittest.TestCase):
         save_private(self.directory / "native/seed.json", self.native)
         save_private(self.root / "artifacts/multi-system/runtime.json", self.config)
         save_private(self.directory / "ready.json", {"base_url": "http://127.0.0.1:58003", "instance_id": "commercial_unit", "source_digest": "a" * 64})
-        save_private(self.directory / "runtime.private.json", {"admin_token": "source-private"})
+        save_private(self.directory / "runtime.private.json", {"admin_token": "source-private", "read_token": "source-read-private"})
         shutil.copytree(release_seed.ROOT / "business-source-pack", self.root / "business-source-pack")
         for module in (release_seed, business_source):
             patcher = patch.object(module, "ROOT", self.root)
@@ -69,6 +69,7 @@ class ReleaseObjectsTests(unittest.TestCase):
         calls = []
         def command(key, kind, payload):
             calls.append((key, kind, deepcopy(payload)))
+            self.source.state["commands"][key] = {"state": "COMPLETE"}
             if kind in {"advance_clock", "terminate_subscription"}:
                 return {"events": [{"event_id": "event-1", "event_type": "SUBSCRIPTION_RENEWAL_EFFECTIVE" if kind == "advance_clock" else "SUBSCRIPTION_TERMINATED"}]}
             return deepcopy(payload)
@@ -88,6 +89,18 @@ class ReleaseObjectsTests(unittest.TestCase):
         self.assertEqual(values["v2_boundary"]["claim_offset_seconds"], 7 * DAY)
         self.assertEqual(values["v2_late"]["claim_offset_seconds"], 7 * DAY + 1)
         self.assertEqual(values["v2_boundary"]["distractor_units"], 999)
+
+    def test_fresh_usage_specs_use_operator_date_and_leave_both_events_pending(self):
+        specs = fresh_usage_specs("2026-11-19T00:00:00Z")
+        self.assertEqual([s["label"] for s in specs], ["late_usage", "post_claim_usage"])
+        self.assertTrue(all(s["period_start"] == "2026-11-19T00:00:00Z" for s in specs))
+        self.assertTrue(all(s["send_during_prepare"] is False for s in specs))
+        self.assertTrue(all(s["distractor_units"] == 9 for s in specs))
+        self.assertEqual(specs[0]["usage_events"][0]["business_offset_seconds"], DAY)
+        self.assertEqual(specs[1]["usage_events"][0]["business_offset_seconds"], 3 * DAY)
+        for date in (None, "2026-11-19T12:00:00Z", "2026-11-19T00:00:00+11:00"):
+            with self.subTest(date=date), self.assertRaises(SeedError):
+                fresh_usage_specs(date)
 
     def test_malformed_fact_spec_fails_with_controlled_code_before_any_api(self):
         for update in ({"period_start": None}, {"usage_events": None}, {"payment_currency": "eur"},
@@ -320,11 +333,10 @@ class ReleaseObjectsTests(unittest.TestCase):
         writer.write_once.return_value = {"event": native_event}
         raw = {**deepcopy(plan["usage"]), "charges_usage": [{"billable_metric": {"code": self.native["metric_code"]}, "units": "1"}]}
         def read(method, path):
-            writer.state["receipts"].append({"service": "lago", "method": method, "path": path, "status": 200,
+            self.source.state["receipts"].append({"service": "lago", "method": method, "path": path, "status": 200,
                 "observed_at": "2026-11-10T00:40:01Z", "response_sha256": sha({"customer_usage": raw})})
             return {"customer_usage": raw}
-        writer.lago.request.side_effect = read
-        writer.poll.side_effect = lambda reader, predicate, **kwargs: reader()
+        self.source.lago.request = Mock(side_effect=read)
         calls = self.capture_commands()
         with patch.object(release_seed, "NativeObjects", return_value=writer):
             self.source.send_usage("late_usage")

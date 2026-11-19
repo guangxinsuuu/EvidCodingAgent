@@ -1,0 +1,1100 @@
+[
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "job_completed",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "eligibility",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "proposed_action",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "required_missing_evidence",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "commercial_scope_matches_prepared_objects",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "explicit_lab_authority",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "snapshot_invoice_and_subscription",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "native_invoice_ownership",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "historical_policy_selection",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "policy_window_seconds",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "exactly_one_state_derived_renewal",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "original_claim_message_identity",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "claim_time_is_prepared_original",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_elapsed_time",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "native_selected_metric_units",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "frozen_usage_matches_native_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "native_fee_and_usage_exact_period",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "pending_zero_not_complete",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "exact_private_note_delivery",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "conversation_remains_open",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "no_public_outgoing_message",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "deterministic_note_lab_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_scope_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_claim_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_coverage",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_coverage_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_payment",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_payment_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_policies_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_contracts_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_events_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_invoice_link_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "coverage_exact_claim_interval",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "single_predeclared_unit",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "predeclared_event_correct_side_of_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "prepared_original_message_binding",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "initial_verdict",
+    "name": "predeclared_event_not_yet_sent",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "job_completed",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "eligibility",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "proposed_action",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "required_missing_evidence",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "complete_case_has_no_missing_evidence",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "commercial_scope_matches_prepared_objects",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "explicit_lab_authority",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "snapshot_invoice_and_subscription",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "native_invoice_ownership",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "historical_policy_selection",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "policy_window_seconds",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "exactly_one_state_derived_renewal",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "original_claim_message_identity",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "claim_time_is_prepared_original",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_elapsed_time",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "native_selected_metric_units",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "frozen_usage_matches_native_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "native_fee_and_usage_exact_period",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "coverage_sealed_finite_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "expected_sent_received_sets_closed",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_business_subinterval_sum",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "exact_simulated_payment_basis",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "exact_private_note_delivery",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "conversation_remains_open",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "no_public_outgoing_message",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "deterministic_note_lab_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_scope_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_claim_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_coverage",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_coverage_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_payment",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_payment_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_policies_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_contracts_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_events_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_invoice_link_content",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "coverage_exact_claim_interval",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "single_predeclared_unit",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "predeclared_event_correct_side_of_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "prepared_original_message_binding",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "seal_has_all_event_receipts",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "native_event_receipt_matches_predeclaration:egaplate20261119a_late_usage_delayed",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "aggregate_receipt_covers_event:egaplate20261119a_late_usage_delayed",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "seal_has_independent_matching_reconciliation",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "final_verdict",
+    "name": "seal_follows_latest_coverage_reconciliation",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "ordinary_retries_reuse_original_job",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "reevaluation_new_job_and_parent",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "old_snapshot_immutable",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "original_claim_identity_and_time_immutable",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "predeclared_event_and_coverage_identity_immutable",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "reevaluation_uses_changed_facts",
+    "status": "PASS"
+  },
+  {
+    "label": "late_usage",
+    "stage": "transition",
+    "name": "same_experiment_candidate_and_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "job_completed",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "eligibility",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "proposed_action",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "required_missing_evidence",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "commercial_scope_matches_prepared_objects",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "explicit_lab_authority",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "snapshot_invoice_and_subscription",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "native_invoice_ownership",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "historical_policy_selection",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "policy_window_seconds",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "exactly_one_state_derived_renewal",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "original_claim_message_identity",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "claim_time_is_prepared_original",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_elapsed_time",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "native_selected_metric_units",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "frozen_usage_matches_native_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "native_fee_and_usage_exact_period",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "pending_zero_not_complete",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "exact_private_note_delivery",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "conversation_remains_open",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "no_public_outgoing_message",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "deterministic_note_lab_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_scope_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_claim_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_coverage",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_coverage_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_payment",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_payment_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_policies_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_contracts_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_events_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "independent_source_invoice_link_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "coverage_exact_claim_interval",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "single_predeclared_unit",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "predeclared_event_correct_side_of_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "prepared_original_message_binding",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "initial_verdict",
+    "name": "predeclared_event_not_yet_sent",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "job_completed",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "eligibility",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "proposed_action",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "required_missing_evidence",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "complete_case_has_no_missing_evidence",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "commercial_scope_matches_prepared_objects",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "explicit_lab_authority",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "snapshot_invoice_and_subscription",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "native_invoice_ownership",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "historical_policy_selection",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "policy_window_seconds",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "exactly_one_state_derived_renewal",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "original_claim_message_identity",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "claim_time_is_prepared_original",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_elapsed_time",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "native_selected_metric_units",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "frozen_usage_matches_native_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "native_fee_and_usage_exact_period",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "coverage_sealed_finite_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "expected_sent_received_sets_closed",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_business_subinterval_sum",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "whole_period_not_substituted_for_claim_interval",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "exact_simulated_payment_basis",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "exact_private_note_delivery",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "conversation_remains_open",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "no_public_outgoing_message",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "deterministic_note_lab_scope",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_scope_readback",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_claim_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_coverage",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_coverage_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_payment",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_payment_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_policies_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_contracts_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_events_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "independent_source_invoice_link_content",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "coverage_exact_claim_interval",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "single_predeclared_unit",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "predeclared_event_correct_side_of_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "prepared_original_message_binding",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "seal_has_all_event_receipts",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "native_event_receipt_matches_predeclaration:egaplate20261119a_post_claim_usage_after_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "aggregate_receipt_covers_event:egaplate20261119a_post_claim_usage_after_claim",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "seal_has_independent_matching_reconciliation",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "final_verdict",
+    "name": "seal_follows_latest_coverage_reconciliation",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "ordinary_retries_reuse_original_job",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "reevaluation_new_job_and_parent",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "old_snapshot_immutable",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "original_claim_identity_and_time_immutable",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "predeclared_event_and_coverage_identity_immutable",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "reevaluation_uses_changed_facts",
+    "status": "PASS"
+  },
+  {
+    "label": "post_claim_usage",
+    "stage": "transition",
+    "name": "same_experiment_candidate_and_scope",
+    "status": "PASS"
+  }
+]
