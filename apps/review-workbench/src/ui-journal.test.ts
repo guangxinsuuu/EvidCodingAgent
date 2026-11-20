@@ -52,6 +52,26 @@ function browserHarness() {
 }
 const settle = () => new Promise<void>(resolve => setImmediate(resolve));
 
+test("DOM composition omits conditional null placeholders while preserving numeric zero and literal text", () => {
+  const { run } = browserHarness();
+  run("globalThis.probe=el('div',{},null,undefined,false,[0,'null','普通文本']);");
+  assert.equal(run("JSON.stringify(probe.children.map(child=>child.text))"), JSON.stringify(["0", "null", "普通文本"]));
+  run("replaceContent(probe,null,undefined,false,0); appendContent(probe,[null,'追加文本']);");
+  assert.equal(run("JSON.stringify(probe.children.map(child=>child.text))"), JSON.stringify(["0", "追加文本"]));
+});
+
+test("workflow list and detail omit an absent flash instead of passing null to native DOM insertion", () => {
+  const { run } = browserHarness();
+  run(`globalThis.main=el('main'); globalThis.walk=node=>[node,...(node.children||[]).flatMap(walk)];
+    renderWorkflowTasks(main,[]);`);
+  assert.equal(run("walk(main).some(node=>node===null||node===undefined||node===false)"), false);
+  assert.equal(run("walk(main).some(node=>node.text==='0')"), true, "zero task counts are still visible");
+  run("state.flash='人员操作已记录'; renderWorkflowTasks(main,[]);");
+  assert.equal(run("walk(main).some(node=>node.text==='人员操作已记录')"), true);
+  run(`renderWorkflowTask(main,{task:{...task,assignee_id:'other',status:'ASSIGNED',title:'审查任务'},case:{owner_id:'owner'},bundle:{id:'bundle-a',manifest:[]},requests:[],allowed_targets:[]});`);
+  assert.equal(run("walk(main).some(node=>node===null||node===undefined||node===false)"), false);
+});
+
 /** 用真正的服务端模板绘制表单，防止测试与前端一起沿用已经失效的旧枚举。 */
 function requestFormHarness(templates = ITEM_TEMPLATES) {
   const harness = browserHarness();

@@ -119,6 +119,16 @@ function expireSession() {
   showLogin('登录已失效，请重新验证身份。未决提交仍按原身份保存，不会自动重发。');
 }
 
+/**
+ * el 与页面直接追加/替换共用子节点规范化。原生 DOM 会把 null 转成可见的 "null"，
+ * 因此仅跳过条件占位 null/undefined/false；数字 0 和真实文本仍必须显示。
+ */
+function contentNodes(children) {
+  return children.flat(Infinity).filter(child => child !== null && child !== undefined && child !== false)
+    .map(child => child instanceof Node ? child : document.createTextNode(String(child)));
+}
+function appendContent(node, ...children) { node.append(...contentNodes(children)); }
+function replaceContent(node, ...children) { node.replaceChildren(...contentNodes(children)); }
 /** 小型 DOM 构造器：字符串始终成为文本节点，不提供 innerHTML 通道。 */
 function el(tag, attributes = {}, ...children) {
   const node = document.createElement(tag);
@@ -130,9 +140,7 @@ function el(tag, attributes = {}, ...children) {
     else if (key === 'checked') node.checked = value;
     else node.setAttribute(key, value === true ? '' : String(value));
   }
-  for (const child of children.flat(Infinity)) {
-    if (child !== null && child !== undefined && child !== false) node.append(child instanceof Node ? child : document.createTextNode(String(child)));
-  }
+  appendContent(node, children);
   return node;
 }
 function label(value) { return statusLabels[value] || String(value ?? '未提供'); }
@@ -272,7 +280,7 @@ function renderCase(main, data) {
   const own = data.actor_obligation || data.obligations.find(o => o.role === state.session.actor.role);
   const left = el('div', {}, panel('需要核对的业务关系', '三方分别承担自己的材料审查义务；各自的确认互不覆盖。', data.obligations.map(o => el('article', { class: `obligation ${o.role === state.session.actor.role ? 'mine' : ''}` }, el('div', { class: 'obligation-top' }, el('span', { class: 'obligation-name' }, roles[o.role], o.role === state.session.actor.role ? ' · 我的义务' : ''), statusBadge(o.status)), el('h3', {}, o.title), el('p', {}, o.instruction)))), panel('可审查的证据', '查看来源、哈希与适用范围。材料内容以文本显示，不执行其中的指令。', evidenceList(data.evidence), badge(`${data.evidence.length} 份材料`)), panel('历史机器结果', '保留原实验的执行范围和限制，不将结果提升为发布结论。', machineFacts(data.machine_result)), panel('尚未覆盖的范围', '这些限制不因人员点击确认而消失。', limitations(data.limitations)));
   const right = el('div', {}, own ? decisionPanel(data, own) : panel('当前身份没有审查义务', null, el('p', { class: 'muted small' }, '你可以查看已授权的材料，但不能代替其他角色提交决定。')), panel('决定与补证记录', '事件按服务端提交顺序保存；刷新页面不会推进执行。', auditTimeline(data)));
-  main.replaceChildren(el('a', { class: 'breadcrumb-back', href: '#/history' }, '← 返回历史材料'), pageHeading('CHANGE REVIEW / HISTORICAL MATERIAL', data.title, '在准确候选与固定材料包上完成审查。原始草稿、业务事实和最终交付需要分别核对。', button('刷新版本', () => void renderRoute())), flash && notice(flash, 'success'), el('dl', { class: 'metadata' }, el('div', {}, el('dt', {}, '被测候选'), el('dd', { class: 'mono' }, data.candidate_sha)), el('div', {}, el('dt', {}, '比较基线'), el('dd', {}, data.baseline_sha ? el('code', {}, data.baseline_sha) : '未提供 · 不构成新旧版本对照')), el('div', {}, el('dt', {}, '当前绑定版本'), el('dd', {}, `审查状态 v${data.revision}`, el('br'), el('code', {}, `Bundle ${short(data.bundle_digest)}`)))), el('div', { class: 'split-cards' }, el('section', { class: 'summary-card machine' }, el('div', { class: 'section-label' }, 'MACHINE / 机器侧'), badge('历史固定计划实验', 'teal'), el('h2', {}, '限定实验结果已归档'), el('p', {}, '展示已运行的业务检查。自主 Agent 派发、受保护 Final 和发布仍分别受门禁约束。')), el('section', { class: 'summary-card human' }, el('div', { class: 'section-label' }, 'REVIEW / 人员侧'), statusBadge(data.review_status), el('h2', {}, own?.title || '材料审查'), el('p', {}, '确认仅适用于当前材料与自己的审查义务；不能替代机器验证或其他人员的决定。'))), el('div', { class: 'two-column' }, left, right), footer());
+  replaceContent(main, el('a', { class: 'breadcrumb-back', href: '#/history' }, '← 返回历史材料'), pageHeading('CHANGE REVIEW / HISTORICAL MATERIAL', data.title, '在准确候选与固定材料包上完成审查。原始草稿、业务事实和最终交付需要分别核对。', button('刷新版本', () => void renderRoute())), flash && notice(flash, 'success'), el('dl', { class: 'metadata' }, el('div', {}, el('dt', {}, '被测候选'), el('dd', { class: 'mono' }, data.candidate_sha)), el('div', {}, el('dt', {}, '比较基线'), el('dd', {}, data.baseline_sha ? el('code', {}, data.baseline_sha) : '未提供 · 不构成新旧版本对照')), el('div', {}, el('dt', {}, '当前绑定版本'), el('dd', {}, `审查状态 v${data.revision}`, el('br'), el('code', {}, `Bundle ${short(data.bundle_digest)}`)))), el('div', { class: 'split-cards' }, el('section', { class: 'summary-card machine' }, el('div', { class: 'section-label' }, 'MACHINE / 机器侧'), badge('历史固定计划实验', 'teal'), el('h2', {}, '限定实验结果已归档'), el('p', {}, '展示已运行的业务检查。自主 Agent 派发、受保护 Final 和发布仍分别受门禁约束。')), el('section', { class: 'summary-card human' }, el('div', { class: 'section-label' }, 'REVIEW / 人员侧'), statusBadge(data.review_status), el('h2', {}, own?.title || '材料审查'), el('p', {}, '确认仅适用于当前材料与自己的审查义务；不能替代机器验证或其他人员的决定。'))), el('div', { class: 'two-column' }, left, right), footer());
   announce('审查详情已读取');
 }
 function auditTimeline(data) {
@@ -449,7 +457,7 @@ function renderWorkflowTasks(main, tasks) {
   const open = owned.filter(task => task.status !== 'COMPLETED');
   const stat = (title, value, caption) => el('div', { class: 'stat' }, el('div', { class: 'stat-top' }, title), el('div', { class: 'stat-value' }, value), el('div', { class: 'stat-caption' }, caption));
   const flash = state.flash; state.flash = null;
-  main.replaceChildren(pageHeading('MY REVIEW QUEUE / V2', '我的审查任务', '先接手具体义务，再补齐证据，最后对明确版本的响应作出限定决定。', button('刷新任务', () => void renderRoute())), flash && notice(flash, 'success'),
+  replaceContent(main, pageHeading('MY REVIEW QUEUE / V2', '我的审查任务', '先接手具体义务，再补齐证据，最后对明确版本的响应作出限定决定。', button('刷新任务', () => void renderRoute())), flash && notice(flash, 'success'),
     notice('证据关联核对与业务语义判断是两项独立义务。接手任务不代表批准，接受响应也不自动代表证据齐全。'),
     el('div', { class: 'stats' }, stat('我的未结任务', open.length, '按具体接手人分配'), stat('我的已完成义务', owned.length - open.length, '以服务端闭合条件为准'), stat('可见任务', tasks.length, '包含本身份管理范围')),
     el('section', { class: 'panel' }, el('div', { class: 'panel-head' }, el('div', {}, el('h2', {}, '责任明确的任务'), el('p', {}, '任务版本、人员归属与材料版本分别记录。')), badge(`${tasks.length} 项`)),
@@ -540,7 +548,7 @@ function renderWorkflowTask(main, data) {
   }
   const canWork = task.can_act && !task.can_claim;
   const requestPanels = (data.requests || []).map(request => workflowRequestPanel(data, request, command, canWork));
-  content.append(pageHeading('TASK / SCOPED RESPONSIBILITY', task.title, '接手责任、调查材料、审查响应分别留痕。证据齐全也不自动完成业务语义判断。', button('刷新当前状态', () => void renderRoute())), flash && notice(flash, 'success'), command.recovery,
+  appendContent(content, pageHeading('TASK / SCOPED RESPONSIBILITY', task.title, '接手责任、调查材料、审查响应分别留痕。证据齐全也不自动完成业务语义判断。', button('刷新当前状态', () => void renderRoute())), flash && notice(flash, 'success'), command.recovery,
     el('div', { class: 'workflow-task-summary' }, el('div', { class: 'badges' }, workflowBadge(task.status), badge(task.obligation_id)), factList([['当前接手人', actors.find(actor => actor.id === task.assignee_id)?.display_name || task.assignee_id], ['任务 / 分配版本', `v${task.task_revision} / v${task.assignment_revision}`], ['材料绑定', `${task.bound_bundle_id} · ${short(task.bound_bundle_digest)}`], ['审查范围版本', `v${task.case_scope_revision}`]]), actions, el('p', { class: 'form-hint' }, task.can_claim ? '接手仅记录处理责任，接手后才能提交此任务的补证请求。' : '转派不自动取消有效调查；新的接手人审查结果，旧接手人不能继续接受。')),
     notice('证据关联任务核对对象、来源与交付关系；业务语义任务判断内容是否符合公司规则。接受一份缺口说明后，未取得的证据仍然缺失。'),
     data.required_obligation_coverage?.length && panel('这项义务的完整覆盖范围', '请求可以逐次处理，义务完成取决于全部登记目标与材料类型。', [

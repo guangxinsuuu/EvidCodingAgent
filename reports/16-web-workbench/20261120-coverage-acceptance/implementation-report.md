@@ -2,6 +2,8 @@
 
 日期：2026-11-20（Australia/Sydney）。范围：固定历史归档的隔离联调复验。
 
+后续状态：窗口恢复后，已完成桌面 Chrome 的真实 QA 主流程，见 [浏览器验收补充](../20261120-browser-acceptance/implementation-report.md)。本报告保留较早一次 HTTP 联调和浏览器受阻时的原始范围；后续模型产生的 `PARTIAL` 结果也单独保留，没有改写为完整成功。
+
 ## 本轮修正
 
 1. 补证表单默认选择服务端真实枚举：`SAVED_PRODUCT_DRAFT`、`DELIVERED_PRIVATE_NOTE`、`DELIVERY_RECEIPT`。`RAW_PROVIDER_RESPONSE` 是显式选择的扩展材料。用户取消选择后，页面重绘不会擅自恢复默认值；测试直接消费服务端模板。

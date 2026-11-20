@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-11-20T00:18:13.516Z",
+  "mode": "KNOWN_ARCHIVE_BROWSER_WORKFLOW_ACCEPTANCE",
+  "case_id": "evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35",
+  "candidate_sha": "45a0378585b8970fb2860897c9e49792e15a9df0",
+  "historical_run_id": "egaplate20261119a",
+  "browser_execution": {
+    "performed_by": "root agent via Chrome native CUA",
+    "status": "PASSED_SCOPED_FLOW",
+    "attestation": "Browser actions and visible state were observed by the root agent; this independent audit verifies persisted database/runtime effects.",
+    "steps": [
+      "login",
+      "claim semantic task without approval",
+      "verify three core defaults and raw opt-in",
+      "empty selection prevents submit",
+      "submit exactly one core evidence request",
+      "refresh and logout/login retain same request",
+      "open three original materials and three MCP receipts",
+      "accept PARTIAL response; task remains WAITING_EVIDENCE",
+      "withdraw this additional request; prior core coverage stays complete"
+    ],
+    "not_covered": [
+      "all browser engines",
+      "mobile/responsive matrix",
+      "enterprise SSO",
+      "unseen task evaluation"
+    ]
+  },
+  "request": {
+    "id": "d5b5b017-ed5c-48dc-8338-86851d27861e",
+    "spec_revision": 1,
+    "run_id": "fa3b428d-c208-4f17-8960-887948509997",
+    "response_id": "da67fda1-a638-4e18-9f92-7d0188daa9e4",
+    "response_digest": "342064cd317094ff82272490e587e826fbb87617232f7c79abfe6461dad879d4",
+    "created_at": "2026-11-20T00:08:08.648Z",
+    "execution_state": "CANCELLED",
+    "review_state": "ACCEPTED",
+    "fulfillment_state": "PARTIAL",
+    "withdrawn": true,
+    "response_archived": false,
+    "items": [
+      {
+        "item_id": "E1",
+        "kind": "SAVED_PRODUCT_DRAFT",
+        "proposed_disposition": "PROVIDED",
+        "validated_disposition": "PROVIDED",
+        "association_status": "BOUND",
+        "semantic_acceptance": "NOT_EVALUATED",
+        "material_ref": "archive:egaplate20261119a:late_usage.before:draft",
+        "receipt_ref": "read:aa549f8a-7a1e-497c-be51-7863424812f9",
+        "exact_material_target_hash_and_receipt_binding_verified": true
+      },
+      {
+        "item_id": "E2",
+        "kind": "DELIVERED_PRIVATE_NOTE",
+        "proposed_disposition": "PARTIAL",
+        "validated_disposition": "PARTIAL",
+        "association_status": "BOUND",
+        "semantic_acceptance": "NOT_EVALUATED",
+        "material_ref": "archive:egaplate20261119a:late_usage.before:note",
+        "receipt_ref": "read:3b7b6bd5-e2e3-4887-8bb3-4126da010b5a",
+        "exact_material_target_hash_and_receipt_binding_verified": true
+      },
+      {
+        "item_id": "E3",
+        "kind": "DELIVERY_RECEIPT",
+        "proposed_disposition": "PARTIAL",
+        "validated_disposition": "PARTIAL",
+        "association_status": "BOUND",
+        "semantic_acceptance": "NOT_EVALUATED",
+        "material_ref": "archive:egaplate20261119a:late_usage.before:delivery",
+        "receipt_ref": "read:c8afb413-0cff-4d38-b0dc-0deee1fc1fb8",
+        "exact_material_target_hash_and_receipt_binding_verified": true
+      }
+    ],
+    "read_receipts": 3
+  },
+  "command_bindings": {
+    "recorded_request_commands": 3,
+    "exact_accept_payload_digest_recomputed": true,
+    "acceptance": {
+      "command_id": "6978b207-7385-4294-ae56-eb1ce51da671",
+      "task_revision": 25,
+      "response_id": "da67fda1-a638-4e18-9f92-7d0188daa9e4",
+      "response_digest": "342064cd317094ff82272490e587e826fbb87617232f7c79abfe6461dad879d4",
+      "review_policy_version": "local-evidence-linkage-v1",
+      "bundle_id": "evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35:b-e02ba6a4-7dbe-4c6f-b9ef-4e7aa2ac2af1",
+      "bundle_digest": "2021a9d475cf6ba6bda4f53f4dec1337a4b09562b51695cedbbfe3597902d5e2",
+      "resulting_task_status": "WAITING_EVIDENCE",
+      "fulfillment_state": "PARTIAL",
+      "core_coverage": {
+        "provided": 12,
+        "required": 12
+      }
+    },
+    "withdrawal": {
+      "command_id": "377b7daa-0893-4488-be0d-6d39f12c7767",
+      "task_revision": 26,
+      "resulting_task_status": "COMPLETED",
+      "core_coverage": {
+        "provided": 12,
+        "required": 12
+      }
+    }
+  },
+  "model_result": {
+    "model": "mistral:latest",
+    "model_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+    "model_calls": 4,
+    "read_calls": 3,
+    "prompt_tokens": 23837,
+    "output_tokens": 2030,
+    "cost_basis": "LOCAL_NO_PROVIDER_BILL",
+    "dispositions": [
+      "PROVIDED",
+      "PARTIAL",
+      "PARTIAL"
+    ],
+    "interpretation": "The model left note/message and delivery association questions unresolved despite message ID 52 being present in both captured objects. Runtime retained PARTIAL and did not upgrade it to PROVIDED.",
+    "prompt_changed": false,
+    "rerun_after_partial_response": false
+  },
+  "final": {
+    "evidence_linkage_status": "COMPLETED",
+    "evidence_linkage_task_revision": 26,
+    "semantic_status": "IN_PROGRESS",
+    "semantic_claimed": true,
+    "semantic_task_revision": 6,
+    "core_coverage": {
+      "provided": 12,
+      "required": 12
+    },
+    "active_accepted_complete_core_requests": 4,
+    "total_case_requests": 6,
+    "total_case_runs": 6,
+    "total_case_model_calls": 21,
+    "budget_consumed": {
+      "read_calls": 15,
+      "model_calls": 21
+    },
+    "budget_reserved": {
+      "read_calls": 0,
+      "model_calls": 0
+    },
+    "budget_cap": {
+      "read_calls": 48,
+      "model_calls": 24
+    },
+    "no_extra_model_calls_after_acceptance_observed": true
+  },
+  "audit_events": [
+    {
+      "seq": 24,
+      "kind": "TASK_CLAIMED",
+      "created_at": "2026-11-20T00:06:57.617Z",
+      "request_id": null,
+      "task_revision": 6
+    },
+    {
+      "seq": 25,
+      "kind": "EVIDENCE_REQUESTED",
+      "created_at": "2026-11-20T00:08:08.648Z",
+      "request_id": "d5b5b017-ed5c-48dc-8338-86851d27861e",
+      "task_revision": 23
+    },
+    {
+      "seq": 26,
+      "kind": "EVIDENCE_RUN_RESERVED",
+      "created_at": "2026-11-20T00:08:09.428Z",
+      "request_id": "d5b5b017-ed5c-48dc-8338-86851d27861e",
+      "task_revision": null
+    },
+    {
+      "seq": 27,
+      "kind": "EVIDENCE_RUNTIME_RESULT",
+      "created_at": "2026-11-20T00:11:01.374Z",
+      "request_id": "d5b5b017-ed5c-48dc-8338-86851d27861e",
+      "task_revision": null
+    },
+    {
+      "seq": 28,
+      "kind": "EVIDENCE_RESPONSE_ACCEPTED",
+      "created_at": "2026-11-20T00:16:11.939Z",
+      "request_id": "d5b5b017-ed5c-48dc-8338-86851d27861e",
+      "task_revision": 25
+    },
+    {
+      "seq": 29,
+      "kind": "EVIDENCE_REQUEST_WITHDRAWN",
+      "created_at": "2026-11-20T00:16:31.344Z",
+      "request_id": "d5b5b017-ed5c-48dc-8338-86851d27861e",
+      "task_revision": 26
+    }
+  ],
+  "boundaries": {
+    "user_qa_approval": false,
+    "semantic_judgement_complete": false,
+    "new_candidate_business_experiment": false,
+    "unseen_evaluation": false,
+    "protected_final": false,
+    "codex_repair": false,
+    "release_authorized": false
+  },
+  "observation_consistency": "Separate read-only repeatable-read snapshots of review and runtime databases; not a distributed transaction",
+  "code_verification": {
+    "build": "PASSED",
+    "typecheck": "PASSED",
+    "ui_tests": {
+      "passed": 16,
+      "skipped": 0
+    },
+    "javascript_syntax": "PASSED",
+    "diff_check": "PASSED"
+  },
+  "private_browser_evidence": [
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-default-selection.private.png",
+      "sha256": "e2a7f6a3562035ecb6b7864fa624f91a66c7388b4f3d4754c4d13a5415a383ac",
+      "bytes": 494562,
+      "committed": false
+    },
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-after-refresh.ax.private.txt",
+      "sha256": "3814faece63bf9746752a9f346374d9ba6b687c228ec40459c1837e6ac8e6684",
+      "bytes": 33062,
+      "committed": false
+    },
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-originals-and-receipts.private.png",
+      "sha256": "94057af72d08cdef64657fad5a3e8935aa33b8960c7931600ad743a1952ee06d",
+      "bytes": 528473,
+      "committed": false
+    },
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-originals-and-receipts.ax.private.txt",
+      "sha256": "0b021bf571b12879b7e4ed91c96d23abd2feced66a5baacd66c61b3a0b074d77",
+      "bytes": 49100,
+      "committed": false
+    },
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-after-withdraw.ax.private.txt",
+      "sha256": "f9ff4073e990efa740849979abb3389775cb73f9e8bf4e67e8f58a1d5fbd1042",
+      "bytes": 30896,
+      "committed": false
+    },
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-final-task-list.ax.private.txt",
+      "sha256": "cb43d14272ecbd41a3d700f895c9988a8c443536ae80d542507d0e1052348dbc",
+      "bytes": 4249,
+      "committed": false
+    },
+    {
+      "path": "artifacts/review-workbench/browser-coverage/evidence-live-4a4640d4-36d4-4dcb-b849-4429dccb5d35/browser-final-task-list.private.png",
+      "sha256": "32003eca8d308b6ea55bd9c714bd5c0be1def67840ecf3b89eb363e295dc2c4f",
+      "bytes": 433197,
+      "committed": false
+    }
+  ]
+}
