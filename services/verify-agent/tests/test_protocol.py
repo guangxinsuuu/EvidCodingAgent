@@ -25,6 +25,16 @@ class ProtocolTests(unittest.TestCase):
                     with self.assertRaises(ProtocolError):
                         validate_proposal(row["value"])
 
+    def test_shared_review_v3_conformance_corpus(self):
+        corpus = parse_json((ROOT / "protocols/verify-agent/v3/conformance.json").read_bytes())
+        for row in corpus["cases"]:
+            with self.subTest(row["name"]):
+                if row["valid"]:
+                    self.assertEqual(validate_proposal(row["value"]), row["value"])
+                else:
+                    with self.assertRaises(ProtocolError):
+                        validate_proposal(row["value"])
+
     def test_non_json_numeric_constants_are_rejected(self):
         for token in ("NaN", "Infinity", "-Infinity"):
             with self.subTest(token), self.assertRaises(ProtocolError):

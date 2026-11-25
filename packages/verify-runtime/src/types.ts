@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import type { DecisionProposal, HypothesisUpdate, EvidenceReviewInput, EvidenceDecisionProposal } from "@egap/contracts";
+import { parseReviewRequest, type ReviewRequest, type ReviewDecisionProposal,
+  type DecisionProposal, type HypothesisUpdate, type EvidenceReviewInput, type EvidenceDecisionProposal } from "@egap/contracts";
 
 export type Json = Record<string, unknown>;
 export interface Material {
@@ -7,15 +8,17 @@ export interface Material {
   path: string; sha256: string; content: string;
 }
 export interface ReleaseBundle {
-  schema_version: 1; task_mode: "RELEASE_VERIFICATION"; scope: "LOCAL_SYNTHETIC_PLANNING";
+  schema_version: 1 | 2; task_mode: "RELEASE_VERIFICATION"; scope: "LOCAL_SYNTHETIC_PLANNING";
   input_provenance: string; goal: string; baseline_sha: string; candidate_sha: string;
   catalog_commit: string; catalog_basis_commit: string; requirement_refs: string[];
   changes: Json[]; materials: Material[]; catalog: Json; gaps: unknown[];
   current_candidate_coverage: never[]; evaluation_status: "NOT_RUN";
   planning_contracts?: Json[];
+  /** v2 的任务依据由可信装配器冻结；不是模型可编辑的审批或执行授权。 */
+  review_request?: ReviewRequest;
 }
 export type RuntimeBundle = ReleaseBundle | EvidenceReviewInput;
-export type RuntimeProposal = DecisionProposal | EvidenceDecisionProposal;
+export type RuntimeProposal = DecisionProposal | EvidenceDecisionProposal | ReviewDecisionProposal;
 /** 仅冻结档案的有界读接口；MCP adapter 不获得数据库事务或写入工作台的权限。 */
 export interface EvidenceReadPort {
   read(request: { run_id: string; operation_id: string; material_ref: string; sha256: string; start_line: number; end_line: number }): Promise<{ material_ref: string; sha256: string; start_line: number; end_line: number; content: string; segment_sha256: string }>;
@@ -46,6 +49,17 @@ export interface RunState {
   identities?: Json;
   /** 与 latest_feedback 分开持久化：后续 READ 回执不能抹掉待补缺项或重置次数。 */
   check_repair?: CheckRepair;
+  /** 主图工作产物：原提案仍在 operations，投影只保留最新草案与有界方向历史。 */
+  review_cycle?: {
+    last_frame?: ReviewDecisionProposal["decision_frame"];
+    directions: { proposal_id: string; focus: string; evidence_refs: readonly string[] }[];
+    draft?: { ref: string; digest: string; basis_digest: string; status: "NEEDS_REVISION" | "BOUND_PLAN";
+      proposal: Extract<ReviewDecisionProposal, { action_kind: "PLAN_DRAFT" }>;
+      compiled: DecisionProposal | null; issues: readonly unknown[] };
+    accepted_plan_ref?: string;
+  };
+  review_repair?: { status: "PENDING" | "SATISFIED" | "EXHAUSTED"; root_proposal_id: string;
+    latest_proposal_id: string; attempts_used: number; attempts_limit: number };
 }
 export class RuntimeError extends Error {
   constructor(readonly code: string, readonly statusCode = 409) { super(code); }
@@ -67,17 +81,24 @@ export function sha(text: string): string { return createHash("sha256").update(t
 export function validateBundle(value: unknown): ReleaseBundle {
   requireThat(value && typeof value === "object", "INVALID_RELEASE_BUNDLE", 400);
   const b = value as ReleaseBundle;
-  requireThat(b.schema_version === 1 && b.task_mode === "RELEASE_VERIFICATION" &&
+  requireThat([1, 2].includes(b.schema_version) && b.task_mode === "RELEASE_VERIFICATION" &&
     b.scope === "LOCAL_SYNTHETIC_PLANNING" && ["LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC"].includes(b.input_provenance), "INVALID_RELEASE_SCOPE", 400);
   for (const id of [b.baseline_sha, b.candidate_sha, b.catalog_commit, b.catalog_basis_commit])
     requireThat(typeof id === "string" && /^[0-9a-f]{40}$/.test(id), "INVALID_COMMIT_IDENTITY", 400);
   requireThat(typeof b.goal === "string" && b.goal.length > 0 && b.goal.length <= 4000 &&
     Array.isArray(b.changes) && b.changes.length > 0 && b.changes.length <= 100 &&
     Array.isArray(b.materials) && b.materials.length <= 200 &&
-    Array.isArray(b.requirement_refs) && b.requirement_refs.length > 0 &&
+    Array.isArray(b.requirement_refs) && (b.schema_version === 2 || b.requirement_refs.length > 0) &&
     Array.isArray(b.current_candidate_coverage) && b.current_candidate_coverage.length === 0 &&
     b.evaluation_status === "NOT_RUN", "INVALID_RELEASE_BUNDLE", 400);
   requireThat(b.catalog?.status === "DRAFT" && b.catalog.dispatch_authorized === false, "CATALOG_AUTHORITY_INVALID", 400);
+  if (b.schema_version === 2) {
+    const r = parseReviewRequest(b.review_request);
+    requireThat(r.baseline.commit === b.baseline_sha && r.candidate.commit === b.candidate_sha && r.goal === b.goal,
+      "REVIEW_REQUEST_IDENTITY_MISMATCH", 400);
+    requireThat(canonical(r.requirements.map(item => item.id).sort()) === canonical([...b.requirement_refs].sort()),
+      "REVIEW_REQUIREMENT_SCOPE_MISMATCH", 400);
+  } else requireThat(b.review_request === undefined, "LEGACY_REVIEW_REQUEST_NOT_SUPPORTED", 400);
   requireThat(Buffer.byteLength(canonical(b)) <= 1_500_000, "BUNDLE_TOO_LARGE", 400);
   const refs = new Set<string>();
   for (const m of b.materials) {

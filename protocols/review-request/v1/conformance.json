@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "name": "valid_local_request",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "valid_missing_requirements",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [],
+        "known_gaps": [
+          {
+            "id": "gap:requirements",
+            "requirement_refs": [],
+            "description": "尚未取得本次验收依据。"
+          }
+        ],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "valid_unverified_rule",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "UNVERIFIED",
+            "status": "PENDING",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "valid_conflict",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFLICT",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "invalid_company_approval_claim",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "COMPANY_APPROVED",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "invalid_approval_status",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "APPROVED",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "invalid_branch_as_candidate",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "main",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "invalid_zero_revision",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 0,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    },
+    {
+      "name": "invalid_implicit_dispatch",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null,
+        "dispatch_authorized": true
+      }
+    },
+    {
+      "name": "invalid_missing_predecessor",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "PRESERVE",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": []
+      }
+    },
+    {
+      "name": "invalid_unknown_requirement_kind",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "request_id": "review:fixture",
+        "revision": 1,
+        "requester_ref": "operator:local",
+        "owner_ref": "owner:local",
+        "goal": "审查一次用量适配器变更",
+        "non_goals": [
+          "不执行退款"
+        ],
+        "baseline": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reason": "操作员指定的比较基线；尚未证明是线上部署。",
+          "source_ref": "local:baseline"
+        },
+        "candidate": {
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_ref": "local:candidate"
+        },
+        "requirements": [
+          {
+            "id": "R4",
+            "kind": "OPTIONAL",
+            "statement": "保留原申请截止点语义",
+            "material_ref": "rules:R4",
+            "authority": "LOCAL_CALIBRATION",
+            "status": "CONFIRMED_LOCAL",
+            "owner_ref": "owner:local"
+          }
+        ],
+        "known_gaps": [],
+        "predecessor_run_id": null
+      }
+    }
+  ]
+}

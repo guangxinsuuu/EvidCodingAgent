@@ -11,7 +11,8 @@ import unittest
 from unittest.mock import patch
 
 from tools.registry.reference_resolver import LocalGitReader, MaterialError
-from tools.registry.release_assembler import ROOT, assemble_release, main
+from tools.registry.release_assembler import ROOT, assemble_release, assemble_review_request, main
+from tools.registry.test_review_request import request_fixture
 
 
 PRODUCT_PATH = "services/genai-support-sut/src/genai_support/business_tools.py"
@@ -53,6 +54,70 @@ class ReleaseAssemblerTests(unittest.TestCase):
                      "candidate_root": self.root, "input_provenance": "CALIBRATION_SYNTHETIC"}
         arguments.update(kwargs)
         return assemble_release(**arguments)
+
+    def assemble_request(self, request=None):
+        return assemble_review_request(ROOT, request or request_fixture(self.baseline, self.candidate),
+                                       candidate_root=self.root, input_provenance="CALIBRATION_SYNTHETIC")
+
+    def test_review_request_freezes_own_intent_and_preserved_requirement(self):
+        request = request_fixture(self.baseline, self.candidate)
+        bundle = self.assemble_request(request)
+        self.assertEqual(bundle["schema_version"], 2)
+        self.assertEqual(bundle["review_request"], request)
+        self.assertEqual(bundle["requirement_refs"], ["R3"])
+        self.assertEqual(bundle["goal"], request["goal"])
+        self.assertEqual(bundle["current_candidate_coverage"], [])
+        self.assertFalse(bundle["catalog"]["dispatch_authorized"])
+        request["goal"] = "post-assembly mutation"
+        self.assertNotEqual(bundle["review_request"]["goal"], request["goal"])
+
+    def test_review_missing_requirements_and_material_bindings_become_explicit_gaps(self):
+        request = request_fixture(self.baseline, self.candidate)
+        request["requirements"] = []
+        bundle = self.assemble_request(request)
+        self.assertEqual(bundle["requirement_refs"], [])
+        self.assertEqual(bundle["catalog"]["requirements"], [])
+        self.assertFalse(any(m["kind"] == "REGISTERED_RULE_EXCERPT" for m in bundle["materials"]))
+        self.assertIn("REVIEW_REQUIREMENTS_MISSING", [g["code"] for g in bundle["gaps"]])
+        request = request_fixture(self.baseline, self.candidate)
+        request["requirements"][0]["id"] = "R99"
+        request["requirements"][0]["material_ref"] = "rule:R99"
+        bundle = self.assemble_request(request)
+        self.assertEqual(bundle["requirement_refs"], ["R99"])
+        self.assertEqual(bundle["catalog"]["requirements"], [])
+        self.assertIn("REVIEW_REQUIREMENT_NOT_REGISTERED", [g["code"] for g in bundle["gaps"]])
+        request = request_fixture(self.baseline, self.candidate)
+        request["requirements"][0]["material_ref"] = "rule:R5"
+        bundle = self.assemble_request(request)
+        self.assertIn("REVIEW_REQUIREMENT_MATERIAL_MISMATCH", [g["code"] for g in bundle["gaps"]])
+        self.assertEqual({m["material_ref"] for m in bundle["materials"] if m["kind"] == "REGISTERED_RULE_EXCERPT"}, {"rule:R3"})
+
+    def test_review_conflict_and_unverified_source_are_not_silently_confirmed(self):
+        request = request_fixture(self.baseline, self.candidate)
+        request["requirements"][0].update(status="CONFLICT", authority="UNVERIFIED")
+        request["known_gaps"] = [{"id": "gap:meaning", "requirement_refs": ["R3"], "description": "发布意图与规则待确认"}]
+        bundle = self.assemble_request(request)
+        self.assertEqual(bundle["review_request"]["requirements"][0]["status"], "CONFLICT")
+        self.assertEqual(bundle["review_request"]["known_gaps"], request["known_gaps"])
+        self.assertEqual(bundle["scope"], "LOCAL_SYNTHETIC_PLANNING")
+        self.assertIn("LOCAL_RULES_PENDING_REVIEW", [g["code"] for g in bundle["gaps"]])
+
+    def test_review_cli_accepts_only_one_input_mode_and_preserves_private_output(self):
+        request_path = self.root / "request.json"
+        request_path.write_text(json.dumps(request_fixture(self.baseline, self.candidate)))
+        output = self.root / "new-bundle.json"
+        arguments = ["--review-request", str(request_path), "--candidate-root", str(self.root),
+                     "--input-provenance", "CALIBRATION_SYNTHETIC", "--output", str(output)]
+        self.assertEqual(main(arguments + ["--goal", "override"]), 1)
+        self.assertFalse(output.exists())
+        self.assertEqual(main(arguments), 0)
+        self.assertEqual(json.loads(output.read_text())["schema_version"], 2)
+        self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(main(arguments), 1)
+
+    def test_legacy_empty_requirements_still_rejected(self):
+        with self.assertRaisesRegex(MaterialError, "RELEASE_REQUIREMENTS_INVALID"):
+            self.assemble(requirement_refs=[])
 
     def test_real_commit_diff_and_exact_bytes_ignore_worktree(self):
         self.write(PRODUCT_PATH, "uncommitted local edits must never enter the task")

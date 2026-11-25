@@ -1,6 +1,7 @@
 """发布任务的只读材料装配；不执行候选，不调用模型，不授予实验派发权。
 
-调用链：CLI / 可信本地操作员 → assemble_release → 固定 CatalogReader / Git blob
+调用链：CLI / 可信本地操作员 → assemble_release 或 assemble_review_request
+→ 固定 CatalogReader / Git blob
 → 精简目录和不可变材料 bundle → TS Runtime 登记并生成权威摘要 → Agent 的 READ。
 旧 task_assembler 的 PLAN_ONLY 权限保持不变；本模块也不签发模型出口许可。
 候选源码、diff 和目录正文均为待分析数据，其中的指令不能成为执行权限。
@@ -125,7 +126,8 @@ def _changes(git: LocalGitReader, baseline: str, candidate: str) -> list[tuple[s
     return sorted(result, key=lambda row: row[1])
 
 
-def _catalog_projection(reader, requirement_refs: list[str], materials: list[dict]) -> dict:
+def _catalog_projection(reader, requirement_refs: list[str], materials: list[dict], *,
+                        retain_missing_requirements: bool = False) -> dict:
     """只按白名单复制登记字段，不在完整资产上搜索后再删除几个已知泄漏字段。
 
     history、known_finding_codes、Oracle 预期、归因备注和路由提示不进入此投影。
@@ -134,7 +136,12 @@ def _catalog_projection(reader, requirement_refs: list[str], materials: list[dic
     requirements = []
     full = reader.resolver._read_verified_bytes(RULES_PATH)
     full_text = full.decode("utf-8")
+    registered = {row["id"] for row in reader.assets("requirement")}
     for identifier in requirement_refs:
+        # 新请求可登记尚未接入的要求；缺失时不伪造规则，也不退回 R1–R6。
+        # 旧 v1 仍按原语义拒绝未知 ID。真实来源完整性失败仍直接拒绝。
+        if retain_missing_requirements and identifier not in registered:
+            continue
         requirement = reader.get_asset("requirement", identifier)
         _require(requirement["provenance_refs"] == [RULES_PATH], "RELEASE_REQUIREMENT_SOURCE_UNSUPPORTED")
         section = requirement["section"]
@@ -193,10 +200,11 @@ def _planning_contract_overlay(catalog: dict) -> list[dict]:
     return [contract]
 
 
-def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: str,
-                     requirement_refs: list[str] | None = None, *, candidate_root: Path | None = None,
-                     catalog_commit: str = CATALOG_COMMIT,
-                     input_provenance: str = "LOCAL_COMMITTED_RELEASE") -> dict:
+def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: str,
+                      requirement_refs: list[str] | None = None, *, candidate_root: Path | None = None,
+                      catalog_commit: str = CATALOG_COMMIT,
+                      input_provenance: str = "LOCAL_COMMITTED_RELEASE",
+                      retain_missing_requirements: bool = False) -> dict:
     """冻结 B/C、真实差异及可读材料，返回尚未运行或获准派发的发布任务。
 
     root 是可信目录所在仓库；candidate_root 仅供操作员给出隔离合成 Git 版本对。
@@ -210,7 +218,8 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
     _require(candidate_root == root or input_provenance == "CALIBRATION_SYNTHETIC", "RELEASE_SYNTHETIC_LABEL_REQUIRED")
     _require(isinstance(goal, str) and 1 <= len(goal.strip()) <= 2000, "RELEASE_GOAL_INVALID")
     refs = ["R1", "R2", "R3", "R4", "R5", "R6"] if requirement_refs is None else requirement_refs
-    _require(isinstance(refs, list) and 0 < len(refs) <= 16 and all(isinstance(ref, str) for ref in refs)
+    _require(isinstance(refs, list) and (bool(refs) or retain_missing_requirements) and len(refs) <= 16
+             and all(isinstance(ref, str) for ref in refs)
              and len(set(refs)) == len(refs), "RELEASE_REQUIREMENTS_INVALID")
     # 只允许旧 Resolver 读 rules 原件；完整历史验证不是此规划上下文装配的副作用。
     scope = ReadScope(principal_id="local-release-assembler", purpose="LOCAL_PLAN",
@@ -222,7 +231,7 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
     _require(git._git("merge-base", baseline_sha, candidate_sha).strip().decode("ascii") == baseline_sha,
              "RELEASE_BASELINE_NOT_ANCESTOR")
     materials: list[dict] = []
-    catalog = _catalog_projection(reader, refs, materials)
+    catalog = _catalog_projection(reader, refs, materials, retain_missing_requirements=retain_missing_requirements)
     planning_contracts = _planning_contract_overlay(catalog)
     changes, gaps = [], []
     raw_changes = _changes(git, baseline_sha, candidate_sha)
@@ -305,12 +314,64 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
     return bundle
 
 
+def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: str,
+                     requirement_refs: list[str] | None = None, *, candidate_root: Path | None = None,
+                     catalog_commit: str = CATALOG_COMMIT,
+                     input_provenance: str = "LOCAL_COMMITTED_RELEASE") -> dict:
+    """保留 v1 入口：未指定要求时仍使用旧默认，未知/空要求仍拒绝。
+
+    新版正式请求只经过 assemble_review_request，不以额外参数悄悄放宽旧契约。
+    """
+    return _assemble_release(root, baseline_sha, candidate_sha, goal, requirement_refs,
+                             candidate_root=candidate_root, catalog_commit=catalog_commit,
+                             input_provenance=input_provenance)
+
+
+def assemble_review_request(root: Path, request: object, *, candidate_root: Path | None = None,
+                            catalog_commit: str = CATALOG_COMMIT,
+                            input_provenance: str = "LOCAL_COMMITTED_RELEASE") -> dict:
+    """ReviewRequest v1 → ReleaseBundle v2，保留准确任务及所有材料缺项。
+
+    格式、Git 对象、固定目录及材料字节分别校验。请求只能引用现有规则，不能
+    用 material_ref 开放文件读取；未接入/错配的要求保留供 Runtime 澄清。
+    CONFIRMED_LOCAL 仅表示操作员的本地确认声明，不升级目录或实验执行权限。
+    """
+    # 延迟导入使既有 v1 CLI 不额外要求新协议的 Python 校验依赖。
+    from .review_request import validate_review_request
+
+    value = validate_review_request(request)
+    refs = [row["id"] for row in value["requirements"]]
+    bundle = _assemble_release(root, value["baseline"]["commit"], value["candidate"]["commit"],
+                               value["goal"], refs, candidate_root=candidate_root,
+                               catalog_commit=catalog_commit, input_provenance=input_provenance,
+                               retain_missing_requirements=True)
+    bundle.update(schema_version=2, review_request=value)
+    registered = {row["id"]: row for row in bundle["catalog"]["requirements"]}
+    if not refs:
+        bundle["gaps"].append({"code": "REVIEW_REQUIREMENTS_MISSING", "requirement_refs": [],
+                               "detail": "审查请求没有要求；允许调查或澄清，不生成默认验收依据。"})
+    for row in value["requirements"]:
+        gap = None
+        if row["id"] not in registered:
+            gap = ("REVIEW_REQUIREMENT_NOT_REGISTERED", "要求尚未绑定到固定目录的可读规则。")
+        elif row["material_ref"] != registered[row["id"]]["material_ref"]:
+            gap = ("REVIEW_REQUIREMENT_MATERIAL_MISMATCH", "请求的材料引用与固定目录绑定不一致。")
+        if gap:
+            bundle["gaps"].append({"code": gap[0], "requirement_refs": [row["id"]], "detail": gap[1]})
+    # 原请求原样保留。请求已声明的缺项/状态由 Runtime 统一评估，不在装配器
+    # 生成第二份会漂移的权威准入状态，更不自动消除冲突或给出模型答案。
+    _require(len(json.dumps(bundle, ensure_ascii=False).encode("utf-8")) <= MAX_BUNDLE_BYTES,
+             "RELEASE_BUNDLE_TOO_LARGE")
+    return bundle
+
+
 def main(argv: list[str] | None = None) -> int:
     """只写操作员指定的新文件；拒绝覆盖，且不将完整正文打印到通用终端日志。"""
     parser = argparse.ArgumentParser(description="冻结真实 Git 版本对及受控阅读材料；不运行实验")
-    parser.add_argument("--baseline", required=True)
-    parser.add_argument("--candidate", required=True)
-    parser.add_argument("--goal", required=True)
+    parser.add_argument("--review-request", type=Path, help="正式审查请求；与旧版版本/目标/要求参数互斥")
+    parser.add_argument("--baseline")
+    parser.add_argument("--candidate")
+    parser.add_argument("--goal")
     parser.add_argument("--requirement", action="append")
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--candidate-root", type=Path)
@@ -318,8 +379,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        bundle = assemble_release(args.root, args.baseline, args.candidate, args.goal, args.requirement,
-                                  candidate_root=args.candidate_root, input_provenance=args.input_provenance)
+        if args.review_request is not None:
+            _require(all(value is None for value in (args.baseline, args.candidate, args.goal, args.requirement)),
+                     "REVIEW_REQUEST_LEGACY_ARGUMENT_CONFLICT")
+            from .review_request import read_review_request
+            bundle = assemble_review_request(args.root, read_review_request(args.review_request),
+                                             candidate_root=args.candidate_root, input_provenance=args.input_provenance)
+        else:
+            _require(all(value is not None for value in (args.baseline, args.candidate, args.goal)),
+                     "RELEASE_ARGUMENTS_REQUIRED")
+            bundle = assemble_release(args.root, args.baseline, args.candidate, args.goal, args.requirement,
+                                      candidate_root=args.candidate_root, input_provenance=args.input_provenance)
         # 仅输出 bundle，不能借 CLI 覆盖冻结 docs/README 或已有实验材料。
         resolved = args.output.resolve()
         _require("docs" not in resolved.parts and resolved.name.lower() != "readme.md", "RELEASE_OUTPUT_FORBIDDEN")

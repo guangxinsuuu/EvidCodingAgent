@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:egap:review-request:1",
+  "$comment": "受信操作员提交的本地委托。CONFIRMED_LOCAL只表示本地声明；结构合法不授予公司权威、实验执行或发布资格。缺失材料由装配器和Runtime显式登记，不能隐式补造。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "revision",
+    "requester_ref",
+    "owner_ref",
+    "goal",
+    "non_goals",
+    "baseline",
+    "candidate",
+    "requirements",
+    "known_gaps",
+    "predecessor_run_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "request_id": {
+      "$ref": "#/$defs/reference"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "requester_ref": {
+      "$ref": "#/$defs/reference"
+    },
+    "owner_ref": {
+      "$ref": "#/$defs/reference"
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "non_goals": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "uniqueItems": true
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "reason",
+        "source_ref"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "source_ref": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "source_ref"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "statement",
+          "material_ref",
+          "authority",
+          "status",
+          "owner_ref"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/reference"
+          },
+          "kind": {
+            "enum": [
+              "NEW",
+              "PRESERVE"
+            ]
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "material_ref": {
+            "$ref": "#/$defs/reference"
+          },
+          "authority": {
+            "enum": [
+              "LOCAL_CALIBRATION",
+              "UNVERIFIED"
+            ]
+          },
+          "status": {
+            "enum": [
+              "CONFIRMED_LOCAL",
+              "PENDING",
+              "CONFLICT"
+            ]
+          },
+          "owner_ref": {
+            "$ref": "#/$defs/reference"
+          }
+        }
+      }
+    },
+    "known_gaps": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "requirement_refs",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/reference"
+          },
+          "requirement_refs": {
+            "type": "array",
+            "maxItems": 32,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/reference"
+            }
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "predecessor_run_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@#-]*$"
+    }
+  }
+}

@@ -140,7 +140,7 @@ max_iterations 只是进程保护，不增加模型/读取预算，也不把暂�
         if projection.get("pending_decision") is not None:
             if projection["pending_decision"].get("proposal", {}).get("proposal_id") == state.get("last_submitted_id"):
                 return "finish"
-            return "register_action"
+            return action_node(state)
         # 远程READ已派发时等待Runtime回执，不新调用LLM轮询或重复派发相同工具。
         if projection.get("pending_operation") is not None:
             return "finish"
@@ -154,7 +154,28 @@ max_iterations 只是进程保护，不增加模型/读取预算，也不把暂�
     def after_decide(state: AgentState) -> str:
         if state.get("outcome") is not None:
             return "finish"
-        return "register_action" if state.get("proposal") else "ingest_and_update"
+        return action_node(state) if state.get("proposal") else "ingest_and_update"
+
+    def action_node(state: AgentState) -> str:
+        """主图按已生成的结构化动作路由；不在分支里暗中再调用模型或直接执行工具。"""
+        pending = state["projection"].get("pending_decision") or {}
+        proposal = state.get("proposal") or pending.get("proposal") or {}
+        if proposal.get("schema_version") != 3:
+            return "register_action"
+        action = proposal["action_kind"]
+        if action == "UPDATE_DIRECTION":
+            directions = (state["projection"].get("review_cycle") or {}).get("directions", [])
+            return "analyze_change_impact" if not directions else "update_review_direction"
+        return {"READ": "investigate_evidence", "PLAN_DRAFT": "plan_experiment"}.get(action, "update_review_direction")
+
+    def review_branch(name: str):
+        """逻辑职责节点共用一个 ReAct 决策者；分支只交接提案，Runtime 才能登记/读取/编译。"""
+        def handoff(state: AgentState) -> dict:
+            pending = state["projection"].get("pending_decision") or {}
+            proposal = state.get("proposal") or pending.get("proposal") or {}
+            return {"trace": trace(state, name, action_kind=proposal.get("action_kind"),
+                                   responsibility="PROPOSAL_HANDOFF_NOT_INDEPENDENT_MODEL")}
+        return handoff
 
     def finish(state: AgentState) -> dict:
         if state.get("outcome"):
@@ -173,15 +194,19 @@ max_iterations 只是进程保护，不增加模型/读取预算，也不把暂�
     graph.add_node("register_action", register_action)
     graph.add_node("ingest_and_update", ingest_and_update)
     graph.add_node("finish", finish)
+    review_nodes = ["analyze_change_impact", "investigate_evidence", "plan_experiment", "update_review_direction"]
+    for name in review_nodes:
+        graph.add_node(name, review_branch(name))
+        graph.add_edge(name, "register_action")
     graph.add_edge(START, "load_and_reconcile")
     graph.add_conditional_edges("load_and_reconcile", route,
-                                ["decide_next_action", "register_action", "finish"])
+                                ["decide_next_action", "register_action", "finish", *review_nodes])
     graph.add_conditional_edges("decide_next_action", after_decide,
-                                ["register_action", "ingest_and_update", "finish"])
+                                ["register_action", "ingest_and_update", "finish", *review_nodes])
     graph.add_conditional_edges("register_action", lambda state: "finish" if state.get("outcome") else "ingest_and_update",
                                 ["finish", "ingest_and_update"])
     graph.add_conditional_edges("ingest_and_update", route,
-                                ["decide_next_action", "register_action", "finish"])
+                                ["decide_next_action", "register_action", "finish", *review_nodes])
     graph.add_edge("finish", END)
     return graph.compile()
 
@@ -196,12 +221,12 @@ def run_agent(runtime: RuntimePort, run_id: str, *, max_iterations: int = 32) ->
         state = build_graph(runtime, max_iterations=max_iterations).invoke(
             {"run_id": run_id, "iterations": 0, "trace": [], "outcome": None,
              "proposal": None, "last_command_id": None, "last_submitted_id": None, "admission": None},
-            config={"recursion_limit": max_iterations * 4 + 8, "callbacks": []},
+            config={"recursion_limit": max_iterations * 5 + 8, "callbacks": []},
         )
     projection = state.get("projection", {})
     safe_keys = ("status", "decision_basis_revision", "candidate_epoch", "context_view_ref",
                  "task_identity", "budgets", "model_calls", "operations", "hypotheses",
-                 "read_receipts", "pending_operation", "current_candidate_coverage", "final_eligibility", "latest_feedback", "check_repair")
+                 "read_receipts", "pending_operation", "current_candidate_coverage", "final_eligibility", "latest_feedback", "check_repair", "review_cycle", "review_repair")
     return {"schema_version": 1, "run_id": run_id, "agent_version": "0.1.0",
             "outcome": state["outcome"], "iterations_this_process": state["iterations"],
             "authority": "TS_POSTGRESQL_RUNTIME", "checkpoint_mode": "REBUILD_FROM_RUNTIME_PROJECTION",

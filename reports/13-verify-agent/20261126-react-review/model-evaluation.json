@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-11-25T17:07:07.914655+00:00",
+  "purpose": "FROZEN_REACT_REVIEW_CYCLE_TWO_NEW_LOCAL_CHANGES",
+  "scope": "LOCAL_SYNTHETIC_PLANNING",
+  "model": "qwen2.5:7b",
+  "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "seed": 19,
+  "limits": {
+    "model_calls": 8,
+    "reads": 4,
+    "plan_repairs": 2,
+    "max_output_tokens": 3000
+  },
+  "run_configuration_registered_before_first_isolated_call": true,
+  "model_selection_reason": "在任一隔离模型调用开始前，依据公开开发14b任务的本机延迟统一改用已安装7b模型；未依据隔离样本结果选模型。",
+  "development_model_evidence_separate": true,
+  "accuracy_comparison_with_development_run": false,
+  "attempts_per_case": 1,
+  "freeze_sha256": "9f6a64accc51f7a7791fd6346943f5fce791637a7f489b0168e9e1afa98751f3",
+  "independent_reference_qualification": {
+    "case_count": 2,
+    "condition_count": 6,
+    "all_expected_matches": true
+  },
+  "cases": [
+    {
+      "case_id": "review_a",
+      "run_id": "9d1dbcdd-4ab0-46a9-a626-97b32a88d6bc",
+      "started_at": "2026-11-25T17:02:47.681645+00:00",
+      "finished_at": "2026-11-25T17:04:27.802455+00:00",
+      "status": "INCOMPLETE",
+      "runtime_status": "STOPPED",
+      "stop_reason": "NO_PROGRESS_LIMIT",
+      "termination_kind": "DETERMINISTIC_NO_PROGRESS_GUARD",
+      "model_call_count": 3,
+      "read_count": 0,
+      "action_sequence": [
+        "UPDATE_DIRECTION",
+        "UPDATE_DIRECTION",
+        "UPDATE_DIRECTION"
+      ],
+      "operation_statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ],
+      "model_call_statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ],
+      "model_parse_error_codes": [],
+      "admission_error_codes": [],
+      "draft_issue_codes": [],
+      "ever_bound_plan": false,
+      "accepted_plan_count": 0,
+      "draft_count": 0,
+      "model_requested_stop_or_clarification": false,
+      "tokens": {
+        "input": 17542,
+        "output": 1422,
+        "missing_usage_calls": 0
+      },
+      "evaluation_status": "NOT_RUN",
+      "effective_plan": false,
+      "evaluation_reason": "NO_ACCEPTED_PLAN",
+      "ledger_export": "EXPORTED_FULL_LOCAL_RUN",
+      "ledger_sha256": "b4f83113d72e0457b2c004dca9640ef8485e0abc59a29a62982893d236328c70",
+      "owned_process_cleanup": [
+        {
+          "name": "graph",
+          "status": "ALREADY_EXITED"
+        },
+        {
+          "name": "runtime",
+          "status": "STOPPED_OWNED_PROCESS"
+        }
+      ],
+      "business_execution_via_runtime": false,
+      "current_candidate_coverage_added": false,
+      "final_eligible": false
+    },
+    {
+      "case_id": "review_b",
+      "run_id": "4e4633e0-88a9-40e0-8fd9-8a13da11b941",
+      "started_at": "2026-11-25T17:04:38.722351+00:00",
+      "finished_at": "2026-11-25T17:06:21.334889+00:00",
+      "status": "INCOMPLETE",
+      "runtime_status": "STOPPED",
+      "stop_reason": "NO_PROGRESS_LIMIT",
+      "termination_kind": "DETERMINISTIC_NO_PROGRESS_GUARD",
+      "model_call_count": 3,
+      "read_count": 0,
+      "action_sequence": [
+        "UPDATE_DIRECTION",
+        "UPDATE_DIRECTION",
+        "UPDATE_DIRECTION"
+      ],
+      "operation_statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ],
+      "model_call_statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ],
+      "model_parse_error_codes": [],
+      "admission_error_codes": [],
+      "draft_issue_codes": [],
+      "ever_bound_plan": false,
+      "accepted_plan_count": 0,
+      "draft_count": 0,
+      "model_requested_stop_or_clarification": false,
+      "tokens": {
+        "input": 17473,
+        "output": 1614,
+        "missing_usage_calls": 0
+      },
+      "evaluation_status": "NOT_RUN",
+      "effective_plan": false,
+      "evaluation_reason": "NO_ACCEPTED_PLAN",
+      "ledger_export": "EXPORTED_FULL_LOCAL_RUN",
+      "ledger_sha256": "a3e2968f00c330cd1195ba3244a16701b21ec3ffef01ecff3cac889362c19c93",
+      "owned_process_cleanup": [
+        {
+          "name": "graph",
+          "status": "ALREADY_EXITED"
+        },
+        {
+          "name": "runtime",
+          "status": "STOPPED_OWNED_PROCESS"
+        }
+      ],
+      "business_execution_via_runtime": false,
+      "current_candidate_coverage_added": false,
+      "final_eligible": false
+    }
+  ],
+  "totals": {
+    "cases": 2,
+    "model_calls": 6,
+    "accepted_plans": 0,
+    "effective_plans": 0,
+    "input_tokens": 35015,
+    "output_tokens": 3036
+  },
+  "interpretation": "两项均连续提出方向更新，没有读取规则或形成草案；确定性无进展门禁终止。模型返回格式与动作准入有效，但未证明有效选测能力。",
+  "claim_limits": [
+    "No accepted plan means no model-selected B/C business witness was executed.",
+    "Reference qualifications do not substitute for model plans.",
+    "These two runs are not population accuracy or production readiness.",
+    "No Runtime business dispatch, current-candidate coverage, Final or release authorization.",
+    "Once examined or used for tuning these inputs are regression cases; new isolated changes are required."
+  ],
+  "next_requirement": "Improve transition from repeated direction updates to evidence-seeking or explicit clarification, then evaluate fresh isolated changes."
+}

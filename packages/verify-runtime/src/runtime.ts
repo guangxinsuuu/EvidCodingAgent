@@ -1,8 +1,10 @@
+import { reviewPrompt, reviewProposalError, reviewPlanBasis } from "./review-profile.js";
+import { assessReviewBasis, compilePlanDraft } from "./review-planning.js";
 import { buildEvidenceResponse, evidenceProposalError, evidenceProfilePrompt, evidenceShapeHint } from "./evidence-profile.js";
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { PoolClient } from "pg";
-import { DecisionProposalError, decisionProposalSchema, parseDecisionProposal, type DecisionProposal, parseEvidenceReviewInput, parseEvidenceDecisionProposal, evidenceDecisionProposalSchema } from "@egap/contracts";
+import { parseReviewDecisionProposal, reviewDecisionProposalSchema, reviewRequestSchema, DecisionProposalError, decisionProposalSchema, parseDecisionProposal, type DecisionProposal, parseEvidenceReviewInput, parseEvidenceDecisionProposal, evidenceDecisionProposalSchema } from "@egap/contracts";
 import { Store, type RunRow } from "./store.js";
 import { contextRef, contextView, evidenceRefs, finalEligibility, groundedRequirements, modelBodySchema, modelShapeHint } from "./context.js";
 import { invokeLocalModel, validateModelConfig } from "./model.js";
@@ -33,9 +35,10 @@ export class Runtime {
     requireThat(config.model.seed === undefined || Number.isSafeInteger(config.model.seed) && config.model.seed >= 0 && config.model.seed <= 2147483647, "INVALID_MODEL_SEED", 400);
     this.store = new Store(config.databaseUrl);
     const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "check-quality.js", "check-binding.js", "capability-authority.js",
-      "evidence-profile.js", "../../contracts/dist/evidence-review.js", "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
+      "evidence-profile.js", "review-profile.js", "review-planning.js", "../../contracts/dist/review-request.js", "../../contracts/dist/review-decision.js", "../../contracts/dist/evidence-review.js", "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
     this.identities = { runtime_build_sha256: digest(modules), module_sha256: modules,
       planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema), evidence_action_schema_sha256: digest(evidenceDecisionProposalSchema),
+      review_prompt_sha256: sha(reviewPrompt), review_action_schema_sha256: digest(reviewDecisionProposalSchema), review_request_schema_sha256: digest(reviewRequestSchema),
       evidence_prompt_sha256: sha(evidenceProfilePrompt), evidence_read_transport: config.evidenceReadPort ? "MCP_ARCHIVE" : "PINNED_MEMORY",
       evidence_dispatch_fence: Boolean(config.assertEvidenceDispatchAllowed),
       capability_contract_sha256: capabilityContractDigest,
@@ -58,7 +61,23 @@ export class Runtime {
     const state: RunState = { run_id: id, status: "ACTIVE", candidate_epoch: 1, decision_basis_revision: 1,
       event_seq: 0, config_digest: this.configDigest, limits, model_calls_used: 0, reads_used: 0,
       no_progress: 0, hypotheses: [], read_receipts: [], latest_feedback: null, stop_reason: null, identities: this.identities };
+    if (bundle.task_mode === "RELEASE_VERIFICATION" && bundle.schema_version === 2) state.review_cycle = { directions: [] };
     await this.store.transaction(async c => {
+      if (bundle.task_mode === "RELEASE_VERIFICATION" && bundle.review_request) {
+        const request = bundle.review_request;
+        // 同一操作员命名空间下串行登记 revision，防止并发插入两个互相矛盾的任务依据。
+        // 不增加第二执行账本，原包及其摘要仍由 runs 持久化。
+        await c.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 726))", [request.requester_ref + ":" + request.request_id]);
+        const previous = await c.query<{ request: unknown; bundle_digest: string }>("SELECT bundle->'review_request' AS request, bundle_digest FROM verify_runtime.runs WHERE bundle->'review_request'->>'request_id'=$1 AND bundle->'review_request'->>'requester_ref'=$2 AND bundle->'review_request'->>'revision'=$3",
+          [request.request_id, request.requester_ref, String(request.revision)]);
+        requireThat(previous.rows.every(r => digest(r.request) === digest(request) && r.bundle_digest === digest(bundle)), "REVIEW_REQUEST_REVISION_CONFLICT");
+        if (request.predecessor_run_id) {
+          const parent = await c.query<{ request: { request_id: string; requester_ref: string; revision: number } }>("SELECT bundle->'review_request' AS request FROM verify_runtime.runs WHERE id=$1", [request.predecessor_run_id]);
+          const old = parent.rows[0]?.request;
+          requireThat(old?.request_id === request.request_id && old.requester_ref === request.requester_ref && old.revision < request.revision,
+            "REVIEW_PREDECESSOR_MISMATCH");
+        }
+      }
       await c.query("INSERT INTO verify_runtime.runs(id,bundle,bundle_digest,state,token_hash) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING",
         [id, bundle, digest(bundle), state, sha(token)]);
       const row = await this.store.lock(c, id);
@@ -94,10 +113,12 @@ export class Runtime {
         pending_model_call: inFlight ? { model_call_id: inFlight.id, status: inFlight.status } : null,
         pending_operation: ops.rows.filter(op => ["QUEUED", "DISPATCHED"].includes(op.status)).map(op => ({ operation_id: op.id, status: op.status, action_kind: op.proposal.action_kind }))[0] ?? null,
         task_identity: bundle.task_mode === "EVIDENCE_REVIEW" ? { task_mode: bundle.task_mode, scope: bundle.scope, candidate_sha: bundle.candidate_sha, historical_run_id: bundle.historical_run_id, request_id: bundle.request_id, request_spec_revision: bundle.request_spec_revision } : { baseline_sha: bundle.baseline_sha, candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit,
-          scope: bundle.scope, input_provenance: bundle.input_provenance },
+          scope: bundle.scope, input_provenance: bundle.input_provenance,
+          ...(bundle.review_request ? { request_id: bundle.review_request.request_id, request_revision: bundle.review_request.revision,
+            review_request_sha256: digest(bundle.review_request), predecessor_run_id: bundle.review_request.predecessor_run_id } : {}) },
         budgets: { model_calls: { limit: state.limits.model_calls, used: state.model_calls_used }, reads: { limit: state.limits.reads, used: state.reads_used },
           accounting_basis: "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
-          check_repair: { reserved_within_total: state.limits.plan_repairs ?? 0, used: state.check_repair?.attempts_used ?? 0 },
+          check_repair: { reserved_within_total: state.limits.plan_repairs ?? 0, used: state.review_repair?.attempts_used ?? state.check_repair?.attempts_used ?? 0 },
           profile: bundle.task_mode === "EVIDENCE_REVIEW" ? "EVIDENCE_REVIEW" : "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls - (state.limits.plan_repairs ?? 0),
             CHECK_REPAIR: state.limits.plan_repairs ?? 0, FINAL: 0, RECONCILIATION: "LOCAL_STATE_ONLY", CLEANUP: "NO_SUT_RESOURCES" } },
         model_calls: calls.rows.map(call => ({ model_call_id: call.id, status: call.status, basis: call.basis, applied: call.applied })),
@@ -137,9 +158,10 @@ export class Runtime {
       }
       // 修正池只在登记了具体缺项之后开放；探索 READ 不能花掉预留额度。
       // 一次修正机会按模型调用计，故无效 JSON 或继续 READ 也不能无限延长修正。
-      const pendingRepair = s.check_repair?.status === "PENDING" ? s.check_repair : undefined;
+      const repairRecord = s.review_repair ?? s.check_repair;
+      const pendingRepair = repairRecord?.status === "PENDING" ? repairRecord : undefined;
       const discoveryLimit = s.limits.model_calls - (s.limits.plan_repairs ?? 0);
-      const exhausted = pendingRepair ? pendingRepair.attempts_used >= pendingRepair.attempts_limit : s.model_calls_used >= discoveryLimit;
+      const exhausted = pendingRepair ? pendingRepair.attempts_used >= pendingRepair.attempts_limit : (s.model_calls_used - (row.bundle.task_mode === "RELEASE_VERIFICATION" && row.bundle.schema_version === 2 ? s.review_repair?.attempts_used ?? 0 : 0)) >= discoveryLimit;
       if (exhausted) {
         s.status = "STOPPED"; s.stop_reason = pendingRepair ? "CHECK_REPAIR_LIMIT" : "DISCOVERY_BUDGET_EXHAUSTED";
         if (pendingRepair) pendingRepair.status = "EXHAUSTED";
@@ -152,11 +174,11 @@ export class Runtime {
       const request = { model: this.config.model.name, stream: false, format: modelBodySchema(row.bundle, s),
         options: { temperature: 0, seed: this.config.model.seed ?? 19, num_ctx: 16384, num_predict: this.config.model.maxOutputTokens },
         keep_alive: "5m", messages: [
-          { role: "system", content: (row.bundle.task_mode === "EVIDENCE_REVIEW" ? evidenceProfilePrompt + "\n" + evidenceShapeHint() : this.config.plannerPrompt + "\n" + modelShapeHint()) },
+          { role: "system", content: (row.bundle.task_mode === "EVIDENCE_REVIEW" ? evidenceProfilePrompt + "\n" + evidenceShapeHint() : row.bundle.schema_version === 2 ? reviewPrompt : this.config.plannerPrompt + "\n" + modelShapeHint()) },
           { role: "user", content: JSON.stringify({ context_view: contextView(row.bundle, s),
             execution_limits: { model_calls_remaining_after_this: s.limits.model_calls - s.model_calls_used,
-              discovery_calls_remaining_after_this: pendingRepair ? 0 : Math.max(0, discoveryLimit - s.model_calls_used),
-              repair_calls_remaining_after_this: pendingRepair ? pendingRepair.attempts_limit - pendingRepair.attempts_used : s.limits.plan_repairs ?? 0,
+              discovery_calls_remaining_after_this: pendingRepair ? 0 : Math.max(0, discoveryLimit - s.model_calls_used + (row.bundle.task_mode === "RELEASE_VERIFICATION" && row.bundle.schema_version === 2 ? s.review_repair?.attempts_used ?? 0 : 0)),
+              repair_calls_remaining_after_this: pendingRepair ? pendingRepair.attempts_limit - pendingRepair.attempts_used : Math.max(0, (s.limits.plan_repairs ?? 0) - (repairRecord?.attempts_used ?? 0)),
               decision_phase: pendingRepair ? "CHECK_REPAIR" : "DISCOVERY",
               reads_remaining: s.limits.reads - s.reads_used },
             model_identity: { name: this.config.model.name, digest: this.config.model.digest } }) },
@@ -226,7 +248,8 @@ export class Runtime {
         const body = JSON.parse((response.message as { content: string }).content) as Json;
         requireThat(!["schema_version", "proposal_id", "based_on_decision_revision", "candidate_epoch", "context_view_ref"].some(k => k in body), "MODEL_IDENTITY_OVERRIDE");
         const evidenceMode = row.bundle.task_mode === "EVIDENCE_REVIEW";
-        proposal = (evidenceMode ? parseEvidenceDecisionProposal : parseDecisionProposal)({ ...body, schema_version: evidenceMode ? 2 : 1, proposal_id: randomUUID(),
+        const reviewMode = !evidenceMode && row.bundle.schema_version === 2;
+        proposal = (evidenceMode ? parseEvidenceDecisionProposal : reviewMode ? parseReviewDecisionProposal : parseDecisionProposal)({ ...body, schema_version: evidenceMode ? 2 : reviewMode ? 3 : 1, proposal_id: randomUUID(),
           based_on_decision_revision: registered.basis, candidate_epoch: s.candidate_epoch, context_view_ref: registered.context_ref });
         status = "COMPLETED";
       } catch (error) {
@@ -272,7 +295,7 @@ export class Runtime {
   private feedback(state: RunState, result: Json, progress: boolean): void {
     state.latest_feedback = result; state.decision_basis_revision += 1;
     state.no_progress = progress ? 0 : state.no_progress + 1;
-    const repair = state.check_repair;
+    const repair = state.review_repair ?? state.check_repair;
     // 第一次质量拒绝不被通用 no_progress 抢先终止；给出明确、有界的修正权利。
     // 最后一次机会被 READ/无效响应用完时也结束，不能重置计数再申请模型调用。
     if (repair?.status === "PENDING" && state.status === "ACTIVE") {
@@ -315,7 +338,7 @@ export class Runtime {
       if (p.candidate_epoch !== s.candidate_epoch || p.based_on_decision_revision !== s.decision_basis_revision || p.context_view_ref !== contextRef(row.bundle, s)) return "STALE_DECISION";
       return evidenceProposalError(row.bundle, s, p);
     }
-    if (p.schema_version !== 1) return "PROFILE_PROPOSAL_MISMATCH";
+    if (p.schema_version !== (row.bundle.schema_version === 2 ? 3 : 1)) return "PROFILE_PROPOSAL_MISMATCH";
     const b = row.bundle;
     if (p.candidate_epoch !== s.candidate_epoch || p.based_on_decision_revision !== s.decision_basis_revision || p.context_view_ref !== contextRef(b, s)) return "STALE_DECISION";
     const evidence = new Set(evidenceRefs(b, s));
@@ -335,11 +358,13 @@ export class Runtime {
       const caps = b.catalog.capabilities as Json[], scenarios = b.catalog.scenarios as Json[];
       if (!caps.some(c => c.id === p.payload.capability_ref) || !scenarios.some(c => c.id === p.payload.scenario_ref)) return "CAPABILITY_REFERENCE_INVALID";
     }
+    if (p.schema_version === 3) return reviewProposalError(b, s, p, evidence, groundedRequirements(b, s));
     return null;
   }
   /** 模型提案、假设更新、预算与 READ outbox 原子登记；假设只能保留为模型判断。 */
   async submit(id: string, input: unknown): Promise<Json> {
-    const p = (input as {schema_version?:number})?.schema_version === 2 ? parseEvidenceDecisionProposal(input) : parseDecisionProposal(input);
+    const version = (input as {schema_version?:number})?.schema_version;
+    const p: RuntimeProposal = version === 2 ? parseEvidenceDecisionProposal(input) : version === 3 ? parseReviewDecisionProposal(input) : parseDecisionProposal(input);
     const admitted = await this.store.transaction(async c => {
       const row = await this.store.lock(c, id); const s = row.state;
       const old = (await c.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND proposal_id=$2", [id, p.proposal_id])).rows[0];
@@ -354,7 +379,7 @@ export class Runtime {
       const cached = (await c.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND operation_key=$2 AND status IN ('COMPLETED','REJECTED')", [id, key])).rows[0];
       if (cached && !error) {
         const updated = [...s.hypotheses];
-        for (const h of (p.schema_version === 1 ? p.hypothesis_updates : [])) {
+        for (const h of (p.schema_version !== 2 ? p.hypothesis_updates : [])) {
           const index = updated.findIndex(old => old.id === h.id);
           if (index >= 0) updated[index] = structuredClone(h); else updated.push(structuredClone(h));
         }
@@ -370,6 +395,7 @@ export class Runtime {
       }
       if (!error && p.action_kind === "READ" && s.reads_used >= s.limits.reads) error = "READ_BUDGET_EXHAUSTED";
       let status = "COMPLETED", result: Json | null;
+      let reviewProgress = false;
       if (error) {
         status = "REJECTED"; result = { status, error_code: error, rejected_action: { action_kind: p.action_kind, payload: p.payload } };
         if (error === "READ_RANGE_INVALID" && p.action_kind === "READ") {
@@ -377,15 +403,60 @@ export class Runtime {
           result.allowed_range = { start_line: 1, end_line: lines, max_span: 200 };
           result.correction = "READ counts lines in the selected material itself. Diff @@ hunk numbers are source coordinates, not READ coordinates. Choose a range inside allowed_range or a different material.";
         }
-        if (error === "APPLICABLE_RULE_READ_REQUIRED" && row.bundle.task_mode === "RELEASE_VERIFICATION" && p.schema_version === 1) {
+        if (error === "APPLICABLE_RULE_READ_REQUIRED" && row.bundle.task_mode === "RELEASE_VERIFICATION" && p.schema_version !== 2) {
           const releaseBundle = row.bundle;
           result.missing_rule_reads = (releaseBundle.catalog.requirements as Json[]).filter(r => p.requirement_refs.includes(String(r.id)) &&
             !groundedRequirements(releaseBundle, s).includes(String(r.id))).map(r => r.material_ref);
           result.correction = "Read the complete applicable rule excerpt before proposing assertions. A rule title or a baseline behavior is not the contract text.";
         }
         if (error === "CAPABILITY_GAP_GROUNDING_REQUIRED") result.correction = "Read a relevant rule or implementation material before claiming a capability gap. Inspect the registered planning contract; an unexecuted prerequisite is not a missing interface.";
+        if (p.schema_version === 3) result.correction = "Inspect review_basis, allowed_actions and the exact plan reference. Resolve missing/conflicting requirements by READ or CLARIFY; a new observation or changed hypothesis requires a freshly compiled plan.";
       }
       else if (p.action_kind === "READ") { status = "QUEUED"; result = null; s.reads_used += 1; }
+      else if (p.schema_version === 3 && row.bundle.task_mode === "RELEASE_VERIFICATION" && p.action_kind === "UPDATE_DIRECTION") {
+        const cycle = s.review_cycle!;
+        // 有新依据/实质假设变化才算进展；重复解释不会无限刷新 no_progress。
+        reviewProgress = p.hypothesis_updates.some(h => digest(s.hypotheses.find(old => old.id === h.id) ?? null) !== digest(h));
+        cycle.directions = [...cycle.directions, { proposal_id: p.proposal_id, focus: p.payload.focus, evidence_refs: p.evidence_refs }].slice(-8);
+        result = { status: "DIRECTION_UPDATED", focus: p.payload.focus, hypothesis_status: "PROPOSED_NOT_VERIFIED",
+          review_basis: assessReviewBasis(row.bundle), business_executed: false };
+      }
+      else if (p.schema_version === 3 && row.bundle.task_mode === "RELEASE_VERIFICATION" && p.action_kind === "PLAN_DRAFT") {
+        const compilation = compilePlanDraft(row.bundle, p, capabilityContract);
+        const previous = s.review_cycle!.draft;
+        const nextHypotheses = [...s.hypotheses.filter(h => !p.hypothesis_updates.some(next => next.id === h.id)), ...p.hypothesis_updates];
+        const basis = reviewPlanBasis(row.bundle, { ...s, hypotheses: nextHypotheses });
+        const planDigest = digest({ basis, draft: p.payload.draft, compiled: compilation.proposal?.payload ?? null });
+        const record = { ref: "plan:" + opId, digest: planDigest, basis_digest: basis, status: compilation.status,
+          proposal: structuredClone(p), compiled: compilation.proposal, issues: compilation.issues };
+        s.review_cycle!.draft = record;
+        reviewProgress = previous?.digest !== planDigest;
+        if (compilation.status === "NEEDS_REVISION") {
+          const previousRepair = s.review_repair;
+          s.review_repair = { status: "PENDING", root_proposal_id: previousRepair?.root_proposal_id ?? p.proposal_id,
+            latest_proposal_id: p.proposal_id, attempts_used: previousRepair?.attempts_used ?? 0,
+            attempts_limit: previousRepair?.attempts_limit ?? s.limits.plan_repairs ?? 0 };
+          status = "REJECTED";
+          result = { status: "NEEDS_REVISION", draft_ref: record.ref, draft_digest: planDigest,
+            issues: compilation.issues, quality: compilation.quality ?? null, binding: compilation.binding ?? null,
+            correction: "Revise the draft fields listed in issues. Inputs, control and assertions are your decisions; the compiler does not supply business answers." };
+        } else {
+          if (s.review_repair) { s.review_repair.status = "SATISFIED"; s.review_repair.latest_proposal_id = p.proposal_id; }
+          result = { status: "BOUND_PLAN", draft_ref: record.ref, draft_digest: planDigest, compiled_check: compilation.proposal?.payload,
+            semantic_correctness: "NOT_ESTABLISHED", execution_authorized: false, current_candidate_coverage: [],
+            next_step: "MAIN_AGENT_REVIEW_REQUIRED" };
+        }
+      }
+      else if (p.schema_version === 3 && row.bundle.task_mode === "RELEASE_VERIFICATION" && p.action_kind === "ACCEPT_PLAN") {
+        const draft = s.review_cycle!.draft!;
+        s.review_cycle!.accepted_plan_ref = draft.ref;
+        result = { status: "PLAN_ACCEPTED_FOR_REVIEW", draft_ref: draft.ref, draft_digest: draft.digest,
+          compiled_check: draft.compiled?.payload, semantic_correctness: "NOT_ESTABLISHED", experiment_executed: false,
+          remaining_requirement_refs: row.bundle.requirement_refs.filter(ref => !draft.compiled?.requirement_refs.includes(ref)),
+          final_eligibility: finalEligibility() };
+        s.status = "PLANNED"; s.stop_reason = "SCOPED_PLAN_ACCEPTED";
+        reviewProgress = true;
+      }
       else if (p.action_kind === "PROPOSE_EVIDENCE_RESPONSE" && row.bundle.task_mode === "EVIDENCE_REVIEW") {
         result = { status: "PROPOSED", evidence_response: buildEvidenceResponse(row.bundle, s, p, opId), trusted_finding: false };
         s.status = "PLANNED"; s.stop_reason = "EVIDENCE_RESPONSE_PROPOSED";
@@ -428,13 +499,14 @@ export class Runtime {
         if (p.action_kind === "CLARIFY" || p.action_kind === "NOVEL_CHECK") { s.status = "BLOCKED"; s.stop_reason = p.action_kind === "CLARIFY" ? "CLARIFICATION_REQUIRED" : "CAPABILITY_GAP"; }
       }
       // 错误动作不接受其假设更新；成功动作的更新仍标为 proposal，不能升级业务事实。
-      if (!error) for (const h of (p.schema_version === 1 ? p.hypothesis_updates : [])) { s.hypotheses = [...s.hypotheses.filter(old => old.id !== h.id), structuredClone(h)]; }
+      if (!error) for (const h of (p.schema_version !== 2 ? p.hypothesis_updates : [])) { s.hypotheses = [...s.hypotheses.filter(old => old.id !== h.id), structuredClone(h)]; }
+      if (!error && p.schema_version === 3) s.review_cycle!.last_frame = structuredClone(p.decision_frame);
       requireThat(s.hypotheses.length <= 32, "HYPOTHESIS_LIMIT");
       await c.query("INSERT INTO verify_runtime.operations(id,run_id,proposal_id,operation_key,proposal,status,result) VALUES($1,$2,$3,$4,$5,$6,$7)",
         [opId, id, p.proposal_id, error ? digest({ rejected: p.proposal_id }) : key, p, status, result]);
       await c.query("UPDATE verify_runtime.calls SET applied=true WHERE id=$1", [call.id]);
       if (status === "QUEUED") await c.query("INSERT INTO verify_runtime.outbox(id,run_id,kind,status) VALUES($1,$2,'READ','PENDING')", [opId, id]);
-      else this.feedback(s, result!, !error && ["CHECK_INTENT", "PROPOSE_EVIDENCE_RESPONSE"].includes(p.action_kind));
+      else this.feedback(s, result!, !error && (reviewProgress || ["CHECK_INTENT", "PROPOSE_EVIDENCE_RESPONSE"].includes(p.action_kind)));
       await this.store.event(c, s, "PROPOSAL_REGISTERED", { proposal_id: p.proposal_id, operation_id: opId, status });
       await this.store.save(c, s); return opId;
     });

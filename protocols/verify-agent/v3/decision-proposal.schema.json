@@ -1,0 +1,556 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:egap:verify-agent:decision-proposal:3",
+  "$comment": "本地ReAct审查决策工作产物。计划提案与主图接受分别登记；ACCEPT_PLAN只封存已绑定提案，不能产生实验结果、覆盖或PASS。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "based_on_decision_revision",
+    "candidate_epoch",
+    "context_view_ref",
+    "action_kind",
+    "requirement_refs",
+    "hypothesis_refs",
+    "evidence_refs",
+    "expected_information",
+    "rationale",
+    "hypothesis_updates",
+    "payload",
+    "decision_frame"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 3
+    },
+    "proposal_id": {
+      "type": "string",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "based_on_decision_revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "candidate_epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "context_view_ref": {
+      "$ref": "#/$defs/reference"
+    },
+    "action_kind": {
+      "type": "string",
+      "enum": [
+        "READ",
+        "CLARIFY",
+        "NOVEL_CHECK",
+        "STOP",
+        "UPDATE_DIRECTION",
+        "PLAN_DRAFT",
+        "ACCEPT_PLAN"
+      ]
+    },
+    "requirement_refs": {
+      "$ref": "#/$defs/references"
+    },
+    "hypothesis_refs": {
+      "$ref": "#/$defs/references"
+    },
+    "evidence_refs": {
+      "$ref": "#/$defs/references"
+    },
+    "expected_information": {
+      "$ref": "#/$defs/text"
+    },
+    "rationale": {
+      "$ref": "#/$defs/text"
+    },
+    "hypothesis_updates": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "statement",
+          "status",
+          "evidence_refs"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/reference"
+          },
+          "statement": {
+            "$ref": "#/$defs/text"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SUPPORTED",
+              "WEAKENED"
+            ]
+          },
+          "evidence_refs": {
+            "$ref": "#/$defs/references"
+          }
+        }
+      }
+    },
+    "payload": {
+      "type": "object"
+    },
+    "decision_frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unresolved_questions",
+        "selected_question_id",
+        "outcome_branches"
+      ],
+      "properties": {
+        "unresolved_questions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "question",
+              "why_unresolved",
+              "evidence_refs"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/reference"
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "why_unresolved": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "evidence_refs": {
+                "type": "array",
+                "maxItems": 32,
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "#/$defs/reference"
+                }
+              }
+            }
+          }
+        },
+        "selected_question_id": {
+          "$ref": "#/$defs/reference"
+        },
+        "outcome_branches": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "observation",
+              "implication",
+              "next_action"
+            ],
+            "properties": {
+              "observation": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "implication": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "next_action": {
+                "enum": [
+                  "READ",
+                  "CLARIFY",
+                  "NOVEL_CHECK",
+                  "STOP",
+                  "UPDATE_DIRECTION",
+                  "PLAN_DRAFT",
+                  "ACCEPT_PLAN"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@#-]*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "references": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "checkInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "planDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objective"
+      ],
+      "properties": {
+        "objective": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "requirement_ref": {
+          "$ref": "#/$defs/reference"
+        },
+        "diff_ref": {
+          "$ref": "#/$defs/reference"
+        },
+        "changed_fields": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 16,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "uniqueItems": true
+        },
+        "claim": {
+          "enum": [
+            "MAY_CHANGE",
+            "SHOULD_PRESERVE"
+          ]
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/checkInput"
+          }
+        },
+        "control_inputs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/checkInput"
+          }
+        },
+        "observation_field": {
+          "$ref": "#/$defs/reference"
+        },
+        "operator": {
+          "enum": [
+            "EQUALS",
+            "NOT_EQUALS",
+            "CONTAINS",
+            "PRESENT",
+            "ABSENT",
+            "UNCHANGED",
+            "GREATER_THAN",
+            "LESS_THAN"
+          ]
+        },
+        "expected_value": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "expected_baseline": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "expected_candidate": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "control_relation": {
+          "enum": [
+            "SAME",
+            "DIFFERENT"
+          ]
+        },
+        "control_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "change_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "READ"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "material_ref",
+              "start_line",
+              "end_line"
+            ],
+            "properties": {
+              "material_ref": {
+                "$ref": "#/$defs/reference"
+              },
+              "start_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "NOVEL_CHECK"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "objective",
+              "capability_gap"
+            ],
+            "properties": {
+              "objective": {
+                "$ref": "#/$defs/text"
+              },
+              "capability_gap": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "CLARIFY"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "question"
+            ],
+            "properties": {
+              "question": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "STOP"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "UPDATE_DIRECTION"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "focus"
+            ],
+            "properties": {
+              "focus": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "PLAN_DRAFT"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "draft"
+            ],
+            "properties": {
+              "draft": {
+                "$ref": "#/$defs/planDraft"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action_kind": {
+            "const": "ACCEPT_PLAN"
+          }
+        },
+        "required": [
+          "action_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "draft_ref",
+              "draft_digest"
+            ],
+            "properties": {
+              "draft_ref": {
+                "$ref": "#/$defs/reference"
+              },
+              "draft_digest": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

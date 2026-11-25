@@ -1,0 +1,1173 @@
+{
+  "schema_version": 3,
+  "cases": [
+    {
+      "name": "valid_read",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_direction",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "UPDATE_DIRECTION",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "focus": "先核对截止点与后续筛选，保留存在筛选迁移的解释。"
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_partial_draft",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "PLAN_DRAFT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft": {
+            "objective": "用申请前后事件区分截止点行为"
+          }
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_complete_draft",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "PLAN_DRAFT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft": {
+            "objective": "核对合同接受时间边界",
+            "requirement_ref": "R4",
+            "diff_ref": "diff:commercial",
+            "changed_fields": [
+              "accepted_at"
+            ],
+            "claim": "MAY_CHANGE",
+            "inputs": [
+              {
+                "name": "accepted_at",
+                "value": "2026-11-20T10:00:00Z"
+              }
+            ],
+            "control_inputs": [
+              {
+                "name": "accepted_at",
+                "value": "2026-11-19T10:00:00Z"
+              }
+            ],
+            "observation_field": "decision.eligible",
+            "operator": "EQUALS",
+            "expected_value": "false",
+            "expected_baseline": "false",
+            "expected_candidate": "true",
+            "control_relation": "DIFFERENT",
+            "control_reason": "只改变接受时点，其他前提相同。",
+            "change_reason": "修改上界可能改变续费后接受的资格。"
+          }
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_accept_plan",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "ACCEPT_PLAN",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft_ref": "draft:fixture:1",
+          "draft_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_clarify",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CLARIFY",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "question": "请确认截止点规则的适用版本。"
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid_stop",
+      "valid": true,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "STOP",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "reason": "当前预算不足以继续补证。"
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_missing_decision_frame",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        }
+      }
+    },
+    {
+      "name": "invalid_no_unresolved_question",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "decision_frame": {
+          "unresolved_questions": [],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_single_outcome_branch",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_unregistered_action_name",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "RUN_SHELL",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "command": "echo fake"
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_version_downgrade",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_final_shortcut",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "REQUEST_FINAL",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {},
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_legacy_check_shortcut",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "CHECK_INTENT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "capability_ref": "probe.fixture",
+          "scenario_ref": "fixture",
+          "objective": "bypass",
+          "observation_requirements": [
+            "value"
+          ]
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_draft_without_objective",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "PLAN_DRAFT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft": {
+            "requirement_ref": "R4"
+          }
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_draft_authorization",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "PLAN_DRAFT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft": {
+            "objective": "attempt",
+            "dispatch_authorized": true
+          }
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_numeric_input_coercion",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "PLAN_DRAFT",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft": {
+            "objective": "attempt",
+            "inputs": [
+              {
+                "name": "count",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_digest",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "ACCEPT_PLAN",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "draft_ref": "draft:fixture:1",
+          "draft_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid_thought_field",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "READ"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ],
+          "chain_of_thought": "not part of auditable contract"
+        }
+      }
+    },
+    {
+      "name": "invalid_branch_execution",
+      "valid": false,
+      "value": {
+        "schema_version": 3,
+        "proposal_id": "b700a836-eb63-4b59-a9f8-bc37f3011275",
+        "based_on_decision_revision": 0,
+        "candidate_epoch": 1,
+        "context_view_ref": "context:sha256:abc123",
+        "action_kind": "READ",
+        "requirement_refs": [
+          "SUP-R5"
+        ],
+        "hypothesis_refs": [],
+        "evidence_refs": [
+          "diff:current"
+        ],
+        "expected_information": "确认当前候选传入模型的字段。",
+        "rationale": "变化触及业务事实投影，需要先获取当前版本的实现。",
+        "hypothesis_updates": [
+          {
+            "id": "H1",
+            "statement": "业务拒绝理由可能在投影中丢失。",
+            "status": "OPEN",
+            "evidence_refs": [
+              "diff:current"
+            ]
+          }
+        ],
+        "payload": {
+          "material_ref": "candidate:business_tools.py",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "decision_frame": {
+          "unresolved_questions": [
+            {
+              "id": "q:cutoff",
+              "question": "申请截止点是否仍然生效？",
+              "why_unresolved": "diff只能显示条件变化，尚未读取适用规则。",
+              "evidence_refs": []
+            }
+          ],
+          "selected_question_id": "q:cutoff",
+          "outcome_branches": [
+            {
+              "observation": "规则要求原申请截止点",
+              "implication": "继续核对候选是否保留该关系。",
+              "next_action": "EXECUTE"
+            },
+            {
+              "observation": "规则未确认或相互冲突",
+              "implication": "请求责任人澄清，不能猜测验收标准。",
+              "next_action": "CLARIFY"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

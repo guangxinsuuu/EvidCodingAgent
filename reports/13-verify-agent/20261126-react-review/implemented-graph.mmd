@@ -1,0 +1,49 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	load_and_reconcile(load_and_reconcile)
+	decide_next_action(decide_next_action)
+	register_action(register_action)
+	ingest_and_update(ingest_and_update)
+	finish(finish)
+	analyze_change_impact(analyze_change_impact)
+	investigate_evidence(investigate_evidence)
+	plan_experiment(plan_experiment)
+	update_review_direction(update_review_direction)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> load_and_reconcile;
+	analyze_change_impact --> register_action;
+	decide_next_action -.-> analyze_change_impact;
+	decide_next_action -.-> finish;
+	decide_next_action -.-> ingest_and_update;
+	decide_next_action -.-> investigate_evidence;
+	decide_next_action -.-> plan_experiment;
+	decide_next_action -.-> register_action;
+	decide_next_action -.-> update_review_direction;
+	ingest_and_update -.-> analyze_change_impact;
+	ingest_and_update -.-> decide_next_action;
+	ingest_and_update -.-> finish;
+	ingest_and_update -.-> investigate_evidence;
+	ingest_and_update -.-> plan_experiment;
+	ingest_and_update -.-> register_action;
+	ingest_and_update -.-> update_review_direction;
+	investigate_evidence --> register_action;
+	load_and_reconcile -.-> analyze_change_impact;
+	load_and_reconcile -.-> decide_next_action;
+	load_and_reconcile -.-> finish;
+	load_and_reconcile -.-> investigate_evidence;
+	load_and_reconcile -.-> plan_experiment;
+	load_and_reconcile -.-> register_action;
+	load_and_reconcile -.-> update_review_direction;
+	plan_experiment --> register_action;
+	register_action -.-> finish;
+	register_action -.-> ingest_and_update;
+	update_review_direction --> register_action;
+	finish --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
