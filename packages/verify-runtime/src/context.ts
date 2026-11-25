@@ -67,7 +67,7 @@ export function contextView(bundle: RuntimeBundle, state: RunState): Json {
     profile: "LOCAL_MODEL_READ_AND_PLAN_ONLY",
     planning_contracts: (bundle.planning_contracts ?? []).map(planningContractView),
   };
-  return bundle.schema_version === 2 ? reviewContext(bundle, state, view) : view;
+  return bundle.schema_version === 2 ? reviewContext(bundle, state, view, groundedRequirements(bundle, state)) : view;
 }
 export function contextRef(bundle: RuntimeBundle, state: RunState): string {
   return "context:" + digest({ run: state.run_id, epoch: state.candidate_epoch,
@@ -107,7 +107,7 @@ export function groundedRequirements(bundle: ReleaseBundle, state: RunState): st
 /** 同一协议派生生成提示；最终仍由共享 schema 校验。省略身份字段防止模型授予自己权限。 */
 export function modelBodySchema(bundle?: RuntimeBundle, state?: RunState): Json {
   if (bundle?.task_mode === "EVIDENCE_REVIEW") return evidenceModelSchema(bundle, state);
-  if (bundle?.schema_version === 2) return reviewModelSchema(bundle, state!);
+  if (bundle?.schema_version === 2) return reviewModelSchema(bundle, state!, groundedRequirements(bundle, state!));
   const schema = structuredClone(decisionProposalSchema) as Json;
   const omitted = ["schema_version", "proposal_id", "based_on_decision_revision", "candidate_epoch", "context_view_ref"];
   const properties = schema.properties as Json;

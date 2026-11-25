@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { parseReviewDecisionProposal, reviewDecisionProposalSchema, type ReviewDecisionProposal } from "@egap/contracts";
 import { contextRef } from "./context.js";
-import { allowedReviewActions, reviewModelSchema, reviewPlanBasis, reviewProposalError } from "./review-profile.js";
+import { allowedReviewActions, reviewModelSchema, reviewObservationBasis, reviewPlanBasis, reviewProposalError } from "./review-profile.js";
 import { digest, sha, type Json, type ReleaseBundle, type RunState } from "./types.js";
 
 const authority = JSON.parse(readFileSync(new URL("../../../protocols/verify-agent/capabilities/commercial-decision.v1.json", import.meta.url), "utf8")) as Json;
@@ -31,11 +31,14 @@ function bundle(): ReleaseBundle {
   };
 }
 function state(started = false): RunState {
-  return { run_id: "11111111-1111-4111-8111-111111111111", status: "ACTIVE", candidate_epoch: 1,
+  const result: RunState = { run_id: "11111111-1111-4111-8111-111111111111", status: "ACTIVE", candidate_epoch: 1,
     decision_basis_revision: 1, event_seq: 0, config_digest: "config:test", limits: { model_calls: 6, reads: 4, no_progress: 2, plan_repairs: 1 },
     model_calls_used: 0, reads_used: 0, no_progress: 0, hypotheses: started ? [{ id: "hypothesis:change", statement: "变更可能影响业务条件", status: "OPEN", evidence_refs: ["diff:change"] }] : [],
     read_receipts: [], latest_feedback: null, stop_reason: null,
-    review_cycle: { directions: started ? [{ proposal_id: "first:impact", focus: "业务条件", evidence_refs: ["diff:change"] }] : [] } };
+    review_cycle: { directions: [], decisions_completed: started ? 1 : 0, closure_calls_used: 0 } };
+  if (started) result.review_cycle!.directions.push({ proposal_id: "first:impact", focus: "业务条件", evidence_refs: ["diff:change"],
+    observation_basis_digest: reviewObservationBasis(bundle(), result) });
+  return result;
 }
 function proposal(action_kind: ReviewDecisionProposal["action_kind"], payload: Json): ReviewDecisionProposal {
   return parseReviewDecisionProposal({ schema_version: 3, proposal_id: "6605004c-6a27-4c25-a6ca-f508d6eeb5f1",
@@ -52,8 +55,8 @@ function body(value: ReviewDecisionProposal): Json {
   const transport = new Set(["schema_version", "proposal_id", "based_on_decision_revision", "candidate_epoch", "context_view_ref"]);
   return Object.fromEntries(Object.entries(value).filter(([key]) => !transport.has(key)));
 }
-function validator(b: ReleaseBundle, s: RunState) {
-  return new Ajv2020({ strict: true, allErrors: true }).compile(reviewModelSchema(b, s));
+function validator(b: ReleaseBundle, s: RunState, grounded: readonly string[] = []) {
+  return new Ajv2020({ strict: true, allErrors: true }).compile(reviewModelSchema(b, s, grounded));
 }
 const observed = new Set(["diff:change"]);
 
@@ -147,4 +150,69 @@ test("预留模型调用和修正计数不改变决策依据，实际新证据�
   assert.equal(reviewPlanBasis(b, s), basis);
   s.read_receipts.push({ material_ref: "rule:R4", start_line: 1, end_line: 2, receipt_ref: "read:new" });
   assert.notEqual(contextRef(b, s), context); assert.notEqual(reviewPlanBasis(b, s), basis);
+});
+
+test("改写假设不构成新观察，同一依据重复UPDATE由Schema和Runtime独立拦截", () => {
+  const b = bundle(), s = state(true), original = reviewObservationBasis(b, s);
+  const repeated = { ...proposal("UPDATE_DIRECTION", { focus: "换一种说法重复分析" }),
+    hypothesis_updates: [{ ...s.hypotheses[0]!, statement: "重新措辞的同一个问题" }] };
+  s.hypotheses = repeated.hypothesis_updates;
+  assert.equal(reviewObservationBasis(b, s), original);
+  assert.equal(allowedReviewActions(b, s).includes("UPDATE_DIRECTION"), false);
+  assert.equal(validator(b, s)(body(repeated)), false);
+  assert.equal(reviewProposalError(b, s, repeated, observed, []), "REVIEW_ACTION_NOT_AVAILABLE");
+  s.read_receipts.push({ material_ref: "rule:R4", start_line: 1, end_line: 2, receipt_ref: "read:rule" });
+  assert.notEqual(reviewObservationBasis(b, s), original);
+  assert.equal(allowedReviewActions(b, s).includes("UPDATE_DIRECTION"), true);
+  assert.equal(reviewProposalError(b, s, repeated, observed, ["R4"]), null);
+});
+
+test("编译反馈是可更新方向的新观察；相同摘要和状态不会反复开放", () => {
+  const b = bundle(), s = state(true);
+  s.review_cycle!.draft = { ref: "plan:feedback", digest: "f".repeat(64), basis_digest: reviewPlanBasis(b, s), status: "BOUND_PLAN",
+    proposal: proposal("PLAN_DRAFT", { draft: { objective: "已有草案" } }) as Extract<ReviewDecisionProposal, { action_kind: "PLAN_DRAFT" }>, compiled: null, issues: [] };
+  assert.equal(allowedReviewActions(b, s).includes("UPDATE_DIRECTION"), true);
+  s.review_cycle!.directions.push({ proposal_id: "direction:feedback", focus: "检查编译反馈", evidence_refs: [], observation_basis_digest: reviewObservationBasis(b, s) });
+  assert.equal(allowedReviewActions(b, s).includes("UPDATE_DIRECTION"), false);
+  s.review_cycle!.draft = { ...s.review_cycle!.draft, ref: "plan:same-receipt-other-id" };
+  assert.equal(allowedReviewActions(b, s).includes("UPDATE_DIRECTION"), false, "换引用标识不是新事实");
+});
+
+test("最后探索轮已有适用规则时停止漫读，但没有规则依据不能强迫编造计划", () => {
+  const b = bundle(), s = state(true);
+  s.review_cycle!.decisions_completed = 3; // 总6 - 修正1 - 接受1 = 探索4，已结算3。
+  s.read_receipts.push({ material_ref: "rule:R4", start_line: 1, end_line: 2, receipt_ref: "read:rule" });
+  const last = allowedReviewActions(b, s, ["R4"]);
+  assert.equal(last.includes("READ"), false); assert.equal(last.includes("UPDATE_DIRECTION"), false);
+  assert.equal(last.includes("PLAN_DRAFT"), true); assert.equal(last.includes("CLARIFY"), true); assert.equal(last.includes("STOP"), true);
+  assert.equal(validator(b, s, ["R4"])(body(proposal("READ", { material_ref: "diff:change", start_line: 1, end_line: 2 }))), false);
+  assert.equal(reviewProposalError(b, s, proposal("READ", { material_ref: "diff:change", start_line: 1, end_line: 2 }), observed, ["R4"]), "REVIEW_ACTION_NOT_AVAILABLE");
+  assert.equal(allowedReviewActions(b, s, []).includes("READ"), true, "未读完适用规则仍可用最后探索取得依据或澄清");
+});
+
+test("探索池耗尽只可处理当前绑定计划或结束，接受预留不能用于新计划", () => {
+  const b = bundle(), s = state(true);
+  s.review_cycle!.decisions_completed = 4;
+  assert.deepEqual(allowedReviewActions(b, s, ["R4"]), ["CLARIFY", "STOP"]);
+  s.review_cycle!.draft = { ref: "plan:current", digest: "f".repeat(64), basis_digest: reviewPlanBasis(b, s), status: "BOUND_PLAN",
+    proposal: proposal("PLAN_DRAFT", { draft: { objective: "已有草案" } }) as Extract<ReviewDecisionProposal, { action_kind: "PLAN_DRAFT" }>, compiled: null, issues: [] };
+  assert.deepEqual(allowedReviewActions(b, s, ["R4"]), ["ACCEPT_PLAN", "CLARIFY", "STOP"]);
+  assert.equal(validator(b, s, ["R4"])(body(proposal("PLAN_DRAFT", { draft: { objective: "侵占收尾额度" } }))), false);
+  assert.equal(reviewProposalError(b, s, proposal("PLAN_DRAFT", { draft: { objective: "侵占收尾额度" } }), observed, ["R4"]), "REVIEW_ACTION_NOT_AVAILABLE");
+  const before = reviewModelSchema(b, s, ["R4"]);
+  s.model_calls_used += 1; // 预留计数先变，结算计数尚未变化。
+  assert.deepEqual(reviewModelSchema(b, s, ["R4"]), before, "预留本次接受调用不能重新开放探索或使提案过期");
+});
+
+test("已结算修正调用不重复算作探索；待修正预留不改变可选动作", () => {
+  const b = bundle(), s = state(true);
+  s.limits = { ...s.limits, model_calls: 8, plan_repairs: 2 };
+  s.review_cycle!.decisions_completed = 6; // 其中2次修正，实际探索4/5，仍有一轮探索。
+  s.review_repair = { status: "SATISFIED", root_proposal_id: "root:plan", latest_proposal_id: "latest:plan", attempts_limit: 2, attempts_used: 2 };
+  assert.equal(allowedReviewActions(b, s, ["R4"]).includes("PLAN_DRAFT"), true);
+  s.review_repair = { ...s.review_repair, status: "PENDING", attempts_used: 1 };
+  const before = reviewModelSchema(b, s, ["R4"]), context = contextRef(b, s);
+  s.review_repair.attempts_used += 1; s.model_calls_used += 1;
+  assert.deepEqual(reviewModelSchema(b, s, ["R4"]), before);
+  assert.equal(contextRef(b, s), context);
 });

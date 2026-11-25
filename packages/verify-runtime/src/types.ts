@@ -52,7 +52,10 @@ export interface RunState {
   /** 主图工作产物：原提案仍在 operations，投影只保留最新草案与有界方向历史。 */
   review_cycle?: {
     last_frame?: ReviewDecisionProposal["decision_frame"];
-    directions: { proposal_id: string; focus: string; evidence_refs: readonly string[] }[];
+    directions: { proposal_id: string; focus: string; evidence_refs: readonly string[]; observation_basis_digest?: string }[];
+    /** 仅动作/无效输出完成结算时递增，不能在模型预留时使本轮 context 自行改变。 */
+    decisions_completed?: number;
+    closure_calls_used?: number;
     draft?: { ref: string; digest: string; basis_digest: string; status: "NEEDS_REVISION" | "BOUND_PLAN";
       proposal: Extract<ReviewDecisionProposal, { action_kind: "PLAN_DRAFT" }>;
       compiled: DecisionProposal | null; issues: readonly unknown[] };
@@ -60,6 +63,8 @@ export interface RunState {
   };
   review_repair?: { status: "PENDING" | "SATISFIED" | "EXHAUSTED"; root_proposal_id: string;
     latest_proposal_id: string; attempts_used: number; attempts_limit: number };
+  /** 总额内独立预留的最后一次主图审阅调用；未知或无效也不释放额度。 */
+  review_close_calls_reserved?: number;
 }
 export class RuntimeError extends Error {
   constructor(readonly code: string, readonly statusCode = 409) { super(code); }

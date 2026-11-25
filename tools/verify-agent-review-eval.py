@@ -69,6 +69,64 @@ def definitions(source: str) -> list[dict]:
     ]
 
 
+def followup_definitions(source: str) -> list[dict]:
+    """第二批隔离变化；初轮已经公开的 a/b 保留为回归，不能换名充作未见任务。"""
+    return [
+        {"case_id": "review_c", "candidate": _H._replace(source,
+            'contract["terms"].get("special_terms") is not False',
+            'contract["terms"].get("special_terms") is None'),
+         "requirement": "R1", "relation_kind": "BROKEN", "claim": "MAY_CHANGE",
+         "input_field": "commercial_source.contracts.0.terms.special_terms", "critical_missing": "SPECIAL_CONTRACT_TERMS",
+         "primary": True, "control": False,
+         "expected_primary": ["NEEDS_MORE_EVIDENCE", "ELIGIBLE"],
+         "expected_control": ["ELIGIBLE", "ELIGIBLE"],
+         "business_relation": "R1 对明确存在特殊条款的合同要求人工补证；资料不是缺失值，不等于标准合同适用。"},
+        {"case_id": "review_d", "candidate": _H._replace(source,
+            'row.get("status") == "ACTIVE"', 'row.get("status") in {"ACTIVE"}'),
+         "requirement": "R1", "relation_kind": "PRESERVED", "claim": "SHOULD_PRESERVE",
+         "input_field": "commercial_source.contracts.0.status", "critical_missing": "APPLICABLE_CONTRACT",
+         "primary": "DRAFT", "control": "ACTIVE",
+         "expected_primary": ["NEEDS_MORE_EVIDENCE", "NEEDS_MORE_EVIDENCE"],
+         "expected_control": ["ELIGIBLE", "ELIGIBLE"],
+         "business_relation": "在已登记的字符串状态接口内，单元素集合成员判断保持 ACTIVE 合同筛选，DRAFT 仍不构成有效合同。"},
+    ]
+
+
+def suite_definitions(source: str, suite: str = "initial") -> list[dict]:
+    """明确选择套件；未知名字不回退到旧例，避免把回归结果伪装为隔离结果。"""
+    if suite == "initial":
+        return definitions(source)
+    if suite == "followup":
+        return followup_definitions(source)
+    raise ValueError("unknown evaluation suite")
+
+
+def qualify_suite(source: str, cases: list[dict], contract: dict, suite: str) -> list[dict]:
+    """初轮参考资格原样保留；新批次只登记两个实际不同条件，不重复计数。"""
+    if suite == "initial":
+        return _H.qualify(source, cases, contract)
+    baseline = _H.reviewed_function(source)
+    results = []
+    for case in cases:
+        candidate = _H.reviewed_function(case["candidate"])
+        rows = []
+        for label in ("primary", "control"):
+            context = _H._override(contract["fixture"]["context"], case["input_field"], case[label], contract)
+            old, new = baseline(deepcopy(context)), candidate(deepcopy(context))
+            expected = case["expected_" + label]
+            if [old["eligibility"], new["eligibility"]] != expected:
+                raise ValueError("followup reference qualification failed")
+            if any((case["critical_missing"] in result["missing_evidence"]) != (verdict == "NEEDS_MORE_EVIDENCE")
+                   for result, verdict in zip((old, new), expected)):
+                raise ValueError("followup reference missing fact mismatch")
+            rows.append({"label": label, "inputs": {case["input_field"]: case[label]},
+                         "context_sha256": _H.digest(context), "baseline": old, "candidate": new,
+                         "expected_eligibility": expected, "expected_matches": True})
+        results.append({"case_id": case["case_id"], "scope": "REVIEWED_SYNTHETIC_PURE_FUNCTION_ONLY",
+                        "network_or_graph_execution": False, "rows": rows})
+    return results
+
+
 def _output_scope(path: Path) -> Path:
     """只在新实验/报告或临时位置写入；不能覆盖冻结文档和已有证据。"""
     resolved = path.resolve()
@@ -96,7 +154,7 @@ def _request(case_id: str, baseline: str, candidate: str) -> dict:
             "known_gaps": [], "predecessor_run_id": None}
 
 
-def prepare(directory: Path) -> dict:
+def prepare(directory: Path, *, suite: str = "initial") -> dict:
     """实现与 Prompt 冻结后调用；公开结果只有身份、数量和文件路径。"""
     output = _output_scope(directory)
     if output.exists():
@@ -108,13 +166,14 @@ def prepare(directory: Path) -> dict:
     contract = json.loads(contract_raw)
     if sha256(source).hexdigest() != contract["source_sha256"] or _H.digest(contract["fixture"]["context"]) != contract["fixture"]["sha256"]:
         raise ValueError("frozen authority identity mismatch")
-    cases = definitions(source.decode())
-    qualifications = _H.qualify(source.decode(), cases, contract)
+    cases = suite_definitions(source.decode(), suite)
+    qualifications = qualify_suite(source.decode(), cases, contract, suite)
     output.mkdir(mode=0o700, parents=True)
     (output / "model-input").mkdir(mode=0o700)
     (output / "evaluation-only").mkdir(mode=0o700)
     _H.private_json(output / "evaluation-only/authority-contract.json", contract)
-    manifest = {"schema_version": 1, "source_commit": _H.SOURCE_COMMIT, "source_path": _H.SOURCE_PATH,
+    sample_role = "REGRESSION_ONLY" if suite == "initial" else "ISOLATED_UNTIL_INSPECTED_OR_USED_FOR_TUNING"
+    manifest = {"schema_version": 1, "suite": suite, "sample_role": sample_role, "source_commit": _H.SOURCE_COMMIT, "source_path": _H.SOURCE_PATH,
                 "scope": "REVIEWED_SYNTHETIC_PURE_FUNCTION_ONLY", "cases": []}
     for case in cases:
         repository = output / (case["case_id"] + "-repository")
@@ -133,7 +192,9 @@ def prepare(directory: Path) -> dict:
     _H.private_json(output / "evaluation-only/manifest.json", manifest)
     _H.private_json(output / "evaluation-only/qualification.json", {"cases": qualifications})
     _H.private_json(output / "evaluation-only/criteria.json", {
-        "scope": "TWO_NEW_LOCAL_CHANGES_NOT_POPULATION_ACCURACY", "all_runs_retained": True,
+        "scope": "KNOWN_REGRESSION_CASES" if suite == "initial" else "TWO_NEW_LOCAL_CHANGES_NOT_POPULATION_ACCURACY",
+        "suite": suite, "sample_role": sample_role, "all_runs_retained": True,
+        "initial_cases_status": "REGRESSION_ONLY_AFTER_FIRST_EVALUATION",
         "no_golden_input_completion": True, "missing_accepted_plan": "NOT_RUN",
         "acceptance": ["exact frozen task and accepted draft identity", "independently rebound original model inputs",
             "actual main/control witness exercises the changed business relation", "correct change claim and applicable rule",
@@ -156,14 +217,14 @@ def prepare(directory: Path) -> dict:
     source_files.update(ROOT / path for path in (
         "services/verify-agent/planner-prompt.txt", "tools/registry/release_assembler.py",
         "tools/registry/review_request.py", "tools/verify-agent-live.py"))
-    frozen = {"schema_version": 1, "prepared_at": datetime.now(timezone.utc).isoformat(), "case_count": 2,
+    frozen = {"schema_version": 1, "suite": suite, "sample_role": sample_role, "prepared_at": datetime.now(timezone.utc).isoformat(), "case_count": len(cases),
               "status": "PREPARED_NOT_MODEL_EVALUATED", "generator_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
               "helper_sha256": sha256((ROOT / "tools/verify-agent-binding-holdout.py").read_bytes()).hexdigest(),
               "files": [{"path": str(path.relative_to(output)), "sha256": sha256(path.read_bytes()).hexdigest()} for path in files],
               "implementation_sources": [{"path": str(path.relative_to(ROOT)), "sha256": sha256(path.read_bytes()).hexdigest()} for path in sorted(source_files)],
               "runtime_build": [{"path": str(path.relative_to(ROOT)), "sha256": sha256(path.read_bytes()).hexdigest()} for path in sorted(build_files)]}
     _H.private_json(output / "freeze.json", frozen)
-    return {"status": "PREPARED", "case_count": 2, "scope": manifest["scope"], "freeze_path": str(output / "freeze.json"),
+    return {"status": "PREPARED", "suite": suite, "sample_role": sample_role, "case_count": len(cases), "scope": manifest["scope"], "freeze_path": str(output / "freeze.json"),
             "freeze_sha256": sha256((output / "freeze.json").read_bytes()).hexdigest(),
             "bundle_paths": [str(output / row["bundle_path"]) for row in manifest["cases"]]}
 
@@ -217,6 +278,35 @@ def _accepted_check(ledger: dict, bundle: dict) -> tuple[dict | None, dict]:
                                "draft_ref": draft["ref"], "draft_digest": draft["digest"]}
 
 
+def relation_witness(definition: dict, contexts: dict, outputs: dict) -> bool:
+    """按预登记关系核对模型自己的条件；不能仅凭两次结果恰好不同就计为有效。"""
+    critical = definition["critical_missing"]
+    if definition["relation_kind"] == "BROKEN":
+        behavior = (critical in outputs["baseline"]["primary"]["missing_evidence"]
+                    and outputs["candidate"]["primary"]["eligibility"] == "ELIGIBLE"
+                    and all(outputs[v]["control"]["eligibility"] == "ELIGIBLE" for v in outputs))
+        if definition["case_id"] == "review_a":
+            relation = (contexts["primary"]["commercial_source"]["payment"]["currency"] != contexts["primary"]["billing"]["currency"]
+                        and contexts["control"]["commercial_source"]["payment"]["currency"] == contexts["control"]["billing"]["currency"])
+        elif definition["case_id"] == "review_c":
+            relation = (_H._field(contexts["primary"], definition["input_field"]) is True
+                        and _H._field(contexts["control"], definition["input_field"]) is False)
+        else:
+            raise ValueError("undefined broken relation witness")
+        return behavior and relation
+    if definition["case_id"] == "review_b":
+        bad = lambda context: _H._field(context, definition["input_field"]) == 1
+        good = lambda context: _H._field(context, definition["input_field"]) >= 2
+    elif definition["case_id"] == "review_d":
+        bad = lambda context: _H._field(context, definition["input_field"]) == "DRAFT"
+        good = lambda context: _H._field(context, definition["input_field"]) == "ACTIVE"
+    else:
+        raise ValueError("undefined preserved relation witness")
+    return (all(outputs["baseline"][label] == outputs["candidate"][label] for label in contexts)
+            and any(bad(contexts[label]) and critical in outputs["baseline"][label]["missing_evidence"] for label in contexts)
+            and any(good(contexts[label]) and outputs["baseline"][label]["eligibility"] == "ELIGIBLE" for label in contexts))
+
+
 def evaluate(prepared: Path, case_id: str, evidence_file: Path) -> dict:
     """原样执行模型选择；实际 B/C 输出只用于预登记规则的局部离线见证。"""
     prepared = prepared.resolve()
@@ -238,7 +328,7 @@ def evaluate(prepared: Path, case_id: str, evidence_file: Path) -> dict:
     bundle = json.loads((prepared / case["bundle_path"]).read_text())
     ledger = json.loads(evidence_file.read_text())
     proposal, counts = _accepted_check(ledger, bundle)
-    base_result = {"scope": manifest["scope"], "case_id": case_id, "run_id": ledger["run_id"], **counts,
+    base_result = {"scope": manifest["scope"], "suite": manifest.get("suite", "initial"), "case_id": case_id, "run_id": ledger["run_id"], **counts,
                    "source_ledger_sha256": sha256(evidence_file.read_bytes()).hexdigest(),
                    "business_execution_via_runtime": False, "current_candidate_coverage_added": False,
                    "release_authorized": False, "population_accuracy_claim": False}
@@ -263,7 +353,7 @@ def evaluate(prepared: Path, case_id: str, evidence_file: Path) -> dict:
         raise ValueError("context identity mismatch")
     # 冻结文件摘要之外，再匹配固定源码与本脚本唯一变更，避免成为任意候选执行器。
     trusted_source = LocalGitReader(ROOT).read(_H.SOURCE_COMMIT, _H.SOURCE_PATH).decode()
-    definition = next(row for row in definitions(trusted_source) if row["case_id"] == case_id)
+    definition = next(row for row in suite_definitions(trusted_source, manifest.get("suite", "initial")) if row["case_id"] == case_id)
     git = LocalGitReader(prepared / case["repository"])
     outputs = {}
     for version in ("baseline", "candidate"):
@@ -291,19 +381,7 @@ def evaluate(prepared: Path, case_id: str, evidence_file: Path) -> dict:
         actual_relation = "SAME" if _H._same_json_value(*values) else "DIFFERENT"
         controls.append({"version": version, "actual_relation": actual_relation,
                          "expected_relation": control["expected_relation"], "matches": actual_relation == control["expected_relation"]})
-    critical = definition["critical_missing"]
-    if definition["relation_kind"] == "BROKEN":
-        witness = (critical in outputs["baseline"]["primary"]["missing_evidence"]
-                   and outputs["candidate"]["primary"]["eligibility"] == "ELIGIBLE"
-                   and all(outputs[v]["control"]["eligibility"] == "ELIGIBLE" for v in outputs)
-                   and contexts["primary"]["commercial_source"]["payment"]["currency"] != contexts["primary"]["billing"]["currency"]
-                   and contexts["control"]["commercial_source"]["payment"]["currency"] == contexts["control"]["billing"]["currency"])
-    else:
-        witness = (all(outputs["baseline"][label] == outputs["candidate"][label] for label in contexts)
-                   and any(_H._field(contexts[label], definition["input_field"]) == 1
-                           and critical in outputs["baseline"][label]["missing_evidence"] for label in contexts)
-                   and any(_H._field(contexts[label], definition["input_field"]) >= 2
-                           and outputs["baseline"][label]["eligibility"] == "ELIGIBLE" for label in contexts))
+    witness = relation_witness(definition, contexts, outputs)
     baseline_assertions = all(row["satisfied"] for row in assertion_results if row["version"] == "baseline")
     candidate_assertions = all(row["satisfied"] for row in assertion_results if row["version"] == "candidate")
     expected_assertion_behavior = baseline_assertions and (not candidate_assertions if definition["relation_kind"] == "BROKEN" else candidate_assertions)
@@ -322,15 +400,16 @@ def main() -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     prepare_parser = commands.add_parser("prepare")
     prepare_parser.add_argument("--output-directory", type=Path, required=True)
+    prepare_parser.add_argument("--suite", choices=["initial", "followup"], default="initial")
     evaluate_parser = commands.add_parser("evaluate")
     evaluate_parser.add_argument("--prepared", type=Path, required=True)
-    evaluate_parser.add_argument("--case-id", choices=["review_a", "review_b"], required=True)
+    evaluate_parser.add_argument("--case-id", choices=["review_a", "review_b", "review_c", "review_d"], required=True)
     evaluate_parser.add_argument("--full-evidence", type=Path, required=True)
     evaluate_parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == "prepare":
-            result = prepare(args.output_directory)
+            result = prepare(args.output_directory, suite=args.suite)
         else:
             result = evaluate(args.prepared, args.case_id, args.full_evidence)
             output = _output_scope(args.output)

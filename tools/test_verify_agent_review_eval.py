@@ -1,6 +1,7 @@
 """离线评估只见证被主图接受、且业务值仍来自模型原草案的计划。"""
 from copy import deepcopy
 import importlib.util
+import json
 from pathlib import Path
 import unittest
 
@@ -70,6 +71,49 @@ class ReviewEvaluationIdentityTests(unittest.TestCase):
         ledger["operations"].append(deepcopy(ledger["operations"][1]))
         with self.assertRaisesRegex(ValueError, "ambiguous"):
             _EVAL._accepted_check(ledger, {"frozen": True})
+
+
+class ReviewEvaluationSuiteTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = _EVAL.LocalGitReader(_EVAL.ROOT).read(_EVAL._H.SOURCE_COMMIT, _EVAL._H.SOURCE_PATH).decode()
+        cls.contract = json.loads((_EVAL.ROOT / _EVAL._H.CONTRACT_PATH).read_text())
+
+    def test_default_initial_suite_retains_prior_cases(self):
+        default = _EVAL.suite_definitions(self.source)
+        self.assertEqual(default, _EVAL.definitions(self.source))
+        self.assertEqual([row["case_id"] for row in default], ["review_a", "review_b"])
+        self.assertEqual(sum(len(row["rows"]) for row in
+            _EVAL.qualify_suite(self.source, default, self.contract, "initial")), 6)
+
+    def test_unknown_suite_is_not_silently_replaced(self):
+        with self.assertRaisesRegex(ValueError, "unknown evaluation suite"):
+            _EVAL.suite_definitions(self.source, "unknown")
+
+    def test_followup_is_disjoint_and_reference_conditions_qualify(self):
+        old = _EVAL.suite_definitions(self.source, "initial")
+        new = _EVAL.suite_definitions(self.source, "followup")
+        self.assertEqual([row["case_id"] for row in new], ["review_c", "review_d"])
+        self.assertFalse({row["candidate"] for row in old} & {row["candidate"] for row in new})
+        qualifications = _EVAL.qualify_suite(self.source, new, self.contract, "followup")
+        self.assertEqual(sum(len(row["rows"]) for row in qualifications), 4)
+        self.assertTrue(all(row["expected_matches"] for case in qualifications for row in case["rows"]))
+
+    def test_witness_requires_own_relation_and_distinct_control(self):
+        for suite in ("initial", "followup"):
+            definitions = _EVAL.suite_definitions(self.source, suite)
+            qualifications = _EVAL.qualify_suite(self.source, definitions, self.contract, suite)
+            for definition, qualification in zip(definitions, qualifications):
+                with self.subTest(case_id=definition["case_id"]):
+                    contexts = {label: _EVAL._H._override(self.contract["fixture"]["context"],
+                        definition["input_field"], definition[label], self.contract) for label in ("primary", "control")}
+                    rows = {row["label"]: row for row in qualification["rows"]}
+                    outputs = {version: {label: rows[label][version] for label in contexts}
+                               for version in ("baseline", "candidate")}
+                    self.assertTrue(_EVAL.relation_witness(definition, contexts, outputs))
+                    contexts["control"] = deepcopy(contexts["primary"])
+                    # 即便结果文字被填成参考答案，没有模型自己的有效对照也不能通过。
+                    self.assertFalse(_EVAL.relation_witness(definition, contexts, outputs))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 
 日期：2026-11-26（Australia/Sydney）。本轮范围：正式本地审查委托、变化影响假设、受控证据调查、主图更新方向、实验草案编译与主图接受。保留现有 Runtime、PostgreSQL 和预算/恢复协议。
 
+**交付判断：工程循环已经实现；真实模型选测验收尚未通过。** 初轮两个隔离样本没有进入调查；通用策略修正后的两个新样本均能读取材料、提出草案，但没有接受计划。两轮的失败和成本全部保留，不能据此接入业务执行并宣称 Agent 已能选择高价值实验。
+
 ## 交付边界
 
 已实现的是一个共享模型决策者的可恢复循环。四个新 LangGraph 分支是可追踪的职责交接节点，**不是四个独立模型 Agent**。模型调用仍由 Runtime 登记、预留并派发；分支不直接调用来源、执行代码或签发 PASS。
@@ -54,13 +56,14 @@ ReviewRequest v1（可信本地操作员）
 | 检查 | 结果 |
 | --- | --- |
 | TypeScript build / typecheck | 通过 |
-| Runtime + 共享协议（真实专用 PostgreSQL；模型为固定 Provider stub） | 338/338 通过，0 skipped |
+| Runtime + 共享协议（真实专用 PostgreSQL；模型为固定 Provider stub） | 修正后 348/348 通过，0 skipped |
 | Python Graph / 协议 / 恢复测试 | 38/38 通过 |
-| 正式请求、新旧装配及离线评估器定向测试 | 37/37 通过 |
+| 正式请求与新旧装配定向测试 | 32/32 通过 |
+| 离线评估器测试 | 修正后 9/9 通过 |
 | Registry 全套 | 52/53 通过；一项既有来源漂移失败，见下文 |
 | diff whitespace | 通过 |
 
-338 项中的固定 Provider 响应验证工程协议，不证明真实模型会选测。覆盖主图接受前保持 ACTIVE、缺项/冲突、未读依据、草案失效、revision 冲突、重启、并发重复提交和有限修正等边界。
+348 项中的固定 Provider 响应验证工程协议，不证明真实模型会选测。覆盖主图接受前保持 ACTIVE、缺项/冲突、未读依据、草案失效、revision 冲突、重启、并发重复提交和有限修正等边界。
 
 Registry 的既有 `test_real_catalog_matches_pinned_sources_and_history` 报 `SOURCE_CONTENT_DRIFT`：`tools/multi-system/release_seed.py` 和 `test_release_seed.py` 在本轮前的 HEAD 已不匹配固定 provenance。本轮没有改这两个文件，也没有修改冻结来源目录掩盖失败。
 
@@ -81,6 +84,39 @@ Registry 的既有 `test_real_catalog_matches_pinned_sources_and_history` 报 `S
 隔离评估使用两个新本地变化。参考实验在模型运行前预登记，标准答案不进入模型输入；实现、Prompt、Graph、装配器与构建模块全部冻结。只有经过实际 `ACCEPT_PLAN` 的草案才可评估，不能挑选未接受草案或用参考输入替换模型输入。
 
 离线见证仅执行固定受审合成源码的局部纯函数，不是通用候选 Runner，也不回填 Runtime 覆盖/Final。新样本在本轮结束后成为已公开回归材料，不能再次当成未见任务。
+
+## 针对初轮失败的通用策略修正
+
+初轮实现和失败证据已作为 `c8d2c4d` 保存，后续修正不覆盖原结果。
+
+- 新增 `reviewObservationBasis()`，只把真实 READ 回执及确定性编译反馈视为可以重新更新方向的依据。换措辞、重写假设和增加调用次数不能重新开放 UPDATE_DIRECTION；Provider grammar 和 Runtime 接收端同时守门。
+- 总预算分为 DISCOVERY、CHECK_REPAIR 和 REVIEW_CLOSE。最后一池固定预留一次，只能在探索耗尽且已有当前依据的绑定草案时开启；不能用于继续读取、更新方向或新建草案。
+- 最后探索轮已经读完适用规则时，保留 PLAN_DRAFT／CLARIFY／STOP／NOVEL_CHECK 出口，关闭继续 READ／UPDATE。缺材料时可以明确退出，不由系统补齐业务答案。
+- 预留次数和已结算次数分开。预留修正或主图审阅不会改变本次调用的 context_ref。审阅输出 INVALID、UNKNOWN 或越界也保留预算与原件，不自动补发。
+- 精确验证总额5次能够容纳3探索＋1修正＋1审阅；真实PG测试还覆盖审阅越界READ、无效输出及未知结果恢复。
+
+初轮a/b现已成为回归材料。修正后的独立验收改用新的 followup suite（review_c/review_d），保持相同7B模型、seed19、8次总调用、4次READ和2次修正；其中主图审阅1次来自总额度，未额外增加调用。新套件在模型运行前冻结代码、Prompt、输入与参考见证，结果另存，不与初轮样本混为同一准确率。
+
+### 修正后的真实结果
+
+| 项目 | review_c | review_d |
+| --- | --- | --- |
+| 实际动作 | UPDATE_DIRECTION → READ → UPDATE_DIRECTION → READ → PLAN_DRAFT → READ → READ | 相同 |
+| 模型 / 读取 | 7/8 次模型调用，4/4 次读取 | 相同 |
+| 分池 | 探索5/5；修正2/2，均用于READ；主图审阅0/1 | 相同 |
+| 草案实际准入反馈 | DRAFT_REQUIREMENT_SCOPE_MISMATCH，`/payload/draft/requirement_ref` | 相同 |
+| 停止 / 接受 | CHECK_REPAIR_LIMIT；0个接受计划 | 相同 |
+| 独立离线见证 | NOT_RUN / NO_ACCEPTED_PLAN | 相同 |
+
+两份草案的外层 `requirement_refs` 都带了R1–R6，内部却分别只选R6、R4。Runtime按单要求草案协议拒绝，模型没有按反馈修订草案，而是消耗两次修正调用继续READ。预留的主图审阅只能接受已有、有效、当前依据的BOUND_PLAN；本轮没有这样的计划，所以不能借用最后一池继续修正。
+
+另外，两次运行结束后的**只读代码/草案复核**发现：C没有设置diff涉及的业务因素，主实验与因素对照完全相同；D在同一主实验输入中重复填写同一字段的两个值；两例都声明SHOULD_PRESERVE，却给出不同的B/C预测。这些是事后检查记录，**不是Runtime已经返回的质量错误，也不是候选执行结果**。本轮编译器在范围错误处返回，尚未继续质量/绑定检查；不能把失败归结为“只差一个枚举或引用”。
+
+因此，本轮能确认模型开始按真实读取回执推进；不能确认其已经理解变化、设计出有区分力的实验，或具备稳定修正能力。公开脱敏账本摘要、模型身份、token和冻结摘要见 `model-evaluation-followup.json`。修正后的两个样本从此仅作为开发回归材料，不能再次作为未见任务。
+
+### 后续应聚焦的验收缺口
+
+优先改进同一Agent循环内的草案修正，而非扩大组件数量：让模型正确区分任务的全部义务与当前草案的一项要求；在反馈后真正修改实验；同时核对变化因素、主/对照输入和“保留行为”预测的一致性。编译器应继续只做机械绑定，不补标准业务取值。计划被实际接受后，再原样执行独立见证；稳定形成有效计划之前，不将本轮接成真实业务Runner或Final门禁。
 
 ## 当前未交付范围
 

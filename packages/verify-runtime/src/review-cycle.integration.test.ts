@@ -12,7 +12,7 @@ import { sha, type Json, type Limits, type ReleaseBundle } from "./types.js";
 const databaseUrl = process.env["EGAP_VERIFY_TEST_DATABASE_URL"];
 const pgTest = (name: string, fn: (t: TestContext) => Promise<void>) => test(name, { skip: !databaseUrl, timeout: 20_000 }, fn);
 type ReviewBundle = ReleaseBundle & { review_request: ReviewRequest };
-type Reply = Json | ((context: Json) => Json);
+type Reply = Json | Promise<Json> | ((context: Json) => Json);
 
 /**
  * 真实 PostgreSQL + 固定 Provider 响应，用来检验编排/权限/恢复协议。
@@ -88,7 +88,7 @@ async function harness(t: TestContext, responses: Reply[], input = bundle(), lim
     const request = JSON.parse(raw) as Json; const index = requests.length; requests.push(request);
     const context = JSON.parse(((request["messages"] as Json[])[1]!["content"] as string))["context_view"] as Json;
     const response = responses[index];
-    const body = typeof response === "function" ? response(context) : response ?? { action_kind: "UNEXPECTED_EXTRA_CALL" };
+    const body = typeof response === "function" ? response(context) : await (response ?? { action_kind: "UNEXPECTED_EXTRA_CALL" });
     res.end(JSON.stringify({ model: "review-cycle-stub", done: true, message: { content: JSON.stringify(body) }, prompt_eval_count: 100 + index, eval_count: 40 + index }));
   });
   await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve));
@@ -110,7 +110,9 @@ async function step(runtime: Runtime, runId: string) {
 }
 
 pgTest("Review循环：影响→读取→部分草案→修正→主图接受，始终没有执行或覆盖", async t => {
-  const h = await harness(t, [direction(), readRule(), partial(), complete(), accept]);
+  // 三次探索 + 一次修正 + 一次主图收口正好用尽总额，不能借用或重复返还任何池。
+  const h = await harness(t, [direction(), readRule(), partial(), complete(), accept], bundle(),
+    { model_calls: 5, reads: 3, no_progress: 3, plan_repairs: 1 });
   assert.equal((await step(h.runtime, h.runId)).result["status"], "DIRECTION_UPDATED");
   await step(h.runtime, h.runId);
   const firstDraft = await step(h.runtime, h.runId);
@@ -124,11 +126,16 @@ pgTest("Review循环：影响→读取→部分草案→修正→主图接受，
   assert.equal(beforeAccept["status"], "ACTIVE", "Planner的返回必须让主图重新决定下一步");
   assert.equal((beforeAccept["review_repair"] as Json)["attempts_used"], 1);
   const accepted = await step(h.runtime, h.runId);
+  assert.equal((accepted.call["proposal"] as Json)["context_view_ref"], beforeAccept["context_view_ref"],
+    "主图收口额度预留不能改变同次决策依据，导致合法接受自我过期");
   assert.equal(accepted.result["status"], "PLAN_ACCEPTED_FOR_REVIEW");
   const final = await h.runtime.projection(h.runId);
   assert.equal(final["status"], "PLANNED"); assert.equal(final["stop_reason"], "SCOPED_PLAN_ACCEPTED");
   assert.deepEqual(final["current_candidate_coverage"], []); assert.equal((final["final_eligibility"] as Json)["eligible"], false);
   assert.equal(final["model_calls_used"], 5);
+  assert.equal(final["review_close_calls_reserved"], 1);
+  assert.equal((final["review_cycle"] as Json)["closure_calls_used"], 1);
+  assert.equal((final["review_cycle"] as Json)["decisions_completed"], 5);
   const rows = (await h.runtime.store.pool.query("SELECT proposal,raw_response,usage FROM verify_runtime.calls WHERE run_id=$1 ORDER BY created_at,id", [h.runId])).rows;
   assert.deepEqual(rows.map(row => row.proposal.action_kind), ["UPDATE_DIRECTION", "READ", "PLAN_DRAFT", "PLAN_DRAFT", "ACCEPT_PLAN"]);
   assert.ok(rows.every(row => row.raw_response && row.usage));
@@ -136,6 +143,10 @@ pgTest("Review循环：影响→读取→部分草案→修正→主图接受，
   const context = JSON.parse(((h.requests[4]!["messages"] as Json[])[1]!["content"] as string))["context_view"] as Json;
   assert.equal((context["review_request"] as Json)["request_id"], h.input.review_request.request_id);
   assert.equal((context["review_cycle"] as Json)["draft"] !== undefined, true);
+  assert.equal((context["allowed_actions"] as string[]).includes("READ"), false);
+  assert.equal((context["allowed_actions"] as string[]).includes("UPDATE_DIRECTION"), false);
+  assert.equal((context["allowed_actions"] as string[]).includes("ACCEPT_PLAN"), true);
+  assert.equal(JSON.parse(((h.requests[4]!["messages"] as Json[])[1]!["content"] as string))["execution_limits"]["decision_phase"], "REVIEW_CLOSE");
 });
 
 pgTest("Review缺项：冲突要求不能规划，CLARIFY可登记且不发送外部消息", async t => {
@@ -230,4 +241,108 @@ pgTest("Review修正预算：重复不完整草案耗尽一次修正，原提案
   await assert.rejects(h.runtime.decide(h.runId, command(final)), { message: "RUN_NOT_ACTIVE" });
   assert.equal(h.requests.length, 4);
   assert.equal((await h.runtime.store.pool.query("SELECT count(*)::int AS n FROM verify_runtime.operations WHERE run_id=$1 AND proposal->>'action_kind'='PLAN_DRAFT'", [h.runId])).rows[0].n, 2);
+});
+
+pgTest("Review主图收口池：探索额度耗尽后可接受已绑定计划，未使用的修正额度不被挪用", async t => {
+  const h = await harness(t, [direction(), readRule(), complete(), accept], bundle(),
+    { model_calls: 5, reads: 2, no_progress: 3, plan_repairs: 1 });
+  await step(h.runtime, h.runId); await step(h.runtime, h.runId);
+  assert.equal((await step(h.runtime, h.runId)).result["status"], "BOUND_PLAN");
+  const before = await h.runtime.projection(h.runId);
+  assert.equal(before["model_calls_used"], 3);
+  const closed = await step(h.runtime, h.runId);
+  assert.equal(closed.result["status"], "PLAN_ACCEPTED_FOR_REVIEW");
+  assert.equal((closed.call["proposal"] as Json)["context_view_ref"], before["context_view_ref"]);
+  const context = JSON.parse(((h.requests[3]!["messages"] as Json[])[1]!["content"] as string))["context_view"] as Json;
+  assert.ok((context["allowed_actions"] as string[]).includes("ACCEPT_PLAN"));
+  assert.equal((context["allowed_actions"] as string[]).includes("READ"), false);
+  assert.equal((context["allowed_actions"] as string[]).includes("UPDATE_DIRECTION"), false);
+  assert.equal((context["allowed_actions"] as string[]).includes("PLAN_DRAFT"), false);
+  const final = await h.runtime.projection(h.runId);
+  assert.equal(final["status"], "PLANNED"); assert.equal(final["model_calls_used"], 4);
+  assert.equal(final["review_repair"], undefined, "没有缺项就不能建立修正消费记录");
+  assert.equal(final["review_close_calls_reserved"], 1);
+  const events = (await h.runtime.store.pool.query("SELECT payload FROM verify_runtime.events WHERE run_id=$1 AND kind='MODEL_RESERVED' ORDER BY seq", [h.runId])).rows;
+  assert.deepEqual(events.map(row => row.payload.budget_pool), ["DISCOVERY", "DISCOVERY", "DISCOVERY", "REVIEW_CLOSE"]);
+  assert.equal(h.requests.length, 4);
+});
+
+pgTest("Review收口准入：Provider绕过生成限制也不能用收口调用继续READ或更新方向", async t => {
+  for (const forbidden of [decision("READ", { material_ref: "candidate:commercial.py", start_line: 1, end_line: 2 }), direction()]) {
+    const h = await harness(t, [direction(), readRule(), complete(), forbidden], bundle(),
+      { model_calls: 5, reads: 2, no_progress: 3, plan_repairs: 1 });
+    await step(h.runtime, h.runId); await step(h.runtime, h.runId); await step(h.runtime, h.runId);
+    const rejected = await step(h.runtime, h.runId);
+    assert.equal(rejected.operation["status"], "REJECTED");
+    assert.equal(rejected.result["error_code"], "REVIEW_ACTION_NOT_AVAILABLE");
+    const final = await h.runtime.projection(h.runId);
+    assert.equal(final["status"], "STOPPED"); assert.equal(final["stop_reason"], "REVIEW_CLOSE_EXHAUSTED");
+    assert.equal(final["reads_used"], 1);
+    assert.equal(((final["review_cycle"] as Json)["directions"] as Json[]).length, 1);
+    assert.equal(final["review_close_calls_reserved"], 1);
+    assert.equal(h.requests.length, 4, "非法Provider输出仍计一次收口成本，不能挪用修正池重选");
+  }
+});
+
+pgTest("Review无进展：没有新观察不能重复更新方向；新READ后允许重新判断", async t => {
+  const updated = direction(); updated["hypothesis_updates"] = [{ id: "H:acceptance", statement: "读到规则后，上界变化的风险仍需独立实验判定。", status: "OPEN", evidence_refs: ["diff:commercial.py", "rule:R4"] }];
+  const h = await harness(t, [direction(), direction(), readRule(), updated]);
+  await step(h.runtime, h.runId);
+  const repeated = await step(h.runtime, h.runId);
+  assert.equal(repeated.operation["status"], "REJECTED");
+  const afterRepeat = await h.runtime.projection(h.runId);
+  assert.equal(((afterRepeat["review_cycle"] as Json)["directions"] as Json[]).length, 1);
+  assert.equal(afterRepeat["no_progress"], 1);
+  const closedActions = JSON.parse(((h.requests[1]!["messages"] as Json[])[1]!["content"] as string))["context_view"]["allowed_actions"] as string[];
+  assert.equal(closedActions.includes("UPDATE_DIRECTION"), false);
+  await step(h.runtime, h.runId);
+  const changed = await step(h.runtime, h.runId);
+  assert.equal(changed.result["status"], "DIRECTION_UPDATED");
+  const final = await h.runtime.projection(h.runId);
+  assert.equal(((final["review_cycle"] as Json)["directions"] as Json[]).length, 2);
+  assert.equal(final["no_progress"], 0);
+});
+
+pgTest("Review收口失败：非法响应仍记账，剩余修正额度不能用于重新推理", async t => {
+  const h = await harness(t, [direction(), readRule(), complete(), { action_kind: "PASS" }], bundle(),
+    { model_calls: 5, reads: 2, no_progress: 3, plan_repairs: 1 });
+  await step(h.runtime, h.runId); await step(h.runtime, h.runId); await step(h.runtime, h.runId);
+  const cmd = command(await h.runtime.projection(h.runId));
+  const invalid = await h.runtime.decide(h.runId, cmd);
+  assert.equal(invalid["status"], "INVALID");
+  assert.deepEqual(await h.runtime.decide(h.runId, cmd), invalid, "原命令回读已有失败，不能重新派发");
+  const after = await h.runtime.projection(h.runId);
+  assert.equal(after["model_calls_used"], 4);
+  assert.equal(after["review_close_calls_reserved"], 1);
+  assert.equal(after["stop_reason"], "REVIEW_CLOSE_EXHAUSTED");
+  const calls = (await h.runtime.store.pool.query("SELECT status,raw_response,usage FROM verify_runtime.calls WHERE run_id=$1 ORDER BY created_at,id", [h.runId])).rows;
+  assert.equal(calls[3].status, "INVALID"); assert.ok(calls[3].raw_response); assert.equal(calls[3].usage.output_tokens, 43);
+  // 允许Runtime在本次或下次准入时关闭Run；无论何时关闭，都不能消耗修正池再请求Provider。
+  try { await h.runtime.decide(h.runId, command(after)); } catch (error) { assert.equal((error as Error).message, "RUN_NOT_ACTIVE"); }
+  assert.equal(h.requests.length, 4);
+  assert.equal((await h.runtime.projection(h.runId))["status"], "STOPPED");
+});
+
+pgTest("Review收口UNKNOWN：请求已发出仍占额度，重启只回读原调用而不自动补发", async t => {
+  let release!: (value: Json) => void;
+  const waiting = new Promise<Json>(resolve => { release = resolve; });
+  const h = await harness(t, [direction(), readRule(), complete(), waiting], bundle(),
+    { model_calls: 5, reads: 2, no_progress: 3, plan_repairs: 1 });
+  await step(h.runtime, h.runId); await step(h.runtime, h.runId); await step(h.runtime, h.runId);
+  const cmd = command(await h.runtime.projection(h.runId));
+  const unknown = await h.runtime.decide(h.runId, cmd);
+  assert.equal(unknown["status"], "UNKNOWN");
+  release({ action_kind: "STOP", payload: { reason: "late response is not a new decision" } });
+  await h.close(h.runtime); const resumed = await h.open();
+  assert.deepEqual(await resumed.decide(h.runId, cmd), unknown);
+  const final = await resumed.projection(h.runId);
+  assert.equal(final["status"], "BLOCKED"); assert.equal(final["model_calls_used"], 4);
+  assert.equal(final["stop_reason"], "MODEL_EXECUTION_UNCERTAIN");
+  assert.equal(final["review_close_calls_reserved"], 1);
+  assert.equal((final["review_cycle"] as Json)["closure_calls_used"] ?? 0, 0, "UNKNOWN不是完成的决策，但已发出的收口预留不能返还");
+  assert.equal((final["review_cycle"] as Json)["accepted_plan_ref"], undefined);
+  await assert.rejects(resumed.decide(h.runId, { command_id: "decision:forbidden-retry", based_on_decision_revision: final["decision_basis_revision"] as number }), { message: "RUN_NOT_ACTIVE" });
+  assert.equal(h.requests.length, 4);
+  const calls = (await resumed.store.pool.query("SELECT status FROM verify_runtime.calls WHERE run_id=$1 ORDER BY created_at,id", [h.runId])).rows;
+  assert.equal(calls[3].status, "UNKNOWN"); assert.equal(calls.length, 4);
 });

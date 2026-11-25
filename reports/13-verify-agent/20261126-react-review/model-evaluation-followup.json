@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "suite": "followup",
+  "evaluated_at": "2026-11-25T17:31:41.481300+00:00",
+  "purpose": "FROZEN_REACT_REVIEW_AFTER_GENERIC_POLICY_CORRECTION",
+  "scope": "LOCAL_SYNTHETIC_PLANNING",
+  "model": "qwen2.5:7b",
+  "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "seed": 19,
+  "limits": {
+    "model_calls": 8,
+    "reads": 4,
+    "plan_repairs": 2,
+    "close_calls_reserved_within_total": 1,
+    "max_output_tokens": 3000
+  },
+  "run_configuration_registered_before_first_isolated_call": true,
+  "attempts_per_case": 1,
+  "freeze_sha256": "733dddc3464add75b4e5a94f1e38988143724188d9ac74391a45f8196f97a94a",
+  "initial_cases_status": "REGRESSION_ONLY_RESULTS_PRESERVED",
+  "initial_report_ref": "reports/13-verify-agent/20261126-react-review/model-evaluation.json",
+  "independent_reference_qualification": {
+    "case_count": 2,
+    "distinct_condition_count": 4,
+    "all_expected_matches": true
+  },
+  "cases": [
+    {
+      "case_id": "review_c",
+      "run_id": "b97eed45-0ec2-4a40-afc6-90c459b22844",
+      "started_at": "2026-11-25T17:15:51.154931+00:00",
+      "finished_at": "2026-11-25T17:22:53.826314+00:00",
+      "status": "INCOMPLETE",
+      "runtime_status": "STOPPED",
+      "stop_reason": "CHECK_REPAIR_LIMIT",
+      "termination_kind": "DETERMINISTIC_REPAIR_POOL_EXHAUSTED",
+      "model_call_count": 7,
+      "read_count": 4,
+      "action_sequence": [
+        "UPDATE_DIRECTION",
+        "READ",
+        "UPDATE_DIRECTION",
+        "READ",
+        "PLAN_DRAFT",
+        "READ",
+        "READ"
+      ],
+      "model_calls": [
+        {
+          "call_id": "1e091ced-2230-45f9-a1e7-67f758ad53af",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "UPDATE_DIRECTION"
+        },
+        {
+          "call_id": "562a8fc2-ae85-4d4b-b5b3-720ed9c550d2",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        },
+        {
+          "call_id": "404660df-9619-448c-8a97-7a08e89bf4fe",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "UPDATE_DIRECTION"
+        },
+        {
+          "call_id": "ee19f4f4-b991-4969-a227-f8cf4f033c32",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        },
+        {
+          "call_id": "6a211720-d706-4b9a-b917-832c5a825b09",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "PLAN_DRAFT"
+        },
+        {
+          "call_id": "79a8b3da-195a-4fca-973c-090a2314d940",
+          "budget_pool": "CHECK_REPAIR",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        },
+        {
+          "call_id": "ab2a3a33-1dd7-4c78-aa0a-e4f6a048a27e",
+          "budget_pool": "CHECK_REPAIR",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        }
+      ],
+      "model_parse_error_codes": [],
+      "admission_error_codes": [],
+      "plan_drafts": [
+        {
+          "proposal_id": "1a155ca7-043d-458e-90a2-be05bb79a1f3",
+          "operation_status": "REJECTED",
+          "result_status": "NEEDS_REVISION",
+          "proposal_requirement_refs": [
+            "R1",
+            "R2",
+            "R3",
+            "R4",
+            "R5",
+            "R6"
+          ],
+          "draft_requirement_ref": "R6",
+          "deterministic_issues": [
+            {
+              "code": "DRAFT_REQUIREMENT_SCOPE_MISMATCH",
+              "path": "/payload/draft/requirement_ref"
+            }
+          ],
+          "quality_status": null,
+          "binding_status": null,
+          "independent_static_review": {
+            "not_runtime_feedback": true,
+            "not_executed_business_result": true,
+            "target_factor_present_in_primary_inputs": false,
+            "primary_equals_control_inputs": true,
+            "duplicate_primary_input_names": [],
+            "claim_predicts_preservation": true,
+            "same_primary_input_B_C_predictions_equal": false,
+            "requirement_matches_pre_registered_rule": false
+          }
+        }
+      ],
+      "repair_pool": {
+        "limit": 2,
+        "reserved": 2,
+        "status": "EXHAUSTED",
+        "actions": [
+          "READ",
+          "READ"
+        ]
+      },
+      "close_pool": {
+        "limit": 1,
+        "reserved": 0,
+        "actions": []
+      },
+      "budget_pool_call_counts": {
+        "DISCOVERY": 5,
+        "CHECK_REPAIR": 2,
+        "REVIEW_CLOSE": 0
+      },
+      "budget_projection": {
+        "model_calls": {
+          "limit": 8,
+          "used": 7
+        },
+        "reads": {
+          "limit": 4,
+          "used": 4
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 2,
+          "used": 2
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 5,
+          "REVIEW_CLOSE": {
+            "limit": 1,
+            "reserved": 0
+          },
+          "CHECK_REPAIR": 2,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "ever_bound_plan": false,
+      "accepted_plan_count": 0,
+      "draft_count": 1,
+      "model_requested_stop_or_clarification": false,
+      "tokens": {
+        "input": 61848,
+        "output": 4422,
+        "missing_usage_calls": 0
+      },
+      "evaluation_status": "NOT_RUN",
+      "effective_plan": false,
+      "evaluation_reason": "NO_ACCEPTED_PLAN",
+      "semantic_relation_experiment": "NOT_RUN_NO_ACCEPTED_PLAN",
+      "ledger_export": "EXPORTED_FULL_LOCAL_RUN",
+      "ledger_sha256": "be45e709093b3ffffdd8509cc1698ef58ce38f97c099e805d0c62f1a8a4f535d",
+      "owned_process_cleanup": [
+        {
+          "name": "graph",
+          "status": "ALREADY_EXITED"
+        },
+        {
+          "name": "runtime",
+          "status": "STOPPED_OWNED_PROCESS"
+        }
+      ],
+      "business_execution_via_runtime": false,
+      "current_candidate_coverage_added": false,
+      "final_eligible": false
+    },
+    {
+      "case_id": "review_d",
+      "run_id": "a5c189e7-66b6-4d91-8103-76a0009ec7b6",
+      "started_at": "2026-11-25T17:23:08.898275+00:00",
+      "finished_at": "2026-11-25T17:29:55.344390+00:00",
+      "status": "INCOMPLETE",
+      "runtime_status": "STOPPED",
+      "stop_reason": "CHECK_REPAIR_LIMIT",
+      "termination_kind": "DETERMINISTIC_REPAIR_POOL_EXHAUSTED",
+      "model_call_count": 7,
+      "read_count": 4,
+      "action_sequence": [
+        "UPDATE_DIRECTION",
+        "READ",
+        "UPDATE_DIRECTION",
+        "READ",
+        "PLAN_DRAFT",
+        "READ",
+        "READ"
+      ],
+      "model_calls": [
+        {
+          "call_id": "04ac29cd-59b5-44df-bdb3-a2c134eb5509",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "UPDATE_DIRECTION"
+        },
+        {
+          "call_id": "f963cbb0-2ecd-4565-bf8c-408262231595",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        },
+        {
+          "call_id": "4f984f44-576d-4a7f-9b40-a138e90dfae0",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "UPDATE_DIRECTION"
+        },
+        {
+          "call_id": "37b56947-c002-451f-b8e2-e2cd9d9908e7",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        },
+        {
+          "call_id": "31a9d498-f3f0-49f6-b16c-190e47898e46",
+          "budget_pool": "DISCOVERY",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "PLAN_DRAFT"
+        },
+        {
+          "call_id": "19918e6d-dd0a-4cef-8f6f-993e6c53c3e5",
+          "budget_pool": "CHECK_REPAIR",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        },
+        {
+          "call_id": "0eab71dc-5be2-407e-bf77-d8348f428b16",
+          "budget_pool": "CHECK_REPAIR",
+          "status": "COMPLETED",
+          "error_code": null,
+          "action": "READ"
+        }
+      ],
+      "model_parse_error_codes": [],
+      "admission_error_codes": [],
+      "plan_drafts": [
+        {
+          "proposal_id": "e5723d13-8ccc-4928-8397-0a7184a14c09",
+          "operation_status": "REJECTED",
+          "result_status": "NEEDS_REVISION",
+          "proposal_requirement_refs": [
+            "R1",
+            "R2",
+            "R3",
+            "R4",
+            "R5",
+            "R6"
+          ],
+          "draft_requirement_ref": "R4",
+          "deterministic_issues": [
+            {
+              "code": "DRAFT_REQUIREMENT_SCOPE_MISMATCH",
+              "path": "/payload/draft/requirement_ref"
+            }
+          ],
+          "quality_status": null,
+          "binding_status": null,
+          "independent_static_review": {
+            "not_runtime_feedback": true,
+            "not_executed_business_result": true,
+            "target_factor_present_in_primary_inputs": true,
+            "primary_equals_control_inputs": false,
+            "duplicate_primary_input_names": [
+              "commercial_source.contracts.0.status"
+            ],
+            "claim_predicts_preservation": true,
+            "same_primary_input_B_C_predictions_equal": false,
+            "requirement_matches_pre_registered_rule": false
+          }
+        }
+      ],
+      "repair_pool": {
+        "limit": 2,
+        "reserved": 2,
+        "status": "EXHAUSTED",
+        "actions": [
+          "READ",
+          "READ"
+        ]
+      },
+      "close_pool": {
+        "limit": 1,
+        "reserved": 0,
+        "actions": []
+      },
+      "budget_pool_call_counts": {
+        "DISCOVERY": 5,
+        "CHECK_REPAIR": 2,
+        "REVIEW_CLOSE": 0
+      },
+      "budget_projection": {
+        "model_calls": {
+          "limit": 8,
+          "used": 7
+        },
+        "reads": {
+          "limit": 4,
+          "used": 4
+        },
+        "accounting_basis": "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
+        "check_repair": {
+          "reserved_within_total": 2,
+          "used": 2
+        },
+        "profile": "READ_ONLY_DISCOVERY",
+        "pools": {
+          "CODING": 0,
+          "DISCOVERY": 5,
+          "REVIEW_CLOSE": {
+            "limit": 1,
+            "reserved": 0
+          },
+          "CHECK_REPAIR": 2,
+          "FINAL": 0,
+          "RECONCILIATION": "LOCAL_STATE_ONLY",
+          "CLEANUP": "NO_SUT_RESOURCES"
+        }
+      },
+      "ever_bound_plan": false,
+      "accepted_plan_count": 0,
+      "draft_count": 1,
+      "model_requested_stop_or_clarification": false,
+      "tokens": {
+        "input": 61179,
+        "output": 4142,
+        "missing_usage_calls": 0
+      },
+      "evaluation_status": "NOT_RUN",
+      "effective_plan": false,
+      "evaluation_reason": "NO_ACCEPTED_PLAN",
+      "semantic_relation_experiment": "NOT_RUN_NO_ACCEPTED_PLAN",
+      "ledger_export": "EXPORTED_FULL_LOCAL_RUN",
+      "ledger_sha256": "6d00cba87d0d26d63b0b00e36ac11bb6d50216183d42d86d19f15ec7f478460e",
+      "owned_process_cleanup": [
+        {
+          "name": "graph",
+          "status": "ALREADY_EXITED"
+        },
+        {
+          "name": "runtime",
+          "status": "STOPPED_OWNED_PROCESS"
+        }
+      ],
+      "business_execution_via_runtime": false,
+      "current_candidate_coverage_added": false,
+      "final_eligible": false
+    }
+  ],
+  "totals": {
+    "cases": 2,
+    "model_calls": 14,
+    "reads": 8,
+    "drafts": 2,
+    "accepted_plans": 0,
+    "effective_plans": 0,
+    "input_tokens": 123027,
+    "output_tokens": 8564
+  },
+  "interpretation": "通用策略修正后，两项真实模型运行均进入读取与草案阶段，但都把外层要求范围填为R1–R6，与单项草案不一致。确定性准入返回DRAFT_REQUIREMENT_SCOPE_MISMATCH；随后两个修正调用均用于READ，没有提交修正草案，最终CHECK_REPAIR_LIMIT。",
+  "static_review_limit": "外层JSON协议合法，不等于实验规格或业务关系正确。独立静态复核还发现主/对照或输入重复及保留主张与预测矛盾；这些并非本轮Runtime实际返回的后续绑定错误，也不是已执行的业务裁决。",
+  "close_pool_result": "两例均未达到BOUND_PLAN，主图接受预留各1次均未动用，不被探索或修正挪用。",
+  "claim_limits": [
+    "No accepted plan means no model-selected B/C business witness was executed.",
+    "Reference qualifications and static draft review do not substitute for an executed model-selected plan.",
+    "These two followup cases differ from the initial cases and do not establish a before/after accuracy comparison.",
+    "No Runtime business dispatch, current-candidate coverage, Final or release authorization.",
+    "All four evaluated cases are now regression-only if reused for tuning; fresh isolated changes are required."
+  ],
+  "next_requirement": "Improve requirement selection, concrete input/control construction and response to actionable draft feedback; keep execution disabled until independent new-sample plans are effective."
+}

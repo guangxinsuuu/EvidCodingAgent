@@ -1,4 +1,4 @@
-import { reviewPrompt, reviewProposalError, reviewPlanBasis } from "./review-profile.js";
+import { reviewPrompt, reviewProposalError, reviewPlanBasis, reviewObservationBasis } from "./review-profile.js";
 import { assessReviewBasis, compilePlanDraft } from "./review-planning.js";
 import { buildEvidenceResponse, evidenceProposalError, evidenceProfilePrompt, evidenceShapeHint } from "./evidence-profile.js";
 import { randomUUID, timingSafeEqual } from "node:crypto";
@@ -55,13 +55,15 @@ export class Runtime {
     const bounds = { model_calls: 12, reads: 8, no_progress: 3 };
     for (const key of ["model_calls", "reads", "no_progress"] as const)
       requireThat(Number.isInteger(limits[key]) && limits[key] >= 1 && limits[key] <= bounds[key], "INVALID_BUDGET", 400);
-    const repairs = bundle.task_mode === "EVIDENCE_REVIEW" ? 0 : limits.plan_repairs ?? Math.min(1, limits.model_calls - 1);
-    requireThat(Number.isInteger(repairs) && repairs >= 0 && repairs <= 2 && repairs < limits.model_calls, "INVALID_BUDGET", 400);
+    const reviewMode = bundle.task_mode === "RELEASE_VERIFICATION" && bundle.schema_version === 2;
+    const closeReserve = reviewMode ? 1 : 0;
+    const repairs = bundle.task_mode === "EVIDENCE_REVIEW" ? 0 : limits.plan_repairs ?? Math.min(1, limits.model_calls - 1 - closeReserve);
+    requireThat(Number.isInteger(repairs) && repairs >= 0 && repairs <= 2 && repairs < limits.model_calls - closeReserve, "INVALID_BUDGET", 400);
     limits = { ...limits, plan_repairs: repairs };
     const state: RunState = { run_id: id, status: "ACTIVE", candidate_epoch: 1, decision_basis_revision: 1,
       event_seq: 0, config_digest: this.configDigest, limits, model_calls_used: 0, reads_used: 0,
       no_progress: 0, hypotheses: [], read_receipts: [], latest_feedback: null, stop_reason: null, identities: this.identities };
-    if (bundle.task_mode === "RELEASE_VERIFICATION" && bundle.schema_version === 2) state.review_cycle = { directions: [] };
+    if (bundle.task_mode === "RELEASE_VERIFICATION" && bundle.schema_version === 2) state.review_cycle = { directions: [], decisions_completed: 0, closure_calls_used: 0 };
     await this.store.transaction(async c => {
       if (bundle.task_mode === "RELEASE_VERIFICATION" && bundle.review_request) {
         const request = bundle.review_request;
@@ -119,7 +121,8 @@ export class Runtime {
         budgets: { model_calls: { limit: state.limits.model_calls, used: state.model_calls_used }, reads: { limit: state.limits.reads, used: state.reads_used },
           accounting_basis: "ADMITTED_RESERVATIONS_NOT_CONFIRMED_PROVIDER_COST",
           check_repair: { reserved_within_total: state.limits.plan_repairs ?? 0, used: state.review_repair?.attempts_used ?? state.check_repair?.attempts_used ?? 0 },
-          profile: bundle.task_mode === "EVIDENCE_REVIEW" ? "EVIDENCE_REVIEW" : "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls - (state.limits.plan_repairs ?? 0),
+          profile: bundle.task_mode === "EVIDENCE_REVIEW" ? "EVIDENCE_REVIEW" : "READ_ONLY_DISCOVERY", pools: { CODING: 0, DISCOVERY: state.limits.model_calls - (state.limits.plan_repairs ?? 0) - (state.review_cycle ? 1 : 0),
+            REVIEW_CLOSE: { limit: state.review_cycle ? 1 : 0, reserved: state.review_close_calls_reserved ?? 0 },
             CHECK_REPAIR: state.limits.plan_repairs ?? 0, FINAL: 0, RECONCILIATION: "LOCAL_STATE_ONLY", CLEANUP: "NO_SUT_RESOURCES" } },
         model_calls: calls.rows.map(call => ({ model_call_id: call.id, status: call.status, basis: call.basis, applied: call.applied })),
         operations: ops.rows.map(op => ({ operation_id: op.id, status: op.status, action_kind: op.proposal.action_kind, result: op.result })),
@@ -160,8 +163,14 @@ export class Runtime {
       // 一次修正机会按模型调用计，故无效 JSON 或继续 READ 也不能无限延长修正。
       const repairRecord = s.review_repair ?? s.check_repair;
       const pendingRepair = repairRecord?.status === "PENDING" ? repairRecord : undefined;
-      const discoveryLimit = s.limits.model_calls - (s.limits.plan_repairs ?? 0);
-      const exhausted = pendingRepair ? pendingRepair.attempts_used >= pendingRepair.attempts_limit : (s.model_calls_used - (row.bundle.task_mode === "RELEASE_VERIFICATION" && row.bundle.schema_version === 2 ? s.review_repair?.attempts_used ?? 0 : 0)) >= discoveryLimit;
+      const reviewMode = row.bundle.task_mode === "RELEASE_VERIFICATION" && row.bundle.schema_version === 2;
+      const discoveryLimit = s.limits.model_calls - (s.limits.plan_repairs ?? 0) - (reviewMode ? 1 : 0);
+      const discoveryUsed = s.model_calls_used - (reviewMode ? (s.review_repair?.attempts_used ?? 0) + (s.review_close_calls_reserved ?? 0) : 0);
+      // 接受池只在探索用完且已有当前依据的绑定计划时开启；不让探索/修正挪用。
+      const closing = reviewMode && !pendingRepair && discoveryUsed >= discoveryLimit &&
+        (s.review_close_calls_reserved ?? 0) === 0 && s.review_cycle?.draft?.status === "BOUND_PLAN" &&
+        s.review_cycle.draft.basis_digest === reviewPlanBasis(row.bundle as ReleaseBundle, s);
+      const exhausted = pendingRepair ? pendingRepair.attempts_used >= pendingRepair.attempts_limit : discoveryUsed >= discoveryLimit && !closing;
       if (exhausted) {
         s.status = "STOPPED"; s.stop_reason = pendingRepair ? "CHECK_REPAIR_LIMIT" : "DISCOVERY_BUDGET_EXHAUSTED";
         if (pendingRepair) pendingRepair.status = "EXHAUSTED";
@@ -169,6 +178,7 @@ export class Runtime {
         return null;
       }
       if (pendingRepair) pendingRepair.attempts_used += 1;
+      if (closing) s.review_close_calls_reserved = (s.review_close_calls_reserved ?? 0) + 1;
       s.model_calls_used += 1;
       const callId = randomUUID(); const ref = contextRef(row.bundle, s);
       const request = { model: this.config.model.name, stream: false, format: modelBodySchema(row.bundle, s),
@@ -177,9 +187,10 @@ export class Runtime {
           { role: "system", content: (row.bundle.task_mode === "EVIDENCE_REVIEW" ? evidenceProfilePrompt + "\n" + evidenceShapeHint() : row.bundle.schema_version === 2 ? reviewPrompt : this.config.plannerPrompt + "\n" + modelShapeHint()) },
           { role: "user", content: JSON.stringify({ context_view: contextView(row.bundle, s),
             execution_limits: { model_calls_remaining_after_this: s.limits.model_calls - s.model_calls_used,
-              discovery_calls_remaining_after_this: pendingRepair ? 0 : Math.max(0, discoveryLimit - s.model_calls_used + (row.bundle.task_mode === "RELEASE_VERIFICATION" && row.bundle.schema_version === 2 ? s.review_repair?.attempts_used ?? 0 : 0)),
+              discovery_calls_remaining_after_this: pendingRepair || closing ? 0 : Math.max(0, discoveryLimit - discoveryUsed - 1),
+              review_close_calls_remaining_after_this: reviewMode ? 1 - (s.review_close_calls_reserved ?? 0) : 0,
               repair_calls_remaining_after_this: pendingRepair ? pendingRepair.attempts_limit - pendingRepair.attempts_used : Math.max(0, (s.limits.plan_repairs ?? 0) - (repairRecord?.attempts_used ?? 0)),
-              decision_phase: pendingRepair ? "CHECK_REPAIR" : "DISCOVERY",
+              decision_phase: pendingRepair ? "CHECK_REPAIR" : closing ? "REVIEW_CLOSE" : "DISCOVERY",
               reads_remaining: s.limits.reads - s.reads_used },
             model_identity: { name: this.config.model.name, digest: this.config.model.digest } }) },
         ] };
@@ -189,6 +200,7 @@ export class Runtime {
         // 尚未创建/派发调用，所以撤销本次预增记账，持久化阻塞和实际字节数。
         s.model_calls_used -= 1;
         if (pendingRepair) pendingRepair.attempts_used -= 1;
+        if (closing) s.review_close_calls_reserved! -= 1;
         s.status = "BLOCKED"; s.stop_reason = "CONTEXT_TOO_LARGE";
         await this.store.event(c, s, "MODEL_CONTEXT_REJECTED", { reason: s.stop_reason, request_bytes: Buffer.byteLength(requestText) });
         await this.store.save(c, s); return null;
@@ -198,7 +210,7 @@ export class Runtime {
       const result = await c.query<CallRow>("INSERT INTO verify_runtime.calls(id,run_id,command_id,basis,status,context_ref,request,request_text) VALUES($1,$2,$3,$4,'RESERVED',$5,$6,$7) RETURNING *",
         [callId, id, command.command_id, s.decision_basis_revision, ref, request, requestText]);
       await c.query("INSERT INTO verify_runtime.outbox(id,run_id,kind,status) VALUES($1,$2,'MODEL','PENDING')", [callId, id]);
-      await this.store.event(c, s, "MODEL_RESERVED", { model_call_id: callId, budget_pool: pendingRepair ? "CHECK_REPAIR" : "DISCOVERY", config_digest: this.configDigest,
+      await this.store.event(c, s, "MODEL_RESERVED", { model_call_id: callId, budget_pool: pendingRepair ? "CHECK_REPAIR" : closing ? "REVIEW_CLOSE" : "DISCOVERY", config_digest: this.configDigest,
         repair_root_proposal_id: pendingRepair?.root_proposal_id ?? null, repair_attempt: pendingRepair?.attempts_used ?? null,
         request_bytes_sha256: sha(requestText) });
       await this.store.save(c, s); return result.rows[0]!;
@@ -295,6 +307,13 @@ export class Runtime {
   private feedback(state: RunState, result: Json, progress: boolean): void {
     state.latest_feedback = result; state.decision_basis_revision += 1;
     state.no_progress = progress ? 0 : state.no_progress + 1;
+    if (state.review_cycle) {
+      state.review_cycle.decisions_completed = (state.review_cycle.decisions_completed ?? 0) + 1;
+      state.review_cycle.closure_calls_used = state.review_close_calls_reserved ?? 0;
+      if ((state.review_close_calls_reserved ?? 0) > 0 && state.status === "ACTIVE") {
+        state.status = "STOPPED"; state.stop_reason = "REVIEW_CLOSE_EXHAUSTED";
+      }
+    }
     const repair = state.review_repair ?? state.check_repair;
     // 第一次质量拒绝不被通用 no_progress 抢先终止；给出明确、有界的修正权利。
     // 最后一次机会被 READ/无效响应用完时也结束，不能重置计数再申请模型调用。
@@ -417,7 +436,7 @@ export class Runtime {
         const cycle = s.review_cycle!;
         // 有新依据/实质假设变化才算进展；重复解释不会无限刷新 no_progress。
         reviewProgress = p.hypothesis_updates.some(h => digest(s.hypotheses.find(old => old.id === h.id) ?? null) !== digest(h));
-        cycle.directions = [...cycle.directions, { proposal_id: p.proposal_id, focus: p.payload.focus, evidence_refs: p.evidence_refs }].slice(-8);
+        cycle.directions = [...cycle.directions, { proposal_id: p.proposal_id, focus: p.payload.focus, evidence_refs: p.evidence_refs, observation_basis_digest: reviewObservationBasis(row.bundle, s) }].slice(-8);
         result = { status: "DIRECTION_UPDATED", focus: p.payload.focus, hypothesis_status: "PROPOSED_NOT_VERIFIED",
           review_basis: assessReviewBasis(row.bundle), business_executed: false };
       }
