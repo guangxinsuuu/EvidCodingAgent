@@ -176,6 +176,7 @@ def main() -> int:
     parser.add_argument("--image")
     parser.add_argument("--operation")
     parser.add_argument("--deployment")
+    parser.add_argument("--reference-reader-config", type=Path)
     args = parser.parse_args()
     if args.action == "setup":
         uv = ROOT / "tmp/genai-tooling/bin/uv"
@@ -205,10 +206,13 @@ def main() -> int:
         elif args.action == "smoke":
             if not args.product_repo or not PYTHON.is_file():
                 raise MaterialError("PRODUCT_REPO_AND_HOST_SETUP_REQUIRED")
+            if not args.reference_reader_config:
+                raise MaterialError("INDEPENDENT_ACCEPTANCE_READER_REQUIRED")
             output = ROOT / "artifacts/product-boundary" / ("run-" + uuid4().hex)
             environment = {key:value for key,value in os.environ.items() if key in SYSTEM_ENV}
             os.execve(PYTHON, [str(PYTHON), str(Path(__file__).with_name("observe_product.py")), "--deployment", str(directory),
-                "--product-repo", str(args.product_repo.resolve()), "--output", str(output)], environment)
+                "--product-repo", str(args.product_repo.resolve()), "--output", str(output),
+                "--reference-reader-config", str(args.reference_reader_config.resolve())], environment)
         else:
             # down 保留专有卷；删除业务数据必须是另一个明确操作，不能由清理默认触发。
             deployment.inspect(directory)

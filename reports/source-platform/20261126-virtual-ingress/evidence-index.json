@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "qualification": "LOCAL_SIMULATED_SOURCE_INTEGRATION_NOT_RELEASE_APPROVAL",
+  "evidence": [
+    {
+      "path": "artifacts/source-platform/evid-sources-6b1f4995a5dc/deployment-receipt.json",
+      "sha256": "f468f353066a49dad999511235d750eed864b46c4baf5e973b0ce8e1a2e1a73b"
+    },
+    {
+      "path": "artifacts/source-platform/evid-sources-6b1f4995a5dc/boundary-verification.json",
+      "sha256": "77f9d261dadc4cceabea0be29db0c692781f5511b4b5fa25d8c8bc4ba7e2032a"
+    },
+    {
+      "path": "artifacts/source-platform/evid-sources-6b1f4995a5dc/publications.json",
+      "sha256": "6f5a956a17469b0e4d73f918da651a9a121b2fb4876a11755590d00f0461941d"
+    },
+    {
+      "path": "artifacts/source-platform/evid-sources-6b1f4995a5dc/runtime-ingress-verification.json",
+      "sha256": "39496b50e11064d625741837762bdac76b6717ffd4c267c715cea9b61e1ddac3"
+    },
+    {
+      "path": "artifacts/source-platform/evid-sources-6b1f4995a5dc/release-bundle.json",
+      "sha256": "4ced959e72391c52ba83d7388317bd4e9c198744b621289bbf82dfe9aab3b35e"
+    },
+    {
+      "path": "artifacts/source-platform/evid-sources-6b1f4995a5dc/runtime-tests-final.private.log",
+      "sha256": "d42d644d7c99beb232fcd4ffdd94233ff626c58772d578de57f20829fba83d95"
+    },
+    {
+      "path": "artifacts/product-boundary/run-0aef974cb76e419d874ee789e169bd13/run.json",
+      "sha256": "9bffecbf9645216e91d213662c6a22f665d781c3f5eab8ee7a1f75ef506fa661"
+    }
+  ]
+}

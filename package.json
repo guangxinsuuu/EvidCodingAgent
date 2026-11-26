@@ -53,7 +53,12 @@
     "support:down:legacy": "services/genai-support-sut/.venv/bin/python tools/support-lab.py down",
     "test:support:live:legacy": "services/genai-support-sut/.venv/bin/python tools/support-lab.py test",
     "support:build": "python3 tools/product-boundary/product.py build",
-    "review:assemble": "tools/registry/.venv/bin/python -m tools.registry.release_assembler"
+    "review:assemble": "tools/registry/.venv/bin/python -m tools.registry.release_assembler",
+    "sources:up": "python3 tools/source-platform/host.py up",
+    "sources:publish": "python3 tools/source-platform/host.py publish",
+    "sources:verify": "python3 tools/source-platform/host.py verify",
+    "review:assemble:sources": "tools/registry/.venv/bin/python tools/source-platform/assemble.py",
+    "test:sources": "tools/registry/.venv/bin/python -m unittest discover -s tools/source-platform -p test_*.py -q"
   },
   "devDependencies": {
     "@types/node": "25.9.9",

@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import threading
 import time
 from uuid import uuid4
@@ -24,7 +25,22 @@ import psycopg
 from psycopg.rows import dict_row
 
 ROOT = Path(__file__).resolve().parents[2]
-REFERENCE = ROOT / "datasets/genai-support/verification/synthetic-v1.json"
+sys.path.insert(0, str(ROOT / "tools/source-platform"))
+from client import SourceClient, SourceClientError
+
+
+def load_reference(config: Path) -> tuple[dict, dict]:
+    """验收者通过独立 QA 身份读固定答案；来源不可用时停止，不回退内置副本。"""
+    client = SourceClient.from_file(config)
+    if client.config["principal_id"] != "lab:oracle-reader":
+        raise SourceClientError("ORACLE_READER_REQUIRED")
+    pin = json.loads((ROOT / "config/acceptance-assets.v1.json").read_text())
+    source = client.read(pin["namespace"], pin["object_id"], pin["version"], expected_sha256=pin["content_sha256"])
+    if source["publisher_id"] != pin["publisher_id"] or source["metadata"]["source"] != pin["source"] \
+            or source["metadata"]["profile"] != pin["profile"]:
+        raise SourceClientError("ACCEPTANCE_PUBLICATION_MISMATCH")
+    return json.loads(source["content"]), {k: source[k] for k in ("instance_id", "namespace", "object_id", "version",
+        "publication_id", "publisher_id", "content_sha256", "metadata", "observed_at", "acl_decision")}
 
 
 def digest(value: object) -> str:
@@ -143,7 +159,7 @@ def request(port: int, path: str, token: str | None = None, body: dict | None = 
         conn.close()
 
 
-def run(directory: Path, product_repo: Path, output: Path) -> dict:
+def run(directory: Path, product_repo: Path, output: Path, reference_config: Path) -> dict:
     """受信操作员触发；公开九例逐个一次提交，原始观察只落私有 artifacts。"""
     if output.exists():
         raise ValueError("NEW_RUN_DIRECTORY_REQUIRED")
@@ -153,9 +169,9 @@ def run(directory: Path, product_repo: Path, output: Path) -> dict:
     observer = json.loads((directory / "observer.private.json").read_text())
     if any(item["deployment_id"] != binding["deployment_id"] for item in (caller, observer)):
         raise ValueError("CREDENTIAL_SCOPE_MISMATCH")
-    reference = json.loads(REFERENCE.read_text())
+    reference, reference_source = load_reference(reference_config)
     report = {"schema_version": 1, "run_id": uuid4().hex, "binding": binding, "started_at": datetime.now(timezone.utc).isoformat(),
-        "reference_sha256": hashlib.sha256(REFERENCE.read_bytes()).hexdigest(),
+        "reference_sha256": reference_source["content_sha256"], "reference_source": reference_source,
         "scope": "PUBLIC_NINE_CASE_SCRIPTED_CALIBRATION", "final_qualification": False, "cases": [], "status": "STARTED"}
     save(output / "run.json", report)
     api_port = receipt["endpoints"]["api"]["port"]
@@ -179,6 +195,8 @@ def run(directory: Path, product_repo: Path, output: Path) -> dict:
             conn.rollback()
             raise ValueError("OBSERVER_WRITE_PRIVILEGE_VIOLATION")
     for case in reference["cases"]:
+        # 每个执行单元重新检查授权；同一答案的旧缓存不能跳过当前来源权限。
+        load_reference(reference_config)
         token = caller["api_token_a" if case["tenant_id"] == "tenant-a" else "api_token_b"]
         row = {"case_id": case["case_id"], "state": "SUBMITTING"}
         report["cases"].append(row)
@@ -230,6 +248,7 @@ def run(directory: Path, product_repo: Path, output: Path) -> dict:
         save(output / "run.json", report)
     if bind_deployment(receipt, product_repo) != binding:
         raise ValueError("DEPLOYMENT_CHANGED_DURING_OBSERVATION")
+    load_reference(reference_config)
     report["status"] = "CALIBRATION_MATCHED" if all(c["reference_matched"] and c["cross_tenant_read_denied"] for c in report["cases"]) else "CALIBRATION_MISMATCH"
     report["finished_at"] = datetime.now(timezone.utc).isoformat()
     save(output / "run.json", report)
@@ -241,9 +260,10 @@ if __name__ == "__main__":
     parser.add_argument("--deployment", type=Path, required=True)
     parser.add_argument("--product-repo", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--reference-reader-config", type=Path, required=True)
     args = parser.parse_args()
     try:
-        report = run(args.deployment, args.product_repo, args.output)
+        report = run(args.deployment, args.product_repo, args.output, args.reference_reader_config)
         print(json.dumps({"status": report["status"], "cases": len(report["cases"]), "run_id": report["run_id"],
                           "sut_commit": report["binding"]["sut_commit"], "final_qualification": False}))
     except Exception as error:

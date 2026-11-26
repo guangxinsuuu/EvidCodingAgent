@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { validateProductBinding, type ProductBinding } from "./product-authority.js";
+import { validateSourceBindings, type SourceBinding, type SimulatedSourceReader } from "./source-authority.js";
 import { parseReviewRequest, type ReviewRequest, type ReviewDecisionProposal,
   type DecisionProposal, type HypothesisUpdate, type EvidenceReviewInput, type EvidenceDecisionProposal } from "@egap/contracts";
 
@@ -9,6 +10,7 @@ export interface Material {
   path: string; sha256: string; content: string;
   /** 独立产品的真实仓库/路径；path 保留历史能力合同使用的逻辑命名空间。 */
   repository_id?: string; source_path?: string;
+  external_source_ref?: string; source_byte_start?: number; source_byte_end?: number;
 }
 export interface ReleaseBundle {
   schema_version: 1 | 2; task_mode: "RELEASE_VERIFICATION"; scope: "LOCAL_SYNTHETIC_PLANNING";
@@ -20,6 +22,7 @@ export interface ReleaseBundle {
   /** v2 的任务依据由可信装配器冻结；不是模型可编辑的审批或执行授权。 */
   review_request?: ReviewRequest;
   product_binding?: ProductBinding;
+  external_sources?: SourceBinding[];
 }
 export type RuntimeBundle = ReleaseBundle | EvidenceReviewInput;
 export type RuntimeProposal = DecisionProposal | EvidenceDecisionProposal | ReviewDecisionProposal;
@@ -32,6 +35,7 @@ export interface RuntimeConfig {
   model: { endpoint: string; name: string; digest: string; timeoutMs: number; maxOutputTokens: number; seed?: number };
   plannerPrompt: string;
   evidenceReadPort?: EvidenceReadPort;
+  sourceReader?: SimulatedSourceReader;
   /** Workbench 撤回/租约 fence 检查；在数据库事务外调用，失败不释放已预留额度。 */
   assertEvidenceDispatchAllowed?: (runId: string) => Promise<void>;
 }
@@ -109,6 +113,7 @@ export function validateBundle(value: unknown): ReleaseBundle {
       "REVIEW_REQUIREMENT_SCOPE_MISMATCH", 400);
   } else requireThat(b.review_request === undefined, "LEGACY_REVIEW_REQUEST_NOT_SUPPORTED", 400);
   validateProductBinding(b);
+  validateSourceBindings(b);
   requireThat(Buffer.byteLength(canonical(b)) <= 1_500_000, "BUNDLE_TOO_LARGE", 400);
   const refs = new Set<string>();
   for (const m of b.materials) {

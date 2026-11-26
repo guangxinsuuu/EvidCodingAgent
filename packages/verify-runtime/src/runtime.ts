@@ -34,7 +34,7 @@ export class Runtime {
     verifyCapabilitySource();
     requireThat(config.model.seed === undefined || Number.isSafeInteger(config.model.seed) && config.model.seed >= 0 && config.model.seed <= 2147483647, "INVALID_MODEL_SEED", 400);
     this.store = new Store(config.databaseUrl);
-    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "product-authority.js", "check-quality.js", "check-binding.js", "capability-authority.js",
+    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "product-authority.js", "source-authority.js", "check-quality.js", "check-binding.js", "capability-authority.js",
       "evidence-profile.js", "review-profile.js", "review-planning.js", "../../contracts/dist/review-request.js", "../../contracts/dist/review-decision.js", "../../contracts/dist/evidence-review.js", "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
     this.identities = { runtime_build_sha256: digest(modules), module_sha256: modules,
       planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema), evidence_action_schema_sha256: digest(evidenceDecisionProposalSchema),
@@ -43,6 +43,8 @@ export class Runtime {
       evidence_dispatch_fence: Boolean(config.assertEvidenceDispatchAllowed),
       capability_contract_sha256: capabilityContractDigest,
       product_registry_sha256: sha(readFileSync(new URL("../../../config/external-products.v1.json", import.meta.url), "utf8")),
+      source_registry_sha256: sha(readFileSync(new URL("../../../config/source-publications.v1.json", import.meta.url), "utf8")),
+      source_reader: config.sourceReader?.identity ?? null,
       model_name: config.model.name, model_manifest_digest: config.model.digest };
     this.configDigest = digest({ identities: this.identities, model: config.model, prompt: config.plannerPrompt, schema: modelBodySchema(),
       wire_encoding: "PERSISTED_JSON_TEXT_V1_ACTION_BEFORE_PAYLOAD" });
@@ -52,6 +54,7 @@ export class Runtime {
   async acceptRun(input: unknown, token: string, limits: Limits = { model_calls: 6, reads: 4, no_progress: 2 }, id: string = randomUUID()): Promise<string> {
     const bundle = (input as {task_mode?:string})?.task_mode === "EVIDENCE_REVIEW" ? parseEvidenceReviewInput(input) : validateBundle(input);
     if (bundle.task_mode === "RELEASE_VERIFICATION") validatePlanningAuthority(bundle.planning_contracts);
+    await this.authorizeSources(bundle);
     requireThat(/^[0-9a-f-]{36}$/.test(id) && token.length >= 32, "INVALID_RUN_IDENTITY", 400);
     const bounds = { model_calls: 12, reads: 8, no_progress: 3 };
     for (const key of ["model_calls", "reads", "no_progress"] as const)
@@ -100,8 +103,23 @@ export class Runtime {
     requireThat(row.state.config_digest === this.configDigest, "CONFIG_DRIFT");
   }
   private nextCommand(state: RunState): string { return `decision:${state.decision_basis_revision}:${state.model_calls_used}`; }
+  /** 上游原件的使用权限独立于 Run token；历史缓存、已读回执和模型上下文均不能绕过撤权。
+   * 网络在事务外执行。授权与远端撤销不是分布式原子操作，按调用边界前后复核；
+   * 不能撤回已经发送的字节，且本地管理员仍是信任根。
+   */
+  private async authorizeSources(bundle: RunRow["bundle"]): Promise<Json[]> {
+    if (bundle.task_mode !== "RELEASE_VERIFICATION" || !bundle.external_sources) return [];
+    requireThat(this.config.sourceReader, "SOURCE_READER_REQUIRED", 403);
+    return this.config.sourceReader.authorize(bundle);
+  }
+  private async sourceAccess(id: string): Promise<Json[]> {
+    const row = (await this.store.pool.query<{bundle:RunRow["bundle"]}>("SELECT bundle FROM verify_runtime.runs WHERE id=$1", [id])).rows[0];
+    requireThat(row, "RUN_NOT_FOUND", 404);
+    return this.authorizeSources(row.bundle);
+  }
   /** UNKNOWN 无自动补发。只恢复还未派发的 READ；GET 查询不产生新模型调用。 */
   async projection(id: string, options: { dispatchReads?: boolean } = {}): Promise<Json> {
+    await this.sourceAccess(id);
     await this.reconcile(id);
     if (options.dispatchReads !== false) await this.drainReads(id);
     return this.store.transaction(async c => {
@@ -118,6 +136,7 @@ export class Runtime {
         task_identity: bundle.task_mode === "EVIDENCE_REVIEW" ? { task_mode: bundle.task_mode, scope: bundle.scope, candidate_sha: bundle.candidate_sha, historical_run_id: bundle.historical_run_id, request_id: bundle.request_id, request_spec_revision: bundle.request_spec_revision } : { baseline_sha: bundle.baseline_sha, candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit,
           scope: bundle.scope, input_provenance: bundle.input_provenance,
           ...(bundle.product_binding ? { product_binding: bundle.product_binding } : {}),
+          ...(bundle.external_sources ? { external_sources: bundle.external_sources } : {}),
           ...(bundle.review_request ? { request_id: bundle.review_request.request_id, request_revision: bundle.review_request.revision,
             review_request_sha256: digest(bundle.review_request), predecessor_run_id: bundle.review_request.predecessor_run_id } : {}) },
         budgets: { model_calls: { limit: state.limits.model_calls, used: state.model_calls_used }, reads: { limit: state.limits.reads, used: state.reads_used },
@@ -142,6 +161,8 @@ export class Runtime {
    * 崩溃在发送前但 DISPATCHED 已登记也会保守 UNKNOWN；不声称 exactly-once。
    */
   async decide(id: string, command: { command_id: string; based_on_decision_revision: number }): Promise<Json> {
+    // 先授权再预留：来源故障不能消耗一次本可避免的模型预算。
+    await this.sourceAccess(id);
     requireThat(typeof command.command_id === "string" && command.command_id.length <= 120 && Number.isSafeInteger(command.based_on_decision_revision), "INVALID_DECISION_COMMAND", 400);
     await this.reconcile(id);
     await this.drainReads(id);
@@ -242,10 +263,18 @@ export class Runtime {
     }
     let raw: string;
     try {
+      await this.sourceAccess(id);
       requireThat(registered.request_text !== null, "MODEL_REQUEST_BYTES_UNAVAILABLE");
       raw = await invokeLocalModel(this.config.model, registered.request_text);
     }
     catch { await this.markUnknown(id, registered.id, "MODEL_EXECUTION_UNCERTAIN"); return this.getCall(registered.id); }
+    try { await this.sourceAccess(id); }
+    catch {
+      // 已返回的原提案仍保留审计，不暴露给已撤权调用者、不应用到状态、不返还预算。
+      await this.store.pool.query("UPDATE verify_runtime.calls SET raw_response=$2 WHERE id=$1", [registered.id, raw]);
+      await this.markUnknown(id, registered.id, "SOURCE_ACCESS_LOST_AFTER_MODEL");
+      throw new RuntimeError("SOURCE_ACCESS_UNAVAILABLE", 503);
+    }
     if (!(await this.evidenceAuthorizationValid(id))) {
       await this.cancelEvidenceDispatch(id, registered.id, raw); return this.getCall(registered.id);
     }
@@ -384,6 +413,7 @@ export class Runtime {
   }
   /** 模型提案、假设更新、预算与 READ outbox 原子登记；假设只能保留为模型判断。 */
   async submit(id: string, input: unknown): Promise<Json> {
+    await this.sourceAccess(id);
     const version = (input as {schema_version?:number})?.schema_version;
     const p: RuntimeProposal = version === 2 ? parseEvidenceDecisionProposal(input) : version === 3 ? parseReviewDecisionProposal(input) : parseDecisionProposal(input);
     const admitted = await this.store.transaction(async c => {
@@ -565,6 +595,7 @@ export class Runtime {
       let status = "COMPLETED";
       let result: Json;
       try {
+        const sourceAuthorization = await this.authorizeSources(bundle);
         requireThat(await this.evidenceAuthorizationValid(id), "EVIDENCE_AUTHORIZATION_REVOKED");
         const content = m.content.split("\n").slice(p.payload.start_line - 1, p.payload.end_line).join("\n");
         requireThat(Buffer.byteLength(content) <= 16_384, "FRAGMENT_TOO_LARGE");
@@ -581,9 +612,10 @@ export class Runtime {
             receipt.end_line === p.payload.end_line && receipt.content === content && receipt.segment_sha256 === sha(content), "MCP_READ_BINDING_INVALID");
         }
         result = {status,receipt_ref:"read:"+op.id,material_ref:m.material_ref,candidate_epoch:epoch,
+          ...(sourceAuthorization.length ? { source_authorization: sourceAuthorization } : {}),
           source_sha256:m.sha256,fragment_sha256:sha(content),start_line:p.payload.start_line,end_line:p.payload.end_line,content,
           evidence_kind:bundle.task_mode === "EVIDENCE_REVIEW" ? "PINNED_ARCHIVED_EVIDENCE" : "PINNED_MATERIAL_EXCERPT",
-          transport:bundle.task_mode === "EVIDENCE_REVIEW" && this.config.evidenceReadPort ? "MCP_ARCHIVE" : "PINNED_MEMORY",
+          transport:bundle.task_mode === "EVIDENCE_REVIEW" && this.config.evidenceReadPort ? "MCP_ARCHIVE" : sourceAuthorization.length ? "SOURCE_HTTP_REAUTHORIZED_SNAPSHOT" : "PINNED_MEMORY",
           ...( "provenance" in m ? {provenance:m.provenance} : {git_commit:m.git_commit}),proves_current_business_behavior:false};
         if (!(await this.evidenceAuthorizationValid(id))) {
           status="CANCELLED";result={status,error_code:"EVIDENCE_AUTHORIZATION_REVOKED",discarded_receipt:result};
@@ -610,6 +642,7 @@ export class Runtime {
     }
   }
   async operation(runId: string, id: string): Promise<Json> {
+    await this.sourceAccess(runId);
     const op = (await this.store.pool.query<OperationRow>("SELECT * FROM verify_runtime.operations WHERE run_id=$1 AND id=$2", [runId, id])).rows[0];
     requireThat(op, "OPERATION_NOT_FOUND", 404);
     return { operation_id: op.id, status: op.status, result: op.result };
@@ -620,7 +653,13 @@ export class Runtime {
       if (state.status === "ACTIVE") { state.status = "CANCELLED"; state.stop_reason = "OPERATOR_CANCELLED"; state.decision_basis_revision += 1;
         await this.store.event(c, state, "RUN_CANCELLED", {}); await this.store.save(c, state); }
     });
-    return this.projection(id);
+    try { return await this.projection(id); }
+    catch (error) {
+      // 撤权禁止再取原件，但不能阻止停止任务。返回最小停止状态，不回送历史正文。
+      if (!(error instanceof RuntimeError) || !error.code.startsWith("SOURCE_")) throw error;
+      const row = (await this.store.pool.query<{state:RunState}>("SELECT state FROM verify_runtime.runs WHERE id=$1", [id])).rows[0]!;
+      return { run_id: id, status: row.state.status, stop_reason: row.state.stop_reason, source_access: "UNAVAILABLE" };
+    }
   }
 }
 

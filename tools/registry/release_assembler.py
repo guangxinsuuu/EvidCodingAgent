@@ -129,14 +129,15 @@ def _changes(git: LocalGitReader, baseline: str, candidate: str) -> list[tuple[s
 
 
 def _catalog_projection(reader, requirement_refs: list[str], materials: list[dict], *,
-                        retain_missing_requirements: bool = False) -> dict:
+                        retain_missing_requirements: bool = False, published_rules: dict | None = None) -> dict:
     """只按白名单复制登记字段，不在完整资产上搜索后再删除几个已知泄漏字段。
 
     history、known_finding_codes、Oracle 预期、归因备注和路由提示不进入此投影。
     原目录保留完整审计内容；规划器只获得本任务可用的安全导航视图。
     """
     requirements = []
-    full = reader.resolver._read_verified_bytes(RULES_PATH)
+    # 外部入口必须使用刚通过来源 ACL 的原件；请求失败时不能降级到仓库内旧规则。
+    full = published_rules["content"].encode("utf-8") if published_rules else reader.resolver._read_verified_bytes(RULES_PATH)
     full_text = full.decode("utf-8")
     registered = {row["id"] for row in reader.assets("requirement")}
     for identifier in requirement_refs:
@@ -151,8 +152,16 @@ def _catalog_projection(reader, requirement_refs: list[str], materials: list[dic
         _require(match is not None, "RELEASE_REQUIREMENT_SECTION_MISSING")
         material_ref = "rule:" + identifier
         title = match.group().splitlines()[0].removeprefix("## ").strip()
-        materials.append(_material(material_ref, "REGISTERED_RULE_EXCERPT", title,
-                                   reader.catalog_basis_commit, RULES_PATH, match.group().encode("utf-8")))
+        source = published_rules["metadata"]["source"] if published_rules else None
+        material = _material(material_ref, "REGISTERED_RULE_EXCERPT", title,
+                             source["commit"] if source else reader.catalog_basis_commit,
+                             source["path"] if source else RULES_PATH, match.group().encode("utf-8"))
+        if published_rules:
+            material["external_source_ref"] = "rules:refund-rules"
+            # 字节偏移绑定片段到整份原件；运行时重新读取整份原件后复核同一窗口。
+            material["source_byte_start"] = len(full_text[:match.start()].encode("utf-8"))
+            material["source_byte_end"] = len(full_text[:match.end()].encode("utf-8"))
+        materials.append(material)
         requirements.append({"id": identifier, "title": title, "section": section, "source_ref": requirement["source_ref"],
                              "material_ref": material_ref, "review_status": requirement["review_status"]})
     capabilities = [{key: row[key] for key in ("id", "name", "kind", "requirement_refs", "dispatch_enabled")}
@@ -206,7 +215,8 @@ def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: s
                       requirement_refs: list[str] | None = None, *, candidate_root: Path | None = None,
                       catalog_commit: str = CATALOG_COMMIT,
                       input_provenance: str = "LOCAL_COMMITTED_RELEASE",
-                      retain_missing_requirements: bool = False, product_id: str | None = None) -> dict:
+                      retain_missing_requirements: bool = False, product_id: str | None = None,
+                      published_rules: dict | None = None) -> dict:
     """冻结 B/C、真实差异及可读材料，返回尚未运行或获准派发的发布任务。
 
     root 是可信目录所在仓库。旧 candidate_root 入口仍只接受隔离合成版本对；
@@ -237,7 +247,8 @@ def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: s
     _require(git._git("merge-base", baseline_sha, candidate_sha).strip().decode("ascii") == baseline_sha,
              "RELEASE_BASELINE_NOT_ANCESTOR")
     materials: list[dict] = []
-    catalog = _catalog_projection(reader, refs, materials, retain_missing_requirements=retain_missing_requirements)
+    catalog = _catalog_projection(reader, refs, materials, retain_missing_requirements=retain_missing_requirements,
+                                  published_rules=published_rules)
     planning_contracts = _planning_contract_overlay(catalog)
     changes, gaps = [], []
     raw_changes = _changes(git, baseline_sha, candidate_sha)
@@ -351,7 +362,8 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
 
 def assemble_review_request(root: Path, request: object, *, candidate_root: Path | None = None,
                             catalog_commit: str = CATALOG_COMMIT,
-                            input_provenance: str = "LOCAL_COMMITTED_RELEASE", product_id: str | None = None) -> dict:
+                            input_provenance: str = "LOCAL_COMMITTED_RELEASE", product_id: str | None = None,
+                            published_rules: dict | None = None) -> dict:
     """ReviewRequest v1 → ReleaseBundle v2，保留准确任务及所有材料缺项。
 
     格式、Git 对象、固定目录及材料字节分别校验。请求只能引用现有规则，不能
@@ -366,7 +378,7 @@ def assemble_review_request(root: Path, request: object, *, candidate_root: Path
     bundle = _assemble_release(root, value["baseline"]["commit"], value["candidate"]["commit"],
                                value["goal"], refs, candidate_root=candidate_root,
                                catalog_commit=catalog_commit, input_provenance=input_provenance,
-                               retain_missing_requirements=True, product_id=product_id)
+                               retain_missing_requirements=True, product_id=product_id, published_rules=published_rules)
     if product_id is not None:
         _require(all(value[side]["source_ref"] == bundle["product_binding"]["repository_url"]
                      for side in ("baseline", "candidate")), "REVIEW_PRODUCT_SOURCE_MISMATCH")

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "namespace": "acceptance",
+  "object_id": "support-synthetic-v1",
+  "version": "lab-v1-extracted",
+  "profile": "LEGACY_SYNTHETIC_FIXTURE_V1",
+  "content_sha256": "bf9349c31bca7e4361cfb428b3853b4edea2a6eee25e423931c6bf7ae0cfb2eb",
+  "publisher_id": "lab:qa-publisher",
+  "source": {
+    "repository_url": "https://github.com/guangxinsuuu/EvidAcceptanceAssets.git",
+    "commit": "9ad29c96d2f43426fe808a0fa86c7a2b483cd60e",
+    "path": "fixtures/support-synthetic-v1.json",
+    "blob": "beb0089fda5da721319febda6da0486b96967045"
+  }
+}
