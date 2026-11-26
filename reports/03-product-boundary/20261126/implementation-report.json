@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-26",
+  "title": "独立产品部署与外部观察首个切片",
+  "status": "VERIFIED_VERTICAL_SLICE_MIGRATION_IN_PROGRESS",
+  "product_repository": "https://github.com/guangxinsuuu/EvidSupportSUT",
+  "product_repository_visibility": "PRIVATE",
+  "product_repository_head": "ff94cc3",
+  "product_runtime_commit": "800fd247b6818d6951461b44a2b1e5605979d9da",
+  "product_image_id": "sha256:905f747a387a1703f086858c01a5239c5f8c2afbae26f82a08d50fe99da5f70b",
+  "egap_basis_commit": "3f62dea40d1971a5c20a1d22c0d24216dc9647e7",
+  "observer_source_sha256": "ace3da828ba922c1de2c2db731d8e1de3b3c6320ab833f7d0ea8f55f89a61b2e",
+  "extraction_source": {
+    "repository": "https://github.com/guangxinsuuu/EvidCodingAgent",
+    "prefix": "services/genai-support-sut",
+    "subtree_commit": "6845df38fbd16a392a57589c41226db0660961f3"
+  },
+  "confirmed": [
+    "独立 Git 仓库保留 SUT 子树历史；运行 fixture 在产品仓库内，独立预期不进入镜像。",
+    "镜像只从产品根构建，Python 基础镜像和依赖均固定摘要；容器不挂载 EGAP 工作区。",
+    "专有 Compose 工程提供 PostgreSQL、Redis、API、Relay、Worker 和 Gateway；业务处理复用原产品实现。",
+    "初始化管理员、产品调用者和只读观察者使用分离凭据；运行角色不拥有表，观察者数据库写入被实际拒绝。",
+    "EGAP 外部客户端不导入产品 Python，使用 HTTP 与只读 SQL 观察，SUT commit/image 和 EGAP commit 分别记录。",
+    "产品仓库已推送 main；未修改 docs 或 README。"
+  ],
+  "validation": {
+    "product_test_discovery": 171,
+    "product_tests_passed": 167,
+    "product_tests_skipped": 4,
+    "skipped_reason": "需要专用 Chatwoot/Lago 交付联调 PostgreSQL/Redis 配置；本轮独立部署尚未迁入该链路。",
+    "native_database_tests_enabled": true,
+    "test_process_exit_code": 0,
+    "public_calibration_cases_matched": 9,
+    "cross_tenant_reads_denied": 9,
+    "observer_write_denied": true,
+    "binding_rejections": [
+      {
+        "case": "wrong_candidate_commit",
+        "rejected": true,
+        "code": "IMAGE_COMMIT_MISMATCH"
+      },
+      {
+        "case": "wrong_published_endpoint",
+        "rejected": true,
+        "code": "DEPLOYMENT_ENDPOINT_MISMATCH"
+      },
+      {
+        "case": "egap_as_product",
+        "rejected": true,
+        "code": "PRODUCT_REPOSITORY_MUST_BE_SEPARATE"
+      },
+      {
+        "case": "mutable_image_reference",
+        "rejected": true,
+        "code": "INVALID_PRODUCT_IMAGE"
+      }
+    ],
+    "restart": {
+      "schema_version": 1,
+      "status": "MATCHED_AFTER_WORKER_RESTART",
+      "run_id": "0221774edac44b07aec634e881507e78",
+      "counts": {
+        "jobs": 9,
+        "events": 27,
+        "gateway_calls": 9,
+        "tool_events": 63
+      },
+      "read_only_reobservation": true,
+      "new_submissions": 0,
+      "qualification": "BOUNDED_RESTART_CHECK_NOT_CRASH_RECOVERY_PROOF"
+    },
+    "worker_mount_uid_check": "CONFIRMED_UID_10001_ONLY_OWN_CONFIG",
+    "cases": [
+      {
+        "case_id": "missing-usage-contract",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "complete-eligible",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "complete-usage-ineligible",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "new-policy-window-end",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "new-policy-after-window",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "old-policy-last-second",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "new-policy-first-second",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "window-start",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      },
+      {
+        "case_id": "tenant-b-same-ticket-id",
+        "reference_matched": true,
+        "native_events": [
+          "ACCEPTED",
+          "CLAIMED",
+          "DONE"
+        ],
+        "tool_events": 7
+      }
+    ]
+  },
+  "limits": [
+    "只完成独立产品的持久校准切片，尚未完成六步整体目标。",
+    "运行镜像对应 800fd24；ff94cc3 仅修正宿主部署工程的端口发布，运行镜像未被重新标记为新候选。",
+    "模式为 SCRIPTED_CALIBRATION，真实模型、Chatwoot/Lago/Keycloak 入口尚未迁入新容器拓扑。",
+    "旧 EGAP 内嵌源码与启动/装配入口仍保留，用于历史回放与待迁移路径；尚不能宣称已彻底去除单仓库耦合。",
+    "规则/独立验收资产仍在 EGAP，外部 Jira/规则服务尚未接通。",
+    "数据库权限与单容器挂载已验证，但同一宿主 Docker 管理员仍可管理全部容器；不是企业执行隔离证明。",
+    "观察账号限本实验数据库，现阶段可读两个合成租户；它不是已实现的企业对象级 ACL。",
+    "API/Relay/Worker 仍共享产品数据库 DML 角色，后续业务平台阶段需要继续细化角色权限。",
+    "九例为公开参考回归，不能计算未知缺陷发现率、通用准确率或赋予当前候选 Final。",
+    "尚未接入 Verify Graph；当前由独立操作员入口执行。"
+  ],
+  "next_in_order": [
+    "迁移产品主入口与版本材料装配，保持历史版本回放。",
+    "拆业务规则与独立验收资产及维护身份。",
+    "迁入现有业务平台的独立凭据/部署。",
+    "取得真实 Jira 与规则来源后实读版本材料。",
+    "拓展完整实验候选/对象/观测绑定。",
+    "扩展 provider contract 与 Project 1 handoff。"
+  ],
+  "evidence_refs": [
+    "artifacts/product-boundary/20261126-independent-product/run-01/run.json",
+    "artifacts/product-boundary/20261126-independent-product/run-01/restart-check.json",
+    "artifacts/product-boundary/20261126-independent-product/binding-rejections.json"
+  ]
+}
