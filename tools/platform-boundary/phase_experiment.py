@@ -225,9 +225,9 @@ def bind_candidate(args):
         "initial_counts":counts,"observer_write_denied":True,"business_final_qualification":False}
 
 
-def parser():
+def parser(*,actions=("prepare-native","prepare-source","bind-candidate")):
     result=argparse.ArgumentParser(description=__doc__)
-    result.add_argument("action",choices=("prepare-native","prepare-source","bind-candidate"))
+    result.add_argument("action",choices=actions)
     result.add_argument("--directory",type=Path,required=True)
     result.add_argument("--platform-repo",type=Path,required=True)
     result.add_argument("--platform-project",required=True)

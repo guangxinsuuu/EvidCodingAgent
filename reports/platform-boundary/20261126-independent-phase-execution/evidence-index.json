@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "experiment_id": "evidphase20261126a1",
+  "qualification": "KNOWN_FIXED_PLAN_EXECUTION_NOT_AGENT_AUTONOMY_OR_FINAL",
+  "private_snapshots": [
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/001-candidate-binding.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/candidate-binding.json",
+      "sha256": "d40989d24773b3d3e3aa16264fa4a8554b1a3f981150d59689c853f8c8b4477a",
+      "bytes": 15536,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/002-interruption.private.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/interruption.private.json",
+      "sha256": "ff2a4d37fc1f082bca7319191db238e0964f50d85f72798bf346a91a94730402",
+      "bytes": 210,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/003-after-interruption.private.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/after-interruption.private.json",
+      "sha256": "f2b5cec5ddcf9392be06231b06e54f259a20a3a54e62590cbd46e9a7e3f047ce",
+      "bytes": 580,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/004-before-replay.private.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/before-replay.private.json",
+      "sha256": "93050aae16c61713a5b50b948c911f620efd9d26c0e665287ac37c772ecfd140",
+      "bytes": 1512,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/005-execution-result.private.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/execution-result.private.json",
+      "sha256": "d4d818a044fcf72389174bc1356b7bf07db2a525940572fe14d09dbfc51e3844",
+      "bytes": 1047176,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/006-execution-replay-check.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/execution-replay-check.json",
+      "sha256": "847004201b1a925743651328b53e1b2720841a9d0ccff6f9a1ba0a49e5da54e6",
+      "bytes": 1597,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/007-execution-ledger-snapshot.private.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/execution-ledger-snapshot.private.json",
+      "sha256": "d8fc11cede8e0bf62d7d160008616ac778771811887de800a17b8171980dc43b",
+      "bytes": 2429830,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/008-source-preparation.private.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/source-preparation.private.json",
+      "sha256": "74f810a93258bb7d2ad5d3b41d55b7db7fef8a95a4f11a1b4cc2901b68cde908",
+      "bytes": 476472,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/009-seed-state.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/native/seed-state.json",
+      "sha256": "ab8b4be1bdc52fbd1a8214c8d28dfecea5cbe0c1fe5525183b0b092cbf56c34c",
+      "bytes": 48120,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/010-85567a6c7d354902b9e56b2975b854c8.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/execution-runs/85567a6c7d354902b9e56b2975b854c8.json",
+      "sha256": "092a68804fcf5afaaa3b526a607639b20c8fd49c2fff58d0c11f8dc87de73579",
+      "bytes": 1046553,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/execution-snapshot/011-d94d5aad56e543889deffc2dc55f6791.json",
+      "source_path": "artifacts/phase-experiments/evidphase20261126a1/execution-runs/d94d5aad56e543889deffc2dc55f6791.json",
+      "sha256": "d4d818a044fcf72389174bc1356b7bf07db2a525940572fe14d09dbfc51e3844",
+      "bytes": 1047176,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    }
+  ],
+  "ledger_evidence_reference_count": 112,
+  "all_ledger_evidence_verified": true,
+  "ledger_operations": 24,
+  "model_calls": 4,
+  "token_usage": 11695,
+  "structured_checks": 193,
+  "review_required_findings": 3
+}
