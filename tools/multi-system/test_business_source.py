@@ -59,6 +59,18 @@ class BusinessSourceSafetyTests(unittest.TestCase):
         self.pack.api.request.assert_not_called()
         self.assertEqual(self.pack.state["commands"], {})
 
+    def test_native_read_credentials_are_separate_from_native_writer_runtime(self):
+        readonly={"chatwoot":{"base_url":"http://127.0.0.1:58110","api_token":"observer-only","account_id":17},
+            "lago":{"base_url":"http://127.0.0.1:58110","api_key":"observer-only"}}
+        pack=BusinessPack(self.directory,read_runtime=readonly,
+            commercial_reader={"base_url":"http://127.0.0.1:58111","token":"source-observer"})
+        self.assertEqual(pack.runtime,self.runtime)
+        self.assertEqual(pack.lago.base_url,"http://127.0.0.1:58110")
+        self.assertEqual(pack.lago.headers,{"Authorization":"Bearer observer-only"})
+        self.assertEqual(pack.cw.headers,{"api_access_token":"observer-only"})
+        self.assertNotIn("lago-sentinel-private",str(pack.lago.headers))
+        self.assertEqual(pack.api.base_url,self.ready["base_url"])
+
     def test_unknown_receipt_replays_identical_durable_command_after_restart(self):
         payload = {"tenant_id": "tenant-a", "policy_id": "refund", "version": "v1"}
         dispatched = []

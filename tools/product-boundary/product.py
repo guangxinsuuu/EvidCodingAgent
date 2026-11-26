@@ -212,6 +212,7 @@ def main() -> int:
     parser.add_argument("--platform-project")
     parser.add_argument("--platform-enrollment", type=Path)
     parser.add_argument("--platform-seed", type=Path)
+    parser.add_argument("--platform-access-id")
     parser.add_argument("--commercial-project")
     parser.add_argument("--local-model")
     parser.add_argument("--model-call-limit", type=int, default=8)
@@ -233,10 +234,10 @@ def main() -> int:
         if not args.product_repo:
             raise MaterialError("PRODUCT_REPOSITORY_REQUIRED")
         platform_args = (args.platform_repo, args.platform_project, args.platform_enrollment, args.platform_seed)
-        if any(platform_args) and not all(platform_args):
+        if (any(platform_args) or args.platform_access_id) and not all(platform_args):
             raise MaterialError("COMPLETE_PLATFORM_BINDING_REQUIRED")
         platform = dict(repo=args.platform_repo.resolve(), project=args.platform_project,
-            enrollment_path=args.platform_enrollment, seed_path=args.platform_seed) if all(platform_args) else None
+            enrollment_path=args.platform_enrollment, seed_path=args.platform_seed, access_id=args.platform_access_id) if all(platform_args) else None
         result = up(args.product_repo, args.image or "", platform=platform, commercial_project=args.commercial_project,
                     local_model=args.local_model, model_call_limit=args.model_call_limit)
     else:

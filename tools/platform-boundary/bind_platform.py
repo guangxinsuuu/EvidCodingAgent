@@ -7,6 +7,7 @@ PASS。原生 seed 仍用已有先落账后请求实现；平台维护者决定�
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import http.client
 import json
@@ -15,6 +16,7 @@ from pathlib import Path
 import re
 import stat
 import subprocess
+import sys
 from urllib.parse import urlencode, urlsplit
 from uuid import uuid4
 
@@ -81,6 +83,76 @@ def binding(repo,project):
         "egap_commit":command(["git","-C",str(ROOT),"rev-parse","HEAD"]),"binding_authority":"LOCAL_DOCKER_OPERATOR"}
 
 
+def access_binding(repo,platform,scope_id):
+    """独立实验入口的固定来源核验；产品/Agent 不能用 URL 或自报租户替代该绑定。
+
+    原生平台身份继续独立保存。这个新入口只增加自己的权限空间，不修改父入口的
+    scope 或凭据；镜像、配置、容器、网络与宿主端口分别从 Docker/文件核对。
+    """
+    if not re.fullmatch(r"evid-access-[a-f0-9]{12}",scope_id or ""):
+        raise BoundaryError("REGISTERED_ACCESS_SCOPE_REQUIRED")
+    directory=repo/".local"/scope_id
+    if any(p.is_symlink() for p in (directory,*directory.parents)):raise BoundaryError("ACCESS_SCOPE_SYMLINK")
+    manifest=private(directory/"manifest.json");receipt=private(directory/"deployment-receipt.json")
+    if manifest["project"]!=scope_id or manifest["native_project"]!=platform["project"] \
+            or manifest["native_manifest_sha256"]!=platform["manifest_sha256"] \
+            or any(receipt.get(k)!=v for k,v in manifest.items()) or receipt["manifest_sha256"]!=digest((directory/"manifest.json").read_bytes()) \
+            or manifest["compose_sha256"]!=digest((directory/"compose.private.json").read_bytes()):
+        raise BoundaryError("ACCESS_SCOPE_PROVENANCE_MISMATCH")
+    config=directory/"access.private.json"
+    if config.is_symlink() or config.stat().st_size>262144 or digest(config.read_bytes())!=manifest["access_config_sha256"]:
+        raise BoundaryError("ACCESS_SCOPE_CONFIG_CHANGED")
+    validate_access(receipt)
+    return directory,receipt
+
+
+def host_mount_file(source):
+    """Docker Desktop 的 /host_mnt 是虚拟机映射；只在 macOS 还原该固定前缀。
+
+    不搜索同名文件、不在读取失败时换路径。后续仍核对完整配置摘要与软链接，
+    因而路径兼容不会把另一个配置或一个旧副本当成容器当前挂载。
+    """
+    if sys.platform=="darwin" and source.startswith("/host_mnt/"):
+        source=source[len("/host_mnt"):]
+    path=Path(source)
+    if not path.is_absolute() or any(p.is_symlink() for p in (path,*path.parents)):
+        raise BoundaryError("ACCESS_SCOPE_MOUNT_PATH_INVALID")
+    return path
+
+
+def validate_access(identity):
+    """每次派发前/产品恢复前检查原入口；新建同名网络或修改对象入口必须新身份。"""
+    if datetime.now(timezone.utc)>=datetime.fromisoformat(identity["expires_at"]):
+        raise BoundaryError("ACCESS_SCOPE_EXPIRED")
+    row=json.loads(command(["docker","inspect",identity["container_id"]]))[0]
+    labels=row["Config"]["Labels"]
+    if row["Id"]!=identity["container_id"] or row["Image"]!=identity["image_id"] or row["State"]["Status"]!="running" \
+            or labels.get("com.docker.compose.project")!=identity["project"] or labels.get("evid.access_instance")!=identity["project"] \
+            or labels.get("evid.native_project")!=identity["native_project"] or row["Config"]["User"]!="10001:10001" \
+            or not row["HostConfig"]["ReadonlyRootfs"]:
+        raise BoundaryError("ACCESS_SCOPE_DEPLOYMENT_CHANGED")
+    mounts=[m for m in row["Mounts"] if m["Destination"]=="/run/secrets/access.json"]
+    if len(mounts)!=1 or mounts[0]["RW"] or Path(mounts[0]["Source"]).name!="access.private.json":
+        raise BoundaryError("ACCESS_SCOPE_MOUNT_CHANGED")
+    mounted=host_mount_file(mounts[0]["Source"])
+    if mounted.is_symlink() or digest(mounted.read_bytes())!=identity["access_config_sha256"]:
+        raise BoundaryError("ACCESS_SCOPE_CONFIG_CHANGED")
+    ports=row["NetworkSettings"]["Ports"].get("8080/tcp") or []
+    if len(ports)!=1 or ports[0]["HostIp"]!="127.0.0.1" or identity["access_endpoint"]!="http://127.0.0.1:"+ports[0]["HostPort"]:
+        raise BoundaryError("ACCESS_SCOPE_ENDPOINT_CHANGED")
+    network=json.loads(command(["docker","network","inspect",identity["product_network"]]))[0]
+    if network["Id"]!=identity["product_network_id"] or network["Internal"] is not True \
+            or network["Labels"].get("com.docker.compose.project")!=identity["project"]:
+        raise BoundaryError("ACCESS_SCOPE_NETWORK_CHANGED")
+    for reference in identity["native_networks"].values():
+        if row["NetworkSettings"]["Networks"].get(reference["name"],{}).get("NetworkID")!=reference["id"]:
+            raise BoundaryError("ACCESS_NATIVE_NETWORK_CHANGED")
+    expected={r["name"] for r in identity["native_networks"].values()}|{identity["product_network"]}
+    if set(row["NetworkSettings"]["Networks"])!=expected \
+            or row["NetworkSettings"]["Networks"][identity["product_network"]]["NetworkID"]!=identity["product_network_id"]:
+        raise BoundaryError("ACCESS_NETWORK_ATTACHMENTS_CHANGED")
+
+
 def request(base,path,*,token=None,chatwoot=False,method="GET",body=None,form=None):
     endpoint=urlsplit(base)
     if endpoint.scheme!="http" or endpoint.hostname!="127.0.0.1" or not endpoint.port or endpoint.path not in {"","/"} \
@@ -111,14 +183,20 @@ def member_ids(response):
     return {row["id"] for row in rows}
 
 
-def enroll(repo,project,seed_path,output):
+def enroll(repo,project,seed_path,output,access_id=None):
     """原生 GET 再核对所有目标归属，随后才登记不可变范围。输出路径只能新建或恢复同一输入。"""
     directory,identity=binding(repo,project);seed=private(seed_path);preparer=private(directory/"preparer.private.json")
-    access=private(directory/"operator-access.private.json")
+    access_dir,scoped=(access_binding(repo,identity,access_id) if access_id else (directory,None))
+    access=private(access_dir/"operator-access.private.json")
+    endpoint=scoped["access_endpoint"] if scoped else identity["deployment"]["endpoints"]["access"]
     if preparer["project"]!=project or any(preparer[k]["base_url"]!=identity["deployment"]["endpoints"][k] for k in ("chatwoot","lago")) \
-            or access["base_url"]!=identity["deployment"]["endpoints"]["access"]:
+            or access["base_url"]!=endpoint or access["instance_id"]!=(access_id or project):
         raise BoundaryError("PREPARER_SCOPE_MISMATCH")
     basis={"project":project,"seed_sha256":digest(seed_path.read_bytes()),"seed_run_id":seed["run_id"]}
+    if scoped:
+        if scoped["seed_sha256"]!=basis["seed_sha256"] or scoped["experiment_id"]!=seed["run_id"]:
+            raise BoundaryError("ACCESS_SCOPE_SEED_MISMATCH")
+        basis["access_scope_id"]=access_id
     journal=private(output) if output.exists() else {"basis":basis,"state":"PREPARING","grants":[],"native_reads":[]}
     if journal["basis"]!=basis:raise BoundaryError("ENROLLMENT_IDENTITY_CONFLICT")
     save(output,journal)
@@ -162,7 +240,9 @@ def enroll(repo,project,seed_path,output):
         result=require_success(request(access["base_url"],"/control/grants",token=access["token"],method="POST",body=scope))
         if not any(g["scope"]["tenant_id"]==scope["tenant_id"] for g in journal["grants"]):journal["grants"].append({"scope":scope,"receipt":result})
         journal.pop("pending_grant",None);save(output,journal)
-    journal.update(state="ENROLLED",platform_binding=identity);save(output,journal)
+    journal.update(state="ENROLLED",platform_binding=identity)
+    if scoped:journal["experiment_access"]=scoped
+    save(output,journal)
     return {"status":"NATIVE_SCOPES_ENROLLED","project":project,"tenants":len(scopes),"cases":sum(len(s["conversation_ids"]) for s in scopes)}
 
 
@@ -171,7 +251,10 @@ def verify(repo,project,enrollment,output):
     directory,identity=binding(repo,project);journal=private(enrollment)
     if journal["state"]!="ENROLLED" or journal["basis"]["project"]!=project:raise BoundaryError("ENROLLED_PLATFORM_REQUIRED")
     if output.exists():raise BoundaryError("NEW_VERIFICATION_OUTPUT_REQUIRED")
-    readers={role:private(directory/(role+"-access.private.json")) for role in ("product","observer")}
+    scoped=journal.get("experiment_access")
+    access_dir,current=access_binding(repo,identity,scoped["project"]) if scoped else (directory,None)
+    if scoped!=current:raise BoundaryError("ACCESS_SCOPE_IDENTITY_CHANGED")
+    readers={role:private(access_dir/(role+"-access.private.json")) for role in ("product","observer")}
     checks=[];report={"state":"STARTED","platform_binding":identity,"enrollment_sha256":digest(enrollment.read_bytes()),"checks":checks}
     save(output,report)
     scope=journal["grants"][0]["scope"];conversation=scope["conversation_ids"][0]
@@ -186,6 +269,16 @@ def verify(repo,project,enrollment,output):
         invoke(role,role+"_conversation",path,200)
         invoke(role,role+"_invoice","/api/v1/invoices/"+scope["invoice_ids"][0],200)
         invoke(role,role+"_unregistered_customer","/api/v1/customers/not-registered",404)
+    if scoped:
+        # 验证两条边：旧 token 不能穿过新入口；旧入口的旧对象范围没有被扩张。
+        for role in readers:
+            old=private(directory/(role+"-access.private.json"))
+            for name,base,token,expected in ((role+"_old_token_new_entry",readers[role]["base_url"],old["token"],401),
+                    (role+"_old_scope_new_object",old["base_url"],old["token"],404),
+                    (role+"_new_token_old_entry",old["base_url"],readers[role]["token"],401)):
+                result=request(base,path,token=token)
+                checks.append({"name":name,"http_status":result[0],**result[2]});save(output,report)
+                if result[0]!=expected:raise BoundaryError("EXPERIMENT_SCOPE_ISOLATION_FAILED")
     note={"content":"Evid 独立平台边界验收，仅内部实验。 "+uuid4().hex,"private":True,"message_type":"outgoing","content_type":"text"}
     invoke("observer","observer_write_denied",path+"/messages",403,method="POST",body=note)
     invoke("product","public_message_denied",path+"/messages",403,method="POST",body={**note,"private":False})
@@ -213,7 +306,13 @@ def verify(repo,project,enrollment,output):
 def commercial_scopes(repo,project,enrollment,seed_path,output):
     """来源服务部署前的授权目录投影；只携带已回读原生对象，不带实验答案或凭据。"""
     _,identity=binding(repo,project);journal=private(enrollment);seed=private(seed_path)
-    if journal.get("state")!="ENROLLED" or journal["basis"]!={"project":project,"seed_sha256":digest(seed_path.read_bytes()),"seed_run_id":seed["run_id"]} \
+    expected_basis={"project":project,"seed_sha256":digest(seed_path.read_bytes()),"seed_run_id":seed["run_id"]}
+    scoped=journal.get("experiment_access")
+    if scoped:
+        _,current=access_binding(repo,identity,scoped["project"])
+        if current!=scoped:raise BoundaryError("ACCESS_SCOPE_IDENTITY_CHANGED")
+        expected_basis["access_scope_id"]=scoped["project"]
+    if journal.get("state")!="ENROLLED" or journal["basis"]!=expected_basis \
             or journal["platform_binding"]["manifest_sha256"]!=identity["manifest_sha256"]:
         raise BoundaryError("EXACT_NATIVE_ENROLLMENT_REQUIRED")
     scopes=[]
@@ -225,6 +324,7 @@ def commercial_scopes(repo,project,enrollment,seed_path,output):
             "invoice_id":case["invoice_id"],"account_id":grant["account_id"],"conversation_id":case["conversation_id"]})
     value={"native_platform_project":project,"native_platform_manifest_sha256":identity["manifest_sha256"],
         "native_enrollment_sha256":digest(enrollment.read_bytes()),"native_seed_sha256":digest(seed_path.read_bytes()),"object_scopes":scopes}
+    if scoped:value["experiment_access"]={"project":scoped["project"],"manifest_sha256":scoped["manifest_sha256"]}
     if output.exists() and private(output)!=value:raise BoundaryError("SCOPE_EXPORT_IDENTITY_CONFLICT")
     save(output,value)
     return {"status":"COMMERCIAL_OBJECT_SCOPES_EXPORTED","project":project,"object_scopes":len(scopes)}
@@ -233,10 +333,11 @@ def commercial_scopes(repo,project,enrollment,seed_path,output):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument("action",choices=("enroll","verify","commercial-scopes"));parser.add_argument("--platform-repo",type=Path,required=True)
     parser.add_argument("--project",required=True);parser.add_argument("--seed",type=Path);parser.add_argument("--enrollment",type=Path);parser.add_argument("--output",type=Path,required=True)
+    parser.add_argument("--access-id")
     args=parser.parse_args()
     if "docs" in args.output.resolve().parts or args.output.name.lower()=="readme.md":raise BoundaryError("OUTPUT_FORBIDDEN")
     if args.action=="commercial-scopes":result=commercial_scopes(args.platform_repo,args.project,args.enrollment,args.seed,args.output)
-    else:result=enroll(args.platform_repo,args.project,args.seed,args.output) if args.action=="enroll" else verify(args.platform_repo,args.project,args.enrollment,args.output)
+    else:result=enroll(args.platform_repo,args.project,args.seed,args.output,args.access_id) if args.action=="enroll" else verify(args.platform_repo,args.project,args.enrollment,args.output)
     print(json.dumps(result))
 
 

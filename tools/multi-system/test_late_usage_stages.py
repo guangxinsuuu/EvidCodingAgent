@@ -208,6 +208,16 @@ class UsageStageTests(unittest.TestCase):
         self.assertFalse(later["checks"]["no_native_dispatch"])
         self.assertEqual(load_runtime(self.source.state_path)["initial_state_observations"]["late_usage"]["before"], result)
 
+    def test_initial_source_get_uses_observer_service_instead_of_preparer_endpoint(self):
+        plan=self.registered_plan();self.usage_reader(plan,[0])
+        self.source.commercial_reader={"base_url":"http://127.0.0.1:58999","token":"distinct-observer"}
+        self.source.private.pop("read_token",None)
+        save_private(self.directory/"native/seed-state.json",{"run_id":self.native["run_id"],"operations":{}})
+        with patch.object(release_seed,"Api",return_value=self.initial_source_reader(plan)) as constructor:
+            result=self.source.observe_initial_state("late_usage",observation_id="separate-reader")
+        self.assertEqual(result["status"],"READY")
+        self.assertEqual(constructor.call_args.args,("http://127.0.0.1:58999",{"Authorization":"Bearer distinct-observer"}))
+
     def test_compatibility_pipeline_stops_when_aggregate_remains_pending(self):
         plan = self.registered_plan()
         calls = self.capture_commands()

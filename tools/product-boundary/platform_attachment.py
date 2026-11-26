@@ -16,7 +16,7 @@ binding = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(binding)
 
 
-def project_config(preparer: dict, product_access: dict, seed: dict, enrollment: dict) -> dict:
+def project_config(preparer: dict, product_access: dict, seed: dict, enrollment: dict, *, access_origin="http://business-access:8080") -> dict:
     """白名单复制配置；不 spread preparer，以免将管理员口令或登录密码一起挂载。
 
     enrollment 来自原生对象回读，seed 提供 subject 与客户映射。两者必须逐对象一致；
@@ -24,6 +24,8 @@ def project_config(preparer: dict, product_access: dict, seed: dict, enrollment:
     """
     if product_access.get("role") != "PRODUCT":
         raise binding.BoundaryError("PRODUCT_ROLE_REQUIRED")
+    if access_origin not in {"http://business-access:8080", "http://experiment-access:8080"}:
+        raise binding.BoundaryError("REGISTERED_ACCESS_ORIGIN_REQUIRED")
     customers, cases = [], []
     expected = {row["scope"]["tenant_id"]: row["scope"] for row in enrollment["grants"]}
     for customer in seed["bindings"]["customers"]:
@@ -48,15 +50,15 @@ def project_config(preparer: dict, product_access: dict, seed: dict, enrollment:
     if kc["issuer"] != "http://evid-keycloak:8080/realms/evid-lab":
         raise binding.BoundaryError("REGISTERED_IDENTITY_ORIGIN_REQUIRED")
     return {
-        "allowed_origins": ["http://business-access:8080", "http://evid-keycloak:8080"],
-        "chatwoot": {"base_url": "http://business-access:8080", "api_token": product_access["token"], "account_id": preparer["chatwoot"]["account_id"]},
-        "lago": {"base_url": "http://business-access:8080", "api_key": product_access["token"]},
+        "allowed_origins": [access_origin, "http://evid-keycloak:8080"],
+        "chatwoot": {"base_url": access_origin, "api_token": product_access["token"], "account_id": preparer["chatwoot"]["account_id"]},
+        "lago": {"base_url": access_origin, "api_key": product_access["token"]},
         "keycloak": {k: kc[k] for k in ("issuer", "client_id", "client_secret", "audience")},
         "bindings": {"customers": customers, "cases": cases}, "automatic_writeback": True,
     }
 
 
-def attach(directory: Path, repo: Path, project: str, enrollment_path: Path, seed_path: Path) -> None:
+def attach(directory: Path, repo: Path, project: str, enrollment_path: Path, seed_path: Path, access_id: str | None = None) -> None:
     """仅在 prepare 后、首次启动前连接；已有部署不能偷偷换平台、凭据或候选。
 
     live Docker 身份核对来自 bind_platform.binding。网络也要同时满足 internal 和
@@ -68,16 +70,20 @@ def attach(directory: Path, repo: Path, project: str, enrollment_path: Path, see
     platform_dir, identity = binding.binding(repo, project)
     enrollment = binding.private(enrollment_path)
     seed = binding.private(seed_path)
-    if enrollment.get("state") != "ENROLLED" or enrollment["basis"] != {
-        "project": project, "seed_sha256": binding.digest(seed_path.read_bytes()), "seed_run_id": seed["run_id"]
-    } or enrollment["platform_binding"]["manifest_sha256"] != identity["manifest_sha256"]:
+    expected_basis={"project": project, "seed_sha256": binding.digest(seed_path.read_bytes()), "seed_run_id": seed["run_id"]}
+    access_dir,scoped=binding.access_binding(repo,identity,access_id) if access_id else (platform_dir,None)
+    if scoped:expected_basis["access_scope_id"]=access_id
+    if enrollment.get("state") != "ENROLLED" or enrollment["basis"] != expected_basis \
+            or enrollment.get("experiment_access")!=scoped \
+            or enrollment["platform_binding"]["manifest_sha256"] != identity["manifest_sha256"]:
         raise binding.BoundaryError("EXACT_ENROLLED_PLATFORM_REQUIRED")
     preparer = binding.private(platform_dir / "preparer.private.json")
-    access = binding.private(platform_dir / "product-access.private.json")
-    if preparer["project"] != project or access["instance_id"] != project \
-            or access["base_url"] != identity["deployment"]["endpoints"]["access"]:
+    access = binding.private(access_dir / "product-access.private.json")
+    if preparer["project"] != project or access["instance_id"] != (access_id or project) \
+            or access["base_url"] != (scoped["access_endpoint"] if scoped else identity["deployment"]["endpoints"]["access"]):
         raise binding.BoundaryError("PLATFORM_CREDENTIAL_BINDING_MISMATCH")
-    integration = project_config(preparer, access, seed, enrollment)
+    integration = project_config(preparer, access, seed, enrollment,
+        access_origin="http://experiment-access:8080" if scoped else "http://business-access:8080")
     network_name = identity["deployment"]["product_network"]
     network = json.loads(deployment.command(["docker", "network", "inspect", network_name]))[0]
     if network_name != project + "-product-access" or network["Internal"] is not True \
@@ -86,6 +92,10 @@ def attach(directory: Path, repo: Path, project: str, enrollment_path: Path, see
     compose = json.loads((directory / "compose.json").read_text())
     compose["networks"]["business-platform"] = {"external": True, "name": network_name}
     compose["services"]["api"]["networks"].append("business-platform")
+    if scoped:
+        # 父平台网络只用于固定 Keycloak；新业务对象只能通过本实验入口和专有 token。
+        compose["networks"]["experiment-platform"]={"external":True,"name":scoped["product_network"]}
+        compose["services"]["api"]["networks"].append("experiment-platform")
     api = json.loads((directory / "api.private.json").read_text())
     gateway = json.loads((directory / "gateway.private.json").read_text())
     api["integration"] = integration
@@ -97,6 +107,7 @@ def attach(directory: Path, repo: Path, project: str, enrollment_path: Path, see
     manifest.update(business_source="CHATWOOT_LAGO", platform_binding=identity,
         platform_enrollment_sha256=binding.digest(enrollment_path.read_bytes()),
         platform_network_id=network["Id"], integration_qualification="NATIVE_TRANSPORT_CALIBRATION_NO_COMMERCIAL_SOURCE")
+    if scoped:manifest["experiment_access_binding"]=scoped
     deployment.save(directory / "manifest.json", manifest)
 
 
@@ -120,3 +131,5 @@ def validate_attachment(directory: Path) -> None:
     network = json.loads(deployment.command(["docker", "network", "inspect", identity["deployment"]["product_network"]]))[0]
     if network["Id"] != manifest["platform_network_id"] or network["Internal"] is not True:
         raise binding.BoundaryError("PLATFORM_NETWORK_CHANGED")
+    if manifest.get("experiment_access_binding"):
+        binding.validate_access(manifest["experiment_access_binding"])

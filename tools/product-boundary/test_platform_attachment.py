@@ -1,5 +1,6 @@
 """接入配置必须少给凭据，并将本地对象映射与原生登记逐项绑定。"""
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import tempfile
@@ -33,6 +34,17 @@ class AttachmentTests(unittest.TestCase):
         self.assertEqual(result["chatwoot"]["api_token"], "PRODUCT_TOKEN")
         self.assertNotIn("operators", result["keycloak"])
 
+    def test_experiment_origin_is_explicit_and_expired_access_fails_before_docker(self):
+        result=attachment.project_config(self.preparer,self.access,self.seed,self.enrollment,access_origin="http://experiment-access:8080")
+        self.assertEqual(result["lago"]["base_url"],"http://experiment-access:8080")
+        self.assertNotIn("http://business-access:8080",result["allowed_origins"])
+        with self.assertRaisesRegex(attachment.binding.BoundaryError,"REGISTERED_ACCESS_ORIGIN_REQUIRED"):
+            attachment.project_config(self.preparer,self.access,self.seed,self.enrollment,access_origin="http://unregistered:8080")
+        with patch.object(attachment.binding,"command") as command:
+            with self.assertRaisesRegex(attachment.binding.BoundaryError,"ACCESS_SCOPE_EXPIRED"):
+                attachment.binding.validate_access({"expires_at":(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat()})
+            command.assert_not_called()
+
     def test_wrong_object_subject_and_reader_role_fail_before_attachment(self):
         for change in ("invoice_id", "subscription_id", "conversation_id"):
             seed = deepcopy(self.seed)
@@ -44,6 +56,18 @@ class AttachmentTests(unittest.TestCase):
             attachment.project_config(self.preparer, self.access, seed, self.enrollment)
         with self.assertRaisesRegex(attachment.binding.BoundaryError, "PRODUCT_ROLE_REQUIRED"):
             attachment.project_config(self.preparer, {**self.access, "role": "OBSERVER"}, self.seed, self.enrollment)
+
+    def test_docker_desktop_mount_translation_does_not_fallback_or_follow_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary).resolve()/"access.private.json";path.write_text("{}")
+            with patch.object(attachment.binding.sys,"platform","darwin"):
+                self.assertEqual(attachment.binding.host_mount_file("/host_mnt"+str(path)),path)
+                self.assertEqual(attachment.binding.host_mount_file(str(path)),path)
+                link=path.parent/"link.json";link.symlink_to(path)
+                with self.assertRaisesRegex(attachment.binding.BoundaryError,"MOUNT_PATH_INVALID"):
+                    attachment.binding.host_mount_file("/host_mnt"+str(link))
+            with patch.object(attachment.binding.sys,"platform","linux"):
+                self.assertEqual(attachment.binding.host_mount_file("/host_mnt"+str(path)),Path("/host_mnt"+str(path)))
 
     def test_platform_replacement_is_rejected_on_resume(self):
         with tempfile.TemporaryDirectory() as temporary:

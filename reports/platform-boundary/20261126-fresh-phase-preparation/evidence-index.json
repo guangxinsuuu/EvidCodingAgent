@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "experiment_id": "evidphase20261126a1",
+  "qualification": "FRESH_PREPARATION_AND_DEPLOYMENT_PREFLIGHT_NOT_BUSINESS_PASS",
+  "evidence": [
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/preparation-manifest.json",
+      "sha256": "9657072e8a5394c753cbbe0f5446c44179b79a849c9f2dab0b88b564cd854d38",
+      "bytes": 6501,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/native-preparation-result.json",
+      "sha256": "b2804b88ae1dd97af24473d97cabb9b2aaa6db0bfcdf225b680fde8539fa31a1",
+      "bytes": 722,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/native/seed.json",
+      "sha256": "697381c7f336be88d16f7bc1c5af44f17666d65760096d8ba022676a45954ab8",
+      "bytes": 68565,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/native/seed-state.json",
+      "sha256": "0b6213eab8b2e8a92fa3b26805ec8ee84a815a4950b36d9527f3db65d8208184",
+      "bytes": 45652,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/enrollment.json",
+      "sha256": "83f6f20ecdc88b91af6a090b4a94a43a528c6c981ab1274077c6c9bd7b073b73",
+      "bytes": 12333,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/access-verification.json",
+      "sha256": "983ec5642d9a8b3b2e6ed4951b6042c73c5cdbb91664318cad5826713ebab37a",
+      "bytes": 9626,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/commercial-scopes.json",
+      "sha256": "9d5078933952f8ae66269a5c93679ba8dd29e51be052146a74a62811269b8c93",
+      "bytes": 1086,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/source-preparation.private.json",
+      "sha256": "61360587a935b2db13c064a51a4826c3902c7469a5c994b7641f1dc1abc3e635",
+      "bytes": 319099,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/initial-qualification.json",
+      "sha256": "4e306c4df2e0eb5027bfc953f4b9fe56ba0d89f22c74f9d017b87d396cc81cf7",
+      "bytes": 84876,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/latest-initial-qualification.json",
+      "sha256": "ae17e5d6b9b00b84605e3decc3fb1bd86c5323d1b0a51a04c42eb6b54f5267a1",
+      "bytes": 84986,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/candidate-binding.json",
+      "sha256": "d40989d24773b3d3e3aa16264fa4a8554b1a3f981150d59689c853f8c8b4477a",
+      "bytes": 15536,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/prior-deployment-terminal-check.json",
+      "sha256": "e07642d7348f07d5f99456139fa5944fd8c3459f6bd1c5d51a524178a72cd3ab",
+      "bytes": 235,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/preparation-recovery-check.json",
+      "sha256": "d90fd175f02b7ee69412c3d1838a16f835d2b51658a08bc00f736c9263cfe717",
+      "bytes": 218,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/cleanup-check.json",
+      "sha256": "f3c426c9c328caba109a886a3c79d76dbef4f7e83c6fb02ccae89a9201e280a8",
+      "bytes": 392,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/refund-lab-v1-4802c4e865284652b132ad689816d956.json",
+      "sha256": "098d3fca0f0bdbf122dee65afce9d266cd83e6d489572901ec89f070f843b960",
+      "bytes": 11687,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/refund-lab-v1-54a2da8d567749d5bba0d4d81b4d13fe.json",
+      "sha256": "b379ccada159e999c1db1ada8d0ab99d58641d33119e07bb7e4326fbc5ec22bc",
+      "bytes": 11687,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/refund-lab-v2-2602f293626a4a8e8c7f5dba146cf145.json",
+      "sha256": "5fbe660e86fd45a0c00f6e18185188560a08b4480d1aea6a3caf07ccae66a9fd",
+      "bytes": 11642,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/refund-lab-v2-7bc66a28291e4b60b8ded60e36f98d64.json",
+      "sha256": "4eec98db4baca95bb0581b4d49953a949994cb05cb10eb8700525569aab8302a",
+      "bytes": 11642,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/standard-contract-53e9ca8d7f2547ab9c770282e491f0ed.json",
+      "sha256": "0ec67c535e46a590f735cc9b7e90ecdc693ce9d257ef8ffeda8df3947581519c",
+      "bytes": 5487,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/standard-contract-68e9c177b5a94dccae64b1628b924ce8.json",
+      "sha256": "ed270b576267bae869153a2195f7229d762efcf5fa00bfacb33fa35b8824e145",
+      "bytes": 5487,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/standard-contract-bebc15af83e94af2b59ace4b925f6037.json",
+      "sha256": "14db7b7bc257dba579248f17d92e2d6176e3387266c5b4661dcb209b6acca3cb",
+      "bytes": 5487,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/rule-reads/standard-contract-db382997a53a43b4b2e1da3df8ea45b7.json",
+      "sha256": "ec365da01b75fb7fda12ce0eafb56612c0e5af94fb0607d8f8d4ed4088a20b4c",
+      "bytes": 5487,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-experiments/evidphase20261126a1/initial-observations/initial-a9260c9ec7e64b3b8e4d921e3c3a1501.json",
+      "sha256": "ae17e5d6b9b00b84605e3decc3fb1bd86c5323d1b0a51a04c42eb6b54f5267a1",
+      "bytes": 84986,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "../EvidBusinessPlatforms/.local/evid-access-d4313e97c96b/manifest.json",
+      "sha256": "4f9b4c33af329bb2781a48b2dd2747c2937e8b90be4aa24d9e2cd8ba1ff58326",
+      "bytes": 4503,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "../EvidBusinessPlatforms/.local/evid-access-d4313e97c96b/deployment-receipt.json",
+      "sha256": "868e9ed8a5cee3889e2de65cf09e9fee86ead7c91b647d22e2ee0726ab791123",
+      "bytes": 4817,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "../EvidBusinessPlatforms/.local/evid-commercial-d181eff24baf/manifest.json",
+      "sha256": "efea7ebeb7f2198409123ea2d5dae365ed00fe334f417425dff8ee0d969c3766",
+      "bytes": 987,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "../EvidBusinessPlatforms/.local/evid-commercial-d181eff24baf/deployment-receipt.json",
+      "sha256": "ef48f97cd5aad81919c980c6b590ee0c3fd3d5d56d778101b54edd7f254d97a5",
+      "bytes": 2748,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "../EvidBusinessPlatforms/.local/evid-commercial-d181eff24baf/scope-set.json",
+      "sha256": "9d5078933952f8ae66269a5c93679ba8dd29e51be052146a74a62811269b8c93",
+      "bytes": 1086,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/product-deployments/evid-sut-da3b086a786e/manifest.json",
+      "sha256": "d702a7f42faa4be943e86c3a5d7e1b964b8325d9bc7b9d093e4a4b046b0f1c2c",
+      "bytes": 15663,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/product-deployments/evid-sut-da3b086a786e/deployment-receipt.json",
+      "sha256": "b890a312677bb91a83d02ebc2d8c8cee94e72addda92172f59462fb0b6a41949",
+      "bytes": 19756,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    }
+  ]
+}

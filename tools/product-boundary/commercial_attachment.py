@@ -32,7 +32,7 @@ def validate(identity):
                     or Path(mounts[0]["Source"]).name != record["role"] + ".private.json" \
                     or row["Config"]["User"] != "10001:10001" or not row["HostConfig"]["ReadonlyRootfs"]:
                 raise binding.BoundaryError("COMMERCIAL_ROLE_BOUNDARY_CHANGED")
-            mounted = Path(mounts[0]["Source"])
+            mounted = binding.host_mount_file(mounts[0]["Source"])
             if mounted.is_symlink() or mounted.stat().st_size > 131072 \
                     or binding.digest(mounted.read_bytes()) != identity["role_config_sha256"][record["role"]]:
                 raise binding.BoundaryError("COMMERCIAL_MOUNTED_CONFIG_CHANGED")
@@ -63,11 +63,14 @@ def attach(directory, repo, project):
     source_manifest = binding.private(source_dir / "manifest.json")
     receipt = binding.private(source_dir / "deployment-receipt.json")
     scopes = binding.private(source_dir / "scope-set.json")
+    access=manifest.get("experiment_access_binding")
+    expected_access={"project":access["project"],"manifest_sha256":access["manifest_sha256"]} if access else None
     if any(receipt.get(k) != v for k, v in source_manifest.items()) or source_manifest["project"] != project \
             or source_manifest["compose_sha256"] != binding.digest((source_dir / "compose.private.json").read_bytes()) \
             or source_manifest["scope_set_sha256"] != binding.digest((source_dir / "scope-set.json").read_bytes()) \
             or scopes["native_platform_project"] != native["project"] or scopes["native_platform_manifest_sha256"] != native["manifest_sha256"] \
-            or scopes["native_enrollment_sha256"] != manifest["platform_enrollment_sha256"]:
+            or scopes["native_enrollment_sha256"] != manifest["platform_enrollment_sha256"] \
+            or scopes.get("experiment_access")!=expected_access:
         raise binding.BoundaryError("COMMERCIAL_SOURCE_BINDING_MISMATCH")
     if {r["role"] for r in receipt["containers"]} != {"database", "init", "preparer", "product", "observer"}:
         raise binding.BoundaryError("COMMERCIAL_ROLE_SET_MISMATCH")

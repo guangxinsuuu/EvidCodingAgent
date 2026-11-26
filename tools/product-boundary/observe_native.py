@@ -147,12 +147,15 @@ def run(args):
                 or commercial_reader["base_url"] != "http://127.0.0.1:" + str(source_endpoint["port"]):
             raise boundary.BoundaryError("COMMERCIAL_OBSERVER_SCOPE_MISMATCH")
     caller = boundary.private(platform_dir / "caller.private.json")
-    native_reader = boundary.private(platform_dir / "observer-access.private.json")
+    scoped=receipt.get("experiment_access_binding")
+    access_dir,current=boundary.access_binding(args.platform_repo,platform,scoped["project"]) if scoped else (platform_dir,None)
+    if scoped!=current:raise boundary.BoundaryError("EXPERIMENT_ACCESS_CHANGED")
+    native_reader = boundary.private(access_dir / "observer-access.private.json")
     observer = boundary.private(directory / "observer.private.json")
     if caller.get("role") != "BUSINESS_CALLER" or caller["project"] != args.project \
             or caller["keycloak"]["base_url"] != platform["deployment"]["endpoints"]["keycloak"] \
-            or native_reader.get("role") != "OBSERVER" or native_reader["instance_id"] != args.project \
-            or native_reader["base_url"] != platform["deployment"]["endpoints"]["access"] \
+            or native_reader.get("role") != "OBSERVER" or native_reader["instance_id"] != (scoped["project"] if scoped else args.project) \
+            or native_reader["base_url"] != (scoped["access_endpoint"] if scoped else platform["deployment"]["endpoints"]["access"]) \
             or observer["deployment_id"] != args.deployment:
         raise boundary.BoundaryError("OBSERVATION_IDENTITY_MISMATCH")
     manifest = boundary.private(directory / "manifest.json")
@@ -161,6 +164,7 @@ def run(args):
         "role_config_sha256": manifest["role_config_sha256"]}
     if "model_binding" in receipt:
         basis["model"] = receipt["model_binding"]
+    if scoped:basis["experiment_access"]=scoped
     if commercial_reader:
         basis["commercial_source"] = receipt["commercial_source_binding"]
     path = args.output / "run.json"

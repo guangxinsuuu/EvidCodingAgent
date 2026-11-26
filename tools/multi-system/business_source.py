@@ -36,7 +36,8 @@ def message_ref(value: dict) -> dict:
 
 class BusinessPack:
     def __init__(self, directory: Path, *, native: dict | None = None, runtime: dict | None = None,
-                 ready: dict | None = None, private: dict | None = None, asset_loader=None):
+                 ready: dict | None = None, private: dict | None = None, asset_loader=None,
+                 read_runtime: dict | None = None, commercial_reader: dict | None = None):
         """旧宿主保留文件入口；独立部署由受信装配器显式注入分角色来源与原件读取器。
 
         注入只用于操作员的实验准备过程，不注册为 Agent 可选路径/地址参数。
@@ -48,6 +49,7 @@ class BusinessPack:
         self.ready = ready if ready is not None else load_runtime(self.directory / "ready.json")
         self.private = private if private is not None else load_runtime(self.directory / "runtime.private.json")
         self.asset_loader = asset_loader
+        self.commercial_reader = commercial_reader
         self.state_path = self.directory / "source-preparation.private.json"
         self.state = load_runtime(self.state_path) if self.state_path.exists() else {
             "run_id": self.native["run_id"], "commands": {}, "receipts": [], "plans": {}, "checks": []}
@@ -60,7 +62,10 @@ class BusinessPack:
         self.state["identity"] = identity
         self.api = Api(self.ready["base_url"], {"Authorization": "Bearer " + self.private["admin_token"]},
                        service="commercial", receipts=self.state["receipts"])
-        cw, lago = self.runtime["chatwoot"], self.runtime["lago"]
+        # NativeObjects 写入器显式使用 self.runtime；本准备器的资料查询使用只读
+        # 入口。独立部署必须注入该投影，不能把来源 GET 发给 PREPARER-only 服务。
+        reader = read_runtime if read_runtime is not None else self.runtime
+        cw, lago = reader["chatwoot"], reader["lago"]
         self.cw = Api(cw["base_url"], {"api_access_token": cw["api_token"]}, service="chatwoot", receipts=self.state["receipts"])
         self.lago = Api(lago["base_url"], {"Authorization": "Bearer " + lago["api_key"]}, service="lago", receipts=self.state["receipts"])
         self.prefix = f"/api/v1/accounts/{cw['account_id']}"

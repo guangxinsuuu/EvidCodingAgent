@@ -604,7 +604,9 @@ class SourceObjects(BusinessPack):
         # 若后一个 source GET 失败，整次初态尚未成立；恢复时重新观察两边，避免
         # 把上次的旧零聚合与本次来源快照拼成一个新的 READY。
         usage = self.observe_usage(label)
-        reader = Api(self.ready["base_url"], {"Authorization": "Bearer " + self.private["read_token"]},
+        read_config = self.commercial_reader if self.commercial_reader is not None else {
+            "base_url": self.ready["base_url"], "token": self.private["read_token"]}
+        reader = Api(read_config["base_url"], {"Authorization": "Bearer " + read_config["token"]},
                      service="commercial-observer", receipts=self.state["receipts"])
         query = {k: p[k] for k in ("tenant_id", "customer_id", "subscription_id", "invoice_id", "account_id", "conversation_id")}
         try:

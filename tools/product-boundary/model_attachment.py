@@ -17,6 +17,7 @@ from urllib.request import build_opener, ProxyHandler
 from uuid import uuid4
 
 import deployment
+from platform_attachment import binding as platform_boundary
 
 ROOT = deployment.ROOT
 SOURCE = ROOT / "tools/model-boundary"
@@ -149,7 +150,7 @@ def validate(directory: Path, *, running=True):
             or not outlet["HostConfig"]["ReadonlyRootfs"]:
         raise ValueError("MODEL_OUTLET_DEPLOYMENT_CHANGED")
     mounts = [m for m in outlet["Mounts"] if m["Destination"] == "/run/secrets/role.json"]
-    if len(mounts) != 1 or mounts[0]["RW"] or Path(mounts[0]["Source"]) != directory / "model-access.private.json":
+    if len(mounts) != 1 or mounts[0]["RW"] or platform_boundary.host_mount_file(mounts[0]["Source"]) != directory / "model-access.private.json":
         raise ValueError("MODEL_OUTLET_MOUNT_CHANGED")
     network_name = manifest["deployment_id"] + "_model"
     network = json.loads(deployment.command(["docker", "network", "inspect", network_name]))[0]
