@@ -73,7 +73,7 @@ class SourceClient:
 
     @staticmethod
     def path(namespace:str,object_id:str,version:str)->str:
-        if namespace not in {"rules","acceptance","jira"} or any(not isinstance(v,str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}",v) for v in (object_id,version)):
+        if namespace not in {"rules","acceptance","jira","diagnostics","providers"} or any(not isinstance(v,str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}",v) for v in (object_id,version)):
             raise SourceClientError("SOURCE_OBJECT_IDENTITY_INVALID")
         return f"/v1/objects/{namespace}/{object_id}/versions/{version}"
 

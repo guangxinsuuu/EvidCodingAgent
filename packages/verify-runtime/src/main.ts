@@ -1,7 +1,7 @@
 import { readFile, writeFile, stat } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { Runtime } from "./runtime.js";
-import { SimulatedSourceReader } from "./source-authority.js";
+import { SimulatedSourceReader, SourceReaderSet } from "./source-authority.js";
 import { createVerifyServer } from "./server.js";
 import { requireThat, type Limits, type RuntimeConfig } from "./types.js";
 
@@ -15,10 +15,13 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   requireThat(((await stat(path)).mode & 0o077) === 0, "PRIVATE_CONFIG_MODE_REQUIRED", 400);
   const c = JSON.parse(await readFile(path, "utf8")) as {
     database_url: string; model: RuntimeConfig["model"]; prompt_path: string;
-    bundle_path: string; run_id: string; planner_token: string; limits: Limits; port?: number; ready_path: string; source_reader_config?: string;
+    bundle_path: string; run_id: string; planner_token: string; limits: Limits; port?: number; ready_path: string;
+    source_reader_config?: string; source_reader_configs?: string[];
   };
+  requireThat(!(c.source_reader_config && c.source_reader_configs), "AMBIGUOUS_SOURCE_READER_CONFIG", 400);
   const runtime = new Runtime({ databaseUrl: c.database_url, model: c.model, plannerPrompt: await readFile(c.prompt_path, "utf8"),
-    ...(c.source_reader_config ? { sourceReader: SimulatedSourceReader.fromFile(c.source_reader_config) } : {}) });
+    ...(c.source_reader_config ? { sourceReader: SimulatedSourceReader.fromFile(c.source_reader_config) } :
+      c.source_reader_configs ? { sourceReader: SourceReaderSet.fromFiles(c.source_reader_configs) } : {}) });
   try {
     await runtime.store.migrate();
     await runtime.acceptRun(JSON.parse(await readFile(c.bundle_path, "utf8")), c.planner_token, c.limits, c.run_id);

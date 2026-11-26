@@ -34,7 +34,7 @@ export class Runtime {
     verifyCapabilitySource();
     requireThat(config.model.seed === undefined || Number.isSafeInteger(config.model.seed) && config.model.seed >= 0 && config.model.seed <= 2147483647, "INVALID_MODEL_SEED", 400);
     this.store = new Store(config.databaseUrl);
-    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "product-authority.js", "source-authority.js", "check-quality.js", "check-binding.js", "capability-authority.js",
+    const modules = Object.fromEntries(["runtime.js", "store.js", "context.js", "model.js", "server.js", "types.js", "product-authority.js", "source-authority.js", "upstream-inputs.js", "check-quality.js", "check-binding.js", "capability-authority.js",
       "evidence-profile.js", "review-profile.js", "review-planning.js", "../../contracts/dist/review-request.js", "../../contracts/dist/review-decision.js", "../../contracts/dist/evidence-review.js", "../../contracts/dist/verify.js"].map(path => [path, sha(readFileSync(new URL(path, import.meta.url), "utf8"))]));
     this.identities = { runtime_build_sha256: digest(modules), module_sha256: modules,
       planner_prompt_sha256: sha(config.plannerPrompt), action_schema_sha256: digest(decisionProposalSchema), evidence_action_schema_sha256: digest(evidenceDecisionProposalSchema),
@@ -44,6 +44,8 @@ export class Runtime {
       capability_contract_sha256: capabilityContractDigest,
       product_registry_sha256: sha(readFileSync(new URL("../../../config/external-products.v1.json", import.meta.url), "utf8")),
       source_registry_sha256: sha(readFileSync(new URL("../../../config/source-publications.v1.json", import.meta.url), "utf8")),
+      additional_source_registries_sha256: Object.fromEntries(["phase-acceptance-publications.v1.json", "upstream-publications.v1.json", "upstream-review-request.v1.json"]
+        .map(name => [name, sha(readFileSync(new URL("../../../config/" + name, import.meta.url), "utf8"))])),
       source_reader: config.sourceReader?.identity ?? null,
       model_name: config.model.name, model_manifest_digest: config.model.digest };
     this.configDigest = digest({ identities: this.identities, model: config.model, prompt: config.plannerPrompt, schema: modelBodySchema(),

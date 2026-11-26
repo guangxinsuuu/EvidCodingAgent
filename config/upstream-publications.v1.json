@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "objects": [
+    {
+      "namespace": "diagnostics",
+      "object_id": "INV-LAB-100",
+      "version": "1",
+      "repository": "EvidEnterpriseSources",
+      "path": "seed/diagnostics/INV-LAB-100.diagnosis.v1.json",
+      "publisher": "investigation-publisher",
+      "readers": [
+        "planner-reader"
+      ],
+      "content_type": "application/json",
+      "profile": "PROJECT1_DIAGNOSIS_V1"
+    },
+    {
+      "namespace": "diagnostics",
+      "object_id": "INV-LAB-100-OBSERVATION",
+      "version": "1",
+      "repository": "EvidEnterpriseSources",
+      "path": "seed/diagnostics/INV-LAB-100.observation.v1.json",
+      "publisher": "investigation-publisher",
+      "readers": [
+        "planner-reader"
+      ],
+      "content_type": "application/json",
+      "profile": "PROJECT1_EVIDENCE_MANIFEST_V1"
+    },
+    {
+      "namespace": "diagnostics",
+      "object_id": "INV-LAB-100-HANDOFF",
+      "version": "1",
+      "repository": "EvidEnterpriseSources",
+      "path": "seed/diagnostics/INV-LAB-100.handoff.v1.json",
+      "publisher": "investigation-publisher",
+      "readers": [
+        "planner-reader"
+      ],
+      "content_type": "application/json",
+      "profile": "PROJECT1_ENGINEERING_HANDOFF_V1"
+    },
+    {
+      "namespace": "providers",
+      "object_id": "phase-platforms",
+      "version": "provider-v1",
+      "repository": "EvidBusinessPlatforms",
+      "path": "contracts/phase-providers.v1.json",
+      "lineage_manifest": "provider-publication.v1.json",
+      "publisher": "service-owner-publisher",
+      "readers": [
+        "planner-reader",
+        "oracle-reader"
+      ],
+      "content_type": "application/json",
+      "profile": "DECLARED_PHASE_PROVIDER_INTERFACES_V1"
+    }
+  ]
+}

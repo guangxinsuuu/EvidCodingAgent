@@ -70,6 +70,36 @@ test("生成Schema按阶段收窄动作，不能改动共享协议或第一轮�
   assert.equal(digest(reviewDecisionProposalSchema), before, "动态枚举不能污染全局协议");
 });
 
+test("共享字段压缩后仍拒绝未知引用、额外权限字段和缺失的审慎决策框架", () => {
+  const b = bundle(), s = state(true);
+  for (let i = 0; i < 7; i++) s.read_receipts.push({ receipt_ref: "read:source-" + i,
+    material_ref: "material:source-" + i, start_line: 1, end_line: 2 });
+  const schema = reviewModelSchema(b, s), validate = validator(b, s);
+  const good = body(proposal("READ", { material_ref: "rule:R4", start_line: 1, end_line: 2 }));
+  assert.equal(validate(good), true);
+  for (const change of [
+    (v: Json) => { v.evidence_refs = ["read:unobserved"]; },
+    (v: Json) => { delete v.decision_frame; },
+    (v: Json) => { v.release_authorized = true; },
+    (v: Json) => { (v.decision_frame as Json).unresolved_questions = []; },
+  ]) { const invalid = structuredClone(good); change(invalid); assert.equal(validate(invalid), false); }
+  // 与原来的逐分支内联表示比较，检查压缩的是重复 Schema，而非约束或材料。
+  const expanded = structuredClone(schema);
+  for (const branch of expanded.oneOf as Json[]) {
+    const properties = branch.properties as Json;
+    for (const [key, value] of Object.entries(properties)) {
+      const ref = (value as Json).$ref;
+      if (typeof ref === "string" && ref.startsWith("#/$defs/reviewDecisionField_"))
+        properties[key] = (expanded.$defs as Json)[ref.slice("#/$defs/".length)];
+    }
+  }
+  for (const key of Object.keys(expanded.$defs as Json))
+    if (key.startsWith("reviewDecisionField_")) delete (expanded.$defs as Json)[key];
+  const expandedValidate = new Ajv2020({ strict: true }).compile(expanded);
+  assert.equal(expandedValidate(good), true);
+  assert.ok(Buffer.byteLength(JSON.stringify(schema)) < Buffer.byteLength(JSON.stringify(expanded)) * 0.8);
+});
+
 test("没有可读材料时只移除READ，不误删初始STOP", () => {
   const b = bundle(); b.materials = [];
   const validate = validator(b, state());

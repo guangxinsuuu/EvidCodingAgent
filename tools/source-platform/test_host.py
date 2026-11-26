@@ -41,5 +41,16 @@ class RegistrationTests(unittest.TestCase):
         for path in (link,self.root/'instance/manifest.json'):
             with self.subTest(path=path),self.assertRaises(SourceClientError):host.registration_path(path)
 
+    def test_additional_version_cannot_expand_object_or_publisher_scope(self):
+        obj={'namespace':'jira','object_id':'TASK-1','publisher':'requirements-publisher','repository':'EvidEnterpriseSources','version':'1'}
+        self.old.write_text(json.dumps({'objects':[obj]}));self.manifest(self.old)
+        self.new.write_text(json.dumps({'objects':[{**obj,'version':'2'}]}))
+        objects,registration=host.publication_objects(self.instance,self.new)
+        self.assertEqual(objects[0]['version'],'2');self.assertEqual(registration['ref'],'config/new.json')
+        for edit in ({'object_id':'TASK-2'},{'publisher':'qa-publisher'}):
+            self.new.write_text(json.dumps({'objects':[{**obj,**edit,'version':'2'}]}))
+            with self.assertRaisesRegex(SourceClientError,'VERSION_REGISTRATION_SCOPE_EXPANSION'):
+                host.publication_objects(self.instance,self.new)
+
 
 if __name__=='__main__':unittest.main()

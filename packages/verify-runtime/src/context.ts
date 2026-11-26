@@ -3,6 +3,24 @@ import { evidenceContext, evidenceModelSchema } from "./evidence-profile.js";
 import { decisionProposalSchema } from "@egap/contracts";
 import { digest, type Json, type ReleaseBundle, type RuntimeBundle, type RunState } from "./types.js";
 import { planningContractView } from "./capability-authority.js";
+import { upstreamContext } from "./upstream-inputs.js";
+
+/**
+ * contextView → 模型请求专用的 READ 投影。正文、片段摘要和行范围完整保留；
+ * 每次 READ 对全部来源重新授权产生的重复审计元数据只给引用和摘要。
+ * Store / projection / operation 中仍保存原回执，Runtime.authorizeSources 仍在使用前执行。
+ * 此处的历史授权摘要不能成为下一次读取的授权，也不能证明业务行为正确。
+ */
+function readContext(receipt: Json): Json {
+  const { source_authorization, ...rest } = receipt;
+  if (!Array.isArray(source_authorization)) return receipt;
+  return { ...rest, source_authorization_summary: {
+    receipt_digest: digest(source_authorization),
+    source_refs: source_authorization.map((row: Json) => row.source_ref),
+    original_receipt_ref: receipt.receipt_ref,
+    qualification: "HISTORICAL_CHECK_ONLY_REAUTHORIZE_BEFORE_USE",
+  } };
+}
 
 /** 稳定材料只给目录；diff 有界投影，源码/规则必须通过 READ 才进入事实上下文。 */
 export function contextView(bundle: RuntimeBundle, state: RunState): Json {
@@ -29,6 +47,13 @@ export function contextView(bundle: RuntimeBundle, state: RunState): Json {
     latest_proposal_id: state.check_repair.latest_proposal_id, latest_proposal: state.check_repair.latest_proposal,
     quality: qualityView, attempts_limit: state.check_repair.attempts_limit,
   } : null;
+  // 同一成功 READ 在 latest_feedback 和 read_receipts 中各存一份，供审计/恢复使用。
+  // 仅当二者完整内容相同时改为导航引用；失败、差异回执或非 READ 反馈不得被隐藏。
+  const feedback = state.latest_feedback;
+  const repeatedRead = feedback?.status === "COMPLETED" && feedback.receipt_ref &&
+    state.read_receipts.some(r => r.receipt_ref === feedback.receipt_ref && digest(r) === digest(feedback));
+  const feedbackView = repeatedRead ? { status: feedback.status, receipt_ref: feedback.receipt_ref,
+    material_ref: feedback.material_ref, details_ref: "read_receipts" } : feedback;
   let remaining = 12_000;
   const changes = bundle.changes.map(change => {
     const material = bundle.materials.find(m => m.material_ref === change.diff_material_ref);
@@ -50,7 +75,7 @@ export function contextView(bundle: RuntimeBundle, state: RunState): Json {
     latest_feedback: state.latest_feedback?.status === "NEEDS_REVISION" && repairView
       ? { status: state.latest_feedback.status, error_code: state.latest_feedback.error_code,
           correction: state.latest_feedback.correction, details_ref: "check_repair" }
-      : state.latest_feedback,
+      : feedbackView,
     check_repair: repairView,
     changes, requirement_refs: bundle.requirement_refs,
     catalog: state.read_receipts.length > 0 ? {
@@ -64,13 +89,14 @@ export function contextView(bundle: RuntimeBundle, state: RunState): Json {
       ...(m.external_source_ref ? { external_source_ref: m.external_source_ref, sha256: m.sha256 } : {}),
       total_lines: content.split("\n").length,
       read_window: { start_line: 1, end_line: Math.min(200, content.split("\n").length) } })),
-    hypotheses: state.hypotheses, read_receipts: state.read_receipts,
+    hypotheses: state.hypotheses, read_receipts: state.read_receipts.map(readContext),
     known_gaps: bundle.gaps,
     // 任意过去场景通过数都不属于本候选。此切片不执行实验，也不签发 PASS。
     current_candidate_coverage: [], final_eligibility: finalEligibility(),
     allowed_evidence_refs: evidenceRefs(bundle, state),
     profile: "LOCAL_MODEL_READ_AND_PLAN_ONLY",
     planning_contracts: (bundle.planning_contracts ?? []).map(planningContractView),
+    external_input_boundaries: upstreamContext(bundle, state),
   };
   return bundle.schema_version === 2 ? reviewContext(bundle, state, view, groundedRequirements(bundle, state)) : view;
 }

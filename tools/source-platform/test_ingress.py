@@ -31,6 +31,15 @@ class IngressTests(unittest.TestCase):
         with self.assertRaisesRegex(SourceClientError,"JIRA_RULE_VERSION_MISMATCH"):
             normalize_issue(issue,"a"*40,"b"*40,"git:product")
 
+    def test_revision_two_is_a_new_request_basis_and_not_an_approval(self):
+        issue=self.issue();issue['revision']=2
+        request=normalize_issue(issue,'a'*40,'b'*40,'git:product')
+        self.assertEqual(request['revision'],2)
+        self.assertTrue(all(r['status']=='PENDING' for r in request['requirements']))
+        issue['revision']=3
+        with self.assertRaisesRegex(SourceClientError,'JIRA_SOURCE_IDENTITY_INVALID'):
+            normalize_issue(issue,'a'*40,'b'*40,'git:product')
+
     def test_source_envelope_and_private_config_rejected(self):
         conf={"base_url":"http://127.0.0.1:1234","token":"x"*40,"source_kind":"SIMULATED_ENTERPRISE_SOURCE",
               "principal_id":"lab:planner-reader","instance_id":"evid-sources-test","tenant_id":"company-a"}

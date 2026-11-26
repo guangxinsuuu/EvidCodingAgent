@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "objects": [
+    {
+      "namespace": "jira",
+      "object_id": "EGAPLAB-100",
+      "version": "2",
+      "repository": "EvidEnterpriseSources",
+      "path": "seed/jira/EGAPLAB-100.v2.json",
+      "content_type": "application/json",
+      "profile": "INDEPENDENT_PRODUCT_DEPLOYMENT",
+      "publisher": "requirements-publisher",
+      "readers": [
+        "planner-reader",
+        "oracle-reader"
+      ]
+    }
+  ]
+}

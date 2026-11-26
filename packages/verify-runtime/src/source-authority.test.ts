@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Runtime } from "./runtime.js";
-import { SimulatedSourceReader, type SourceBinding } from "./source-authority.js";
+import { SimulatedSourceReader, SourceReaderSet, type SourceBinding } from "./source-authority.js";
 import { sha, validateBundle, type Json, type ReleaseBundle } from "./types.js";
 
 /** 合成来源 HTTP 验证身份/撤权协议；真实部署的权限验收另由 source-platform/host.py 完成。 */
@@ -80,6 +80,43 @@ test("来源：旧规则回退、随包地址、跨实例与批准升级拒绝",
     ["SOURCE_INSTANCE_MISMATCH", b => { b.external_sources![0]!.instance_id = "evid-sources-123456789abd"; }],
   ];
   for (const [code, edit] of edits) { const b = structuredClone(h.bundle); edit(b); assert.throws(() => validateBundle(b), new RegExp(code)); }
+});
+
+test("来源：独立 QA 实例准确路由，缺 reader 或撤权不能使用旧包", async t => {
+  const h = await fixture(t);
+  const content = JSON.stringify({ schema_version: 1, contract_id: "qa.commercial-phase-review.v1", version: "phase-v1",
+    effect: "NO_BUSINESS_WRITES_NO_MODEL_CALLS", operation: "REVIEW_SUPPLIED_OBSERVATIONS", release_authorized: false,
+    protected_final: false, authority_scope: "SYNTHETIC_LOCAL_CALIBRATION" });
+  const source: SourceBinding = { ref: "acceptance:phase-review-contract", namespace: "acceptance", object_id: "phase-review-contract",
+    version: "phase-v1", instance_id: "evid-sources-abcdef123456", tenant_id: "company-a", publication_id: "c".repeat(32),
+    publisher_id: "lab:qa-publisher", content_sha256: sha(content), metadata: { authority_scope: "SYNTHETIC_LOCAL_CALIBRATION",
+      approval_state: "DRAFT", profile: "PHASE_REVIEW_CONTRACT", content_type: "application/json", source: {
+        repository_url: "https://github.com/guangxinsuuu/EvidAcceptanceAssets.git", commit: "d".repeat(40), blob: "e".repeat(40),
+        path: "oracles/phase-contract.v1.json" } } };
+  let available = true;
+  const server = createServer((req, res) => {
+    res.setHeader("content-type", "application/json");
+    if (!available) { res.statusCode = 503; res.end("{}"); return; }
+    assert.equal(req.headers.authorization, "Bearer " + "q".repeat(40));
+    res.end(JSON.stringify({ ...source, schema_version: 1, source_kind: "SIMULATED_ENTERPRISE_SOURCE",
+      content_base64: Buffer.from(content).toString("base64"), acl_decision: { principal_id: "lab:planner-reader", permission: "READ",
+        scope: "EXACT_OBJECT_AND_TENANT", cache_authorization_seconds: 0 } }));
+  });
+  await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise<void>(resolve => { server.closeAllConnections(); server.close(() => resolve()); }));
+  const qa = new SimulatedSourceReader({ base_url: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+    token: "q".repeat(40), principal_id: "lab:planner-reader", tenant_id: "company-a", instance_id: source.instance_id,
+    source_kind: "SIMULATED_ENTERPRISE_SOURCE" });
+  h.bundle.external_sources!.push(source);
+  h.bundle.materials.push({ material_ref: source.ref, external_source_ref: source.ref, kind: "DECLARED_QA_CONTRACT", title: "QA contract",
+    git_commit: source.metadata.source.commit, path: source.metadata.source.path, sha256: sha(content), content,
+    source_byte_start: 0, source_byte_end: Buffer.byteLength(content) });
+  validateBundle(h.bundle);
+  await assert.rejects(new SourceReaderSet([h.reader]).authorize(h.bundle), /SOURCE_INSTANCE_READER_REQUIRED/);
+  assert.throws(() => new SourceReaderSet([qa, qa]), /SOURCE_READER_SET_INVALID/);
+  const readers = new SourceReaderSet([h.reader, qa]);
+  assert.equal((await readers.authorize(h.bundle)).length, 3);
+  available = false; await assert.rejects(readers.authorize(h.bundle), /SOURCE_ACCESS_UNAVAILABLE/);
 });
 test("Runtime：冻结包仍需来源 reader；权限丢失阻止投影、缓存操作和模型预算消费", {
   skip: !process.env.EGAP_VERIFY_TEST_DATABASE_URL, timeout: 20000,

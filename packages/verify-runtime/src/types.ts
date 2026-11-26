@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { validateProductBinding, type ProductBinding } from "./product-authority.js";
-import { validateSourceBindings, type SourceBinding, type SimulatedSourceReader } from "./source-authority.js";
+import { validateSourceBindings, type SourceBinding, type SourceReader } from "./source-authority.js";
 import { parseReviewRequest, type ReviewRequest, type ReviewDecisionProposal,
   type DecisionProposal, type HypothesisUpdate, type EvidenceReviewInput, type EvidenceDecisionProposal } from "@egap/contracts";
 
@@ -35,7 +35,7 @@ export interface RuntimeConfig {
   model: { endpoint: string; name: string; digest: string; timeoutMs: number; maxOutputTokens: number; seed?: number };
   plannerPrompt: string;
   evidenceReadPort?: EvidenceReadPort;
-  sourceReader?: SimulatedSourceReader;
+  sourceReader?: SourceReader;
   /** Workbench 撤回/租约 fence 检查；在数据库事务外调用，失败不释放已预留额度。 */
   assertEvidenceDispatchAllowed?: (runId: string) => Promise<void>;
 }

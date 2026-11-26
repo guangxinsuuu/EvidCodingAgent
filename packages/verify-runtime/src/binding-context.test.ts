@@ -144,3 +144,36 @@ test("绑定后新增接口上下文仍不因修正调用预留而自我过期",
   state.model_calls_used += 1; state.check_repair.attempts_used += 1;
   assert.equal(contextRef(bundle, state), before);
 });
+
+test("多来源 READ 上下文去重不丢正文、引用或不确定性，权威回执保持原样", () => {
+  const { bundle, state } = setup();
+  const content = "OPEN / 0 only means no observed usage; delivery completeness remains UNRESOLVED.\n".repeat(50);
+  const authorizations = Array.from({ length: 7 }, (_, i) => ({ source_ref: "source:" + i,
+    instance_id: "instance:" + i, publication_id: "p".repeat(32), content_sha256: "s".repeat(64),
+    observed_at: "2026-11-26T00:00:00Z", acl_decision: { principal_id: "lab:planner-reader", permission: "READ",
+      scope: "EXACT_OBJECT_AND_TENANT", cache_authorization_seconds: 0 } }));
+  state.read_receipts = [{ status: "COMPLETED", receipt_ref: "read:rule", material_ref: "rule:R4",
+    content, start_line: 1, end_line: 51, source_sha256: sha(content), fragment_sha256: sha(content),
+    source_authorization: authorizations, proves_current_business_behavior: false }];
+  state.latest_feedback = structuredClone(state.read_receipts[0]!);
+  const original = structuredClone(state);
+  const view = contextView(bundle, state), read = (view.read_receipts as Json[])[0]!;
+  assert.equal(read.content, content); assert.equal(read.fragment_sha256, sha(content));
+  assert.equal(read.start_line, 1); assert.equal(read.end_line, 51);
+  assert.equal(read.proves_current_business_behavior, false);
+  assert.deepEqual((read.source_authorization_summary as Json).source_refs, authorizations.map(a => a.source_ref));
+  assert.equal(read.source_authorization, undefined);
+  assert.equal((view.latest_feedback as Json).content, undefined);
+  assert.equal((view.latest_feedback as Json).receipt_ref, read.receipt_ref);
+  assert.equal((view.latest_feedback as Json).details_ref, "read_receipts");
+  assert.ok((view.allowed_evidence_refs as string[]).includes("read:rule"));
+  assert.deepEqual(state, original, "模型投影不能篡改持久化审计对象");
+  const beforeBytes = Buffer.byteLength(JSON.stringify([state.read_receipts, state.latest_feedback]));
+  const afterBytes = Buffer.byteLength(JSON.stringify([view.read_receipts, view.latest_feedback]));
+  assert.ok(afterBytes < beforeBytes / 2, `${afterBytes}/${beforeBytes}`);
+  const previous = contextRef(bundle, state);
+  state.model_calls_used++;
+  assert.equal(contextRef(bundle, state), previous, "调用记账不改变证据身份");
+  state.latest_feedback = { ...state.latest_feedback, status: "REJECTED", error_code: "SOURCE_ACCESS_UNAVAILABLE" };
+  assert.deepEqual(contextView(bundle, state).latest_feedback, state.latest_feedback, "不得去掉拒绝原因");
+});

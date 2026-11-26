@@ -1,0 +1,621 @@
+{
+  "schema_version": 1,
+  "qualification": "LOCAL_SIMULATED_SOURCE_INGRESS_REAL_HTTP_PG_LANGGRAPH_SCRIPTED_MODEL",
+  "run_id": "ff6f5f34-20ab-4d12-a307-9df862ac80e2",
+  "egap_parent_commit": "b8b64535f5578a601b7731e24f80d3fcbd838523",
+  "actual_runtime_identities": {
+    "runtime_build_sha256": "ca2b73c1ee38338e42bd35e043f4c763a8366d7a15e49a8e4429d23cefb10452",
+    "module_sha256": {
+      "runtime.js": "6b829e78ada4f5f328bfbbf3dc5aa6a544b0042d36f5d99cf4b4e95d870aada6",
+      "store.js": "ac934832d0dbbc0ae073345af5891ae1d9eb82bfe8617fd50f851f4f468e6db0",
+      "context.js": "31b8e42a84e2f2158bceecf1a9806038d376fb120cad6f2652a4bd2461734ca7",
+      "model.js": "8b7753fbff81e051d9c11d7d7012277f44dba66ca4f0f42433d2df05c60dc0ed",
+      "server.js": "40baed444a22bc40b4b99c4624ea4b491fea58f0f27f585a2bef64843496cceb",
+      "types.js": "917fe2b70f8f98359197e27b2d6cae598cd095b140c5ac12fc00a76280eb4ed8",
+      "product-authority.js": "780368a993e9589504c10138fad8e8fbdd7b7cd6f4b3f08a878e7a7fde08f485",
+      "source-authority.js": "0fcdaa960c26d7d35ac5cc1e689874bfebb8bec74391338905d9d8482a768f1c",
+      "upstream-inputs.js": "b3ef59c62ee194508f8bcde9db7561940cc5cc83c55dcd27410efe2fddc2d9fc",
+      "check-quality.js": "92d7f4caa3da79713a66be7c718a3dee754fff39ff0faba13c9c74f80034912e",
+      "check-binding.js": "f5ee5c581ead580812aa7bde973b699ac4929f75b3f89b14a0aefd331031c766",
+      "capability-authority.js": "d4fa3279b411239994693ca30d3b5be4f1dc761ce5e6869a7a16cd8e9dba20ff",
+      "evidence-profile.js": "4af45fb89009995cce43578b09516e7f429f1dbd34e67dafb0850e900bea6a8e",
+      "review-profile.js": "447b31e0f138081edb474a1444578e331df218c0244a17346aa4b61c4bc3e180",
+      "review-planning.js": "9bff4f0bceb22292728735e37bd2c755a831633ec586a6529de30116a551954a",
+      "../../contracts/dist/review-request.js": "27341240398c72f75e2d606913fe5d1b6b3d323f816ab4f628a9f4369469e4b7",
+      "../../contracts/dist/review-decision.js": "352d97891569ce46ea5e4054a5385bf62c4b3d60f2a46e7b0a94ef31124dbe87",
+      "../../contracts/dist/evidence-review.js": "c37b9fa5ba8d228e2865e92a7b2656b1ae44d56d6c0798c00ceeea763384f99a",
+      "../../contracts/dist/verify.js": "24633d781eebb11fe2c9596e18f6f40171f85cddb222e5a75801aa206168d158"
+    },
+    "planner_prompt_sha256": "1f1b89030a8e49871efedd0acbe00d650122fd1cb1b19ab4594e6a88d407606d",
+    "action_schema_sha256": "632a82e73c2c1bd160805d756ee785d7e99f03063f869d70d4d39063ca3bfce4",
+    "evidence_action_schema_sha256": "7e33712793ee3944675b0146a4a45bfe50886496e1d67f56642b8d0c3789cb0b",
+    "review_prompt_sha256": "01cf0dec6ca3e363c3d240cf094bf0468801bd5e4c1e79be56f55e21b4b9839a",
+    "review_action_schema_sha256": "f8a7b661ae031871d2962101eabc732b5066360368ff491ce368a265996b6893",
+    "review_request_schema_sha256": "2a40ba24cad8ba17b69bf885b2f5dca299a9e9f3be9392fc58563ddcc4dd3ddc",
+    "evidence_prompt_sha256": "513ca627b44132db53dc75512156ee362a9264324e363655ff7620d8e802b972",
+    "evidence_read_transport": "PINNED_MEMORY",
+    "evidence_dispatch_fence": false,
+    "capability_contract_sha256": "c9cbeec93cee67b545915b48e31f517d2e50616dff69299bd28e8ad3fe5dbf54",
+    "product_registry_sha256": "7f34f0bc53f3580e56f6a821eb5ac7e5ac7ae34733b24893fb44ad05eb1c4ab0",
+    "source_registry_sha256": "c67d4639810bf225456f2f283e163802f0d2a54c0d5dfe22bff6f3d2c07d0b15",
+    "additional_source_registries_sha256": {
+      "phase-acceptance-publications.v1.json": "be120ef85187e8c1fae99c262783a2c63fa9779cda040526f5b4cb4e5f4dfe7c",
+      "upstream-publications.v1.json": "d46dd8926a27c9b81fdff68689c55c365913469bb8f2cf36d52025fc70d29344",
+      "upstream-review-request.v1.json": "f31293f4f52d0a4942c4c5180c81b4313e655dcd572caee0cb531f77c213c7e6"
+    },
+    "source_reader": {
+      "mode": "EXACT_INSTANCE_ROUTER",
+      "readers": [
+        {
+          "endpoint": "http://127.0.0.1:50582",
+          "principal_id": "lab:planner-reader",
+          "instance_id": "evid-sources-35ea9faf3b4e",
+          "tenant_id": "company-a",
+          "source_kind": "SIMULATED_ENTERPRISE_SOURCE"
+        },
+        {
+          "endpoint": "http://127.0.0.1:61799",
+          "principal_id": "lab:planner-reader",
+          "instance_id": "evid-sources-6b1f4995a5dc",
+          "tenant_id": "company-a",
+          "source_kind": "SIMULATED_ENTERPRISE_SOURCE"
+        },
+        {
+          "endpoint": "http://127.0.0.1:50236",
+          "principal_id": "lab:planner-reader",
+          "instance_id": "evid-sources-906d8c1857bb",
+          "tenant_id": "company-a",
+          "source_kind": "SIMULATED_ENTERPRISE_SOURCE"
+        }
+      ]
+    },
+    "model_name": "upstream-ingress-protocol-stub",
+    "model_manifest_digest": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "candidate_repository": "https://github.com/guangxinsuuu/EvidSupportSUT.git",
+  "baseline_sha": "3d9bfb18275998426571d844f89cc4ed87b5ec6f",
+  "candidate_sha": "76076dd17368a8cf5627e45758db25300b2a2bd2",
+  "review_request": {
+    "id": "jira:EGAPLAB-100",
+    "revision": 2
+  },
+  "sources": [
+    {
+      "ref": "jira:EGAPLAB-100",
+      "instance_id": "evid-sources-6b1f4995a5dc",
+      "tenant_id": "company-a",
+      "namespace": "jira",
+      "object_id": "EGAPLAB-100",
+      "version": "2",
+      "publication_id": "3eec8828bfa24af485e972fa82662bd9",
+      "content_sha256": "3bc93fcce7eee3d3391e9d3129de7564177f555380f14d6ecb5d41656c5a72fc",
+      "publisher_id": "lab:requirements-publisher",
+      "metadata": {
+        "approval_state": "DRAFT",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "application/json",
+        "profile": "INDEPENDENT_PRODUCT_DEPLOYMENT",
+        "source": {
+          "blob": "b7857d3c91c0001bb03b5ad66db4db006111cf4d",
+          "commit": "e59dfd7c2b5fb5d91101b73b386f870774a2304b",
+          "path": "seed/jira/EGAPLAB-100.v2.json",
+          "repository_url": "https://github.com/guangxinsuuu/EvidEnterpriseSources.git"
+        }
+      }
+    },
+    {
+      "ref": "rules:refund-rules",
+      "instance_id": "evid-sources-6b1f4995a5dc",
+      "tenant_id": "company-a",
+      "namespace": "rules",
+      "object_id": "refund-rules",
+      "version": "lab-v1-extracted",
+      "publication_id": "e7c0d73f83be444d931cd65f64154cea",
+      "content_sha256": "409799ea7f462f13dde5ddaad566db1d842a64f133bf4a4b6c23e3bc8829b07c",
+      "publisher_id": "lab:business-publisher",
+      "metadata": {
+        "approval_state": "PENDING_USER_REVIEW",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "text/markdown",
+        "profile": "COMMERCIAL_CROSS_SYSTEM_SOURCE_V1",
+        "source": {
+          "blob": "de15c8456f8b3cb79fe21a5fbc5bcfcdf61e0ef0",
+          "commit": "3e49cb1559242bea1f93ced0a5cc4aeb9ea674f5",
+          "path": "policies/rules.md",
+          "repository_url": "https://github.com/guangxinsuuu/EvidBusinessRules.git"
+        }
+      }
+    },
+    {
+      "ref": "acceptance:phase-review-contract",
+      "instance_id": "evid-sources-906d8c1857bb",
+      "tenant_id": "company-a",
+      "namespace": "acceptance",
+      "object_id": "phase-review-contract",
+      "version": "phase-v1",
+      "publication_id": "6af07b88768245e29c6bf701db79bfd2",
+      "content_sha256": "94771e51abc959aa7e2c148534d32d267ab76a5a932cbf34a7f8ee0ef95944f3",
+      "publisher_id": "lab:qa-publisher",
+      "metadata": {
+        "approval_state": "DRAFT",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "application/json",
+        "profile": "PHASE_REVIEW_CONTRACT",
+        "source": {
+          "blob": "470ab8fa1d5c5fa6a0b4e4431dc69f84a6241bfa",
+          "commit": "be8b133d665ac1d7be93a8dec2b7eb203657aca6",
+          "path": "oracles/phase-contract.v1.json",
+          "repository_url": "https://github.com/guangxinsuuu/EvidAcceptanceAssets.git"
+        }
+      }
+    },
+    {
+      "ref": "diagnostics:INV-LAB-100",
+      "instance_id": "evid-sources-35ea9faf3b4e",
+      "tenant_id": "company-a",
+      "namespace": "diagnostics",
+      "object_id": "INV-LAB-100",
+      "version": "1",
+      "publication_id": "7c327d29efa6433d85b2ca298079715f",
+      "content_sha256": "93b5c2d2932ec345a89247b8f3e743c3dc16c9184188ab46ca0cf97ea2b34c3b",
+      "publisher_id": "lab:investigation-publisher",
+      "metadata": {
+        "approval_state": "DRAFT",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "application/json",
+        "profile": "PROJECT1_DIAGNOSIS_V1",
+        "source": {
+          "blob": "855f16e4fdc6e19e5023809a25abd79393cfacdf",
+          "commit": "f6274d7bfbe6f0798b3ce3cc4c8f9999ce193c69",
+          "path": "seed/diagnostics/INV-LAB-100.diagnosis.v1.json",
+          "repository_url": "https://github.com/guangxinsuuu/EvidEnterpriseSources.git"
+        }
+      }
+    },
+    {
+      "ref": "diagnostics:INV-LAB-100-OBSERVATION",
+      "instance_id": "evid-sources-35ea9faf3b4e",
+      "tenant_id": "company-a",
+      "namespace": "diagnostics",
+      "object_id": "INV-LAB-100-OBSERVATION",
+      "version": "1",
+      "publication_id": "d39bb878ff5347219b7e4c524769b65b",
+      "content_sha256": "aa5b0fd268f9c356bf5c3988fa4e649fbd188e18135201a65aa2c14907821386",
+      "publisher_id": "lab:investigation-publisher",
+      "metadata": {
+        "approval_state": "DRAFT",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "application/json",
+        "profile": "PROJECT1_EVIDENCE_MANIFEST_V1",
+        "source": {
+          "blob": "c5ba016457857391c2d8330e9c5255a0426e90a1",
+          "commit": "f6274d7bfbe6f0798b3ce3cc4c8f9999ce193c69",
+          "path": "seed/diagnostics/INV-LAB-100.observation.v1.json",
+          "repository_url": "https://github.com/guangxinsuuu/EvidEnterpriseSources.git"
+        }
+      }
+    },
+    {
+      "ref": "diagnostics:INV-LAB-100-HANDOFF",
+      "instance_id": "evid-sources-35ea9faf3b4e",
+      "tenant_id": "company-a",
+      "namespace": "diagnostics",
+      "object_id": "INV-LAB-100-HANDOFF",
+      "version": "1",
+      "publication_id": "b22d86a0b7d44ddca4de23c5c330716b",
+      "content_sha256": "b67ca0fd9be56d04fb4396456b56f78e41b0d293f868cbd7aca09145307b19a3",
+      "publisher_id": "lab:investigation-publisher",
+      "metadata": {
+        "approval_state": "DRAFT",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "application/json",
+        "profile": "PROJECT1_ENGINEERING_HANDOFF_V1",
+        "source": {
+          "blob": "1816e1d9a61b38df35b93353a65b508574533d1c",
+          "commit": "f6274d7bfbe6f0798b3ce3cc4c8f9999ce193c69",
+          "path": "seed/diagnostics/INV-LAB-100.handoff.v1.json",
+          "repository_url": "https://github.com/guangxinsuuu/EvidEnterpriseSources.git"
+        }
+      }
+    },
+    {
+      "ref": "providers:phase-platforms",
+      "instance_id": "evid-sources-35ea9faf3b4e",
+      "tenant_id": "company-a",
+      "namespace": "providers",
+      "object_id": "phase-platforms",
+      "version": "provider-v1",
+      "publication_id": "a1902883eb72462badada903d1e10a6d",
+      "content_sha256": "af620164750d3269c1ebd81465777d9ef1ad445e0424336df565a0b1fb06a8c7",
+      "publisher_id": "lab:service-owner-publisher",
+      "metadata": {
+        "approval_state": "DRAFT",
+        "authority_scope": "SYNTHETIC_LOCAL_CALIBRATION",
+        "content_type": "application/json",
+        "profile": "DECLARED_PHASE_PROVIDER_INTERFACES_V1",
+        "source": {
+          "blob": "fd82b4d59e7b14c99eee491210c2403be26c0ac7",
+          "commit": "171aeb389d5e4e04a47a09bfb3eb2efcd879451f",
+          "path": "contracts/phase-providers.v1.json",
+          "repository_url": "https://github.com/guangxinsuuu/EvidBusinessPlatforms.git"
+        }
+      }
+    }
+  ],
+  "verification": {
+    "status": "UPSTREAM_INGRESS_CONFIRMED",
+    "run_id": "ff6f5f34-20ab-4d12-a307-9df862ac80e2",
+    "source_instances": [
+      "evid-sources-6b1f4995a5dc",
+      "evid-sources-906d8c1857bb",
+      "evid-sources-35ea9faf3b4e"
+    ],
+    "source_count": 7,
+    "checks": [
+      {
+        "name": "graph_reads_all_seven_sources",
+        "result": "CONFIRMED",
+        "model_protocol_calls": 9,
+        "real_model_calls": 0
+      },
+      {
+        "name": "model_context_preserves_read_content_within_existing_limit",
+        "result": "CONFIRMED",
+        "maximum_request_bytes": 97502
+      },
+      {
+        "name": "new_runtime_and_graph_resume_without_new_calls",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "acl_service_unavailable_rejects_fresh_cache",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "revoked_diagnosis_rejects_cached_operation",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "product-reader_cannot_read_diagnosis",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "outsider-reader_cannot_read_diagnosis",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "qa-publisher_cannot_read_diagnosis",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "upstream_cannot_authorize_repair",
+        "result": "CONFIRMED"
+      },
+      {
+        "name": "other_candidate_handoff_rejected",
+        "result": "CONFIRMED"
+      }
+    ],
+    "graph_model_protocol_calls": 9,
+    "real_model_calls": 0,
+    "business_writes": 0,
+    "current_candidate_coverage": [],
+    "final_eligible": false
+  },
+  "regression": {
+    "runtime": {
+      "command": "node --test packages/verify-runtime/dist/*.test.js",
+      "postgresql_enabled": true,
+      "tests": 221,
+      "passed": 221,
+      "failed": 0,
+      "skipped": 0
+    },
+    "source_adapter": {
+      "command": "tools/registry/.venv/bin/python -m unittest discover -s tools/source-platform -p test_*.py -q",
+      "passed": 8
+    },
+    "python_graph": {
+      "command": "PYTHONPATH=services/verify-agent/src services/verify-agent/.venv/bin/python -m unittest discover -s services/verify-agent/tests -q",
+      "passed": 38
+    },
+    "build": "pnpm build: exit 0"
+  },
+  "source_files": [
+    {
+      "path": "config/upstream-publications.v1.json",
+      "sha256": "d46dd8926a27c9b81fdff68689c55c365913469bb8f2cf36d52025fc70d29344"
+    },
+    {
+      "path": "config/upstream-review-request.v1.json",
+      "sha256": "f31293f4f52d0a4942c4c5180c81b4313e655dcd572caee0cb531f77c213c7e6"
+    },
+    {
+      "path": "packages/verify-runtime/src/binding-context.test.ts",
+      "sha256": "5fc0bd822da0e35f8e925e1fb826a0b01b74adf63a75efd5f040d25d35127cd1"
+    },
+    {
+      "path": "packages/verify-runtime/src/context.ts",
+      "sha256": "b80b61c5b88fc37d27705eefd50564d660c976fbb531d02830e5bd2c883a3498"
+    },
+    {
+      "path": "packages/verify-runtime/src/main.ts",
+      "sha256": "49cd7a69a01b6d696cfb72bef92cd10edab17c3d6a6a4f677af4c3f4a85abea4"
+    },
+    {
+      "path": "packages/verify-runtime/src/review-profile.test.ts",
+      "sha256": "7c6e889dee81052a3395ab4dc74972263cd900abd840139919b15b89ab3a2846"
+    },
+    {
+      "path": "packages/verify-runtime/src/review-profile.ts",
+      "sha256": "44a77fbc272d2a40f4eeefb82e2c57b6a607e55259cce087e709d925e374b413"
+    },
+    {
+      "path": "packages/verify-runtime/src/runtime.ts",
+      "sha256": "9a8a8763364f4364eeb7a179e35ad12a907ca39e5ffec18093631b641d4f006b"
+    },
+    {
+      "path": "packages/verify-runtime/src/source-authority.test.ts",
+      "sha256": "38b27c9e82e461367d8ea549dbc314a220fc7b698af842b04d8c304249bc2e14"
+    },
+    {
+      "path": "packages/verify-runtime/src/source-authority.ts",
+      "sha256": "2074c3f47db907fab048977858d51440d9546d4bb35add3583fa8f41070587b5"
+    },
+    {
+      "path": "packages/verify-runtime/src/types.ts",
+      "sha256": "96979d82c2bbdd617b4f30464c530f83abc1087657bdbbc8650ff8344032bea6"
+    },
+    {
+      "path": "packages/verify-runtime/src/upstream-inputs.test.ts",
+      "sha256": "383ec9db8a82fb26c636a5b314de2e9a3604acf9ac3db58a99b87f4484bd2c8c"
+    },
+    {
+      "path": "packages/verify-runtime/src/upstream-inputs.ts",
+      "sha256": "9617a4cfa78bd6a9ad6c4f7023a82e5eb29e5166b5046b3405544803dcdb435e"
+    },
+    {
+      "path": "tools/source-platform/assemble.py",
+      "sha256": "fadbb196e679c27bc4c0105539a2c305c83d80fd5e9c9a5cd17c223ed9154f0d"
+    },
+    {
+      "path": "tools/source-platform/client.py",
+      "sha256": "57bbb53b60d3669d5e3c25c041227be1627174668f880113aa96228edbd7ad9a"
+    },
+    {
+      "path": "tools/source-platform/host.py",
+      "sha256": "d05d3e7c5b2965a031896c5accc688386eb6e0902f56cd65f880f60057e82e57"
+    },
+    {
+      "path": "tools/source-platform/test_host.py",
+      "sha256": "de9cac7927b3b7f4dbc1fe69c37a88ec6f472f7c513649facd73d818c8c2e474"
+    },
+    {
+      "path": "tools/source-platform/test_ingress.py",
+      "sha256": "608784bc90ad12173ed4a1badddae5dfd558c079548bdede6ff0ea3fdbb481bc"
+    },
+    {
+      "path": "tools/verify-upstream-ingress.mjs",
+      "sha256": "3a3d3f17bac3560478370221f4d70559b50e2b319613400d386422e62c6c0de7"
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a1/assembly.json",
+      "sha256": "47531652756ecc1e40bb1a861f7c89f45f762b5be0c3279c76a344b5cb761e43",
+      "bytes": 655,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a1/release-bundle.private.json",
+      "sha256": "535306581dc101fcb6b4d195b7c0a3b7c898f81768443dc81315d5f5bf0ad454",
+      "bytes": 276384,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a1/verification-failure.json",
+      "sha256": "657076218dcec9b8877d220507a544178f26b430bc3e6963a21d443ea502e868",
+      "bytes": 89,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a2/assembly.json",
+      "sha256": "6b62b887a42b2df6c65239dc5a1e54b88c4a18db15fff5f619046714593f6be3",
+      "bytes": 490,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a2/graph.private.json",
+      "sha256": "90ff8e5cfaa394d368ab0ab940ae623eeab13f03a97c0a74c06a99eab1804113",
+      "bytes": 69412,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a2/graph.private.log",
+      "sha256": "910f52a993abde80108441dc955453ae6788616f3bdf6cb47f16d1876841b74f",
+      "bytes": 249,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a2/release-bundle.private.json",
+      "sha256": "ed6ea29cb12ca21b7fc5a50ccb138e01b87b3c199054769361b2896c989b1218",
+      "bytes": 277174,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a2/run-identity.json",
+      "sha256": "c99bf4045a542ddd8ba32384899f59c0185022791c982437b7816caaca97d5dd",
+      "bytes": 4716,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a2/verification-failure.json",
+      "sha256": "bc441c3eb33021c16ff47dfadca914f782bd2cf44c6ee990c1786de89cc08768",
+      "bytes": 70,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/database-audit.json",
+      "sha256": "96babcf33cac5da22f392e2e2e218b746b79b16ea39024b423dec1f6235d4c23",
+      "bytes": 2267,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/database-audit.serialization-failed.partial",
+      "sha256": "12536351a26372e76a37a925611970ccd88f1481eeacb7e9fd632334cc028ed1",
+      "bytes": 263,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/graph-replay.private.json",
+      "sha256": "471bd2a49dca1cabf0010debf4e4a042d54c36447212cdd3af8eca00f1d02e41",
+      "bytes": 132980,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/graph-replay.private.log",
+      "sha256": "a12e4a66e391b8d3bd10a2f6a0ded560abe8d09979ff007181d5866dded2e04d",
+      "bytes": 256,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/graph.private.json",
+      "sha256": "e578bc3977872be26a81ce3fa0ddf20f22fe5bbc37602ddb6e479a395c119f82",
+      "bytes": 138861,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/graph.private.log",
+      "sha256": "dc1bea0241e58f64fa998d80c7b2414ddb3be0360717395f8afe32e5edbcd9f3",
+      "bytes": 249,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/model-protocol-calls.json",
+      "sha256": "5bfdc2d832888a0df6e4ed43df7e35b9414ea2b311c6005bef4697e074de9898",
+      "bytes": 3385,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/prior-failure-audit.json",
+      "sha256": "8650ff27ab6a632e9f5bd1703ed6910ff1d38e6ade04c2743ef1cdfde89a3652",
+      "bytes": 159,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/projection.private.json",
+      "sha256": "1d5b2a71a38b8826f93aa318097a97a7ffa24ea028120899b7a2e7c449ac9029",
+      "bytes": 125054,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/regression-results.json",
+      "sha256": "fd64a0c9c000d837b63b36aa232c90fede3177871f539fdfd331801a47ac8eb5",
+      "bytes": 574,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/release-bundle.private.json",
+      "sha256": "ed6ea29cb12ca21b7fc5a50ccb138e01b87b3c199054769361b2896c989b1218",
+      "bytes": 277174,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/run-identity.json",
+      "sha256": "20e6857fc39e52140d5ccdf45917601517420c88cdec8ebf6ba5ba914f8f2457",
+      "bytes": 4716,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/runtime-tests.private.log",
+      "sha256": "eeb601bc4d51a41acc78f79db51063114802ab71dfa9b2062f8afb68323aebf9",
+      "bytes": 22224,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-35ea9faf3b4e/build-state.json",
+      "sha256": "5f9cc9bfd56c9ce70920eb07de93acce8a775232cf527b6a80746da1de1a6eec",
+      "bytes": 440,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-35ea9faf3b4e/deployment-receipt.json",
+      "sha256": "f71ec0f12f70396645db763cdddc775e109cd143a7959e49a34a6f49c2060407",
+      "bytes": 465,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-35ea9faf3b4e/manifest.json",
+      "sha256": "de7a35b5690c922e6f7eefde938bfcaab6103ad783cfe31163480fef77b8806f",
+      "bytes": 788,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-35ea9faf3b4e/publications.json",
+      "sha256": "a853a6bad4b6659cb00c06163d9f4bc4f1437874c1a144b92a21cb23025b1d8c",
+      "bytes": 4229,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-6b1f4995a5dc/build-state.json",
+      "sha256": "b3c80676bc5717603d9b53c71c5a936c9b2cce0df95324e528680e0e3e8f9f44",
+      "bytes": 350,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-6b1f4995a5dc/deployment-receipt.json",
+      "sha256": "f468f353066a49dad999511235d750eed864b46c4baf5e973b0ce8e1a2e1a73b",
+      "bytes": 465,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-6b1f4995a5dc/manifest.json",
+      "sha256": "fb7234f28bb582e74ae92c2683974e96368240307483a99b0420b3d9600fbfc3",
+      "bytes": 726,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-6b1f4995a5dc/publications.json",
+      "sha256": "efc59f740f17c3a47e7c8b196fb1082f6fd4081cca7f60dcefa629251c6b45e3",
+      "bytes": 11715,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-906d8c1857bb/build-state.json",
+      "sha256": "bcc0e9e03b70886fefa949bc6937c4de4db595a0afd106693a1eb91a4ac03a1b",
+      "bytes": 440,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-906d8c1857bb/deployment-receipt.json",
+      "sha256": "db8918ef2e0ab4bdd47d3614559d71aa76d910ea99b95dce6be22d01dd59d7d3",
+      "bytes": 465,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-906d8c1857bb/manifest.json",
+      "sha256": "09a2a10d579f5059b172d12946fb522c0101527970a546847dd111ad7b87277c",
+      "bytes": 796,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/source-snapshots/evid-sources-906d8c1857bb/publications.json",
+      "sha256": "01637c19fbd692282ec335a74de4401fd1aaa9c3d5ba7ffbdab20bc292e58706",
+      "bytes": 5241,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    },
+    {
+      "path": "artifacts/upstream-integration/upstream20261126a3/verification-result.json",
+      "sha256": "cb6a6ef9a28aa8b2a3fa56fdb88927ad4e70c6d11a2b9f24aad569051a72a0e1",
+      "bytes": 1489,
+      "access": "LOCAL_PRIVATE_EVIDENCE"
+    }
+  ],
+  "limits": [
+    "No real LLM evaluation in this integration",
+    "No new business experiment or current candidate coverage",
+    "No enterprise approval or repair authorization",
+    "Project 1 originals referenced but not ingested",
+    "Provider and QA contracts are readable declarations, not Graph execution admission"
+  ]
+}

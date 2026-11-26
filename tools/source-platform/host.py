@@ -101,6 +101,7 @@ def up(repo:Path,commit:str,registration:Path=REGISTRATION):
     save(directory/"build-state.json",{"status":"CONFIRMED","tag":tag,"source_commit":commit,"inputs":inputs,"image_id":image["Id"]})
     objects=json.loads(registration.read_text())["objects"]
     roles={"business-publisher":"BUSINESS_PUBLISHER","qa-publisher":"QA_PUBLISHER","requirements-publisher":"REQUIREMENTS_PUBLISHER",
+           "investigation-publisher":"INVESTIGATION_PUBLISHER","service-owner-publisher":"SERVICE_OWNER_PUBLISHER",
            "planner-reader":"PLANNER_READER","oracle-reader":"ORACLE_READER","product-reader":"PRODUCT_READER","operator":"SOURCE_OPERATOR","outsider-reader":"PLANNER_READER"}
     principals=[]
     for name,role in roles.items():
@@ -152,11 +153,35 @@ def registered(identity:str|None):
     return directory
 
 
-def publish(directory:Path,repositories:dict):
+def publication_objects(directory:Path,version_registration:Path|None=None):
+    """追加版本目录只能更新已登记对象的版本；不能借发布扩张对象或发布者权限。"""
+    original=instance_registration(directory)
+    objects=json.loads(original.read_text())["objects"]
+    if version_registration is None:return objects,None
+    path=registration_path(version_registration);additional=json.loads(path.read_text())["objects"]
+    for obj in additional:
+        if not any(all(old[k]==obj[k] for k in ("namespace","object_id","publisher","repository")) for old in objects):
+            raise SourceClientError("VERSION_REGISTRATION_SCOPE_EXPANSION")
+    return additional,{"ref":str(path.relative_to(ROOT)),"sha256":sha(path)}
+
+
+def publish(directory:Path,repositories:dict,version_registration:Path|None=None):
     """按固定登记读取 Git 原件，用各自发布账号逐项发布；已有未知操作只读对账。"""
-    objects=json.loads(instance_registration(directory).read_text())["objects"]
+    objects,registration=publication_objects(directory,version_registration)
     state_path=directory/"publications.json"
+    if state_path.exists():
+        # 状态表将追加新版本；原登记字节另存内容寻址历史，避免后续发布覆盖审计原件。
+        raw=state_path.read_bytes();history=directory/"publication-history"/(hashlib.sha256(raw).hexdigest()+".json")
+        history.parent.mkdir(mode=0o700,exist_ok=True)
+        if not history.exists():
+            fd=os.open(history,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+            with os.fdopen(fd,"wb") as stream:stream.write(raw)
     state=json.loads(state_path.read_text()) if state_path.exists() else {"schema_version":1,"objects":[]}
+    if registration:
+        prior=next((r for r in state.get("version_registrations",[]) if r["ref"]==registration["ref"]),None)
+        if prior and prior!=registration:raise SourceClientError("VERSION_REGISTRATION_CHANGED")
+        if not prior:state.setdefault("version_registrations",[]).append(registration)
+        save(state_path,state)
     for obj in objects:
         repo,commit=repositories[obj["repository"]];git=git_reader(repo,obj["repository"])
         raw=git.read(commit,obj["path"]);digest=hashlib.sha256(raw).hexdigest()
@@ -290,12 +315,14 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("action",choices=("up","publish","verify","verify-phase"));parser.add_argument("--instance")
     parser.add_argument("--registration",type=Path,default=REGISTRATION)
-    for name in ("source","rules","acceptance"):
+    parser.add_argument("--version-registration",type=Path)
+    for name in ("source","rules","acceptance","platform"):
         parser.add_argument("--"+name+"-repo",type=Path);parser.add_argument("--"+name+"-commit")
     args=parser.parse_args()
     if args.action=="up":result=up(args.source_repo,args.source_commit,args.registration)
     elif args.action=="publish":result=publish(registered(args.instance),{
-        "EvidEnterpriseSources":(args.source_repo,args.source_commit),"EvidBusinessRules":(args.rules_repo,args.rules_commit),"EvidAcceptanceAssets":(args.acceptance_repo,args.acceptance_commit)})
+        "EvidEnterpriseSources":(args.source_repo,args.source_commit),"EvidBusinessRules":(args.rules_repo,args.rules_commit),
+        "EvidAcceptanceAssets":(args.acceptance_repo,args.acceptance_commit),"EvidBusinessPlatforms":(args.platform_repo,args.platform_commit)},args.version_registration)
     elif args.action=="verify-phase":result=verify_phase(registered(args.instance))
     else:result=verify(registered(args.instance))
     print(json.dumps(result,ensure_ascii=False))

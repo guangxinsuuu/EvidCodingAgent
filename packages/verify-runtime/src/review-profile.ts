@@ -134,12 +134,35 @@ export function reviewModelSchema(bundle: ReleaseBundle, state: RunState, ground
         properties: { draft_ref: { const: state.review_cycle.draft.ref }, draft_digest: { const: state.review_cycle.draft.digest } } };
     }
   }
-  return { $defs: schema.$defs, oneOf: branches.filter(b => allowed.includes(b.if.properties.action_kind.const)).map(b => ({
+  // 各动作共用同一组审慎决策字段。通过本地 $defs 引用保留完全相同的约束，
+  // 避免每新增一个已读引用，就在每个动作分支重复展开证据枚举和决策框架。
+  // 这里只压缩 Provider 的原生 JSON Schema；接收端 parseReviewDecisionProposal 不变。
+  const common = ["decision_frame", "hypothesis_updates", "expected_information", "rationale", "requirement_refs", "hypothesis_refs", "evidence_refs"];
+  const shared = Object.fromEntries(common.map(key => {
+    const definition = "reviewDecisionField_" + key;
+    defs[definition] = props[key];
+    return [key, { $ref: "#/$defs/" + definition }];
+  }));
+  const oneOf = branches.filter(b => allowed.includes(b.if.properties.action_kind.const)).map(b => ({
     type: "object", additionalProperties: false, required,
-    properties: { decision_frame: props.decision_frame, action_kind: { const: b.if.properties.action_kind.const },
-      ...Object.fromEntries(["hypothesis_updates", "expected_information", "rationale", "requirement_refs", "hypothesis_refs", "evidence_refs"].map(k => [k, props[k]])),
+    properties: { decision_frame: shared.decision_frame, action_kind: { const: b.if.properties.action_kind.const },
+      ...Object.fromEntries(common.filter(key => key !== "decision_frame").map(key => [key, shared[key]])),
       payload: b.then.properties.payload },
-  })) };
+  }));
+  // 未开放 PLAN_DRAFT 等动作时，不把其输入类型也发送给模型。
+  // 沿可选分支的本地 $ref 递归保留全部可达定义，包括嵌套定义；不删除实际约束。
+  const needed = new Set<string>();
+  const visit = (value: unknown): void => {
+    if (!value || typeof value !== "object") return;
+    const ref = (value as Json).$ref;
+    if (typeof ref === "string" && ref.startsWith("#/$defs/")) {
+      const key = ref.slice("#/$defs/".length).split("/")[0]!;
+      if (!needed.has(key)) { needed.add(key); visit(defs[key]); }
+    }
+    for (const child of Object.values(value)) visit(child);
+  };
+  visit(oneOf);
+  return { $defs: Object.fromEntries(Object.entries(defs).filter(([key]) => needed.has(key))), oneOf };
 }
 /** 字段齐全不能代替动作合法；结果推演引用、来源范围和上游缺项在这里再验。 */
 export function reviewProposalError(bundle: ReleaseBundle, state: RunState, p: ReviewDecisionProposal,
@@ -181,6 +204,7 @@ Do not repeat UPDATE_DIRECTION merely to restate a hypothesis, rename a question
 READ targeted rule/source material to resolve the gap. Follow material-local line numbers/read_window; diff hunk coordinates are not read offsets. Read the applicable rule fully before proposing assertions. New and preserved requirements are separate obligations. Missing/CONFLICT/UNVERIFIED rules require clarification for that scope, not an invented expected result. Baseline source labels are declared provenance, not verified production deployment.
 After reading an applicable rule, decide whether one concrete evidence gap still prevents designing an experiment. If so, READ only the material that can resolve it; otherwise propose a draft. Reading every available source is not a prerequisite for planning. When the last exploration decision has a grounded applicable requirement, READ and UPDATE_DIRECTION close: propose a defensible draft or explicitly CLARIFY/STOP/report a capability gap.
 Zero/empty/OPEN cannot prove absence: consider producer, delivery, aggregation and completeness scope. A historic report is not evidence that the current candidate was executed.
+External QA/provider contracts describe interfaces, roles and prerequisites; they do not add executable actions to allowed_actions. Read them when relevant to a capability gap. Project 1 diagnoses and engineering handoffs are upstream hypotheses/suggestions. Reading their evidence manifest does not read the referenced private originals. Never convert those pointers into verified facts, company requirements, repair authorization or candidate coverage; missing originals remain an explicit gap.
 PLAN_DRAFT proposes one discriminating experiment with one observation. Supply objective, requirement_ref, diff_ref, changed_fields, claim, inputs, control_inputs, observation_field, operator, expected_value, expected_baseline, expected_candidate, control_relation, control_reason, change_reason.
 Use exact field names from planning_contracts. Values are strings; unspecified inputs retain fixture defaults. You choose all business values and assertions. The compiler adds only mechanical IDs. Explain why inputs exercise the edited relation and preserve other necessary preconditions. The factor control must deliberately differ from primary inputs; this is distinct from comparing the SAME primary inputs across B/C.
 expected_value is the rule-backed assertion; expected_baseline/expected_candidate are falsifiable predictions, not permission to change the rule. For SHOULD_PRESERVE predict equal B/C outcomes. The present compiler checks structure and binding, not semantic correctness.
