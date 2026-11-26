@@ -99,6 +99,16 @@ def run(args):
     seed = boundary.private(args.seed)
     if enrollment["basis"]["seed_sha256"] != boundary.digest(args.seed.read_bytes()):
         raise boundary.BoundaryError("NATIVE_SEED_CHANGED")
+    commercial_reader = None
+    if "commercial_source_binding" in receipt:
+        from commercial_attachment import validate as validate_commercial
+        validate_commercial(receipt["commercial_source_binding"])
+        commercial_dir = args.platform_repo / ".local" / receipt["commercial_source_binding"]["project"]
+        commercial_reader = boundary.private(commercial_dir / "observer-client.private.json")
+        source_endpoint = receipt["commercial_source_binding"]["endpoints"]["observer"]
+        if commercial_reader["role"] != "OBSERVER" or commercial_reader["instance_id"] != receipt["commercial_source_binding"]["project"] \
+                or commercial_reader["base_url"] != "http://127.0.0.1:" + str(source_endpoint["port"]):
+            raise boundary.BoundaryError("COMMERCIAL_OBSERVER_SCOPE_MISMATCH")
     caller = boundary.private(platform_dir / "caller.private.json")
     native_reader = boundary.private(platform_dir / "observer-access.private.json")
     observer = boundary.private(directory / "observer.private.json")
@@ -112,9 +122,11 @@ def run(args):
     cases = [{k: c[k] for k in ("tenant_id", "conversation_id", "invoice_id", "subscription_id")} for c in seed["bindings"]["cases"]]
     basis = {"candidate": candidate, "platform": platform, "enrollment_sha256": receipt["platform_enrollment_sha256"],
         "role_config_sha256": manifest["role_config_sha256"]}
+    if commercial_reader:
+        basis["commercial_source"] = receipt["commercial_source_binding"]
     path = args.output / "run.json"
     report = boundary.private(path) if path.exists() else {"run_id": uuid4().hex, "basis": basis, "state": "STARTED",
-        "scope": "NATIVE_TRANSPORT_SCRIPTED_CALIBRATION", "business_final_qualification": False,
+        "scope": "NATIVE_COMMERCIAL_FACTS_SCRIPTED_CALIBRATION" if commercial_reader else "NATIVE_TRANSPORT_SCRIPTED_CALIBRATION", "business_final_qualification": False,
         "cases": [], "mode": receipt["mode"]}
     if report["basis"] != basis:
         raise boundary.BoundaryError("RUN_IDENTITY_CHANGED")
@@ -196,11 +208,22 @@ def run(args):
         evidence = {"api": job, "native_job": native, "delivery": delivery, "snapshot": snapshot, "gateway": gateway,
             "tool_events": tools, "native_messages": matching, "native_observation_receipts": native_receipts,
             "cross_tenant_read": {"http_status": cross[0], **cross[2]}, "checks": checks}
+        if commercial_reader:
+            from urllib.parse import urlencode
+            customer = next(c for c in seed["bindings"]["customers"] if c["tenant_id"] == case["tenant_id"])
+            scope = {**{k: case[k] for k in ("tenant_id", "subscription_id", "invoice_id", "conversation_id")},
+                "customer_id": customer["lago_customer_id"], "account_id": customer["chatwoot_account_id"]}
+            observed = boundary.request(commercial_reader["base_url"], "/v1/context?" + urlencode(scope), token=commercial_reader["token"])
+            checks["commercial_source_and_facts"] = observed[0] == 200 and observed[1].get("instance_id") == commercial_reader["instance_id"] \
+                and observed[1] == snapshot["context"].get("commercial_source")
+            evidence["commercial_observation"] = {"http_status": observed[0], "response": observed[1], **observed[2]}
         save(args.output / (row["job_id"] + ".json"), evidence)
         row.update(state="OBSERVED" if all(checks.values()) else "OBSERVATION_MISMATCH", checks=checks,
             evidence_sha256=digest(evidence), job_status=native["status"], delivery_state=delivery["delivery_state"])
         save(path, report)
     platform_attachment.validate_attachment(directory)
+    if commercial_reader:
+        validate_commercial(receipt["commercial_source_binding"])
     if bind_deployment(receipt, args.product_repo) != candidate:
         raise boundary.BoundaryError("CANDIDATE_CHANGED_DURING_OBSERVATION")
     report["state"] = "NATIVE_TRANSPORT_CONFIRMED" if all(r["state"] == "OBSERVED" for r in report["cases"]) else "NATIVE_TRANSPORT_PARTIAL"

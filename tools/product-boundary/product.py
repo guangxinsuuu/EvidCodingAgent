@@ -141,6 +141,10 @@ def start(directory: Path) -> dict:
     """只启动登记工程，不更新候选或凭据；Compose 身份和文件摘要由调用方先检查。"""
     from platform_attachment import validate_attachment
     validate_attachment(directory)
+    manifest = json.loads((directory / "manifest.json").read_text())
+    if "commercial_source_binding" in manifest:
+        from commercial_attachment import validate
+        validate(manifest["commercial_source_binding"])
     deployment.command(["docker", "compose", "-f", str(directory / "compose.json"), "up", "-d"])
     receipt = deployment.inspect(directory)
     if set(receipt["endpoints"]) != {"api", "database"}:
@@ -152,7 +156,7 @@ def start(directory: Path) -> dict:
         "product_commit": receipt["product_revision"], "image_id": receipt["product_image_id"], "endpoints": receipt["endpoints"]}
 
 
-def up(repo: Path, image: str, *, platform: dict | None = None) -> dict:
+def up(repo: Path, image: str, *, platform: dict | None = None, commercial_project: str | None = None) -> dict:
     """只接纳有本宿主构建回执的固定镜像；产品自贴 commit label 不足以获得部署资格。"""
     product = checkout(repo)
     if not re.fullmatch(r"sha256:[a-f0-9]{64}", image):
@@ -166,6 +170,11 @@ def up(repo: Path, image: str, *, platform: dict | None = None) -> dict:
     if platform:
         from platform_attachment import attach
         attach(directory, **platform)
+    if commercial_project:
+        if not platform:
+            raise MaterialError("COMMERCIAL_NATIVE_PLATFORM_REQUIRED")
+        from commercial_attachment import attach as attach_commercial
+        attach_commercial(directory, platform["repo"], commercial_project)
     manifest = json.loads((directory / "manifest.json").read_text())
     if manifest["product_revision"] != record["source"]["commit"]:
         raise MaterialError("DEPLOYMENT_BUILD_MISMATCH")
@@ -174,6 +183,7 @@ def up(repo: Path, image: str, *, platform: dict | None = None) -> dict:
         egap_host_source_sha256=sha(Path(__file__)),
         host_module_sha256={str(path.relative_to(ROOT)): sha(path) for path in (
             Path(__file__), Path(deployment.__file__), Path(__file__).with_name("platform_attachment.py"),
+            Path(__file__).with_name("commercial_attachment.py"),
             ROOT / "tools/platform-boundary/bind_platform.py")},
         role_config_sha256={role: sha(directory / (role + ".private.json")) for role in ("init", "api", "relay", "worker", "gateway")})
     deployment.save(directory / "manifest.json", manifest)
@@ -193,6 +203,7 @@ def main() -> int:
     parser.add_argument("--platform-project")
     parser.add_argument("--platform-enrollment", type=Path)
     parser.add_argument("--platform-seed", type=Path)
+    parser.add_argument("--commercial-project")
     args = parser.parse_args()
     if args.action == "setup":
         uv = ROOT / "tmp/genai-tooling/bin/uv"
@@ -215,7 +226,7 @@ def main() -> int:
             raise MaterialError("COMPLETE_PLATFORM_BINDING_REQUIRED")
         platform = dict(repo=args.platform_repo.resolve(), project=args.platform_project,
             enrollment_path=args.platform_enrollment, seed_path=args.platform_seed) if all(platform_args) else None
-        result = up(args.product_repo, args.image or "", platform=platform)
+        result = up(args.product_repo, args.image or "", platform=platform, commercial_project=args.commercial_project)
     else:
         directory = registered_directory(args.deployment)
         if args.action == "start":

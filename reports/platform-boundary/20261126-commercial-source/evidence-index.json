@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "qualification": "KNOWN_NATIVE_SEED_MIGRATION_CALIBRATION",
+  "business_final_qualification": false,
+  "source_project": "evid-commercial-50a320817b83",
+  "source_commit": "fa9cea9bfbc551d4807a0e35e2cd7c72c8d581d6",
+  "source_image_id": "sha256:9a763e61da339c15065f6da655ce9b9670600607803da1d55f7f752a007a3dbc",
+  "product_deployment": "evid-sut-bfc87d2f47f2",
+  "product_commit": "3d9bfb18275998426571d844f89cc4ed87b5ec6f",
+  "product_image_id": "sha256:d4331273650677c59f478e69b2e7b937a95456d05cf5f46bc8c5e3ac31f893b2",
+  "run_id": "1215838c0f084d21b9848365ffd6f12a",
+  "source_command_count": 55,
+  "role_checks": 14,
+  "database_contract_tests": {
+    "passed": 23,
+    "skipped": 0
+  },
+  "egap_python_tests": {
+    "passed": 50
+  },
+  "cases": [
+    {
+      "conversation_id": 1,
+      "job_id": "1d0022fccdbc45f780c9127f76661b4a",
+      "eligibility_observed": "ELIGIBLE",
+      "missing_evidence": [],
+      "source_revision": 30,
+      "checks": {
+        "same_job_and_input": true,
+        "same_completed_draft": true,
+        "external_snapshot": true,
+        "private_note_observed": true,
+        "cross_tenant_denied": true,
+        "commercial_source_and_facts": true
+      }
+    },
+    {
+      "conversation_id": 2,
+      "job_id": "0d927e565206474d9e1b6c905ef787fc",
+      "eligibility_observed": "INELIGIBLE",
+      "missing_evidence": [],
+      "source_revision": 30,
+      "checks": {
+        "same_job_and_input": true,
+        "same_completed_draft": true,
+        "external_snapshot": true,
+        "private_note_observed": true,
+        "cross_tenant_denied": true,
+        "commercial_source_and_facts": true
+      }
+    },
+    {
+      "conversation_id": 3,
+      "job_id": "9cad647a06704bfa969f97713d3a628c",
+      "eligibility_observed": "ELIGIBLE",
+      "missing_evidence": [],
+      "source_revision": 24,
+      "checks": {
+        "same_job_and_input": true,
+        "same_completed_draft": true,
+        "external_snapshot": true,
+        "private_note_observed": true,
+        "cross_tenant_denied": true,
+        "commercial_source_and_facts": true
+      }
+    },
+    {
+      "conversation_id": 4,
+      "job_id": "9c6fe7e5bed04e4b99a375a52794f4dc",
+      "eligibility_observed": "INELIGIBLE",
+      "missing_evidence": [],
+      "source_revision": 24,
+      "checks": {
+        "same_job_and_input": true,
+        "same_completed_draft": true,
+        "external_snapshot": true,
+        "private_note_observed": true,
+        "cross_tenant_denied": true,
+        "commercial_source_and_facts": true
+      }
+    },
+    {
+      "conversation_id": 5,
+      "job_id": "3e2c03f6dec342c9ba097d841a21f670",
+      "eligibility_observed": "NEEDS_MORE_EVIDENCE",
+      "missing_evidence": [
+        "RENEWAL_EVENT"
+      ],
+      "source_revision": 30,
+      "checks": {
+        "same_job_and_input": true,
+        "same_completed_draft": true,
+        "external_snapshot": true,
+        "private_note_observed": true,
+        "cross_tenant_denied": true,
+        "commercial_source_and_facts": true
+      }
+    }
+  ],
+  "recovery_check": {
+    "source": {
+      "tenants": [
+        [
+          "tenant-a",
+          30
+        ],
+        [
+          "tenant-b",
+          24
+        ]
+      ],
+      "operation_count": 55
+    },
+    "product_jobs": [
+      {
+        "status": "DONE",
+        "count": 5
+      }
+    ],
+    "gateway_calls": [
+      {
+        "execution_mode": "SCRIPTED_CALIBRATION",
+        "state": "COMPLETE",
+        "count": 5
+      }
+    ],
+    "scope": "RECOVERY_COUNTS_NOT_NEW_EXPERIMENT"
+  },
+  "model_mode": "SCRIPTED_CALIBRATION",
+  "model_inference_calls": 0,
+  "artifacts": [
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-product-run/1d0022fccdbc45f780c9127f76661b4a.json",
+      "sha256": "720cf03d34916411ea1e4ce390f7071b8bf0c0a75b36da80febd33cb2f777517",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-product-run/0d927e565206474d9e1b6c905ef787fc.json",
+      "sha256": "e44b2bf7d2910614eb2f4f6ddb679ec29d7750c8dc49a6ca22c2d937d66f2c97",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-product-run/9cad647a06704bfa969f97713d3a628c.json",
+      "sha256": "4b61d8d0dc2e76a9b8d59cc0229751524aa963f2741abb41931529085bcf1421",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-product-run/9c6fe7e5bed04e4b99a375a52794f4dc.json",
+      "sha256": "a80e0721d7889e8f3a217e97f1cda4f801c179919051f6761f3d358f0e5aef63",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-product-run/3e2c03f6dec342c9ba097d841a21f670.json",
+      "sha256": "f29abee8685d11a93aedb6cd63713e2733bb55be1cf78b868b1050465a206d32",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-product-run/run.json",
+      "sha256": "173137d98ea86763a368fa9bcff4fe24e2bba2d4906bab56278bd9375c8bebb0",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/source-preparation.private.json",
+      "sha256": "aaccc29383a57f11609d19fa89b5b37a9ce4bf77e25a542cb1bbffee1484372e",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-role-verification.json",
+      "sha256": "5267ba0888b65617d95bd0d1fac189659772a2308b8fbd56e1e6ea3c6fecdc9b",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-recovery-check.json",
+      "sha256": "e2d0f9a217a8cc3f75157a49e5cdbaa07b7f825ec65f5adc4673be8b2149dafb",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-scopes.json",
+      "sha256": "c88f1e4e834fab4319e59de11f096c7f0080efdcc2c1d2e33cd70afeb130c335",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/refund-lab-v1-eaf0faa1b3254edfb5381a1fe061dc34.json",
+      "sha256": "5aa5e5199018bbcf21eab2941a87dd86db4873cfaeae9d301bc35fe220b72753",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/refund-lab-v1-f5adc12dcc2c4154983c422ffbda2117.json",
+      "sha256": "f98ba7d0c96d29f1c648b760b2e7190cedc892f0b5893da032fe43b7f24686e2",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/refund-lab-v1.json",
+      "sha256": "540706b7af3abc7b824c7a10c3d06a9d7109f7375c8f5f70cfb6f530574aeac0",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/refund-lab-v2-c5cfb294719d44e589395215581b7da0.json",
+      "sha256": "f3bcbd014c601ea0834e9afbd4036cd4c83bf266b3c49c9520d6617c6b860430",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/refund-lab-v2-dc3f4ed6b7154ecc9373bcfe84359d10.json",
+      "sha256": "9cafcfc8d8c26ed419d78bdf09b5443083a769dcd9804d119667be5bd036e183",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/refund-lab-v2.json",
+      "sha256": "b1fcedcd4961b0fab8462004e15f907c5fea08405cbb5cf8b0025a6fa0dd3657",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/standard-contract-652c82def9ce4294b6ac0a84c57dd450.json",
+      "sha256": "c8143cc9884a28483cd62dc175e36d9bf8c534c7b48637c0a9fe8b9307db21d8",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/standard-contract-6b32c4c8aaf64d6fa140677969744854.json",
+      "sha256": "406fac614147d6a91d6e4190a63ba1dd86a400288201d3e023eb33ee7b421a6f",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/standard-contract-7febc32b2bcc458c8ce5de74f5168af3.json",
+      "sha256": "7e52afde686ae258f1ca14d31391be7ed6dca7c99b88c1c5cd1b8b679beb5439",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/standard-contract-96631bb2db854e128364fcc8c82c7abd.json",
+      "sha256": "b576fef0ed3ece97dbcad219ea408a259e86c1b1c293f4729aa8cf55050b32c9",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/standard-contract-bb4e73f06a5e4c1e8de60c644804abed.json",
+      "sha256": "43c2266224b9b2b4048af98dfee9668b70c4bded32e1add84b9a3b62c0d418f3",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/commercial-facts/rule-reads/standard-contract.json",
+      "sha256": "243d7faa0d9a44ac47f323beb9161f4b3fd88c8eb8025a6a5ceefbbe6cef52f8",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    }
+  ]
+}

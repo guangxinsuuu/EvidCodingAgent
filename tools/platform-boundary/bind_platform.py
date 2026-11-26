@@ -210,12 +210,33 @@ def verify(repo,project,enrollment,output):
     return {"status":report["state"],"checks":len(checks),"project":project,"business_final_qualification":False}
 
 
+def commercial_scopes(repo,project,enrollment,seed_path,output):
+    """来源服务部署前的授权目录投影；只携带已回读原生对象，不带实验答案或凭据。"""
+    _,identity=binding(repo,project);journal=private(enrollment);seed=private(seed_path)
+    if journal.get("state")!="ENROLLED" or journal["basis"]!={"project":project,"seed_sha256":digest(seed_path.read_bytes()),"seed_run_id":seed["run_id"]} \
+            or journal["platform_binding"]["manifest_sha256"]!=identity["manifest_sha256"]:
+        raise BoundaryError("EXACT_NATIVE_ENROLLMENT_REQUIRED")
+    scopes=[]
+    for case in seed["bindings"]["cases"]:
+        grant=next(g["scope"] for g in journal["grants"] if g["scope"]["tenant_id"]==case["tenant_id"])
+        if case["conversation_id"] not in grant["conversation_ids"] or case["invoice_id"] not in grant["invoice_ids"] or case["subscription_id"] not in grant["subscription_ids"]:
+            raise BoundaryError("COMMERCIAL_NATIVE_SCOPE_MISMATCH")
+        scopes.append({"tenant_id":case["tenant_id"],"customer_id":grant["customer_id"],"subscription_id":case["subscription_id"],
+            "invoice_id":case["invoice_id"],"account_id":grant["account_id"],"conversation_id":case["conversation_id"]})
+    value={"native_platform_project":project,"native_platform_manifest_sha256":identity["manifest_sha256"],
+        "native_enrollment_sha256":digest(enrollment.read_bytes()),"native_seed_sha256":digest(seed_path.read_bytes()),"object_scopes":scopes}
+    if output.exists() and private(output)!=value:raise BoundaryError("SCOPE_EXPORT_IDENTITY_CONFLICT")
+    save(output,value)
+    return {"status":"COMMERCIAL_OBJECT_SCOPES_EXPORTED","project":project,"object_scopes":len(scopes)}
+
+
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument("action",choices=("enroll","verify"));parser.add_argument("--platform-repo",type=Path,required=True)
+    parser=argparse.ArgumentParser();parser.add_argument("action",choices=("enroll","verify","commercial-scopes"));parser.add_argument("--platform-repo",type=Path,required=True)
     parser.add_argument("--project",required=True);parser.add_argument("--seed",type=Path);parser.add_argument("--enrollment",type=Path);parser.add_argument("--output",type=Path,required=True)
     args=parser.parse_args()
     if "docs" in args.output.resolve().parts or args.output.name.lower()=="readme.md":raise BoundaryError("OUTPUT_FORBIDDEN")
-    result=enroll(args.platform_repo,args.project,args.seed,args.output) if args.action=="enroll" else verify(args.platform_repo,args.project,args.enrollment,args.output)
+    if args.action=="commercial-scopes":result=commercial_scopes(args.platform_repo,args.project,args.enrollment,args.seed,args.output)
+    else:result=enroll(args.platform_repo,args.project,args.seed,args.output) if args.action=="enroll" else verify(args.platform_repo,args.project,args.enrollment,args.output)
     print(json.dumps(result))
 
 

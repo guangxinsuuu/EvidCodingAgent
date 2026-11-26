@@ -35,12 +35,19 @@ def message_ref(value: dict) -> dict:
 
 
 class BusinessPack:
-    def __init__(self, directory: Path):
+    def __init__(self, directory: Path, *, native: dict | None = None, runtime: dict | None = None,
+                 ready: dict | None = None, private: dict | None = None, asset_loader=None):
+        """旧宿主保留文件入口；独立部署由受信装配器显式注入分角色来源与原件读取器。
+
+        注入只用于操作员的实验准备过程，不注册为 Agent 可选路径/地址参数。
+        资产读取器失败时停止，不回退旧仓库副本。
+        """
         self.directory = directory.resolve()
-        self.native = load_runtime(self.directory / "native/seed.json")
-        self.runtime = load_runtime(ROOT / "artifacts/multi-system/runtime.json")
-        self.ready = load_runtime(self.directory / "ready.json")
-        self.private = load_runtime(self.directory / "runtime.private.json")
+        self.native = native if native is not None else load_runtime(self.directory / "native/seed.json")
+        self.runtime = runtime if runtime is not None else load_runtime(ROOT / "artifacts/multi-system/runtime.json")
+        self.ready = ready if ready is not None else load_runtime(self.directory / "ready.json")
+        self.private = private if private is not None else load_runtime(self.directory / "runtime.private.json")
+        self.asset_loader = asset_loader
         self.state_path = self.directory / "source-preparation.private.json"
         self.state = load_runtime(self.state_path) if self.state_path.exists() else {
             "run_id": self.native["run_id"], "commands": {}, "receipts": [], "plans": {}, "checks": []}
@@ -60,6 +67,10 @@ class BusinessPack:
 
     def save(self):
         save_private(self.state_path, self.state)
+
+    def asset_text(self, path: Path) -> str:
+        """同一业务准备器可消费固定发布版本；注入来源不可用时直接失败。"""
+        return self.asset_loader(path) if self.asset_loader is not None else path.read_text()
 
     def command(self, key: str, kind: str, payload: dict) -> dict:
         """保存完整首次命令；未知 HTTP 回执可用相同 key 向事务账本安全重放。"""
@@ -83,7 +94,7 @@ class BusinessPack:
             self.save()
 
     def policy(self, tenant: str, version: str):
-        asset = json.loads((ROOT / f"business-source-pack/v1/policies/{version}.json").read_text())
+        asset = json.loads(self.asset_text(ROOT / f"business-source-pack/v1/policies/{version}.json"))
         source = asset["source_document"]
         text = source.get("text", source.get("content"))
         payload = {key: asset[key] for key in ("policy_id", "version", "review_status", "effective_from", "effective_to", "terms")}

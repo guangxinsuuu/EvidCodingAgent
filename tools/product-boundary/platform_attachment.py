@@ -62,6 +62,9 @@ def attach(directory: Path, repo: Path, project: str, enrollment_path: Path, see
     live Docker 身份核对来自 bind_platform.binding。网络也要同时满足 internal 和
     精确项目标签，防止私有文件中一个任意网络名变成产品访问原生数据库的通道。
     """
+    existing = binding.private(directory / "manifest.json")
+    if "compose_sha256" in existing or "platform_binding" in existing:
+        raise binding.BoundaryError("PLATFORM_ATTACHMENT_ALREADY_FROZEN")
     platform_dir, identity = binding.binding(repo, project)
     enrollment = binding.private(enrollment_path)
     seed = binding.private(seed_path)

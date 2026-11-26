@@ -51,6 +51,14 @@ class BusinessSourceSafetyTests(unittest.TestCase):
         return {"operation_key": "driver-unit-run:asset", "type": "put_policy", "source_revision": 1,
                 "result": value or {"policy_id": "refund", "version": "v1"}}
 
+    def test_explicit_asset_source_failure_never_falls_back_to_repository(self):
+        self.pack.asset_loader = Mock(side_effect=SeedError("PUBLICATION_UNAVAILABLE"))
+        self.pack.api.request = Mock()
+        with self.assertRaisesRegex(SeedError, "PUBLICATION_UNAVAILABLE"):
+            self.pack.policy("tenant-a", "lab-v1")
+        self.pack.api.request.assert_not_called()
+        self.assertEqual(self.pack.state["commands"], {})
+
     def test_unknown_receipt_replays_identical_durable_command_after_restart(self):
         payload = {"tenant_id": "tenant-a", "policy_id": "refund", "version": "v1"}
         dispatched = []

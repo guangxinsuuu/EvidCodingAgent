@@ -336,8 +336,8 @@ class NativeObjects(Seed):
 
 class SourceObjects(BusinessPack):
     """冻结原生对象→商业事实；late_usage的发送故意保留为独立可执行阶段。"""
-    def __init__(self, directory: Path):
-        super().__init__(directory)
+    def __init__(self, directory: Path, **source_inputs):
+        super().__init__(directory, **source_inputs)
         self.specs = {s["label"]: s for s in scenario_specs(self.native["scenario_specs"])}
 
     def plan(self, label: str, customer: dict, sub: dict) -> dict:
@@ -378,7 +378,7 @@ class SourceObjects(BusinessPack):
                   "effective_to": p["claimed_at"] if spec["contract_kind"] == "expired" else "2027-12-31T00:00:00Z",
                   "status": "DRAFT" if spec["contract_kind"] == "draft" else "ACTIVE"}
         path = ROOT / f"business-source-pack/v1/contracts/{variant}.md"
-        text = Template(path.read_text()).substitute(fields)
+        text = Template(self.asset_text(path)).substitute(fields)
         hashed = hashlib.sha256(text.encode()).hexdigest()
         contract = {k: fields[k] for k in ("tenant_id", "customer_id", "subscription_id", "contract_id", "version", "effective_from", "effective_to", "status")}
         contract.update(review_status="LOCAL_CALIBRATION", human_review_status="PENDING_USER_REVIEW",
