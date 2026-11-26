@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "qualification": "LOCAL_INDEPENDENT_NATIVE_TRANSPORT_CALIBRATION",
+  "business_final_qualification": false,
+  "platform_project": "evid-business-4b276a796f10",
+  "platform_deployed_commit": "36748c71cfe20eb73874d2b12f89a3e607f4d158",
+  "sut": {
+    "deployment_id": "evid-sut-bd15fa5ea3e8",
+    "sut_commit": "3d9bfb18275998426571d844f89cc4ed87b5ec6f",
+    "sut_tree": "5c30e7e3246dca01327192f68a4484c08bf1d67d",
+    "sut_image_id": "sha256:d4331273650677c59f478e69b2e7b937a95456d05cf5f46bc8c5e3ac31f893b2"
+  },
+  "run_id": "81b358de93fd4e818e1e6cd141d405e2",
+  "role_boundary_checks": 13,
+  "transport_cases": 5,
+  "business_result": "ALL_FIVE_NEEDS_MORE_EVIDENCE_COMMERCIAL_SOURCE_NOT_ATTACHED",
+  "model_mode": "SCRIPTED_CALIBRATION",
+  "native_receipt_counts": [
+    8,
+    8,
+    8,
+    8,
+    7
+  ],
+  "tool_events_per_job": 2,
+  "artifacts": [
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/enrollment.json",
+      "sha256": "811a24d078506c7f73c3fa051b6422622933b0b69a62f93d17f5d2f3052d099a",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/verification.json",
+      "sha256": "b0c69f4463bb746567703422181669c5da15af11444f83b294733bd07c7dc9c4",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/native/seed.json",
+      "sha256": "8252bc7f1f7ea261976452cc981d3b07af7d5598ea109a32e914551b4aa0157c",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/run.json",
+      "sha256": "9be5a8c6bdd6ca2e15b5150d691dff36ceddab7d0bc3d582b38dec6d82e00cd0",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/exact-content-recheck.json",
+      "sha256": "6f4c6635b11fe83f68b3c69ddafade91aed7b780a4c86352772693213a1596c7",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/25c48d9eb856430a9e37bc056524611e.json",
+      "sha256": "465b0ab27e61f070f03be37c90570128b7bba9452cd57dce298902a362ab0d62",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/f755d3d5287149548b907b3740e75af7.json",
+      "sha256": "ee30a5d1921c4ab5bbb7c88755fe595eb3a5108530f511abe2cf046a97b2d979",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/e627916ca0ea4dae9ea9ca4653600bb6.json",
+      "sha256": "45cc9918218b6e02bd0c6bb92015af4023467bb12f9cfb463a7b88a56b2a3df3",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/a34e057dc8674b5ebfdd4b77f4f90005.json",
+      "sha256": "6fdc6c90c18bca950de0e602aa5a5b076563d2156ea38e8dea8ce6f048d2f4f8",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    },
+    {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/product-transport/d8e3270ec8c5473b88f185f613ed879e.json",
+      "sha256": "721e7adb34b3631ef5ab5567dd52294fd170ee4543cef840989647354cf26ea5",
+      "classification": "PRIVATE_LOCAL_RAW_EVIDENCE_NOT_COMMITTED"
+    }
+  ]
+}

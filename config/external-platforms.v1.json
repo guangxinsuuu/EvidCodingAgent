@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "platform_id": "evid-business",
+  "repository_url": "https://github.com/guangxinsuuu/EvidBusinessPlatforms.git",
+  "project_prefix": "evid-business-",
+  "qualification": "LOCAL_INDEPENDENT_NATIVE_PLATFORMS",
+  "role_boundary": "NATIVE_PREPARER_PRODUCT_SCOPED_ACCESS_OBSERVER_READ_ONLY"
+}

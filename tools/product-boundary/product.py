@@ -131,11 +131,16 @@ def registered_directory(identity: str | None) -> Path:
     manifest = json.loads((directory / "manifest.json").read_text())
     if manifest["deployment_id"] != identity or sha(directory / "compose.json") != manifest["compose_sha256"]:
         raise MaterialError("DEPLOYMENT_SPEC_CHANGED")
+    for role, expected in manifest.get("role_config_sha256", {}).items():
+        if role not in {"init", "api", "relay", "worker", "gateway"} or sha(directory / (role + ".private.json")) != expected:
+            raise MaterialError("DEPLOYMENT_ROLE_CONFIG_CHANGED")
     return directory
 
 
 def start(directory: Path) -> dict:
     """只启动登记工程，不更新候选或凭据；Compose 身份和文件摘要由调用方先检查。"""
+    from platform_attachment import validate_attachment
+    validate_attachment(directory)
     deployment.command(["docker", "compose", "-f", str(directory / "compose.json"), "up", "-d"])
     receipt = deployment.inspect(directory)
     if set(receipt["endpoints"]) != {"api", "database"}:
@@ -147,7 +152,7 @@ def start(directory: Path) -> dict:
         "product_commit": receipt["product_revision"], "image_id": receipt["product_image_id"], "endpoints": receipt["endpoints"]}
 
 
-def up(repo: Path, image: str) -> dict:
+def up(repo: Path, image: str, *, platform: dict | None = None) -> dict:
     """只接纳有本宿主构建回执的固定镜像；产品自贴 commit label 不足以获得部署资格。"""
     product = checkout(repo)
     if not re.fullmatch(r"sha256:[a-f0-9]{64}", image):
@@ -158,12 +163,19 @@ def up(repo: Path, image: str) -> dict:
     if product._git("rev-parse", record["source"]["commit"] + "^{tree}").decode().strip() != record["source"]["tree"]:
         raise MaterialError("PRODUCT_TREE_MISMATCH")
     directory = deployment.prepare(image)
+    if platform:
+        from platform_attachment import attach
+        attach(directory, **platform)
     manifest = json.loads((directory / "manifest.json").read_text())
     if manifest["product_revision"] != record["source"]["commit"]:
         raise MaterialError("DEPLOYMENT_BUILD_MISMATCH")
     manifest.update(compose_sha256=sha(directory / "compose.json"), build_operation_id=record["operation_id"],
         product_repository_url=product.profile["repository_url"], egap_host_commit=deployment.command(["git", "rev-parse", "HEAD"]),
-        egap_host_source_sha256=sha(Path(__file__)))
+        egap_host_source_sha256=sha(Path(__file__)),
+        host_module_sha256={str(path.relative_to(ROOT)): sha(path) for path in (
+            Path(__file__), Path(deployment.__file__), Path(__file__).with_name("platform_attachment.py"),
+            ROOT / "tools/platform-boundary/bind_platform.py")},
+        role_config_sha256={role: sha(directory / (role + ".private.json")) for role in ("init", "api", "relay", "worker", "gateway")})
     deployment.save(directory / "manifest.json", manifest)
     return start(registered_directory(directory.name))
 
@@ -177,6 +189,10 @@ def main() -> int:
     parser.add_argument("--operation")
     parser.add_argument("--deployment")
     parser.add_argument("--reference-reader-config", type=Path)
+    parser.add_argument("--platform-repo", type=Path)
+    parser.add_argument("--platform-project")
+    parser.add_argument("--platform-enrollment", type=Path)
+    parser.add_argument("--platform-seed", type=Path)
     args = parser.parse_args()
     if args.action == "setup":
         uv = ROOT / "tmp/genai-tooling/bin/uv"
@@ -194,7 +210,12 @@ def main() -> int:
     elif args.action == "up":
         if not args.product_repo:
             raise MaterialError("PRODUCT_REPOSITORY_REQUIRED")
-        result = up(args.product_repo, args.image or "")
+        platform_args = (args.platform_repo, args.platform_project, args.platform_enrollment, args.platform_seed)
+        if any(platform_args) and not all(platform_args):
+            raise MaterialError("COMPLETE_PLATFORM_BINDING_REQUIRED")
+        platform = dict(repo=args.platform_repo.resolve(), project=args.platform_project,
+            enrollment_path=args.platform_enrollment, seed_path=args.platform_seed) if all(platform_args) else None
+        result = up(args.product_repo, args.image or "", platform=platform)
     else:
         directory = registered_directory(args.deployment)
         if args.action == "start":
