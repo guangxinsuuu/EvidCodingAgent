@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { validateProductBinding, type ProductBinding } from "./product-authority.js";
 import { parseReviewRequest, type ReviewRequest, type ReviewDecisionProposal,
   type DecisionProposal, type HypothesisUpdate, type EvidenceReviewInput, type EvidenceDecisionProposal } from "@egap/contracts";
 
@@ -6,6 +7,8 @@ export type Json = Record<string, unknown>;
 export interface Material {
   material_ref: string; kind: string; title: string; git_commit: string;
   path: string; sha256: string; content: string;
+  /** 独立产品的真实仓库/路径；path 保留历史能力合同使用的逻辑命名空间。 */
+  repository_id?: string; source_path?: string;
 }
 export interface ReleaseBundle {
   schema_version: 1 | 2; task_mode: "RELEASE_VERIFICATION"; scope: "LOCAL_SYNTHETIC_PLANNING";
@@ -16,6 +19,7 @@ export interface ReleaseBundle {
   planning_contracts?: Json[];
   /** v2 的任务依据由可信装配器冻结；不是模型可编辑的审批或执行授权。 */
   review_request?: ReviewRequest;
+  product_binding?: ProductBinding;
 }
 export type RuntimeBundle = ReleaseBundle | EvidenceReviewInput;
 export type RuntimeProposal = DecisionProposal | EvidenceDecisionProposal | ReviewDecisionProposal;
@@ -87,7 +91,7 @@ export function validateBundle(value: unknown): ReleaseBundle {
   requireThat(value && typeof value === "object", "INVALID_RELEASE_BUNDLE", 400);
   const b = value as ReleaseBundle;
   requireThat([1, 2].includes(b.schema_version) && b.task_mode === "RELEASE_VERIFICATION" &&
-    b.scope === "LOCAL_SYNTHETIC_PLANNING" && ["LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC"].includes(b.input_provenance), "INVALID_RELEASE_SCOPE", 400);
+    b.scope === "LOCAL_SYNTHETIC_PLANNING" && ["LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC", "REGISTERED_EXTERNAL_PRODUCT"].includes(b.input_provenance), "INVALID_RELEASE_SCOPE", 400);
   for (const id of [b.baseline_sha, b.candidate_sha, b.catalog_commit, b.catalog_basis_commit])
     requireThat(typeof id === "string" && /^[0-9a-f]{40}$/.test(id), "INVALID_COMMIT_IDENTITY", 400);
   requireThat(typeof b.goal === "string" && b.goal.length > 0 && b.goal.length <= 4000 &&
@@ -104,6 +108,7 @@ export function validateBundle(value: unknown): ReleaseBundle {
     requireThat(canonical(r.requirements.map(item => item.id).sort()) === canonical([...b.requirement_refs].sort()),
       "REVIEW_REQUIREMENT_SCOPE_MISMATCH", 400);
   } else requireThat(b.review_request === undefined, "LEGACY_REVIEW_REQUEST_NOT_SUPPORTED", 400);
+  validateProductBinding(b);
   requireThat(Buffer.byteLength(canonical(b)) <= 1_500_000, "BUNDLE_TOO_LARGE", 400);
   const refs = new Set<string>();
   for (const m of b.materials) {

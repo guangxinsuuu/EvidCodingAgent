@@ -85,6 +85,8 @@ def _allowed_source(path: str) -> bool:
 
 def _source_mode(git: LocalGitReader, commit: str, path: str) -> str:
     """Git 文件权限也是变化事实；纯 chmod 不能被相同的文本摘要掩盖。"""
+    if hasattr(git, "physical_path"):
+        path = git.physical_path(path)
     entry = git._git("ls-tree", "-z", commit, "--", path).split(b"\t", 1)[0].split()
     _require(len(entry) == 3, "SOURCE_READ_FAILED")
     return entry[0].decode("ascii")
@@ -204,18 +206,21 @@ def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: s
                       requirement_refs: list[str] | None = None, *, candidate_root: Path | None = None,
                       catalog_commit: str = CATALOG_COMMIT,
                       input_provenance: str = "LOCAL_COMMITTED_RELEASE",
-                      retain_missing_requirements: bool = False) -> dict:
+                      retain_missing_requirements: bool = False, product_id: str | None = None) -> dict:
     """冻结 B/C、真实差异及可读材料，返回尚未运行或获准派发的发布任务。
 
-    root 是可信目录所在仓库；candidate_root 仅供操作员给出隔离合成 Git 版本对。
-    两者不同时必须显式标记 CALIBRATION_SYNTHETIC，不会创建真实 PR 或改变产品。
+    root 是可信目录所在仓库。旧 candidate_root 入口仍只接受隔离合成版本对；
+    product_id 则走安装侧独立产品登记，核对 origin/仓库根并保存真实物理路径。
+    两个入口的来源资格不同，不能靠换标签把旧校准包升级为外部产品包。
     预算、模型地址、凭据和出站许可都不在 bundle 中，由 TS Runtime 另行准入。
     对读取失败、敏感内容、字节超限采取拒绝；范围外变更保留明确未分析缺口。
     """
     root = Path(root).resolve()
     candidate_root = Path(candidate_root).resolve() if candidate_root is not None else root
-    _require(input_provenance in {"LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC"}, "RELEASE_PROVENANCE_INVALID")
-    _require(candidate_root == root or input_provenance == "CALIBRATION_SYNTHETIC", "RELEASE_SYNTHETIC_LABEL_REQUIRED")
+    external = product_id is not None
+    _require(input_provenance in ({"REGISTERED_EXTERNAL_PRODUCT"} if external else
+             {"LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC"}), "RELEASE_PROVENANCE_INVALID")
+    _require(external or candidate_root == root or input_provenance == "CALIBRATION_SYNTHETIC", "RELEASE_SYNTHETIC_LABEL_REQUIRED")
     _require(isinstance(goal, str) and 1 <= len(goal.strip()) <= 2000, "RELEASE_GOAL_INVALID")
     refs = ["R1", "R2", "R3", "R4", "R5", "R6"] if requirement_refs is None else requirement_refs
     _require(isinstance(refs, list) and (bool(refs) or retain_missing_requirements) and len(refs) <= 16
@@ -225,7 +230,8 @@ def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: s
     scope = ReadScope(principal_id="local-release-assembler", purpose="LOCAL_PLAN",
                       allowed_materials=frozenset({RULES_PATH}), model_egress_allowed=False)
     reader = load_catalog(root, catalog_commit, scope)
-    git = LocalGitReader(candidate_root)
+    from .product_repository import ProductGitReader
+    git = ProductGitReader(candidate_root, product_id=product_id, authority_root=root) if external else LocalGitReader(candidate_root)
     _commit(git, baseline_sha)
     _commit(git, candidate_sha)
     _require(git._git("merge-base", baseline_sha, candidate_sha).strip().decode("ascii") == baseline_sha,
@@ -236,11 +242,22 @@ def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: s
     changes, gaps = [], []
     raw_changes = _changes(git, baseline_sha, candidate_sha)
     for status, path in raw_changes:
+        # 新产品仓库的真实路径与历史逻辑名同时保留；这里只转换命名，不复制源码入 EGAP。
+        physical_path = path
+        if external:
+            path = git.logical_path(path)
         # 历史报告的文件名也可能直接泄漏故障答案。保留不可逆目录项身份与未分析事实；
         # 操作员可用冻结 B/C 审计原始 Git 清单，模型不能通过名称检索取得旧结论。
-        projected_path = "excluded-history:" + hashlib.sha256(path.encode("utf-8")).hexdigest() if path.startswith("reports/") else path
+        history = physical_path.startswith("reports/")
+        projected_path = "excluded-history:" + hashlib.sha256(path.encode("utf-8")).hexdigest() if history else path
         change = {"path": projected_path, "status": status, "category": _category(path), "analysis_status": "MATERIAL_AVAILABLE"}
-        if not _allowed_source(path):
+        if external:
+            change.update(repository_id=product_id)
+            if not history:
+                change["source_path"] = physical_path
+            if physical_path.startswith("tools/") or physical_path in {"Dockerfile", ".dockerignore"}:
+                change["category"] = "DEPLOYMENT"
+        if not (git.allowed(path) if external else _allowed_source(path)):
             change["analysis_status"] = "NOT_ANALYZED_OUTSIDE_PRODUCT_PROFILE"
             gaps.append({"code": "CHANGE_OUTSIDE_PRODUCT_PROFILE", "detail": projected_path})
             changes.append(change)
@@ -309,6 +326,11 @@ def _assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: s
         "changes": changes, "materials": materials, "catalog": catalog, "planning_contracts": planning_contracts, "gaps": gaps,
         "current_candidate_coverage": [], "evaluation_status": "NOT_RUN",
     }
+    if external:
+        bundle["product_binding"] = git.binding(baseline_sha, candidate_sha, root)
+        for material in materials:
+            if material["kind"] in {"BASELINE_SOURCE", "CANDIDATE_SOURCE", "UNTRUSTED_DIFF"}:
+                material.update(repository_id=product_id, source_path=git.physical_path(material["path"]))
     _require(len(json.dumps(bundle, ensure_ascii=False).encode("utf-8")) <= MAX_BUNDLE_BYTES,
              "RELEASE_BUNDLE_TOO_LARGE")
     return bundle
@@ -329,7 +351,7 @@ def assemble_release(root: Path, baseline_sha: str, candidate_sha: str, goal: st
 
 def assemble_review_request(root: Path, request: object, *, candidate_root: Path | None = None,
                             catalog_commit: str = CATALOG_COMMIT,
-                            input_provenance: str = "LOCAL_COMMITTED_RELEASE") -> dict:
+                            input_provenance: str = "LOCAL_COMMITTED_RELEASE", product_id: str | None = None) -> dict:
     """ReviewRequest v1 → ReleaseBundle v2，保留准确任务及所有材料缺项。
 
     格式、Git 对象、固定目录及材料字节分别校验。请求只能引用现有规则，不能
@@ -344,7 +366,10 @@ def assemble_review_request(root: Path, request: object, *, candidate_root: Path
     bundle = _assemble_release(root, value["baseline"]["commit"], value["candidate"]["commit"],
                                value["goal"], refs, candidate_root=candidate_root,
                                catalog_commit=catalog_commit, input_provenance=input_provenance,
-                               retain_missing_requirements=True)
+                               retain_missing_requirements=True, product_id=product_id)
+    if product_id is not None:
+        _require(all(value[side]["source_ref"] == bundle["product_binding"]["repository_url"]
+                     for side in ("baseline", "candidate")), "REVIEW_PRODUCT_SOURCE_MISMATCH")
     bundle.update(schema_version=2, review_request=value)
     registered = {row["id"]: row for row in bundle["catalog"]["requirements"]}
     if not refs:
@@ -375,16 +400,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--requirement", action="append")
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--candidate-root", type=Path)
-    parser.add_argument("--input-provenance", choices=["LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC"], default="LOCAL_COMMITTED_RELEASE")
+    parser.add_argument("--product-id", help="安装侧登记的独立产品；必须同时提供正式请求与候选仓库")
+    parser.add_argument("--input-provenance", choices=["LOCAL_COMMITTED_RELEASE", "CALIBRATION_SYNTHETIC", "REGISTERED_EXTERNAL_PRODUCT"], default="LOCAL_COMMITTED_RELEASE")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        _require(args.product_id is None or (args.review_request is not None and args.candidate_root is not None),
+                 "REGISTERED_PRODUCT_REVIEW_REQUEST_REQUIRED")
         if args.review_request is not None:
             _require(all(value is None for value in (args.baseline, args.candidate, args.goal, args.requirement)),
                      "REVIEW_REQUEST_LEGACY_ARGUMENT_CONFLICT")
             from .review_request import read_review_request
             bundle = assemble_review_request(args.root, read_review_request(args.review_request),
-                                             candidate_root=args.candidate_root, input_provenance=args.input_provenance)
+                                             candidate_root=args.candidate_root, input_provenance=args.input_provenance, product_id=args.product_id)
         else:
             _require(all(value is not None for value in (args.baseline, args.candidate, args.goal)),
                      "RELEASE_ARGUMENTS_REQUIRED")

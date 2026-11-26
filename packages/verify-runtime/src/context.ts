@@ -40,6 +40,7 @@ export function contextView(bundle: RuntimeBundle, state: RunState): Json {
   const view: Json = {
     task: { goal: bundle.goal, task_mode: bundle.task_mode, scope: bundle.scope,
       input_provenance: bundle.input_provenance, baseline_sha: bundle.baseline_sha,
+      ...(bundle.product_binding ? { product_binding: bundle.product_binding } : {}),
       candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit },
     // 初次先给规则和材料导航。读到业务依据后再投影选测目录，减少无关工具干扰。
     // 完整冻结目录仍在权威 bundle，既不丢资产身份，也不让模型扩大 dispatch 权限。
@@ -57,6 +58,7 @@ export function contextView(bundle: RuntimeBundle, state: RunState): Json {
     } : { status: bundle.catalog.status, dispatch_authorized: false, requirements: bundle.catalog.requirements,
       capability_index_status: "AVAILABLE_AFTER_FIRST_READ" },
     material_index: bundle.materials.map(({ content, ...m }) => ({ material_ref: m.material_ref, title: m.title, kind: m.kind,
+      ...(m.repository_id ? { repository_id: m.repository_id, source_path: m.source_path, git_commit: m.git_commit, sha256: m.sha256 } : {}),
       total_lines: content.split("\n").length,
       read_window: { start_line: 1, end_line: Math.min(200, content.split("\n").length) } })),
     hypotheses: state.hypotheses, read_receipts: state.read_receipts,

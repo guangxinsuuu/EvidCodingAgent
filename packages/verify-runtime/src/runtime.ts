@@ -116,6 +116,7 @@ export class Runtime {
         pending_operation: ops.rows.filter(op => ["QUEUED", "DISPATCHED"].includes(op.status)).map(op => ({ operation_id: op.id, status: op.status, action_kind: op.proposal.action_kind }))[0] ?? null,
         task_identity: bundle.task_mode === "EVIDENCE_REVIEW" ? { task_mode: bundle.task_mode, scope: bundle.scope, candidate_sha: bundle.candidate_sha, historical_run_id: bundle.historical_run_id, request_id: bundle.request_id, request_spec_revision: bundle.request_spec_revision } : { baseline_sha: bundle.baseline_sha, candidate_sha: bundle.candidate_sha, catalog_commit: bundle.catalog_commit,
           scope: bundle.scope, input_provenance: bundle.input_provenance,
+          ...(bundle.product_binding ? { product_binding: bundle.product_binding } : {}),
           ...(bundle.review_request ? { request_id: bundle.review_request.request_id, request_revision: bundle.review_request.revision,
             review_request_sha256: digest(bundle.review_request), predecessor_run_id: bundle.review_request.predecessor_run_id } : {}) },
         budgets: { model_calls: { limit: state.limits.model_calls, used: state.model_calls_used }, reads: { limit: state.limits.reads, used: state.reads_used },

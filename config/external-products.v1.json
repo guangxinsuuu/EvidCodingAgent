@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "products": [
+    {
+      "id": "evid-support",
+      "repository_url": "https://github.com/guangxinsuuu/EvidSupportSUT.git",
+      "logical_prefix": "services/genai-support-sut/",
+      "scope": "LOCAL_SYNTHETIC",
+      "authority": "OPERATOR_REGISTERED_LOCAL_CHECKOUT",
+      "source_prefixes": ["src/", "migrations/", "prompts/", "config/", "tools/"],
+      "source_files": ["pyproject.toml", "uv.lock", "requirements.lock", "Dockerfile", ".dockerignore"],
+      "legacy_source": {
+        "repository_url": "https://github.com/guangxinsuuu/EvidCodingAgent.git",
+        "commit": "3f62dea40d1971a5c20a1d22c0d24216dc9647e7",
+        "prefix": "services/genai-support-sut/",
+        "use": "HISTORICAL_REPLAY_ONLY"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+[project]
+name = "egap-product-boundary"
+version = "0.1.0"
+requires-python = "==3.14.*"
+dependencies = ["psycopg[binary]==3.3.8"]
+
+[tool.uv]
+package = false
+required-version = "==0.13.7"
