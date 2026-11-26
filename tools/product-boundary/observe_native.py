@@ -3,11 +3,12 @@
 
 本入口不导入产品包，不运行产品 checkout 脚本，不持 Chatwoot/Lago 管理员 key。
 每个请求先保存操作 key；恢复只查原操作，未查到仍 UNKNOWN，不新建 key 重发。
-这是传输和身份验收，商业规则、真实模型和当前候选 Final 均另行验证。
+这是传输和身份验收；LIVE_MODEL 额外取得出口原件，商业语义与 Final 仍另行验证。
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import time
@@ -67,16 +68,17 @@ def observation_checks(case, job_id, api_job, native, delivery, snapshot, gatewa
     不评价这段草稿是否符合退款规则。本层只检查当前候选确实传递了哪些内容、
     对象是否匹配、其他租户是否被拒绝，语义裁决交给独立业务检查。
     """
-    matching = [m for m in messages if m["id"] == delivery["external_message_id"]]
+    delivery, snapshot = delivery or {}, snapshot or {}
+    matching = [m for m in messages if m["id"] == delivery.get("external_message_id")]
     draft = native.get("draft") or {}
     return {
         "same_job_and_input": native["job_id"] == job_id and native["tenant_id"] == case["tenant_id"]
-            and delivery["job_id"] == job_id and delivery["conversation_id"] == case["conversation_id"] and delivery["invoice_id"] == case["invoice_id"],
+            and delivery.get("job_id") == job_id and delivery.get("conversation_id") == case["conversation_id"] and delivery.get("invoice_id") == case["invoice_id"],
         "same_completed_draft": native["status"] == "DONE" and gateway is not None and gateway["job_id"] == job_id
             and gateway["state"] == "COMPLETE" and native["draft"] == gateway["draft"] == api_job["job"]["draft"],
-        "external_snapshot": snapshot["tenant_id"] == native["tenant_id"] and snapshot["ticket_id"] == native["ticket_id"]
-            and snapshot["ticket_revision"] == native["ticket_revision"] and snapshot["context"]["source_kind"] == "CHATWOOT_LAGO" and bool(snapshot["source_receipts"]),
-        "private_note_observed": delivery["delivery_state"] == "COMPLETE" and len(matching) == 1
+        "external_snapshot": snapshot.get("tenant_id") == native["tenant_id"] and snapshot.get("ticket_id") == native["ticket_id"]
+            and snapshot.get("ticket_revision") == native["ticket_revision"] and snapshot.get("context", {}).get("source_kind") == "CHATWOOT_LAGO" and bool(snapshot.get("source_receipts")),
+        "private_note_observed": delivery.get("delivery_state") == "COMPLETE" and len(matching) == 1
             and matching[0].get("private") is True and matching[0].get("conversation_id") == case["conversation_id"]
             and ("[EGAP draft " + job_id + "]") in matching[0].get("content", "")
             and bool(draft.get("customer_reply_draft")) and matching[0].get("content", "").endswith("\n\n" + draft["customer_reply_draft"]),
@@ -84,10 +86,45 @@ def observation_checks(case, job_id, api_job, native, delivery, snapshot, gatewa
     }
 
 
+def model_observation_checks(record, binding, deployment_id, native, gateway):
+    """独立关联原始 wire 字节、模型内容、Gateway 回执与产品草稿；不重算退款决定。
+
+    原件存在、来源匹配和文案业务正确是三件事。这里只证明前两项，错误/缺失也
+    返回 false 并保留原件，不调用模型重写坏答案，不把已有草稿当原始模型响应。
+    """
+    checks = dict.fromkeys(("model_operation_binding", "model_request_binding", "model_response_binding", "model_draft_binding"), False)
+    try:
+        operation = record["operation"]
+        request_text, response_text = operation["request_text"], operation["response_text"]
+        request, response = json.loads(request_text), json.loads(response_text)
+        context = json.loads(request["messages"][1]["content"])
+        receipt = gateway.get("receipt") or {}
+        canonical = lambda value: hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+        checks["model_operation_binding"] = record["deployment_id"] == deployment_id and operation["operation_id"] == native["job_id"] \
+            and gateway["job_id"] == native["job_id"] and operation["state"] == "COMPLETE" \
+            and record["model_name"] == binding["model"]["name"] and record["model_digest"] == binding["model"]["digest"] \
+            and all(json.loads(operation[key])["digest"] == binding["model"]["digest"] for key in ("model_before", "model_after"))
+        checks["model_request_binding"] = hashlib.sha256(request_text.encode()).hexdigest() == operation["request_sha256"] \
+            and canonical(request) == receipt.get("request_sha256") and canonical(context["decision"]) == receipt.get("decision_sha256") \
+            and context["ticket"]["ticket_id"] == native["ticket_id"] and context["ticket"]["revision"] == native["ticket_revision"] \
+            and context["ticket"]["tenant_id"] == native["tenant_id"]
+        checks["model_response_binding"] = hashlib.sha256(response_text.encode()).hexdigest() == operation["response_sha256"] \
+            and canonical(response) == receipt.get("response_sha256") and response.get("id") == receipt.get("request_id") \
+            and response.get("model") == receipt.get("model_observed") == binding["model"]["name"] \
+            and response.get("usage") == receipt.get("usage") and isinstance(receipt.get("usage"), dict)
+        checks["model_draft_binding"] = gateway["state"] == "COMPLETE" and response["choices"][0]["finish_reason"] == "stop" \
+            and json.loads(response["choices"][0]["message"]["content"])["customer_reply_draft"] == (native.get("draft") or {}).get("customer_reply_draft")
+    except (KeyError, TypeError, ValueError, IndexError):
+        pass
+    return checks
+
+
 def run(args):
     directory = product.registered_directory(args.deployment)
     platform_attachment.validate_attachment(directory)
     receipt = boundary.private(directory / "deployment-receipt.json")
+    from model_attachment import validate as validate_model
+    validate_model(directory)
     candidate = bind_deployment(receipt, args.product_repo)
     platform_dir, platform = boundary.binding(args.platform_repo, args.project)
     stable_platform = lambda value: {k: v for k, v in value.items() if k != "egap_commit"}
@@ -122,18 +159,21 @@ def run(args):
     cases = [{k: c[k] for k in ("tenant_id", "conversation_id", "invoice_id", "subscription_id")} for c in seed["bindings"]["cases"]]
     basis = {"candidate": candidate, "platform": platform, "enrollment_sha256": receipt["platform_enrollment_sha256"],
         "role_config_sha256": manifest["role_config_sha256"]}
+    if "model_binding" in receipt:
+        basis["model"] = receipt["model_binding"]
     if commercial_reader:
         basis["commercial_source"] = receipt["commercial_source_binding"]
     path = args.output / "run.json"
     report = boundary.private(path) if path.exists() else {"run_id": uuid4().hex, "basis": basis, "state": "STARTED",
-        "scope": "NATIVE_COMMERCIAL_FACTS_SCRIPTED_CALIBRATION" if commercial_reader else "NATIVE_TRANSPORT_SCRIPTED_CALIBRATION", "business_final_qualification": False,
+        "scope": "NATIVE_LIVE_MODEL_KNOWN_OBJECT_CALIBRATION" if "model_binding" in receipt else
+                 "NATIVE_COMMERCIAL_FACTS_SCRIPTED_CALIBRATION" if commercial_reader else "NATIVE_TRANSPORT_SCRIPTED_CALIBRATION", "business_final_qualification": False,
         "cases": [], "mode": receipt["mode"]}
     if report["basis"] != basis:
         raise boundary.BoundaryError("RUN_IDENTITY_CHANGED")
     save(path, report)
     base = "http://127.0.0.1:" + str(receipt["endpoints"]["api"]["port"])
     ready = boundary.request(base, "/health/ready")
-    if ready[0] != 200 or ready[1].get("checks", {}).get("execution_mode") != "SCRIPTED_CALIBRATION":
+    if ready[0] != 200 or ready[1].get("checks", {}).get("execution_mode") != receipt["mode"]:
         raise boundary.BoundaryError("NATIVE_CALIBRATION_NOT_READY")
     with connect(receipt, observer, "support") as conn:
         conn.execute("SET default_transaction_read_only=off"); conn.commit()
@@ -180,7 +220,7 @@ def run(args):
         if row.get("job_id") and row["job_id"] != admitted["job_id"]:
             raise boundary.BoundaryError("NATIVE_OPERATION_JOB_MISMATCH")
         row.update(job_id=admitted["job_id"], admission_observed=True, state="ACCEPTED"); save(path, report)
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + (150 if receipt["mode"] == "LIVE_MODEL" else 30)
         job_path = f"/integrations/disputes/{case['tenant_id']}/{row['job_id']}"
         while time.monotonic() < deadline:
             result = boundary.request(base, job_path, token=token)
@@ -200,14 +240,23 @@ def run(args):
         with connect(receipt, observer, "gateway") as conn:
             gateway = conn.execute("SELECT * FROM egap_gateway.calls WHERE job_id=%s", (row["job_id"],)).fetchone()
             tools = conn.execute("SELECT * FROM egap_gateway.tool_events WHERE job_id=%s ORDER BY sequence", (row["job_id"],)).fetchall()
-        messages, native_receipts = native_messages(native_reader, delivery["account_id"], case["conversation_id"])
-        matching = [m for m in messages if m["id"] == delivery["external_message_id"]]
+        account = next(c["chatwoot_account_id"] for c in seed["bindings"]["customers"] if c["tenant_id"] == case["tenant_id"])
+        messages, native_receipts = native_messages(native_reader, account, case["conversation_id"])
+        matching = [m for m in messages if m["id"] == (delivery or {}).get("external_message_id")]
         other_tenant = "tenant-b" if case["tenant_id"] == "tenant-a" else "tenant-a"
         cross = boundary.request(base, job_path, token=login(caller, other_tenant))
         checks = observation_checks(case, row["job_id"], job, native, delivery, snapshot, gateway, messages, cross[0])
         evidence = {"api": job, "native_job": native, "delivery": delivery, "snapshot": snapshot, "gateway": gateway,
             "tool_events": tools, "native_messages": matching, "native_observation_receipts": native_receipts,
             "cross_tenant_read": {"http_status": cross[0], **cross[2]}, "checks": checks}
+        if "model_binding" in receipt:
+            model_reader = boundary.private(directory / "model-observer.private.json")
+            if model_reader["role"] != "OBSERVER" or model_reader["deployment_id"] != args.deployment:
+                raise boundary.BoundaryError("MODEL_OBSERVER_IDENTITY_MISMATCH")
+            result = boundary.request("http://127.0.0.1:" + str(receipt["endpoints"]["model-access"]["port"]),
+                "/v1/operations/" + row["job_id"], token=model_reader["token"])
+            evidence["model_observation"] = {"http_status": result[0], "response": result[1], **result[2]}
+            checks.update(model_observation_checks(result[1], receipt["model_binding"], args.deployment, native, gateway or {}))
         if commercial_reader:
             from urllib.parse import urlencode
             customer = next(c for c in seed["bindings"]["customers"] if c["tenant_id"] == case["tenant_id"])
@@ -215,13 +264,14 @@ def run(args):
                 "customer_id": customer["lago_customer_id"], "account_id": customer["chatwoot_account_id"]}
             observed = boundary.request(commercial_reader["base_url"], "/v1/context?" + urlencode(scope), token=commercial_reader["token"])
             checks["commercial_source_and_facts"] = observed[0] == 200 and observed[1].get("instance_id") == commercial_reader["instance_id"] \
-                and observed[1] == snapshot["context"].get("commercial_source")
+                and observed[1] == (snapshot or {}).get("context", {}).get("commercial_source")
             evidence["commercial_observation"] = {"http_status": observed[0], "response": observed[1], **observed[2]}
         save(args.output / (row["job_id"] + ".json"), evidence)
         row.update(state="OBSERVED" if all(checks.values()) else "OBSERVATION_MISMATCH", checks=checks,
-            evidence_sha256=digest(evidence), job_status=native["status"], delivery_state=delivery["delivery_state"])
+            evidence_sha256=digest(evidence), job_status=native["status"], delivery_state=(delivery or {}).get("delivery_state"))
         save(path, report)
     platform_attachment.validate_attachment(directory)
+    validate_model(directory)
     if commercial_reader:
         validate_commercial(receipt["commercial_source_binding"])
     if bind_deployment(receipt, args.product_repo) != candidate:

@@ -132,7 +132,7 @@ def registered_directory(identity: str | None) -> Path:
     if manifest["deployment_id"] != identity or sha(directory / "compose.json") != manifest["compose_sha256"]:
         raise MaterialError("DEPLOYMENT_SPEC_CHANGED")
     for role, expected in manifest.get("role_config_sha256", {}).items():
-        if role not in {"init", "api", "relay", "worker", "gateway"} or sha(directory / (role + ".private.json")) != expected:
+        if role not in {"init", "api", "relay", "worker", "gateway", "model-access"} or sha(directory / (role + ".private.json")) != expected:
             raise MaterialError("DEPLOYMENT_ROLE_CONFIG_CHANGED")
     return directory
 
@@ -145,18 +145,22 @@ def start(directory: Path) -> dict:
     if "commercial_source_binding" in manifest:
         from commercial_attachment import validate
         validate(manifest["commercial_source_binding"])
+    from model_attachment import validate as validate_model
+    validate_model(directory, running=False)
     deployment.command(["docker", "compose", "-f", str(directory / "compose.json"), "up", "-d"])
     receipt = deployment.inspect(directory)
-    if set(receipt["endpoints"]) != {"api", "database"}:
+    if set(receipt["endpoints"]) != {"api", "database"} | ({"model-access"} if "model_binding" in manifest else set()):
         raise MaterialError("DEPLOYMENT_ENDPOINTS_NOT_READY")
     if any(row["state"] != "running" for row in receipt["containers"] if row["role"] != "init"):
         raise MaterialError("PRODUCT_START_INCOMPLETE")
+    validate_model(directory)
     deployment.save(STATE / "active.json", {"deployment_id": receipt["deployment_id"]})
     return {"status": "STARTED_NOT_BUSINESS_VERIFIED", "deployment_id": receipt["deployment_id"],
         "product_commit": receipt["product_revision"], "image_id": receipt["product_image_id"], "endpoints": receipt["endpoints"]}
 
 
-def up(repo: Path, image: str, *, platform: dict | None = None, commercial_project: str | None = None) -> dict:
+def up(repo: Path, image: str, *, platform: dict | None = None, commercial_project: str | None = None,
+       local_model: str | None = None, model_call_limit: int = 8) -> dict:
     """只接纳有本宿主构建回执的固定镜像；产品自贴 commit label 不足以获得部署资格。"""
     product = checkout(repo)
     if not re.fullmatch(r"sha256:[a-f0-9]{64}", image):
@@ -175,6 +179,9 @@ def up(repo: Path, image: str, *, platform: dict | None = None, commercial_proje
             raise MaterialError("COMMERCIAL_NATIVE_PLATFORM_REQUIRED")
         from commercial_attachment import attach as attach_commercial
         attach_commercial(directory, platform["repo"], commercial_project)
+    if local_model:
+        from model_attachment import attach as attach_model
+        attach_model(directory, local_model, model_call_limit)
     manifest = json.loads((directory / "manifest.json").read_text())
     if manifest["product_revision"] != record["source"]["commit"]:
         raise MaterialError("DEPLOYMENT_BUILD_MISMATCH")
@@ -184,8 +191,10 @@ def up(repo: Path, image: str, *, platform: dict | None = None, commercial_proje
         host_module_sha256={str(path.relative_to(ROOT)): sha(path) for path in (
             Path(__file__), Path(deployment.__file__), Path(__file__).with_name("platform_attachment.py"),
             Path(__file__).with_name("commercial_attachment.py"),
+            Path(__file__).with_name("model_attachment.py"),
             ROOT / "tools/platform-boundary/bind_platform.py")},
-        role_config_sha256={role: sha(directory / (role + ".private.json")) for role in ("init", "api", "relay", "worker", "gateway")})
+        role_config_sha256={role: sha(directory / (role + ".private.json")) for role in
+                           ("init", "api", "relay", "worker", "gateway", *(("model-access",) if local_model else ()))})
     deployment.save(directory / "manifest.json", manifest)
     return start(registered_directory(directory.name))
 
@@ -204,6 +213,8 @@ def main() -> int:
     parser.add_argument("--platform-enrollment", type=Path)
     parser.add_argument("--platform-seed", type=Path)
     parser.add_argument("--commercial-project")
+    parser.add_argument("--local-model")
+    parser.add_argument("--model-call-limit", type=int, default=8)
     args = parser.parse_args()
     if args.action == "setup":
         uv = ROOT / "tmp/genai-tooling/bin/uv"
@@ -226,7 +237,8 @@ def main() -> int:
             raise MaterialError("COMPLETE_PLATFORM_BINDING_REQUIRED")
         platform = dict(repo=args.platform_repo.resolve(), project=args.platform_project,
             enrollment_path=args.platform_enrollment, seed_path=args.platform_seed) if all(platform_args) else None
-        result = up(args.product_repo, args.image or "", platform=platform, commercial_project=args.commercial_project)
+        result = up(args.product_repo, args.image or "", platform=platform, commercial_project=args.commercial_project,
+                    local_model=args.local_model, model_call_limit=args.model_call_limit)
     else:
         directory = registered_directory(args.deployment)
         if args.action == "start":

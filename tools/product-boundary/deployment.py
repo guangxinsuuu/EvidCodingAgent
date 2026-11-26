@@ -140,8 +140,8 @@ def inspect(directory: Path) -> dict:
         records.append({"role": role, "container_id": item["Id"], "image_id": item["Image"],
             "state": item["State"]["Status"], "exit_code": item["State"]["ExitCode"],
             "mounts": [{"destination": m["Destination"], "read_only": not m["RW"], "type": m["Type"]} for m in item["Mounts"]]})
-        if role in ("api", "database"):
-            ports = item["NetworkSettings"]["Ports"].get("8080/tcp" if role == "api" else "5432/tcp")
+        if role in ("api", "database", "model-access"):
+            ports = item["NetworkSettings"]["Ports"].get("5432/tcp" if role == "database" else "8080/tcp")
             if ports:
                 if ports[0]["HostIp"] != "127.0.0.1":
                     raise ValueError("LOCAL_ENDPOINT_REQUIRED")

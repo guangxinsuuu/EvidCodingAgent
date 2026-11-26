@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "run_id": "441c38637eb1497e8c234d2c5d698fc0",
+  "deployment_id": "evid-sut-db8bc9fc36c3",
+  "candidate": {
+    "deployment_id": "evid-sut-db8bc9fc36c3",
+    "sut_commit": "76076dd17368a8cf5627e45758db25300b2a2bd2",
+    "sut_tree": "ec59749e2e0912088acaccc34ba4f200c90d5f74",
+    "sut_image_id": "sha256:fa5ac89e8c77bfa8356d01b2102ee266ce8326c7a063d2504ed57562209830cb",
+    "egap_commit": "28f2fb6527bdc29ae78f1cb5cd8ed514881a04ae",
+    "observer_source_sha256": "d5735dc6b5fa23a271a12de1c67d78c0919941bdaa8f20c2ed70945c65b65a39",
+    "container_ids": {
+      "worker": "c8f0feadff911e565f51a86e7505f701c4e859f14e0952361d6ace56a970a82b",
+      "gateway": "ee93123e3041c1aa7a95395d53b2ba280daeda49096c7e9fbfe55bc0934f312e",
+      "api": "f5906dc2dc89fc8de56500a1cc41b5d15fcafb739e5e1d10e997866149229f5d",
+      "relay": "510d50b9580c7a034fdbec77f6b4993259bdf240fa91b07ce1a928368bf99112",
+      "init": "0c64f53abd008e30a1fedfc2ae283c283186d0e83524a6da738e52fd1ad5e527"
+    },
+    "binding_authority": "LOCAL_DOCKER_OPERATOR"
+  },
+  "model_binding": {
+    "model": {
+      "name": "qwen2:7b",
+      "digest": "dd314f039b9d54d5553002c906ce50c9fe7242f73f0680abd04f01c8ecbd2755",
+      "authority": "LOCAL_OLLAMA_TAGS_NOT_PROVIDER_ATTESTATION"
+    },
+    "outlet_image_id": "sha256:ad1f2851cdfbf6cccb661ba3bafc6a6e32224218fd3162fb25b28b378a6787ff",
+    "outlet_source_sha256": "b6e56e8517a6c7d35796cd49c2d74bb7f92389e8dfd6dc379540960156d0a475",
+    "build_operation_id": "64976f85a8b54f5381c012c9316b5078",
+    "max_calls": 8,
+    "max_output_tokens": 1024,
+    "expires_at": "2026-11-27T07:33:50.674127+00:00",
+    "outlet_config_sha256": "c1e89069438806aa8600245ca62e8f4db92155da7edd49d9c3832f2647de2180",
+    "scope": "FIXED_LOCAL_MODEL_SYNTHETIC_BUSINESS_ONLY"
+  },
+  "cases": [
+    {
+      "conversation_id": 1,
+      "job_id": "979493f13b3e47f48e01df931146f6c3",
+      "eligibility": "ELIGIBLE",
+      "checks_count": 10,
+      "all_checks": true,
+      "usage": {
+        "total_tokens": 2642,
+        "prompt_tokens": 2592,
+        "completion_tokens": 50
+      },
+      "elapsed_ms": 11197,
+      "evidence_ref": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/979493f13b3e47f48e01df931146f6c3.json",
+      "evidence_sha256": "c5c1eee6335ad9d38bb646902bbbf18b334f8b4342e3579791e5031ab9540d15"
+    },
+    {
+      "conversation_id": 2,
+      "job_id": "99f9db4ca03d4c07be67b0ce4fe6c290",
+      "eligibility": "INELIGIBLE",
+      "checks_count": 10,
+      "all_checks": true,
+      "usage": {
+        "total_tokens": 2649,
+        "prompt_tokens": 2606,
+        "completion_tokens": 43
+      },
+      "elapsed_ms": 7123,
+      "evidence_ref": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/99f9db4ca03d4c07be67b0ce4fe6c290.json",
+      "evidence_sha256": "0809bd5998a597eee6deb20ef8ca16f7b4707710fa155c386750bbc62800dffb"
+    },
+    {
+      "conversation_id": 3,
+      "job_id": "9b56a189fd5c466c92674eef988b172f",
+      "eligibility": "ELIGIBLE",
+      "checks_count": 10,
+      "all_checks": true,
+      "usage": {
+        "total_tokens": 2639,
+        "prompt_tokens": 2600,
+        "completion_tokens": 39
+      },
+      "elapsed_ms": 7011,
+      "evidence_ref": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/9b56a189fd5c466c92674eef988b172f.json",
+      "evidence_sha256": "879a02b996362e08347bcc93696da4dcc4b0947a1e5a03b6dd7cf1c4e326c610"
+    },
+    {
+      "conversation_id": 4,
+      "job_id": "bce757989d75422f8539cbcf4014faaa",
+      "eligibility": "INELIGIBLE",
+      "checks_count": 10,
+      "all_checks": true,
+      "usage": {
+        "total_tokens": 2662,
+        "prompt_tokens": 2612,
+        "completion_tokens": 50
+      },
+      "elapsed_ms": 7375,
+      "evidence_ref": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/bce757989d75422f8539cbcf4014faaa.json",
+      "evidence_sha256": "4778f03bfd5a41198d394f1500be6707634ae2358df0d12d394f018a30e31387"
+    },
+    {
+      "conversation_id": 5,
+      "job_id": "73c0645c727c4e99a23ac597963de09e",
+      "eligibility": "NEEDS_MORE_EVIDENCE",
+      "checks_count": 10,
+      "all_checks": true,
+      "usage": {
+        "total_tokens": 1928,
+        "prompt_tokens": 1828,
+        "completion_tokens": 100
+      },
+      "elapsed_ms": 6476,
+      "evidence_ref": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/73c0645c727c4e99a23ac597963de09e.json",
+      "evidence_sha256": "348598d641e40ecdb1bf1f59dcc9635460cbe2483e65af18302f24c04fa5e291"
+    }
+  ],
+  "totals": {
+    "prompt_tokens": 12238,
+    "completion_tokens": 282,
+    "total_tokens": 12520
+  },
+  "qualification": "KNOWN_OBJECT_LIVE_MODEL_TRANSPORT_AND_PROVENANCE_CALIBRATION",
+  "business_final_qualification": false,
+  "agent_selected_experiments": false,
+  "references": {
+    "run.json": {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/run.json",
+      "sha256": "63483f4e4a6bf6362c626d3c7769a001c61a64f5b5549fb0b695620be7cb5826"
+    },
+    "model-boundary-verification.json": {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/model-boundary-verification.json",
+      "sha256": "fe2965111a39d7cbe33488de27ed1fc49b7767e6b41720dbd4ea34bb2771e85e"
+    },
+    "recovery-counts.json": {
+      "path": "artifacts/independent-platforms/evid-business-4b276a796f10/live-model-product-run/recovery-counts.json",
+      "sha256": "ea6ce0656fb69a90c86b2b1b95af730c851eff7037ce8dd8c8420b8f48776a0d"
+    }
+  }
+}
