@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "qualification": "INDEPENDENT_QA_PUBLICATION_AND_ARCHIVED_KNOWN_EXPERIMENT_REVIEW",
+  "qa_commit": "be8b133d665ac1d7be93a8dec2b7eb203657aca6",
+  "qa_image_id": "sha256:ab8e3901a878c94379f5d1857c5d84607256205f6ec32b09bd2e79c716dc24fd",
+  "source_instance": "evid-sources-906d8c1857bb",
+  "final_run_id": "7ef41be778734fb394824a10162907ca",
+  "experiment_id": "evidphase20261126a1",
+  "execution_index_commit": "cbe92a225c3a53f9ca9fc7772aa733fca0b7cda1",
+  "scoped_result": "PASS_SCOPED_DETERMINISTIC_CHECKS",
+  "structured_checks": 193,
+  "review_required_findings": 3,
+  "verified_original_ledger_references": 112,
+  "negative_container_tests": 2,
+  "source_boundary_checks": 21,
+  "automated_tests": 40,
+  "model_calls": 0,
+  "business_writes": 0,
+  "new_candidate_final": false,
+  "evidence": [
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/publications.private.json",
+      "sha256": "74cc2774595b26443f5d3267d402b4270c7912b1018a2c1d9da7cfeda9e03b30",
+      "bytes": 146240,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/build-state.json",
+      "sha256": "a299cf0a9c639344101e1d5966d6419698c2fbd03d8af352629352e2305c1de9",
+      "bytes": 717,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/input.private.json",
+      "sha256": "f779781c1514785eddef2f62feda9925f4fcaa4b8e1b0df08278509b5bdec173",
+      "bytes": 982644,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/stdout.private.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/stderr.private.log",
+      "sha256": "9fb5476f8804f69d926444ca29ec3c6a2ac21f1ec6a51adfdcc76dbd3547cec3",
+      "bytes": 478,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/execution.json",
+      "sha256": "22b27f06af66927428fe34ac413e6c404d5fa3150a40ec0e963d6d79049171b0",
+      "bytes": 533,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/cbc9aa9aaa804575b842e1bcb5cefc75/failure-reconciliation.json",
+      "sha256": "86fe407d7c96a3e92d50d7a46e627ba8bfade953261f28ccb7a1c52f81a5b8c3",
+      "bytes": 317,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/publications.private.json",
+      "sha256": "484ff0e0bb9ee0db59107b00b5fa851f81e90c49dc1875172387f0c9bb14f252",
+      "bytes": 146240,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/build-state.json",
+      "sha256": "8b428ed135b8db491f14dbab596becc5abd36f6f38b6212cf8e2551a4719e15c",
+      "bytes": 952,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/input.private.json",
+      "sha256": "f779781c1514785eddef2f62feda9925f4fcaa4b8e1b0df08278509b5bdec173",
+      "bytes": 982644,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/stdout.private.json",
+      "sha256": "11613de9e808ebb323a7f29b0c7eb919412c81b1e7fa5f168bb8b94078cf2b78",
+      "bytes": 27038,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/stderr.private.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/execution.json",
+      "sha256": "2800dc49f373e40b07a4588807d8a02b1847ba305305fb64bf46e976e4d4c523",
+      "bytes": 636,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/result.json",
+      "sha256": "802cfe7222e544b4eb4551255e4274dde2480f166b1e24ca67ba278e6e32a3dd",
+      "bytes": 3238,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7dc0744527e547278d33a4e37f68e8af/negative-container-tests.json",
+      "sha256": "1e70dea32ecaa000b7a8f9eb41bb668b47d768d75a8f1b8aa653dec5183637cf",
+      "bytes": 474,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/3ef8c63ac53d4f009311c4ca6a8ef3e3/publications.private.json",
+      "sha256": "e52a826f96512c36f4391dcc3fdb656fa374f8ed3cd2f39ca4fd554410dc4658",
+      "bytes": 146240,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/3ef8c63ac53d4f009311c4ca6a8ef3e3/input.private.json",
+      "sha256": "4a982f2b0b8e7c29b643780030adb70caa5330eba9d0f4bcaa71ebc93425ff0c",
+      "bytes": 982137,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/3ef8c63ac53d4f009311c4ca6a8ef3e3/stdout.private.json",
+      "sha256": "106ad84b5aee8e89a9f9dd2c9aa66b590f339b4ba0bfefc72d9b1bc7d1aa13ed",
+      "bytes": 336,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/3ef8c63ac53d4f009311c4ca6a8ef3e3/stderr.private.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/3ef8c63ac53d4f009311c4ca6a8ef3e3/execution.json",
+      "sha256": "ebc2275b4037a56b0bb18bdc4cae52b1268c3504270d936ffb6595b548dc1afe",
+      "bytes": 636,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/3ef8c63ac53d4f009311c4ca6a8ef3e3/mutation-test.json",
+      "sha256": "049b883a7d67d74c56e3cb2c1545c32ebac24b8fb3cf4487b1632758978120d8",
+      "bytes": 2264,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/8baed65a649a47fb91a414315b488126/publications.private.json",
+      "sha256": "ab487de503bd32fc42de9494491a9e1740ee4bec06e1898dcc2a01e3eab2c7cc",
+      "bytes": 146240,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/8baed65a649a47fb91a414315b488126/input.private.json",
+      "sha256": "a53c3b2704a0de72f8928996e2d58926a8385b228d16d9c7cb2226e5c5400e47",
+      "bytes": 982644,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/8baed65a649a47fb91a414315b488126/stdout.private.json",
+      "sha256": "e22da0bad036c08c0c20a90e3efb27dfb268092577f0caa73a651b29aeae449c",
+      "bytes": 27529,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/8baed65a649a47fb91a414315b488126/stderr.private.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/8baed65a649a47fb91a414315b488126/execution.json",
+      "sha256": "5f16b7c59b38a679ba8ed091bcd04dbe5c12f8c584b6cd152399d502477b8b30",
+      "bytes": 636,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/8baed65a649a47fb91a414315b488126/mutation-test.json",
+      "sha256": "e527663393c7e3e3ed0bde14b75fcf9c7622954c2b4da15926a6ce3ba1184f02",
+      "bytes": 2317,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/run-identity.json",
+      "sha256": "0c987b6a93226cab42cea1d2ef811869ac149ae7f7c655c40dff7021fe5dd2d0",
+      "bytes": 549,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/publications.private.json",
+      "sha256": "e14c786c4eb0c30a2d1dd80559c0f2d25ed4e63fa483c04377d4642e02ff33f1",
+      "bytes": 146240,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/build-state.json",
+      "sha256": "6332ffdf6371cb72345a1a84b16d0c01a33077d64ff48563c3889293ea9e8b4b",
+      "bytes": 952,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/input.private.json",
+      "sha256": "f779781c1514785eddef2f62feda9925f4fcaa4b8e1b0df08278509b5bdec173",
+      "bytes": 982644,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/stdout.private.json",
+      "sha256": "11613de9e808ebb323a7f29b0c7eb919412c81b1e7fa5f168bb8b94078cf2b78",
+      "bytes": 27038,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/stderr.private.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/execution.json",
+      "sha256": "b811fb3e69a2383e7a58b53d1b2374afdc85abd7f377d5ce4304abf670d1cd21",
+      "bytes": 728,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/result.json",
+      "sha256": "3a59790f0dfd2600a273144b64f52c60d77d879204353eeeccadf6e949356acb",
+      "bytes": 3238,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/source-snapshot/manifest.json",
+      "sha256": "09a2a10d579f5059b172d12946fb522c0101527970a546847dd111ad7b87277c",
+      "bytes": 796,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED",
+      "source_path": "artifacts/source-platform/evid-sources-906d8c1857bb/manifest.json"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/source-snapshot/deployment-receipt.json",
+      "sha256": "db8918ef2e0ab4bdd47d3614559d71aa76d910ea99b95dce6be22d01dd59d7d3",
+      "bytes": 465,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED",
+      "source_path": "artifacts/source-platform/evid-sources-906d8c1857bb/deployment-receipt.json"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/source-snapshot/publications.json",
+      "sha256": "01637c19fbd692282ec335a74de4401fd1aaa9c3d5ba7ffbdab20bc292e58706",
+      "bytes": 5241,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED",
+      "source_path": "artifacts/source-platform/evid-sources-906d8c1857bb/publications.json"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/source-snapshot/phase-boundary-verification.json",
+      "sha256": "c089f34ad6eaffae96cf08fe395214e751c1e404b86cdbb32574609ccb3b7f29",
+      "bytes": 3284,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED",
+      "source_path": "artifacts/source-platform/evid-sources-906d8c1857bb/phase-boundary-verification.json"
+    },
+    {
+      "path": "artifacts/phase-qa/7ef41be778734fb394824a10162907ca/source-snapshot/coexistence-and-replay.json",
+      "sha256": "f91ab50bee60edda597db4a8df93ce9781e19a8bfe366c2ecd1702f5292fafd1",
+      "bytes": 453,
+      "availability": "LOCAL_PRIVATE_NOT_UPLOADED",
+      "source_path": "artifacts/source-platform/evid-sources-906d8c1857bb/coexistence-and-replay.json"
+    }
+  ]
+}

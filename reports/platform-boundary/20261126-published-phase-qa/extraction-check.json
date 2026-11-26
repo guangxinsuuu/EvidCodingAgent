@@ -1,0 +1,18 @@
+{
+  "source_commit": "cbe92a225c3a53f9ca9fc7772aa733fca0b7cda1",
+  "qa_commit": "be8b133d665ac1d7be93a8dec2b7eb203657aca6",
+  "extracted_function_bodies_identical": true,
+  "functions": {
+    "_sha": "6f5ae7e50577809bf90c3b69fc3b055888839b1374ffd7102e5eb4eb20a2104c",
+    "_body": "0a0b195e164c55e6deef3128a60047db724dc0191752a2366a8aeba204d9ea36",
+    "_verdict": "8039301496a065b25c248876cf68c9489f4d3b13d21aa0e57948a30f93dec672",
+    "_check": "35d77eb160c13ebc205f3bbc1e2becd11dad601748e4a66cddda43010938c6a3",
+    "_instant": "aed431d30eba7f1566ccb9ec72481d51041eb0899d448f1df5f87c22de39fa7e",
+    "_units": "75244cdbcd2d3d6b21d4a731879e1c548f65eab2b7f5500a0f7ee0458a1da48a",
+    "_coverage_checks": "00a2cc9fdeeab0f76661d363be50173b860b1838748eceaa40e1040726b24e94",
+    "assess_observation": "ef040ecc6521a153a9f48d3d38a5467a2a720107d42c1741be62f2302662f993",
+    "assess_transition": "98defdf5e10fd8f66ffa2071ae98f3684e7717ae0b6ba66c9654fb94f7f59a04",
+    "summarize_execution": "0e276ca808535e3d3a1a1f724460f4607e821ba8854e41c604aba58d850cdc51"
+  },
+  "note": "Only module header/imports changed; input guard is a separately authored file."
+}

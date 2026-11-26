@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "objects": [
+    {
+      "namespace": "acceptance",
+      "object_id": "phase-release-oracle",
+      "version": "phase-v1",
+      "repository": "EvidAcceptanceAssets",
+      "path": "oracles/release_oracle.py",
+      "lineage_manifest": "phase-publication.v1.json",
+      "publisher": "qa-publisher",
+      "readers": [
+        "oracle-reader"
+      ],
+      "content_type": "text/plain",
+      "profile": "PHASE_BASE_ORACLE"
+    },
+    {
+      "namespace": "acceptance",
+      "object_id": "phase-observation-oracle",
+      "version": "phase-v1",
+      "repository": "EvidAcceptanceAssets",
+      "path": "oracles/phase_oracle.py",
+      "lineage_manifest": "phase-publication.v1.json",
+      "publisher": "qa-publisher",
+      "readers": [
+        "oracle-reader"
+      ],
+      "content_type": "text/plain",
+      "profile": "PHASE_OBSERVATION_ORACLE"
+    },
+    {
+      "namespace": "acceptance",
+      "object_id": "phase-json-entry",
+      "version": "phase-v1",
+      "repository": "EvidAcceptanceAssets",
+      "path": "oracles/phase_entry.py",
+      "lineage_manifest": "phase-publication.v1.json",
+      "publisher": "qa-publisher",
+      "readers": [
+        "oracle-reader"
+      ],
+      "content_type": "text/plain",
+      "profile": "PHASE_JSON_ENTRY"
+    },
+    {
+      "namespace": "acceptance",
+      "object_id": "phase-review-contract",
+      "version": "phase-v1",
+      "repository": "EvidAcceptanceAssets",
+      "path": "oracles/phase-contract.v1.json",
+      "lineage_manifest": "phase-publication.v1.json",
+      "publisher": "qa-publisher",
+      "readers": [
+        "oracle-reader",
+        "planner-reader"
+      ],
+      "content_type": "application/json",
+      "profile": "PHASE_REVIEW_CONTRACT"
+    },
+    {
+      "namespace": "acceptance",
+      "object_id": "phase-container-recipe",
+      "version": "phase-v1",
+      "repository": "EvidAcceptanceAssets",
+      "path": "oracles/Dockerfile.phase",
+      "lineage_manifest": "phase-publication.v1.json",
+      "publisher": "qa-publisher",
+      "readers": [
+        "oracle-reader"
+      ],
+      "content_type": "text/plain",
+      "profile": "PHASE_CONTAINER_RECIPE"
+    }
+  ]
+}
